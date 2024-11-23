@@ -1,0 +1,57 @@
+export enum Role {
+  USER = "USER",
+  ADMIN = "ADMIN",
+  GUIDE = "GUIDE",
+  TRAVEL = "TRAVEL",
+  HOTEL = "HOTEL",
+}
+
+export enum Status {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
+}
+
+export enum RequestStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  BARGAIN = "BARGAIN",
+  REJECTED = "REJECTED",
+}
+
+export enum KycType {
+  CITIZENSHIP = "CITIZENSHIP",
+  PASSPORT = "PASSPORT",
+  VOTERCARD = "VOTERCARD",
+}
+
+export enum Environment {
+  DEVELOPMENT = "DEVELOPMENT",
+  PRODUCTION = "PRODUCTION",
+}
+
+export enum MediaType {
+  PROFILE = "PROFILE",
+  PLACE = "PLACE",
+}
+
+export enum FileType {
+  PASSPHOTO = "PASSPHOTO",
+  CITIZENSHIPFRONT = "CITIZENSHIPFRONT",
+  CITIZENSHIPBACK = "CITIZENSHIPBACK",
+  LICENSE = "LICENSE",
+  VEHICLEREGISTRATION = "VEHICLEREGISTRATION",
+  PASSPORT = "PASSPORT",
+  VOTERCARD = "VOTERCARD",
+  HOTELPANCARD = "HOTELPANCARD",
+}
+
+export enum Gender {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+}
+
+export enum RoomType {
+  STANDARD = "STANDARD",
+  FAMILY = "FAMILY",
+}
