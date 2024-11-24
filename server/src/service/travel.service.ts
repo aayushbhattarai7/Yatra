@@ -1,0 +1,431 @@
+import HttpException from "../utils/HttpException.utils";
+import { passwordRegex } from "../utils/regex.utils";
+import { emailRegex } from "../utils/regex.utils";
+import { TravelDTO } from "../dto/travel.dto";
+import { AppDataSource } from "../config/database.config";
+import BcryptService from "./bcrypt.service";
+import OtpService from "../utils/otp.utils";
+import { HashService } from "./hash.service";
+import { Travel } from "../entities/travels/travel.entity";
+import TravelKyc from "../entities/travels/travelKyc.entity";
+import { FileType, Gender, RequestStatus, Role } from "../constant/enum";
+import { TravelDetails } from "../entities/travels/travelDetails.entity";
+import { RequestTravel } from "../entities/user/RequestTravels.entity";
+import { User } from "../entities/user/user.entity";
+import { LocationDTO } from "../dto/location.dto";
+import { Location } from "../entities/location/location.entity";
+
+const bcryptService = new BcryptService();
+const hashService = new HashService();
+const otpService = new OtpService();
+class TravelService {
+  constructor(
+    private readonly travelrepo = AppDataSource.getRepository(Travel),
+    private readonly travelDetailsrepo = AppDataSource.getRepository(
+      TravelDetails,
+    ),
+    private readonly locationRepo = AppDataSource.getRepository(Location),
+    private readonly travelRequestRepo = AppDataSource.getRepository(
+      RequestTravel,
+    ),
+    private readonly travelKycRepo = AppDataSource.getRepository(TravelKyc),
+    private readonly userRepo = AppDataSource.getRepository(User),
+  ) {}
+
+  async create(image: any[], data: TravelDTO): Promise<Travel> {
+    return await AppDataSource.transaction(
+      async (transactionalEntityManager) => {
+        try {
+          const emailExist = await transactionalEntityManager.findOne(
+            this.travelrepo.target,
+            {
+              where: { email: data.email },
+            },
+          );
+          if (emailExist)
+            throw HttpException.badRequest(
+              "Entered email is already registered",
+            );
+          if (!data.email || !data.firstName || !data.lastName)
+            throw HttpException.badRequest(
+              "Please fill all the required fields",
+            );
+
+          if (!emailRegex.test(data.email)) {
+            throw HttpException.badRequest("Please enter a valid email");
+          }
+          console.log(data.password);
+          if (!passwordRegex.test(data.password)) {
+            throw HttpException.badRequest(
+              "Password requires an uppercase, digit, and special char.",
+            );
+          }
+          const otp = await otpService.generateOTP();
+          const expires = Date.now() + 5 * 60 * 1000;
+          const payload = `${data.email}.${otp}.${expires}`;
+          const hashedOtp = hashService.hashOtp(payload);
+          const newOtp = `${hashedOtp}.${expires}`;
+          const travel = transactionalEntityManager.create(
+            this.travelrepo.target,
+            {
+              email: data.email,
+              password: await bcryptService.hash(data.password),
+              firstName: data.firstName,
+              middleName: data?.middleName,
+              lastName: data.lastName,
+              phoneNumber: data.phoneNumber,
+              vehicleType: data.vehicleType,
+              gender: Gender[data.gender as keyof typeof Gender],
+              otp: newOtp,
+            },
+          );
+          await transactionalEntityManager.save(this.travelrepo.target, travel);
+          const traveldetails = transactionalEntityManager.create(
+            this.travelDetailsrepo.target,
+            {
+              DOB: data.DOB,
+              nationality: data.nationality,
+              province: data.province,
+              district: data.district,
+              municipality: data.municipality,
+              engineNumber: data.engineNumber,
+              chasisNumber: data.chasisNumber,
+              vehicleNumber: data.vehicleNumber,
+
+              citizenshipId: data?.citizenshipId,
+              citizenshipIssueDate: data?.citizenshipIssueDate,
+              citizenshipIssueFrom: data?.citizenshipIssueFrom,
+              passportId: data?.passportId,
+              passportIssueDate: data?.passportIssueDate,
+              passportExpiryDate: data?.passportExpiryDate,
+              passportIssueFrom: data?.passportIssueFrom,
+              voterId: data?.voterId,
+              voterAddress: data?.voterAddress,
+              travelz: travel,
+            },
+          );
+          await transactionalEntityManager.save(
+            this.travelDetailsrepo.target,
+            traveldetails,
+          );
+          if (!travel) {
+            throw HttpException.badRequest("Error Occured");
+          } else {
+            if (image) {
+              const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+              for (const key in image) {
+                const file = image[key];
+                console.log("🚀 ~ TravelService ~ file:", file.fileType);
+
+                console.log(file.mimetype);
+                if (!allowedMimeTypes.includes(file.mimetype)) {
+                  throw HttpException.badRequest(
+                    "Invalid image type. Only jpg, jpeg, and png are accepted.",
+                  );
+                }
+                console.log(file.fileType);
+
+                const kyc = transactionalEntityManager.create(
+                  this.travelKycRepo.target,
+                  {
+                    name: file.name,
+                    mimetype: file.mimetype,
+                    type: file.type,
+                    fileType: file.fileType,
+                    travels: travel,
+                  },
+                );
+
+                const savedImage = await transactionalEntityManager.save(
+                  this.travelKycRepo.target,
+                  kyc,
+                );
+                savedImage.transferTravelKycToUpload(
+                  travel.id,
+                  savedImage.type,
+                );
+              }
+
+              await otpService.sendOtp(travel.email, otp, expires);
+            } else {
+              throw HttpException.badRequest(
+                "Pleas provide all necessary items.",
+              );
+            }
+          }
+
+          return travel;
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.log(error.message);
+            throw HttpException.badRequest(error?.message);
+          } else {
+            throw HttpException.internalServerError;
+          }
+        }
+      },
+    );
+  }
+
+  async reSendOtp(email: string): Promise<string> {
+    try {
+      if (!email) {
+        throw HttpException.notFound("Email not found");
+      }
+      const travel = await this.travelrepo.findOneBy({ email });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+      if (travel.verified)
+        throw HttpException.badRequest(
+          "You are already verified please wait for the approval",
+        );
+      const otp = await otpService.generateOTP();
+      const expires = Date.now() + 5 * 60 * 1000;
+      const payload = `${email}.${otp}.${expires}`;
+      const hashedOtp = hashService.hashOtp(payload);
+      const newOtp = `${hashedOtp}.${expires}`;
+
+      await this.travelrepo.update({ email }, { otp: newOtp });
+      await otpService.sendOtp(travel.email, otp, expires);
+      return `Otp sent to ${email} successfully`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async verifyUser(email: string, otp: string): Promise<string> {
+    try {
+      const travel = await this.travelrepo.findOneBy({ email });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+
+      console.log(otp, "kaa");
+      if (travel.verified === true) {
+        throw HttpException.badRequest(
+          "You are already verified please wait for the approval",
+        );
+      }
+      const [hashedOtp, expires] = travel?.otp?.split(".");
+      if (Date.now() > +expires)
+        throw HttpException.badRequest("Otp ie expired");
+
+      const payload = `${email}.${otp}.${expires}`;
+      const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+      await this.travelrepo.update({ email }, { verified: true });
+      return `Your verification was successful! Please allow up to 24 hours for admin approval.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error);
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async loginTravel(data: TravelDTO) {
+    try {
+      console.log(data, "adtadta");
+      const travel = await this.travelrepo.findOne({
+        where: [{ email: data.email }],
+        select: [
+          "id",
+          "email",
+          "password",
+          "phoneNumber",
+          "approved",
+          "verified",
+          "firstName",
+          "middleName",
+          "lastName",
+          "role",
+        ],
+      });
+
+      if (!travel)
+        throw HttpException.notFound(
+          "Invalid Email, Entered Email is not registered yet",
+        );
+      if (!travel.verified) {
+        throw HttpException.badRequest(
+          "You are not verified, please verify your email first",
+        );
+      }
+
+      if (!travel.approved) {
+        throw HttpException.badRequest(
+          "Your account is not approved yet please wait less than 24 hours to get approval",
+        );
+      }
+      const passwordMatched = await bcryptService.compare(
+        data.password,
+        travel.password,
+      );
+      if (!passwordMatched) {
+        throw HttpException.badRequest("Password didnot matched");
+      }
+      return travel;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getRequests(travel_id: string) {
+    console.log(travel_id, "idid");
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      console.log(travel_id === travel?.id);
+      if (!travel) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+
+      const requests = await this.travelRequestRepo.find({
+        where: {
+          travel: { id: travel_id },
+        },
+        relations: ["user", "travel"],
+      });
+      return requests;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async sendPrice(price: string, travel_id: string, requestId: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+
+      const requests = await this.travelRequestRepo.findOne({
+        where: {
+          travel: { id: travel_id },
+          id: requestId,
+        },
+      });
+      if (!requests) {
+        throw HttpException.notFound("no request found");
+      }
+      const data = await this.travelRequestRepo.update(
+        { id: requests.id },
+        {
+          price: price,
+          lastActionBy: Role.TRAVEL,
+        },
+      );
+      return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async acceptRequest(travel_id: string, requestId: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const requests = await this.travelRequestRepo.findOne({
+        where: {
+          travel: { id: travel_id },
+          id: requestId,
+        },
+      });
+      if (!requests) {
+        throw HttpException.notFound("no request found");
+      }
+      const data = await this.travelRequestRepo.update(
+        { id: requests.id },
+        {
+          travelStatus: RequestStatus.ACCEPTED,
+          lastActionBy: Role.TRAVEL,
+        },
+      );
+      return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+
+  async rejectRequest(travel_id: string, requestId: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!travel) {
+        throw HttpException.unauthorized("You are not authorized");
+      }
+
+      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      if (!request) {
+        throw HttpException.notFound("Request not found");
+      }
+
+      await this.travelRequestRepo.delete({
+        id: request.id,
+      });
+      return "Request Rejected";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+
+  async addLocation(travel_id: string, data: LocationDTO) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!travel) throw HttpException.unauthorized("you are not authorized");
+      const isLocation = await this.locationRepo.findOneBy({
+        travel: { id: travel_id },
+      });
+      if (isLocation) {
+        const location = this.locationRepo.update(
+          {
+            travel: travel,
+          },
+          {
+            latitude: data.latitude,
+            longitude: data.longitude,
+          },
+        );
+        return location;
+      } else {
+        const addLocation = this.locationRepo.create({
+          latitude: data.latitude,
+          longitude: data.longitude,
+          travel: travel,
+        });
+        await this.locationRepo.save(addLocation);
+        return addLocation;
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+}
+export default TravelService;
