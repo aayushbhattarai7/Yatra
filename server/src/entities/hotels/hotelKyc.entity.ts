@@ -1,4 +1,5 @@
 import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
 import Base from "../../entities/base.entity";
 import { FileType, MediaType } from "../../constant/enum";
 import { Hotel } from "./hotel.entity";
@@ -9,29 +10,37 @@ import {
   getUploadFolderpathForHotel,
 } from "../../utils/path.utils";
 import { DotenvConfig } from "../../config/env.config";
+
+@ObjectType()
 @Entity("hotelKyc")
 class HotelKyc extends Base {
+  @Field({ nullable: true })
   @Column({ nullable: true })
   name: string;
 
+  @Field({ nullable: true })
   @Column({
     name: "mimetype",
     nullable: true,
   })
   mimetype: string;
 
+  @Field()
   @Column({ enum: MediaType, type: "enum" })
   type: MediaType;
 
+  @Field()
   @Column({ enum: FileType, type: "enum" })
   fileType: FileType;
 
+  @Field(() => Hotel)
   @ManyToOne(() => Hotel, (hotel) => hotel.kyc, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "hotel_id" })
   hotel: Hotel;
 
+  @Field()
   public path: string;
 
   transferHotelKycToUpload(id: string, type: MediaType): void {
@@ -46,9 +55,11 @@ class HotelKyc extends Base {
     fs.renameSync(TEMP_PATH, path.join(UPLOAD_PATH, this.name));
     const paths = `${DotenvConfig.BASE_URL}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
   }
+
   @AfterLoad()
   async loadImagePath(): Promise<void> {
     this.path = `${DotenvConfig.BASE_URL}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
   }
 }
+
 export default HotelKyc;

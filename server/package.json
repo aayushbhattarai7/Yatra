@@ -27,6 +27,7 @@
     "dotenv": "^16.4.5",
     "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "reflect-metadata": "^0.2.2",
     "stripe": "^17.4.0",
     "ts-node": "^10.9.2",
