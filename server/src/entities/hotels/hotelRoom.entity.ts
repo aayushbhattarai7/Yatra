@@ -29,7 +29,7 @@ export class HotelRoom extends Base {
   @Column({ name: "is_available" })
   isAvailable: boolean;
 
-  @ManyToOne(() => Hotel, (hotels) => hotels.room, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "hotel_id" })
-  hotels: Hotel;
+  // @ManyToOne(() => Hotel, (hotels) => hotels.room, { onDelete: "CASCADE" })
+  // @JoinColumn({ name: "hotel_id" })
+  // hotels: Hotel;
 }

@@ -5,25 +5,18 @@ import { AppDataSource } from "./config/database.config";
 import app from "./config/app.config";
 import bodyParser from "body-parser";
 import cors from "cors";
+import { UserResolver } from "./graphql/resolvers/userReslover";
+import { buildSchema } from "type-graphql";
+import "reflect-metadata"
 
-const typeDefs = `
-  type Query {
-    hello: String!
-  }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => "Hello, world!",
-  },
-};
 
 async function listen() {
   const PORT = process.env.PORT || 4000;
-
+  const schema = await buildSchema({
+    resolvers: [UserResolver],
+  });
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+   schema
   });
 
   await server.start();

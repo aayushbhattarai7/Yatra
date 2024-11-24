@@ -1,29 +1,38 @@
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Field, ObjectType } from "type-graphql";
+import { Column, Entity, OneToOne, JoinColumn } from "typeorm";
 import Base from "../base.entity";
 import { User } from "../user/user.entity";
 import { Guide } from "../guide/guide.entity";
 import { Travel } from "../../entities/travels/travel.entity";
 import { Hotel } from "../../entities/hotels/hotel.entity";
+
+@ObjectType()
 @Entity("location")
 export class Location extends Base {
+  @Field()
   @Column({ name: "latitude" })
   latitude: string;
 
+  @Field()
   @Column({ name: "longitude" })
   longitude: string;
 
+  @Field(()=>User)
   @OneToOne(() => User, (user) => user.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
 
+  @Field()
   @OneToOne(() => Guide, (guide) => guide.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "guide_id" })
   guide: Guide;
 
+  @Field()
   @OneToOne(() => Travel, (travel) => travel.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "travel_id" })
   travel: Travel;
 
+  @Field()
   @OneToOne(() => Hotel, (hotel) => hotel.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "hotel_id" })
   hotel: Hotel;
