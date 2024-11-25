@@ -3,7 +3,7 @@ import { setContext } from '@apollo/client/link/context';
 import encryptDecrypt from "../function/encryptDecrypt";
 
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_BASE_URL,
+  uri: `http://localhost:3000/graphql`,
 });
 
 const authLink = setContext((_, { headers }) => {
@@ -15,6 +15,7 @@ const authLink = setContext((_, { headers }) => {
     ? encryptDecrypt.decrypt(encryptedToken)
     : null;
 
+    console.log("🚀 ~ authLink ~ token:", token)
   return {
     headers: {
       ...headers,
@@ -27,5 +28,6 @@ const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
+console.log("🚀 ~ client:", client)
 
 export default client;
