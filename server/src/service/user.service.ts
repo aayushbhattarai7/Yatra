@@ -602,8 +602,7 @@ class UserService {
     amount: number,
   ) {
     try {
-
-        const user = await this.userRepo.findOneBy({
+      const user = await this.userRepo.findOneBy({
         id: userId,
       });
       if (!user) {
@@ -625,11 +624,14 @@ class UserService {
       });
 
       if (paymentIntent) {
-        await this.travelRequestRepo.update({
-          user:{id:user.id}
-        }, {
-          userStatus:RequestStatus.ACCEPTED
-        })
+        await this.travelRequestRepo.update(
+          {
+            user: { id: user.id },
+          },
+          {
+            userStatus: RequestStatus.ACCEPTED,
+          },
+        );
       }
       return paymentIntent!;
     } catch (error: unknown) {

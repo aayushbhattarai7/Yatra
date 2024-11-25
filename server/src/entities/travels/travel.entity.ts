@@ -1,5 +1,12 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import Base from "../base.entity";
 import { Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
@@ -79,7 +86,9 @@ export class Travel extends Base {
   kyc: TravelKyc[];
 
   @Field(() => TravelDetails)
-  @OneToOne(() => TravelDetails, (details) => details.travelz, { cascade: true })
+  @OneToOne(() => TravelDetails, (details) => details.travelz, {
+    cascade: true,
+  })
   details: TravelDetails;
 
   @Field(() => RequestTravel)

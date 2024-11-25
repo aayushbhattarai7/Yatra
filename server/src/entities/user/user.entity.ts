@@ -43,12 +43,11 @@ export class User extends Base {
   @Column({ name: "password", select: false })
   password: string;
 
-
-  @Field(()=>Location)
+  @Field(() => Location)
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
 
-  @Field(()=>BookHotel)
+  @Field(() => BookHotel)
   @OneToOne(() => BookHotel, (bookHotel) => bookHotel.user, { cascade: true })
   bookHotel: BookHotel;
 

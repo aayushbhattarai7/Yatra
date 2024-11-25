@@ -7,6 +7,6 @@ app.use((_, res, next) => {
   res.locals.sanitizeHtml = sanitizeHtml;
   next();
 });
-middleware(app)
+middleware(app);
 
 export default app;
