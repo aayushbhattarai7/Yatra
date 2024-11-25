@@ -5,78 +5,105 @@ import {
   IsString,
   IsStrongPassword,
 } from "class-validator";
-import { Gender } from "../constant/enum";
-
+import { Gender, KycType, Role } from "../constant/enum";
+import { Field, InputType } from "type-graphql";
+@InputType()
 export class GuideDTO {
+    @Field()
   @IsNotEmpty()
   firstName: string;
 
+  @Field()
   @IsNotEmpty()
   middleName: string;
 
+  @Field()
   @IsNotEmpty()
   lastName: string;
 
+  @Field()
   @IsNotEmpty()
   email: string;
 
+  @Field()
   @IsNotEmpty()
   phoneNumber: string;
 
+   @Field()
+  @IsEnum(Role, { message: "Invalid Gender" })
+   role: Role;
+  
+  @Field()
   @IsNotEmpty()
-  DOB: Date;
+  DOB: String;
 
+  @Field()
   @IsNotEmpty()
   nationality: string;
 
+  @Field()
   @IsNotEmpty()
   province: string;
 
+  @Field()
   @IsNotEmpty()
   district: string;
 
+  @Field()
   @IsNotEmpty()
   municipality: string;
 
+  @Field()
+  @IsEnum(KycType, { message: "Invalid Kyc" })
+  kycType: KycType;
+
+  @Field()
   @IsNotEmpty()
   licenseNumber: string;
 
+  @Field()
   @IsNotEmpty()
   licenseValidityFrom: string;
 
+  @Field()
   @IsNotEmpty()
   licenseValidityTo: string;
 
-  @IsString()
+@Field({ nullable: true })
   citizenshipId: string;
 
+@Field({ nullable: true })
   @IsDate()
   citizenshipIssueDate: Date;
 
-  @IsString()
+@Field({ nullable: true })
   citizenshipIssueFrom: string;
 
-  @IsString()
+@Field({ nullable: true })
   passportId: string;
 
+@Field({ nullable: true })
   @IsDate()
   passportIssueDate: Date;
 
+@Field({ nullable: true })
   @IsDate()
   passportExpiryDate: Date;
 
-  @IsString()
+@Field({ nullable: true })
   passportIssueFrom: string;
 
-  @IsString()
+@Field({ nullable: true })
   voterId: string;
 
-  @IsString()
+@Field({ nullable: true })
   voterAddress: string;
 
+  @Field()
   @IsEnum(Gender, { message: "Invalid Gender" })
   gender: Gender;
 
+  @Field()
   @IsStrongPassword()
   password: string;
 }

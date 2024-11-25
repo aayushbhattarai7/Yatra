@@ -8,19 +8,20 @@ import cors from "cors";
 import { UserResolver } from "./graphql/resolvers/userReslover";
 import { buildSchema } from "type-graphql";
 import "reflect-metadata";
+import { GuideResolver } from "./graphql/resolvers/GuideReslover";
 
 async function listen() {
   const PORT = process.env.PORT || 4000;
   const schema = await buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, GuideResolver],
   });
   const server = new ApolloServer({
     schema,
+    csrfPrevention: false,
   });
 
   await server.start();
   app.use(cors());
-  app.use(bodyParser.json());
   app.use("/graphql", expressMiddleware(server));
 
   const httpServer = createServer(app);

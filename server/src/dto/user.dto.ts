@@ -1,6 +1,6 @@
 import { InputType, Field } from "type-graphql";
 import { IsEnum, IsNotEmpty, IsStrongPassword } from "class-validator";
-import { Gender } from "../constant/enum";
+import { Gender, Role } from "../constant/enum";
 
 @InputType()
 export class UserDTO {
@@ -17,8 +17,8 @@ export class UserDTO {
   lastName: string;
 
   @Field()
-  @IsNotEmpty()
-  role: string;
+  @IsEnum(Role, { message: "Invalid Gender" })
+  role: Role;
 
   @Field()
   @IsNotEmpty()
