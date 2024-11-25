@@ -32,6 +32,7 @@ class GuideService {
   ) {}
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
+    console.log(image,"shdhshghghfgdfdf")
     return await AppDataSource.transaction(
       async (transactionalEntityManager) => {
         try {
