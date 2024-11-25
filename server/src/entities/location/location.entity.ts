@@ -17,7 +17,7 @@ export class Location extends Base {
   @Column({ name: "longitude" })
   longitude: string;
 
-  @Field(()=>User)
+  @Field(() => User)
   @OneToOne(() => User, (user) => user.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;

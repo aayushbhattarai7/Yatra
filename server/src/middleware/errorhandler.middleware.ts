@@ -1,4 +1,4 @@
-import { DotenvConfig } from '../config/env.config';
+import { DotenvConfig } from "../config/env.config";
 export const errorHandler = (error: any) => {
   console.log("🚀 ~ formatError ~ error:", error);
 

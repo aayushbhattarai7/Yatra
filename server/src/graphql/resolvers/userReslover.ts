@@ -7,24 +7,19 @@ import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
 import { Role } from "../../constant/enum";
 
-@Resolver(of => User)
+@Resolver((of) => User)
 export class UserResolver {
-    private userService = new UserService();
- @Mutation(() => User)
+  private userService = new UserService();
+  @Mutation(() => User)
   async signup(@Arg("data") data: UserDTO): Promise<User> {
     return await this.userService.signup(data);
- }
-    
-      @Mutation(() => User)
-  async login(
-    @Arg("data") data: UserDTO
-  ) {
+  }
+
+  @Mutation(() => User)
+  async login(@Arg("data") data: UserDTO) {
     try {
       const user = await this.userService.login(data);
-      const tokens = webTokenService.generateTokens(
-        { id: user.id },
-        user.role
-      );
+      const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
         id: user.id,
@@ -38,13 +33,16 @@ export class UserResolver {
         message: "Logged in successfully",
       };
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "An error occurred during login");
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during login",
+      );
     }
   }
- 
 
-    @Query(() => User, { nullable: true })
-    @UseMiddleware(authentication, authorization([Role.USER]))
+  @Query(() => User, { nullable: true })
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async getUser(@Arg("id") id: string): Promise<User | null> {
     return await this.userService.getByid(id);
   }

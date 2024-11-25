@@ -7,11 +7,14 @@ export const authorization = (roles: Role[]): MiddlewareFn<Context> => {
   return async ({ context }, next) => {
     const user = context.user;
     if (!user) {
-        throw HttpException.unauthorized("You are not authorized")
+      throw HttpException.unauthorized("You are not authorized");
     }
     if (user.role && roles.includes(user.role as Role)) {
       return next();
     } else {
-throw HttpException.unauthorized("You do not have permission to access this resource")     }
+      throw HttpException.unauthorized(
+        "You do not have permission to access this resource",
+      );
+    }
   };
 };

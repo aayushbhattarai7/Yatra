@@ -62,8 +62,6 @@ export class Hotel extends Base {
   @Field(() => [BookHotel])
   @OneToMany(() => BookHotel, (book) => book.hotel, { cascade: true })
   book: BookHotel[];
-;
-
   @Field(() => [HotelKyc])
   @OneToMany(() => HotelKyc, (kyc) => kyc.hotel, { cascade: true })
   kyc: HotelKyc[];

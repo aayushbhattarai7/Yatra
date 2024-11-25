@@ -7,8 +7,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { UserResolver } from "./graphql/resolvers/userReslover";
 import { buildSchema } from "type-graphql";
-import "reflect-metadata"
-
+import "reflect-metadata";
 
 async function listen() {
   const PORT = process.env.PORT || 4000;
@@ -16,7 +15,7 @@ async function listen() {
     resolvers: [UserResolver],
   });
   const server = new ApolloServer({
-   schema
+    schema,
   });
 
   await server.start();

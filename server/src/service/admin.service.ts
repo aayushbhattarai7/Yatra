@@ -87,7 +87,10 @@ class AdminService {
   async getTravelApprovalRequest(adminId: string) {
     try {
       const admin = await this.adminrepo.findOneBy({ id: adminId });
-      console.log("🚀 ~ AdminService ~ getTravelApprovalRequest ~ admin:", admin)
+      console.log(
+        "🚀 ~ AdminService ~ getTravelApprovalRequest ~ admin:",
+        admin,
+      );
       if (!admin)
         throw HttpException.unauthorized("You are not authorized admin");
 

@@ -1,5 +1,12 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import Base from "../base.entity";
 import { Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
