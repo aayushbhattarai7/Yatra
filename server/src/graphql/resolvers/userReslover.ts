@@ -1,8 +1,11 @@
-import { Query, Resolver, Arg, Mutation } from "type-graphql";
+import { Query, Resolver, Arg, Mutation, UseMiddleware } from "type-graphql";
 import { User } from "../../entities/user/user.entity";
 import UserService from "../../service/user.service";
 import { UserDTO } from "../../dto/user.dto";
 import webTokenService from "../../service/webToken.service";
+import { authentication } from "../../middleware/authentication.middleware";
+import { authorization } from "../../middleware/authorization.middleware";
+import { Role } from "../../constant/enum";
 
 @Resolver(of => User)
 export class UserResolver {
@@ -40,7 +43,8 @@ export class UserResolver {
   }
  
 
-  @Query(() => User, { nullable: true })
+    @Query(() => User, { nullable: true })
+    @UseMiddleware(authentication, authorization([Role.USER]))
   async getUser(@Arg("id") id: string): Promise<User | null> {
     return await this.userService.getByid(id);
   }
