@@ -6,7 +6,6 @@ import { Location } from "../location/location.entity";
 import { RequestTravel } from "./RequestTravels.entity";
 import { RequestGuide } from "./RequestGuide.entities";
 import { BookHotel } from "../../entities/hotels/bookHotel.entity";
-import { HotelRoom } from "../../entities/hotels/hotelRoom.entity";
 
 @ObjectType()
 @Entity("user")

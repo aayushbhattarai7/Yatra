@@ -16,7 +16,7 @@ export class GuideResolver {
         const kycType = data.kycType
      const files = req.files
             console.log("🚀 ~ GuideResolver ~ guideSignup ~ files:", files)
-            const uploadedPhotos: Record<string, any> = {};
+          const uploadedPhotos: Record<string, any> = {};
       if (kycType === KycType.CITIZENSHIP) {
         const citizenshipFront = files?.citizenshipFront?.[0];
         const citizenshipBack = req.files?.citizenshipBack?.[0];

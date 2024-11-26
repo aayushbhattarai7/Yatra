@@ -1,8 +1,7 @@
-import { ApolloProvider } from "@apollo/client";
-import client from "./service/instance";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import GuideRegister from "./ui/common/organisms/GuideRegister";
 import { Route } from "./components/route";
+import UserRegister from "./ui/common/organisms/Register";
 
 function App() {
   const router = createBrowserRouter([
@@ -10,6 +9,10 @@ function App() {
       path: "/",
       element: <Route />,
       children: [
+        {
+          path: '/register',
+          element:<UserRegister/>
+        },
         {
           path: "guide-register",
           element: <GuideRegister />,
@@ -19,9 +22,7 @@ function App() {
   ]);
   return (
     <>
-      <ApolloProvider client={client}>
         <RouterProvider router={router} />
-      </ApolloProvider>
     </>
   );
 }

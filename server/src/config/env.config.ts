@@ -30,4 +30,6 @@ export class DotenvConfig {
   static BASE_URL = process.env.BASE_URL;
 
   static STRIPE_SECRET = process.env.STRIPE_SECRET!;
+  static CORS_ORIGIN = process.env.CORS_ORIGIN;
+
 }

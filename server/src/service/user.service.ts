@@ -35,7 +35,7 @@ class UserService {
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
-        throw HttpException.notFound("Entered Email is not registered yet");
+        throw HttpException.notFound("Entered Email is already registered");
 
       const hashPassword = await bcryptService.hash(data.password);
       const addUser = this.userRepo.create({
