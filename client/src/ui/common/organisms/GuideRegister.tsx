@@ -117,7 +117,7 @@ const GuideRegister: React.FC = () => {
       }
       setEmail(basicInfo.email);
       const response = gql`
-        mutation guideSignup($data: GuideDTO!, $files: [Upload!]!) {
+        mutation guideSignup($data: formData!, $files: [Upload!]!) {
           guideSignup(data: $data, files: $files) {
             data
             files
