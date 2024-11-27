@@ -1,10 +1,6 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import encryptDecrypt from "../function/encryptDecrypt";
-
-const httpLink = createHttpLink({
-  uri: `http://localhost:3000/graphql`,
-});
 
 const authLink = setContext((_, { headers }) => {
   const encryptedToken =
@@ -25,9 +21,15 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: new HttpLink({
+    uri: 'http://localhost:3000/graphql', 
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }),
   cache: new InMemoryCache(),
 });
-console.log("🚀 ~ client:", client)
+
+
 
 export default client;

@@ -32,6 +32,7 @@ class UserService {
   ) {}
 
   async signup(data: UserDTO) {
+    console.log("yyyyyyyyyyyyyyyyy", data)
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
@@ -47,6 +48,7 @@ class UserService {
         password: hashPassword,
       });
       await this.userRepo.save(addUser);
+      console.log(addUser)
       return addUser;
     } catch (error: unknown) {
       if (error instanceof Error) {

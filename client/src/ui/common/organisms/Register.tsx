@@ -1,5 +1,17 @@
 import { useState } from "react";
-import {  gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
+
+const SIGNUP_MUTATION = gql`
+  mutation Signup($data: UserDTO!) {
+    signup(data: $data) {
+      id
+      firstName
+      lastName
+      email
+    }
+  }
+`;
+
 const UserRegister = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -8,14 +20,15 @@ const UserRegister = () => {
     middleName: "",
     lastName: "",
     phoneNumber: "",
-    passPhoto: null,
-    citizenshipFront: null,
-    citizenshipBack: null,
-    license: null,
-    type: "PROFILE",
+    role: "GUIDE", 
+    gender: "MALE", 
   });
 
-  const handleInputChange = (event: any) => {
+  const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
+
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -23,58 +36,41 @@ const UserRegister = () => {
     }));
   };
 
-  const handleFileChange = (event: any) => {
-    const { name, files: selectedFiles } = event.target;
-    if (selectedFiles.length > 0) {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: selectedFiles[0],
-      }));
-    }
-  };
-
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const formDataToSend = new FormData();
-
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
-        formDataToSend.append(key, value);
-      }
-    });
 
     try {
-      /*  */
-      const response = gql`
-        mutation {
-          signup(
-            data: {
-              email: "test@example.com"
-              password: "Aayush123#"
-              firstName: "Test User"
-              middleName: "Aayy"
-              lastName: "xys"
-              phoneNumber: "sadddad"
-              role: "GUIDE"
-              gender: "MALE"
-            }
-          ) {
-            id
-            email
-            firstName
-            password
-            phoneNumber
-            lastName
-            middleName
-            phoneNumber
-            gender
-          }
-        }
-      `;
-      console.log("🚀 ~ handleSubmit ~ response:", response)
-      alert("Signup successful!");
-    } catch (error) {
-      console.error("Error uploading files:", error);
+      const {
+        email,
+        password,
+        firstName,
+        middleName,
+        lastName,
+        phoneNumber,
+        role,
+        gender,
+      } = formData;
+
+      await signup({
+        variables: {
+          data: {
+            email,
+            password,
+            firstName,
+            middleName,
+            lastName,
+            phoneNumber,
+            role,
+            gender,
+          },
+        },
+      });
+
+      if (data) {
+        alert(`Signup successful! Welcome, ${data.signup.firstName}!`);
+      }
+    } catch (err) {
+      console.error("Error signing up:", err);
     }
   };
 
@@ -151,151 +147,42 @@ const UserRegister = () => {
           />
         </label>
       </div>
-     
-      <input type="hidden" name="type" value={formData.type} />
-      <button type="submit">Upload</button>
+      <div>
+        <label>
+          Role:
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="GUIDE">Guide</option>
+            <option value="USER">User</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+        </label>
+      </div>
+      <div>
+        <label>
+          Gender:
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </label>
+      </div>
+      <button type="submit" disabled={loading}>
+        {loading ? "Signing up..." : "Sign Up"}
+      </button>
+      {error && <p>Error: {error.message}</p>}
     </form>
   );
 };
 
 export default UserRegister;
-
-// import { useState } from "react";
-// import { gql } from "@apollo/client";
-
-// const UserRegister = () => {
-//   const [formData, setFormData] = useState({
-//     email: "",
-//     password: "",
-//     firstName: "",
-//     middleName: "",
-//     lastName: "",
-//     phoneNumber: "",
-//     gender: "MALE", // Default value
-//     role: "USER", // Default value
-//   });
-
-
-//   const handleChange = (e: { target: { name: any; value: any } }) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = async (e: { preventDefault: () => void }) => {
-//     e.preventDefault();
-//     try {
-//       const response = gql`
-//         mutation {
-//           signup(
-//             data: {
-//               email: "test@example.com"
-//               password: "Aayush123#"
-//               firstName: "Test User"
-//               middleName: "Aayy"
-//               lastName: "xys"
-//               phoneNumber: "sadddad"
-//               role: "GUIDE"
-//               gender: "MALE"
-//             }
-//           ) {
-//             id
-//             email
-//             firstName
-//             password
-//             phoneNumber
-//             lastName
-//             middleName
-//             phoneNumber
-//             gender
-//           }
-//         }
-//       `;
-//       alert("Signup successful!");
-//       console.log(response, "ahhgdhsd");
-//     } catch (err) {
-//       console.error(err);
-//       alert("Error signing up");
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <div>
-//         <label>Email:</label>
-//         <input
-//           type="email"
-//           name="email"
-//           value={formData.email}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>Password:</label>
-//         <input
-//           type="password"
-//           name="password"
-//           value={formData.password}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>First Name:</label>
-//         <input
-//           type="text"
-//           name="firstName"
-//           value={formData.firstName}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>Middle Name:</label>
-//         <input
-//           type="text"
-//           name="middleName"
-//           value={formData.middleName}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>Last Name:</label>
-//         <input
-//           type="text"
-//           name="lastName"
-//           value={formData.lastName}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>Phone Number:</label>
-//         <input
-//           type="text"
-//           name="phoneNumber"
-//           value={formData.phoneNumber}
-//           onChange={handleChange}
-//         />
-//       </div>
-//       <div>
-//         <label>Gender:</label>
-//         <select name="gender" value={formData.gender} onChange={handleChange}>
-//           <option value="MALE">Male</option>
-//           <option value="FEMALE">Female</option>
-//           <option value="OTHER">Other</option>
-//         </select>
-//       </div>
-//       <div>
-//         <label>Role:</label>
-//         <select name="role" value={formData.role} onChange={handleChange}>
-//           <option value="USER">User</option>
-//           <option value="ADMIN">Admin</option>
-//         </select>
-//       </div>
-//       <button type="submit">
-//       </button>
-//     </form>
-//   );
-// };
-
-// export default UserRegister;

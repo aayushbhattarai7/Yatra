@@ -67,4 +67,29 @@ type LoginResponse {
   message: String!
 }
 
+type Mutation {
+  Signup(data: SignupInput!): User
+}
+
+input SignupInput {
+  email: String!
+  password: String!
+  firstName: String!
+  middleName: String
+  lastName: String!
+  phoneNumber: String!
+  role: String!
+  gender: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  middleName: String
+  phoneNumber: String!
+  gender: String!
+}
+
 `;
