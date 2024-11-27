@@ -1,6 +1,6 @@
 import compression from 'compression';
 import cors from 'cors';
-import express, { NextFunction, Request, Response, type Application } from 'express';
+import express, { NextFunction, Request, Response, Application } from 'express';
 import path from 'path';
 import { DotenvConfig } from '../config/env.config';
 import { StatusCodes } from '../constant/StatusCodes';
@@ -9,72 +9,94 @@ import { errorHandler } from './errorhandler.middleware';
 import morgan from 'morgan';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { typeDefs } from '../graphql/schema/schema'; 
-import {resolvers} from '../graphql/resolvers/resolver'; 
+import { buildSchema } from 'type-graphql';
 import bodyParser from 'body-parser';
+import { UserResolver } from '../graphql/resolvers/userReslover';
+import { typeDefs } from '../graphql/schema/schema';
 
-interface GraphQl {
- req: Request;
+const resolver = new UserResolver()
+interface GraphQlContext {
+  req: Request;
 }
 
 const middleware = async (app: Application) => {
- console.log('DotenvConfig.CORS_ORIGIN', DotenvConfig.CORS_ORIGIN);
+  console.log('DotenvConfig.CORS_ORIGIN', DotenvConfig.CORS_ORIGIN);
 
- app.use(compression());
- app.use(
- cors({
- origin: DotenvConfig.CORS_ORIGIN,
- methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
- allowedHeaders: ['Content-Type', 'Authorization'],
- })
- );
+  app.use(compression());
+  // app.use(
+  //   cors({
+  //     origin: DotenvConfig.CORS_ORIGIN,
+  //     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  //     allowedHeaders: ['Content-Type', 'Authorization'],
+  //   })
+  // );
+  app.use(
+    cors({
+      origin: "*",
+    })
+  );
 
- app.use((req: Request, res: Response, next: NextFunction) => {
- const userAgent = req.headers['user-agent'];
- const apiKey = req.headers['apikey'];
- if (userAgent && userAgent.includes('Mozilla')) {
- next();
- } else {
- if (apiKey === DotenvConfig.API_KEY) next();
- else res.status(StatusCodes.FORBIDDEN).send('Forbidden');
- }
- });
 
- app.use(
- express.json({
- limit: '10mb',
- })
- );
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const userAgent = req.headers['user-agent'];
+    const apiKey = req.headers['apikey'];
+    if (userAgent && userAgent.includes('Mozilla')) {
+      next();
+    } else {
+      if (apiKey === DotenvConfig.API_KEY) next();
+      else res.status(StatusCodes.FORBIDDEN).send('Forbidden');
+    }
+  });
 
- app.use(morgan('common'));
- app.use(express.urlencoded({ extended: false }));
+  app.use(express.json({ limit: '10mb' }));
+  // app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+  app.use(morgan('common'));
+  app.use(express.urlencoded({ extended: false }));
 
- const graphqlServer = new ApolloServer({
- typeDefs,
- resolvers,
- });
+  const schema = await buildSchema({
 
- await graphqlServer.start();
+    resolvers: [UserResolver],
+    
+  });
 
- app.use(
- '/graphql',
- bodyParser.json(),
- expressMiddleware(graphqlServer, {
- context: async ({ req }: { req: Request }): Promise<GraphQl> => ({ req }),
- })
- );
+  const server = new ApolloServer({
+  schema
+  });
 
- app.use('/api', routes);
+  await server.start();
 
- app.use(express.static(path.join(__dirname, '../', '../', 'public/uploads')));
- app.use(express.static(path.join(__dirname, '../', '../', 'public')));
+  app.use(
+    '/graphql',
+    bodyParser.json(),
+    express.urlencoded({extended:false}),
+    expressMiddleware(server, {
+      context: async ({ req }: { req: Request }): Promise<GraphQlContext> => ({
+        req,
+      }),
+    })
+  );
 
- app.set('view engine', 'ejs');
- app.set('views', path.join(__dirname, '../', 'views'));
- app.use('/', (_, res: Response) => {
- res.render('index');
- });
 
+  app.use('/api', routes);
+
+  app.use(express.static(path.join(__dirname, '../../public/uploads')));
+  app.use(express.static(path.join(__dirname, '../../public')));
+
+  app.use('/', (_, res: Response) => {
+    res.render('index');
+  });
 };
 
 export default middleware;
+
+
+
+// const SIGNUP_MUTATION = gql`
+//   mutation Signup($email: String!, $password: String!, $name: String!) {
+//     signup(email: $email, password: $password, name: $name) {
+//       id
+//       email
+//       name
+//     }
+//   }
+// `;
