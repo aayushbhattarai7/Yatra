@@ -16,7 +16,12 @@ import { TravelRequestDTO } from "../dto/requestTravel.dto";
 import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
+import { LoginDTO } from "../dto/login.dto";
 const emailService = new EmailService();
+interface UserInput{
+  email: string
+  password:string
+}
 class UserService {
   constructor(
     private readonly userRepo = AppDataSource.getRepository(User),
@@ -58,11 +63,11 @@ class UserService {
       }
     }
   }
-  async login(data: UserDTO): Promise<User> {
+  async login(data: LoginDTO): Promise<User> {
     try {
       const user = await this.userRepo.findOne({
         where: [{ email: data.email }],
-        select: ["id", "password", "role"],
+        select: ["id","email", "password", "role","firstName", "middleName","lastName","location","gender","phoneNumber"],
       });
 
       if (!user)
@@ -76,6 +81,7 @@ class UserService {
       if (!passwordMatched) {
         throw HttpException.badRequest("Password didnot matched");
       }
+      
       return user;
     } catch (error: unknown) {
       if (error instanceof Error) {
