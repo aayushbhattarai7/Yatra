@@ -3,7 +3,8 @@ import { User } from '../../entities/user/user.entity';
 import UserService from '../../service/user.service';
 import { UserDTO } from '../../dto/user.dto';
 import webTokenService from '../../service/webToken.service';
-
+import { LoginDTO } from '../../dto/login.dto';
+import { AuthPayload } from '../../graphql/schema/schema';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -16,9 +17,11 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async login(@Arg("data") data: UserDTO) {
+  async login(@Arg("data") data: LoginDTO) {
+    console.log("yesss", data)
     try {
       const user = await this.userService.login(data);
+      console.log("🚀 ~ UserResolver ~ login ~ user:", user)
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
@@ -26,6 +29,8 @@ export class UserResolver {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        phoneNumber: user.phoneNumber,
+        gender: user.gender,
         tokens: {
           accessToken: tokens.accessToken,
           refreshToken: tokens.refreshToken,

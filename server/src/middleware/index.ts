@@ -12,7 +12,6 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { buildSchema } from 'type-graphql';
 import bodyParser from 'body-parser';
 import { UserResolver } from '../graphql/resolvers/userReslover';
-import { typeDefs } from '../graphql/schema/schema';
 
 const resolver = new UserResolver()
 interface GraphQlContext {

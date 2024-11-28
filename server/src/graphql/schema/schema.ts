@@ -1,95 +1,20 @@
-import { gql } from "graphql-tag";
+import { User } from "../../entities/user/user.entity"
+import { Field, ObjectType } from "type-graphql"
 
-export const typeDefs = gql`
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-  }
 
-  type Guide {
-    id: ID!
-    title: String!
-    description: String!
-  }
+@ObjectType()
+export class AuthPayload {
+  @Field()
+  message: string;
 
-  type Query {
-    users: [User!]!
-    guides: [Guide!]!
-  }
+  @Field(() => User)
+  user: User;
 
-  type Mutation {
-    addUser(name: String!, email: String!): User!
-    addGuide(title: String!, description: String!): Guide!
-  }
+ @Field()
+  accessToken: string;
 
-  type User {
-  id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  tokens: Tokens
+  @Field()
+  refreshToken: string;
+  
+  
 }
-
-type Tokens {
-  accessToken: String!
-  refreshToken: String!
-}
-
-type Query {
-  # Fetch a user by ID
-  getUser(id: ID!): User
-}
-
-type Mutation {
-  # Register a new user
-  signup(data: UserInput!): User
-
-  # Login a user
-  login(data: UserInput!): LoginResponse
-}
-
-# Input type for signup and login
-input UserInput {
-  firstName: String
-  lastName: String
-  email: String!
-  password: String!
-}
-
-# Custom type for login response
-type LoginResponse {
-  id: ID!
-  firstName: String!
-  lastName: String!
-  email: String!
-  tokens: Tokens
-  message: String!
-}
-
-type Mutation {
-  Signup(data: SignupInput!): User
-}
-
-input SignupInput {
-  email: String!
-  password: String!
-  firstName: String!
-  middleName: String
-  lastName: String!
-  phoneNumber: String!
-  role: String!
-  gender: String!
-}
-
-type User {
-  id: ID!
-  email: String!
-  firstName: String!
-  lastName: String!
-  middleName: String
-  phoneNumber: String!
-  gender: String!
-}
-
-`;
