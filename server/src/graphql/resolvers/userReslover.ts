@@ -5,6 +5,7 @@ import { UserDTO } from '../../dto/user.dto';
 import webTokenService from '../../service/webToken.service';
 import { LoginDTO } from '../../dto/login.dto';
 import { AuthPayload } from '../../graphql/schema/schema';
+import { Location } from '../../entities/location/location.entity';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -45,5 +46,10 @@ export class UserResolver {
   @Query(() => User, { nullable: true })
   async getUser(@Arg("id") id: string): Promise<User | null> {
     return await this.userService.getByid(id);
+  }
+
+   @Query(() => User, { nullable: true })
+  async getLocation(@Arg("id") id: string): Promise<Location | null> {
+    return this.userService.getLocation(id)
   }
 }
