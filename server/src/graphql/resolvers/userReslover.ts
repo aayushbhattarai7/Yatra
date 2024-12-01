@@ -7,6 +7,7 @@ import { LoginDTO } from '../../dto/login.dto';
 import { AuthPayload } from '../../graphql/schema/schema';
 import { Location } from '../../entities/location/location.entity';
 import { Guide } from '../../entities/guide/guide.entity';
+import { Travel } from '../../entities/travels/travel.entity';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -57,7 +58,12 @@ export class UserResolver {
    async findGuide(@Arg("id") id: string): Promise<Guide[] | null> {
      const data = this.userService.findGuide(id)
      console.log("🚀 ~ UserResolver ~ findGuide ~ data:", data)
-    return this.userService.findGuide(id)
+    return data
+   }
+   @Query(() => [Travel])
+   async findTravel(@Arg("id") id: string): Promise<Travel[] | null> {
+     const data = this.userService.findTravel(id)
+    return data
    }
   
   
