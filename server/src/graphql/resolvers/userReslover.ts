@@ -8,6 +8,7 @@ import { AuthPayload } from '../../graphql/schema/schema';
 import { Location } from '../../entities/location/location.entity';
 import { Guide } from '../../entities/guide/guide.entity';
 import { Travel } from '../../entities/travels/travel.entity';
+import HttpException from '../../utils/HttpException.utils';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -56,9 +57,16 @@ export class UserResolver {
    }
    @Query(() => [Guide])
    async findGuide(@Arg("id") id: string): Promise<Guide[] | null> {
-     const data = this.userService.findGuide(id)
-     console.log("🚀 ~ UserResolver ~ findGuide ~ data:", data)
-    return data
+     console.log("ok")
+     try {
+      
+       const data = this.userService.findGuide(id)
+       console.log("🚀 ~ UserResolver ~ findGuide ~ data:", data)
+      return data
+     } catch (error) {
+      console.log("🚀 ~ UserResolver ~ findGuide ~ error:", error)
+      throw HttpException.internalServerError
+     }
    }
    @Query(() => [Travel])
    async findTravel(@Arg("id") id: string): Promise<Travel[] | null> {
