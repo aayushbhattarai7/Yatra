@@ -163,12 +163,15 @@ class UserService {
 
   async findGuide(user_id: string) {
     try {
+      console.log("yyyy")
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
         where: { verified: true, approved: true },
         relations: ["details", "location", "kyc"],
       });
+      console.log("🚀 ~ UserService ~ findGuide ~ guides:", guides)
+      console.log("ok")
       if (!guides) {
         throw HttpException.notFound("Guide not found");
       }
