@@ -3,6 +3,7 @@ import GuideRegister from "./ui/common/organisms/GuideRegister";
 import { Route } from "./components/route";
 import UserRegister from "./ui/common/organisms/Register";
 import UserLogin from "./ui/common/organisms/UserLogin";
+import Guides from "./ui/common/organisms/Guides";
 
 function App() {
   const router = createBrowserRouter([
@@ -17,6 +18,10 @@ function App() {
         {
           path: '/user-login',
           element:<UserLogin/>
+        },
+        {
+          path: '/guides',
+          element:<Guides/>
         },
         {
           path: "guide-register",
