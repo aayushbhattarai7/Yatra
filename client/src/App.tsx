@@ -4,6 +4,7 @@ import { Route } from "./components/route";
 import UserRegister from "./ui/common/organisms/Register";
 import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
+import UserHome from "./ui/pages/UserHome";
 
 function App() {
   const router = createBrowserRouter([
@@ -12,16 +13,20 @@ function App() {
       element: <Route />,
       children: [
         {
-          path: '/register',
-          element:<UserRegister/>
+          path: "",
+          element: <UserHome />,
         },
         {
-          path: '/user-login',
-          element:<UserLogin/>
+          path: "/register",
+          element: <UserRegister />,
         },
         {
-          path: '/guides',
-          element:<Guides/>
+          path: "/user-login",
+          element: <UserLogin />,
+        },
+        {
+          path: "/guides",
+          element: <Guides />,
         },
         {
           path: "guide-register",
@@ -32,7 +37,7 @@ function App() {
   ]);
   return (
     <>
-        <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </>
   );
 }
