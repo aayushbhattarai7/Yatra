@@ -4,7 +4,7 @@ import UserService from '../../service/user.service';
 import { UserDTO } from '../../dto/user.dto';
 import webTokenService from '../../service/webToken.service';
 import { LoginDTO } from '../../dto/login.dto';
-import { AuthPayload } from '../../graphql/schema/schema';
+import { LoginResponse } from '../../graphql/schema/schema';
 import { Location } from '../../entities/location/location.entity';
 import { Guide } from '../../entities/guide/guide.entity';
 import { Travel } from '../../entities/travels/travel.entity';
@@ -20,7 +20,7 @@ export class UserResolver {
     return await this.userService.signup(data);
   }
 
-  @Mutation(() => User)
+  @Mutation(() => LoginResponse)
   async login(@Arg("data") data: LoginDTO) {
     console.log("yesss", data)
     try {
@@ -33,6 +33,7 @@ export class UserResolver {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        
         phoneNumber: user.phoneNumber,
         gender: user.gender,
         tokens: {

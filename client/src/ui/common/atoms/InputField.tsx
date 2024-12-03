@@ -45,7 +45,6 @@ const InputField: React.FC<InputFieldProps> = ({
         type={type === "password" ? (showPassword ? "text" : "password") : type}
         readOnly={readOnly}
         placeholder={placeholder}
-        value={value}
         multiple={multiple}
         accept=""
         {...register(name, { required })}
