@@ -1,13 +1,18 @@
-import { type NextFunction, type Request, type Response } from "express";
-import { type Role } from "../constant/enum";
+import { MiddlewareFn } from "type-graphql";
+import { Context } from "../types/context";
+import { Role } from "../constant/enum";  
 
-export const authorization = (roles: Role[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) throw new Error("You are not authorized");
+export const authorization = (roles: Role[]): MiddlewareFn<Context> => {
+  return async ({ context }, next) => {
+    if (!context.req.user) {
+      throw new Error("You are not authorized");
+    }
+
     try {
-      const userRole = req.user.role;
+      const userRole = context.req.user.role;
+
       if (userRole && roles.includes(userRole as Role)) {
-        next();
+        return next(); 
       } else {
         throw new Error("You are not authorized");
       }
