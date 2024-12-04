@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Arg } from 'type-graphql';
+import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from 'type-graphql';
 import { User } from '../../entities/user/user.entity';
 import UserService from '../../service/user.service';
 import { UserDTO } from '../../dto/user.dto';
@@ -9,6 +9,10 @@ import { Location } from '../../entities/location/location.entity';
 import { Guide } from '../../entities/guide/guide.entity';
 import { Travel } from '../../entities/travels/travel.entity';
 import HttpException from '../../utils/HttpException.utils';
+import { Context } from '../../types/context';
+import { authentication } from '../../middleware/authentication.middleware';
+import { authorization } from '../../middleware/authorization.middleware';
+import { Role } from '../../constant/enum';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -69,9 +73,12 @@ export class UserResolver {
       throw HttpException.internalServerError
      }
    }
-   @Query(() => [Travel])
-   async findTravel(@Arg("id") id: string): Promise<Travel[] | null> {
-     const data = this.userService.findTravel(id)
+  @Query(() => [Travel])
+     @UseMiddleware(authentication, authorization([Role.USER]))
+   async findTravel(@Ctx() ctx: Context): Promise<Travel[] | null> {
+     const id = ctx.req.user?.id
+     console.log("🚀 ~ UserResolver ~ findTravel ~ id:", id)
+     const data = this.userService.findTravel(id!)
     return data
    }
   
