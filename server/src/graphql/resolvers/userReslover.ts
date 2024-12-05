@@ -14,6 +14,8 @@ import { authentication } from '../../middleware/authentication.middleware';
 import { authorization } from '../../middleware/authorization.middleware';
 import { Role } from '../../constant/enum';
 import { LocationDTO } from '../../dto/location.dto';
+import { RequestGuide } from '../../entities/user/RequestGuide.entities';
+import { GuideRequestDTO } from '../../dto/requestGuide.dto';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -105,6 +107,23 @@ export class UserResolver {
       }
     }
   } 
+
+  @Mutation(() => RequestGuide)
+    @UseMiddleware(authentication, authorization([Role.USER]))
+  async requestGuide(@Ctx() ctx: Context, guide_id:string, data:GuideRequestDTO) {
+    try {
+      const id = ctx.req.user?.id!
+      const details = await this.userService.requestGuide(id, guide_id, data)
+      return {details, mesage:"Reuested successsfully"}
+    }catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+}
 
   
   

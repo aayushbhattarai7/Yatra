@@ -37,7 +37,6 @@ class UserService {
   ) {}
 
   async signup(data: UserDTO) {
-    console.log("yyyyyyyyyyyyyyyyy", data)
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
