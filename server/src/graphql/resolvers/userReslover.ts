@@ -14,6 +14,8 @@ import { authentication } from '../../middleware/authentication.middleware';
 import { authorization } from '../../middleware/authorization.middleware';
 import { Role } from '../../constant/enum';
 import { LocationDTO } from '../../dto/location.dto';
+import { RequestGuide } from '../../entities/user/RequestGuide.entities';
+import { GuideRequestDTO } from '../../dto/requestGuide.dto';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -65,10 +67,7 @@ export class UserResolver {
     return await this.userService.getByid(id);
   }
 
-   @Query(() => User, { nullable: true })
-  async getLocation(@Arg("id") id: string): Promise<Location | null> {
-    return this.userService.getLocation(id)
-   }
+ 
   @Query(() => [Guide])
     @UseMiddleware(authentication, authorization([Role.USER]))
    async findGuide(@Ctx() ctx:Context): Promise<Guide[] | null> {
@@ -92,6 +91,39 @@ export class UserResolver {
     return data
   }
   
+  @Query(() => Location)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getLocation(@Ctx() ctx: Context): Promise<Location | null>{
+    try {
+      const id = ctx.req.user?.id!
+      const data = await this.userService.getLocation(id)
+      return data
+    } catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+  } 
+
+  @Mutation(() => RequestGuide)
+    @UseMiddleware(authentication, authorization([Role.USER]))
+  async requestGuide(@Ctx() ctx: Context, guide_id:string, data:GuideRequestDTO) {
+    try {
+      const id = ctx.req.user?.id!
+      const details = await this.userService.requestGuide(id, guide_id, data)
+      return {details, mesage:"Reuested successsfully"}
+    }catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+}
 
   
   
