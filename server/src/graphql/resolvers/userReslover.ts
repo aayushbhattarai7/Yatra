@@ -13,6 +13,7 @@ import { Context } from '../../types/context';
 import { authentication } from '../../middleware/authentication.middleware';
 import { authorization } from '../../middleware/authorization.middleware';
 import { Role } from '../../constant/enum';
+import { LocationDTO } from '../../dto/location.dto';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -51,6 +52,14 @@ export class UserResolver {
     }
   }
 
+  @Mutation(() => Location)
+    @UseMiddleware(authentication, authorization([Role.USER]))
+  async addLocation(@Ctx() ctx:Context,@Arg("data") data: LocationDTO) {
+    const id = ctx.req.user?.id!
+    const details = await this.userService.addLocation(id, data)
+    return details
+    }
+
   @Query(() => User, { nullable: true })
   async getUser(@Arg("id") id: string): Promise<User | null> {
     return await this.userService.getByid(id);
@@ -60,12 +69,13 @@ export class UserResolver {
   async getLocation(@Arg("id") id: string): Promise<Location | null> {
     return this.userService.getLocation(id)
    }
-   @Query(() => [Guide])
-   async findGuide(@Arg("id") id: string): Promise<Guide[] | null> {
+  @Query(() => [Guide])
+    @UseMiddleware(authentication, authorization([Role.USER]))
+   async findGuide(@Ctx() ctx:Context): Promise<Guide[] | null> {
      console.log("ok")
      try {
-      
-       const data = this.userService.findGuide(id)
+      const id = ctx.req.user?.id
+       const data = this.userService.findGuide(id!)
        console.log("🚀 ~ UserResolver ~ findGuide ~ data:", data)
       return data
      } catch (error) {
@@ -80,7 +90,9 @@ export class UserResolver {
      console.log("🚀 ~ UserResolver ~ findTravel ~ id:", id)
      const data = this.userService.findTravel(id!)
     return data
-   }
+  }
+  
+
   
   
 }
