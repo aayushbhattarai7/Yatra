@@ -65,10 +65,7 @@ export class UserResolver {
     return await this.userService.getByid(id);
   }
 
-   @Query(() => User, { nullable: true })
-  async getLocation(@Arg("id") id: string): Promise<Location | null> {
-    return this.userService.getLocation(id)
-   }
+ 
   @Query(() => [Guide])
     @UseMiddleware(authentication, authorization([Role.USER]))
    async findGuide(@Ctx() ctx:Context): Promise<Guide[] | null> {
@@ -92,6 +89,22 @@ export class UserResolver {
     return data
   }
   
+  @Query(() => Location)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getLocation(@Ctx() ctx: Context): Promise<Location | null>{
+    try {
+      const id = ctx.req.user?.id!
+      const data = await this.userService.getLocation(id)
+      return data
+    } catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+  } 
 
   
   
