@@ -16,6 +16,8 @@ import { Role } from '../../constant/enum';
 import { LocationDTO } from '../../dto/location.dto';
 import { RequestGuide } from '../../entities/user/RequestGuide.entities';
 import { GuideRequestDTO } from '../../dto/requestGuide.dto';
+import { RequestTravel } from '../../entities/user/RequestTravels.entity';
+import { TravelRequestDTO } from '../../dto/requestTravel.dto';
 
 @Resolver(of => User)
 export class UserResolver {
@@ -114,6 +116,24 @@ export class UserResolver {
     try {
       const id = ctx.req.user?.id!
       const details = await this.userService.requestGuide(id, guide_id, data)
+      return {details, mesage:"Reuested successsfully"}
+    }catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+}
+
+  
+   @Mutation(() => RequestTravel)
+    @UseMiddleware(authentication, authorization([Role.USER]))
+  async requestTravel(@Ctx() ctx: Context, travel_id:string, data:TravelRequestDTO) {
+    try {
+      const id = ctx.req.user?.id!
+      const details = await this.userService.requestTravel(id, travel_id, data)
       return {details, mesage:"Reuested successsfully"}
     }catch (error:unknown) {
       if (error instanceof Error) {
