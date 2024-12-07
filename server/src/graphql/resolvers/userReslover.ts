@@ -143,7 +143,24 @@ export class UserResolver {
         throw HttpException.internalServerError
       }
     }
-}
+   }
+  
+  @Query(() => RequestTravel) 
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getOwnTravelRequest(@Ctx() ctx: Context) {
+    try {
+      const user_id = ctx.req.user?.id!
+      const data = await this.userService.getOwnTravelRequests(user_id)
+      return data
+    } catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+  }
 
   
   
