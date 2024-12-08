@@ -162,6 +162,23 @@ export class UserResolver {
     }
   }
 
+
+    @Query(() => RequestGuide) 
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getOwnGuideRequest(@Ctx() ctx: Context) {
+    try {
+      const user_id = ctx.req.user?.id!
+      const data = await this.userService.getOwnGuideRequests(user_id)
+      return data
+    } catch (error:unknown) {
+      if (error instanceof Error) {
+        
+        throw HttpException.badRequest(error.message)
+      } else {
+        throw HttpException.internalServerError
+      }
+    }
+  }
   
   
 }
