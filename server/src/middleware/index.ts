@@ -21,19 +21,16 @@ interface GraphQlContext {
 const middleware = async (app: Application) => {
   console.log('DotenvConfig.CORS_ORIGIN', DotenvConfig.CORS_ORIGIN);
 
+  
   app.use(compression());
-  // app.use(
-  //   cors({
-  //     origin: DotenvConfig.CORS_ORIGIN,
-  //     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
-  //     allowedHeaders: ['Content-Type', 'Authorization'],
-  //   })
-  // );
   app.use(
     cors({
-      origin: "*",
+      origin: DotenvConfig.CORS_ORIGIN,
+      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
+
 
 
   app.use((req: Request, res: Response, next: NextFunction) => {
