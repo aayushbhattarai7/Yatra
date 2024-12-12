@@ -21,7 +21,7 @@ interface GraphQlContext {
 const middleware = async (app: Application) => {
   console.log('DotenvConfig.CORS_ORIGIN', DotenvConfig.CORS_ORIGIN);
 
-  
+
   app.use(compression());
   app.use(
     cors({
@@ -86,13 +86,3 @@ const middleware = async (app: Application) => {
 export default middleware;
 
 
-
-// const SIGNUP_MUTATION = gql`
-//   mutation Signup($email: String!, $password: String!, $name: String!) {
-//     signup(email: $email, password: $password, name: $name) {
-//       id
-//       email
-//       name
-//     }
-//   }
-// `;
