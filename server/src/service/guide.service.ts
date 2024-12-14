@@ -14,6 +14,7 @@ import { GuideDetails } from "../entities/guide/guideDetails.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
+import { LoginDTO } from "../dto/login.dto";
 const bcryptService = new BcryptService();
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -216,7 +217,7 @@ class GuideService {
     }
   }
 
-  async loginGuide(data: GuideDTO) {
+  async loginGuide(data: LoginDTO) {
     try {
       const guide = await this.guideRepo.findOne({
         where: [{ email: data.email }],

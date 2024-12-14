@@ -5,7 +5,9 @@ import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
 import { FileType, KycType } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-
+import { LoginDTO } from "../../dto/login.dto";
+import { LoginResponse } from "../../graphql/schema/schema";
+import webTokenService from '../../service/webToken.service';
 
 
 export class GuideResolver {
@@ -69,4 +71,31 @@ export class GuideResolver {
       );
         return details
     }
+  
+    @Mutation(() => LoginResponse)
+  async login(@Arg("data") data: LoginDTO) {
+    console.log("yesss", data)
+    try {
+      const user = await this.guideService.loginGuide(data);
+      console.log("🚀 ~ UserResolver ~ login ~ user:", user)
+      const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
+
+      return {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        
+        phoneNumber: user.phoneNumber,
+        gender: user.gender,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+        message: "Logged in successfully",
+      };
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "An error occurred during login");
+    }
+  }
 }
