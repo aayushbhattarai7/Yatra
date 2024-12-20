@@ -56,13 +56,13 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => Location)
-    @UseMiddleware(authentication, authorization([Role.USER]))
-  async addLocation(@Ctx() ctx:Context,@Arg("data") data: LocationDTO) {
-    const id = ctx.req.user?.id!
-    const details = await this.userService.addLocation(id, data)
-    return details
-    }
+  // @Mutation(() => Location)
+  //   @UseMiddleware(authentication, authorization([Role.USER]))
+  // async addLocation(@Ctx() ctx:Context,@Arg("data") data: LocationDTO) {
+  //   const id = ctx.req.user?.id!
+  //   const details = await this.userService.addLocation(id, data)
+  //   return details
+  //   }
 
   @Query(() => User, { nullable: true })
   async getUser(@Arg("id") id: string): Promise<User | null> {

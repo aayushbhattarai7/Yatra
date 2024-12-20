@@ -31,7 +31,7 @@ const UserRegister = () => {
       middleName: "",
       lastName: "",
       phoneNumber: "",
-      role: "GUIDE",
+      role: "USER",
       gender: "MALE",
     },
   });
