@@ -49,15 +49,11 @@ const UserLogin = () => {
   });
 
   const [login, { data, error }] = useMutation(LOGIN_MUTATION);
-  console.log("🚀 ~ UserLogin ~ login:", login);
 
   const onSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
       const response = await login({ variables: { data: formData } });
-      console.log(
-        "🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ response:",
-        response
-      );
+      console.log("yesyeshhsd");
       const { accessToken, refreshToken } = response.data.login.tokens;
       console.log("Access Token:", accessToken);
       console.log("Refresh Token:", refreshToken);
@@ -71,8 +67,7 @@ const UserLogin = () => {
         secure: true,
         sameSite: "Strict",
       });
-      setMessage(data.login.message, "success");
-      reset();
+      console.log("vayovayovyao");
       navigate("/");
     } catch (err) {
       console.log(err);

@@ -18,7 +18,7 @@ interface FormData {
   lastName: string;
   phoneNumber: string;
   role: "GUIDE" | "USER" | "ADMIN";
-  gender: "MALE" | "FEMALE" | "OTHER";
+  gender: string;
 }
 
 const UserRegister = () => {
@@ -32,7 +32,7 @@ const UserRegister = () => {
       lastName: "",
       phoneNumber: "",
       role: "USER",
-      gender: "MALE",
+      gender: "",
     },
   });
 
