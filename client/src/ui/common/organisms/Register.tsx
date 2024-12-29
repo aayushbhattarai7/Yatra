@@ -55,7 +55,7 @@ const UserRegister = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="h-">
       <div>
         <label>
           Email:
