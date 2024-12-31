@@ -5,6 +5,8 @@ import InputField from "../atoms/InputField";
 import Button from "../atoms/Button";
 import { authLabel } from "../../../localization/auth";
 import { useLang } from "../../../hooks/useLang";
+import { RxPerson } from "react-icons/rx";
+import { RiLockPasswordLine } from "react-icons/ri";
 
 interface FormData {
   email: string;
@@ -26,20 +28,19 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6 flex justify-center items-center flex-col">
       <div className="space-y-4">
         <div>
           <Label name="email" label={authLabel.email[lang]} />
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Mail className="h-5 w-5 text-gray-400" />
-            </div>
+     
             <InputField
               placeholder={authLabel.email[lang]}
               type="text"
               name="email"
               register={register}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+              icon={<RxPerson className="font-bold"/>}
             />
           </div>
         </div>
@@ -47,27 +48,27 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
         <div>
           <Label name="password" label={authLabel.password[lang]} />
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Lock className="h-5 w-5 text-gray-400" />
-            </div>
+           
             <InputField
               placeholder={authLabel.password[lang]}
               type="password"
               name="password"
+              icon={<RiLockPasswordLine/>}
               register={register}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
       </div>
-
+      <div className="w-[23rem] flex justify-center items-center">
+        
       <Button
         buttonText={authLabel.login[lang]}
         name=""
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-2 px-4 border border-transparent rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       />
+</div>
     </form>
   );
 };

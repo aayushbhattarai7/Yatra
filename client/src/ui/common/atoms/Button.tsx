@@ -22,7 +22,7 @@ const Button: React.FC<ButtonProps> = ({
         type={type}
         name={name}
         disabled={disabled}
-        className={`max-w-full mb-4 bg-blue-500 text-white hover:bg-blue-700 p-3 rounded-xl ${className}`}
+        className={` w-32 mb-4 bg-[#1366D9] text-white hover:bg-blue-700 p-3 rounded-xl font-poppins shadow-xl ${className}`}
         onClick={onClick}
       >
         {disabled ? <img src={image?.loader} /> : buttonText}
