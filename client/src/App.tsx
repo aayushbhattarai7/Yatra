@@ -5,6 +5,7 @@ import UserRegister from "./ui/common/organisms/Register";
 import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
+import { MessageProvider } from "./contexts/MessageContext";
 
 function App() {
   const router = createBrowserRouter([
@@ -37,7 +38,11 @@ function App() {
   ]);
   return (
     <>
+    
+      <MessageProvider>
       <RouterProvider router={router} />
+      </MessageProvider>
+      
     </>
   );
 }

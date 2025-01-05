@@ -23,6 +23,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({
   const [type, setType] = useState<"success" | "error" | null>(null);
 
   const setMessage = (message: string | null, type: "success" | "error") => {
+    console.log("yauhsuhuhda");
     setMessageState(message);
     setType(type);
   };
