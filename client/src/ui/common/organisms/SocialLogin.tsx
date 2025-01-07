@@ -3,7 +3,7 @@ import { Facebook } from "lucide-react";
 const SocialLogin = () => {
   return (
     <div className="mt-6">
-      <div className="relative">
+      <div className="relative w-[27rem]">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300" />
         </div>
@@ -12,24 +12,25 @@ const SocialLogin = () => {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <div className="mt-6 w-[27rem] flex flex-col justify-center items-center">
         <button
           type="button"
-          className="flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 "
         >
           <img
-            className="h-5 w-5 mr-2"
+            className="h-9 w-9 mr-2"
             src="https://www.google.com/favicon.ico"
             alt="Google logo"
           />
-          Google
+          Login with Google
         </button>
+        <br />
         <button
           type="button"
-          className="flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          <Facebook className="h-5 w-5 mr-2 text-blue-600" />
-          Facebook
+          <Facebook className="h-9 w-18 mr-2 text-blue-600 flex" />
+          <p className="flex">Login with Facebook</p>
         </button>
       </div>
     </div>

@@ -68,13 +68,14 @@ const UserLogin = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="w-full md:w-[40%] p-8 flex flex-col justify-center items-center">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900">Yatra</h1>
-            <h2 className="mt-2 text-lg font-medium">LOGIN</h2>
-            <p className="mt-2 text-sm text-gray-600 animate-bounce">
+    <div className="flex h-screen items-center justify-center">
+      <div className="w-full md:w-[55%] p-8 flex flex-col justify-center items-center font-poppins">
+        <div className="w-full max-w-md space-y-8 font-poppins">
+          <div className="text-center w-[25rem]">
+            <h1 className="text-4xl font-bold text-gray-900 font-poppins">
+              Login
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 animate-bounce font-poppins">
               Continue Your Journey with us
             </p>
           </div>
@@ -87,7 +88,6 @@ const UserLogin = () => {
       <LoginHero
         title="Yatra"
         description="Travel is the only purchase that enriches you in ways beyond material wealth."
-        imageUrl="https://images.unsplash.com/photo-1478827536114-da961b7f86d2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2340&q=80"
       />
 
       <div className="hidden md-grid grid-cols-12"></div>

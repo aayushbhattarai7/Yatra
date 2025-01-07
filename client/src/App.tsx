@@ -38,11 +38,9 @@ function App() {
   ]);
   return (
     <>
-    
       <MessageProvider>
-      <RouterProvider router={router} />
+        <RouterProvider router={router} />
       </MessageProvider>
-      
     </>
   );
 }
