@@ -169,10 +169,21 @@ async requestGuide(
   
    @Mutation(() => RequestTravel)
     @UseMiddleware(authentication, authorization([Role.USER]))
-  async requestTravel(@Ctx() ctx: Context, travel_id:string, data:TravelRequestDTO) {
-    try {
+  async requestTravel(  @Ctx() ctx: Context,
+  @Arg("travel_id") travel_id: string,
+  @Arg("from") from: string,
+  @Arg("to") to: string,
+  @Arg("totalDays") totalDays: string,
+    @Arg("totalPeople") totalPeople: string,
+    @Arg("vehicleType") vehicleType:string )
+   {
+     
+     try {
+       const data = {
+        from, to, totalDays, totalPeople, vehicleType
+      }
       const id = ctx.req.user?.id!
-      const details = await this.userService.requestTravel(id, travel_id, data)
+      const details = await this.userService.requestTravel(id, travel_id, data as any)
       return {details, mesage:"Reuested successsfully"}
     }catch (error:unknown) {
       if (error instanceof Error) {
