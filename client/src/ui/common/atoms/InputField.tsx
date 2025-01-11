@@ -60,7 +60,7 @@ const InputField: React.FC<InputFieldProps> = ({
       />
       {type === "password" && (
         <span
-          className="absolute right-24 top-1/3 transform-translate-y-1/2 cursor-pointer"
+          className="absolute right-5 top-1/3 transform-translate-y-1/2 cursor-pointer"
           onClick={toggleField}
         >
           {showPassword ? <FaEye /> : <FaEyeSlash />}

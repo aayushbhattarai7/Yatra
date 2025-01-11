@@ -1,5 +1,4 @@
-
-const SocialLogin = () => {
+const SocialRegister = () => {
   return (
     <div className="mt-6">
       <div className="relative w-[27rem]">
@@ -7,7 +6,7 @@ const SocialLogin = () => {
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">Login with Others</span>
+          <span className="px-2 bg-white text-gray-500">Continue with Others</span>
         </div>
       </div>
 
@@ -21,7 +20,7 @@ const SocialLogin = () => {
             src="https://www.google.com/favicon.ico"
             alt="Google logo"
           />
-          Login with Google
+          Continue with Google
         </button>
         <br />
         <button
@@ -33,12 +32,11 @@ const SocialLogin = () => {
             src="https://www.facebook.com/favicon.ico"
             alt="Google logo"
           />
-          Login with Facebook
+          Continue with Facebook
         </button>
       </div>
-
     </div>
   );
 };
 
-export default SocialLogin;
+export default SocialRegister;
