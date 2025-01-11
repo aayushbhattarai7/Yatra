@@ -22,6 +22,24 @@ interface UserInput{
   email: string
   password:string
 }
+
+interface requestGuide{
+  from: string;
+  to: string;
+  totalDays: string;
+  totalPeople: string;
+
+}
+
+interface Signup {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  gender: string;
+  password:string
+}
 class UserService {
   constructor(
     private readonly userRepo = AppDataSource.getRepository(User),
@@ -36,7 +54,7 @@ class UserService {
     ),
   ) {}
 
-  async signup(data: UserDTO) {
+  async signup(data: Signup) {
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
@@ -225,7 +243,7 @@ class UserService {
     }
   }
 
-  async requestGuide(user_id: string, guide_id: string, data: GuideRequestDTO) {
+  async requestGuide(user_id: string, guide_id: string, data: requestGuide) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) {
@@ -260,12 +278,12 @@ class UserService {
         guide: guide,
       });
       await this.guideRequestRepo.save(request);
-      await emailService.sendMail({
-        to: guide.email,
-        text: "Request Incomming",
-        subject: `${user.firstName} sent you a travel request`,
-        html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
-      });
+      // await emailService.sendMail({
+      //   to: guide.email,
+      //   text: "Request Incomming",
+      //   subject: `${user.firstName} sent you a travel request`,
+      //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
+      // });
       return request;
     } catch (error: unknown) {
       if (error instanceof Error) {

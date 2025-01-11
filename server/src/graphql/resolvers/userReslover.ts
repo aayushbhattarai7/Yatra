@@ -12,7 +12,7 @@ import HttpException from '../../utils/HttpException.utils';
 import { Context } from '../../types/context';
 import { authentication } from '../../middleware/authentication.middleware';
 import { authorization } from '../../middleware/authorization.middleware';
-import { Role } from '../../constant/enum';
+import { Gender, Role } from '../../constant/enum';
 import { LocationDTO } from '../../dto/location.dto';
 import { RequestGuide } from '../../entities/user/RequestGuide.entities';
 import { GuideRequestDTO } from '../../dto/requestGuide.dto';
@@ -23,16 +23,44 @@ import { TravelRequestDTO } from '../../dto/requestTravel.dto';
 export class UserResolver {
   private userService = new UserService();
 
-  @Mutation(() => User)
-  async signup(@Arg("data") data: UserDTO): Promise<User> {
-    console.log("12334");
-    return await this.userService.signup(data);
+@Mutation(() => User)
+async signup(
+  @Arg("firstName") firstName: string,
+  @Arg("middleName", { nullable: true }) middleName: string,
+  @Arg("lastName") lastName: string,
+  @Arg("email") email: string,
+  @Arg("phoneNumber") phoneNumber: string,
+  @Arg("gender") gender: Gender,
+  @Arg("password") password: string
+){
+  try {
+    const newUser = {
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      gender,
+      password,
+    };
+
+    const createdUser = await this.userService.signup(newUser);
+    return createdUser;
+  } catch (error) {
+    throw new Error(
+      error instanceof Error ? error.message : "An error occurred during signup"
+    );
   }
+}
 
   @Mutation(() => LoginResponse)
-  async login(@Arg("data") data: LoginDTO) {
-    console.log("yesss", data)
+  async login(
+      @Arg("email") email: string,
+  @Arg("password") password: string
+  ) {
+    console.log("yesss", email, password)
     try {
+      const data = {email, password}
       const user = await this.userService.login(data);
       console.log("🚀 ~ UserResolver ~ login ~ user:", user)
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
@@ -110,22 +138,33 @@ export class UserResolver {
     }
   } 
 
-  @Mutation(() => RequestGuide)
-    @UseMiddleware(authentication, authorization([Role.USER]))
-  async requestGuide(@Ctx() ctx: Context, guide_id:string, data:GuideRequestDTO) {
-    try {
-      const id = ctx.req.user?.id!
-      const details = await this.userService.requestGuide(id, guide_id, data)
-      return {details, mesage:"Reuested successsfully"}
-    }catch (error:unknown) {
-      if (error instanceof Error) {
-        
-        throw HttpException.badRequest(error.message)
-      } else {
-        throw HttpException.internalServerError
-      }
+ @Mutation(() => RequestGuide)
+@UseMiddleware(authentication, authorization([Role.USER]))
+async requestGuide(
+  @Ctx() ctx: Context,
+  @Arg("guide_id") guideId: string,
+  @Arg("from") from: string,
+  @Arg("to") to: string,
+  @Arg("totalDays") totalDays: string,
+  @Arg("totalPeople") totalPeople: string
+) {
+   try {
+     const data = {
+      from, to, totalDays, totalPeople
     }
+    const userId = ctx.req.user?.id!;
+    const details = await this.userService.requestGuide(userId, guideId,data);
+    return { details, message: "Requested successfully" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw HttpException.internalServerError(error.message);
+    } else {
+      throw HttpException.internalServerError("Unknown error occured");
+    }
+  }
 }
+
+
 
   
    @Mutation(() => RequestTravel)

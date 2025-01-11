@@ -8,17 +8,10 @@ import SocialLogin from "./SocialLogin";
 import LoginHero from "./LoginHero";
 
 const LOGIN_MUTATION = gql`
-  mutation Login($data: LoginDTO!) {
-    login(data: $data) {
-      firstName
-      middleName
-      lastName
-      phoneNumber
-      gender
-      email
+  mutation Login($password: String!, $email: String!) {
+    login(password: $password, email: $email) {
       tokens {
         accessToken
-        refreshToken
       }
     }
   }
@@ -36,7 +29,10 @@ const UserLogin = () => {
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      const response = await login({ variables: { data: formData } });
+      console.log(formData.email, formData.password);
+      const response = await login({
+        variables: { email: formData.email, password: formData.password },
+      });
       if (response.data) {
         const { accessToken, refreshToken } = response.data.login.tokens;
         Cookies.set("accessToken", accessToken, {
@@ -50,13 +46,14 @@ const UserLogin = () => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-        navigate("/guides");
+        navigate("/");
       } else {
         console.error("No response data:", response);
         setMessage("Unexpected error. Please try again.", "error");
       }
     } catch (err) {
       if (err instanceof Error) {
+        console.log("ohno");
         const graphqlError = error?.graphQLErrors?.[0]?.message;
 
         console.error("GraphQL Error:", graphqlError);
@@ -71,7 +68,7 @@ const UserLogin = () => {
     <div className="flex h-screen items-center justify-center">
       <div className="w-full md:w-[55%] p-8 flex flex-col justify-center items-center font-poppins">
         <div className="w-full max-w-md space-y-8 font-poppins">
-          <div className="text-center w-[25rem]">
+          <div className="text-center w-[29rem]">
             <h1 className="text-4xl font-bold text-gray-900 font-poppins">
               Login
             </h1>
