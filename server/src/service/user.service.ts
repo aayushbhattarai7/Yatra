@@ -30,6 +30,14 @@ interface requestGuide{
   totalPeople: string;
 
 }
+interface RequestTravelInterface{
+  from: string;
+  to: string;
+  totalDays: string;
+  totalPeople: string;
+  vehicleType:string
+
+}
 
 interface Signup {
   firstName: string;
@@ -336,12 +344,12 @@ class UserService {
         travel: travel,
       });
       await this.travelRequestRepo.save(request);
-      await emailService.sendMail({
-        to: travel.email,
-        text: "Request Incomming",
-        subject: `${user.firstName} sent you a travel request`,
-        html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
-      });
+      // await emailService.sendMail({
+      //   to: travel.email,
+      //   text: "Request Incomming",
+      //   subject: `${user.firstName} sent you a travel request`,
+      //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
+      // });
       return;
     } catch (error: unknown) {
       if (error instanceof Error) {
