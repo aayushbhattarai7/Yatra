@@ -3,14 +3,14 @@ import { useMessage } from "../../../contexts/MessageContext";
 import { useEffect, useState } from "react";
 
 const GET_GUIDE_QUERY = gql`
-  query findGuides($id: String!) {
-    findGuide(id: $id) {
+  query Query {
+    findGuide {
       id
       firstName
       middleName
       lastName
-      guiding_location
       gender
+      guiding_location
     }
   }
 `;
@@ -35,13 +35,12 @@ const Guides = () => {
   const { setMessage } = useMessage();
   const [guides, setGuides] = useState<FormData[] | null>(null);
 
-  const { data, loading, error } = useQuery(GET_GUIDE_QUERY, {
-    variables: { id: "c3f04b07-4db8-4d18-84d7-977170aecf28" },
-  });
-
+  const { data, loading, error } = useQuery(GET_GUIDE_QUERY);
+console.log(data,"jaja")
   useEffect(() => {
     if (data) {
-      setGuides(data.findGuide); 
+      setGuides(data.findGuide);
+      console.log(data,"ajja")
     }
   }, [data]);
 

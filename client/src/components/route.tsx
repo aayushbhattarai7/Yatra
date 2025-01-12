@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Outlet, useNavigate } from "react-router-dom";
+import Navbar from "@/ui/common/organisms/Navbar";
 export function Route() {
   const navigate = useNavigate();
   // const token = sessionStorage.getItem("accessToken");
@@ -20,6 +21,7 @@ export function Route() {
   // }, [token, navigate]);
   return (
     <>
+      <Navbar/>
       <Outlet />
     </>
   );
