@@ -4,6 +4,7 @@ import { User } from "../entities/user/user.entity";
 import BcryptService from "./bcrypt.service";
 const bcryptService = new BcryptService();
 import HttpException from "../utils/HttpException.utils";
+import { jwtDecode } from "jwt-decode";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
 import { Gender, RequestStatus, Role } from "../constant/enum";
@@ -17,27 +18,30 @@ import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
+import { statSync } from "fs";
+import { createdMessage, Message } from "../constant/message";
 const emailService = new EmailService();
 interface UserInput{
   email: string
   password:string
 }
 
-interface requestGuide{
+interface RequestGuides{
   from: string;
   to: string;
   totalDays: string;
   totalPeople: string;
 
 }
-interface RequestTravelInterface{
+interface RequestTravels{
   from: string;
   to: string;
   totalDays: string;
   totalPeople: string;
-  vehicleType:string
+  vehicleType: string
 
 }
+
 
 interface Signup {
   firstName: string;
@@ -114,6 +118,36 @@ class UserService {
       } else {
         throw HttpException.internalServerError;
       }
+    }
+  }
+
+    async googleLogin(googleId: string) {
+    try {
+      const decoded: any = jwtDecode(googleId)
+      const user = await this.userRepo.findOne({
+        where: { email: decoded.email },
+      })
+      if (!user) {
+        try {
+          const saveUser = this.userRepo.create({
+            
+            email : decoded.email,
+            firstName : decoded.given_name,
+            lastName : decoded.family_name,
+            gender : Gender.NONE,
+            phoneNumber : "123",
+            password : await bcryptService.hash(decoded?.sub)
+          })
+          const save = await this.userRepo.save(saveUser)
+          return save
+        } catch (error: any) {
+          throw HttpException.badRequest(error.message)
+        }
+      } else {
+        return await this.getByid(user.id)
+      }
+    } catch (error: any) {
+      console.log(error.message)
     }
   }
 
@@ -251,7 +285,7 @@ class UserService {
     }
   }
 
-  async requestGuide(user_id: string, guide_id: string, data: requestGuide) {
+  async requestGuide(user_id: string, guide_id: string, data: RequestGuides) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) {
@@ -306,7 +340,7 @@ class UserService {
   async requestTravel(
     user_id: string,
     travel_id: string,
-    data: TravelRequestDTO,
+    data: RequestTravels,
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
@@ -323,6 +357,7 @@ class UserService {
           user: { id: user_id },
           travel: { id: travel_id },
         },
+
       });
       console.log("🚀 ~ UserService ~ findRequest:", findRequest);
       if (findRequest.length > 0) {
@@ -337,9 +372,9 @@ class UserService {
       const request = this.travelRequestRepo.create({
         from: data.from,
         to: data.to,
-        totalDays: data.totalDays,
-        totalPeople: data.totalPeople,
-        vehicletype: data.vehicleType,
+        totalDays: parseInt(data.totalDays),
+        totalPeople: parseInt(data.totalPeople),
+        vehicleType: data.vehicleType,
         user: user,
         travel: travel,
       });
@@ -350,7 +385,7 @@ class UserService {
       //   subject: `${user.firstName} sent you a travel request`,
       //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
       // });
-      return;
+      return request;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);

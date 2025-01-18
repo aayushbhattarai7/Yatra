@@ -26,7 +26,7 @@ export class RequestTravel extends Base {
 
   @Field()
   @Column({ name: "vehicle_type" })
-  vehicletype: string;
+  vehicleType: string;
 
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
