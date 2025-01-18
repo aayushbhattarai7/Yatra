@@ -21,4 +21,14 @@ type Mutation {
   role: Enum!, phoneNumber: String!, gender: Enum!, password: String! ): User
   login(email:String!, password:String!):User
 }
+
+type Mutation {
+  googleLogin(id: String!): GoogleLoginResponse!
+}
+
+type GoogleLoginResponse {
+  user: User!
+  tokens: Tokens!
+  message: String!
+}
 `
