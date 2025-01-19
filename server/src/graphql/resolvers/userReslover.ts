@@ -19,11 +19,14 @@ import { GuideRequestDTO } from '../../dto/requestGuide.dto';
 import { RequestTravel } from '../../entities/user/RequestTravels.entity';
 import { TravelRequestDTO } from '../../dto/requestTravel.dto';
 
+interface Message {
+  message:string
+}
 @Resolver(of => User)
 export class UserResolver {
   private userService = new UserService();
 
-  @Mutation(() => User)
+  @Mutation(() => String)
   async signup(
     @Arg("firstName") firstName: string,
     @Arg("middleName", { nullable: true }) middleName: string,
@@ -87,6 +90,30 @@ export class UserResolver {
   ) {
     try {
       const user = await this.userService.googleLogin(googleId);
+      const tokens = webTokenService.generateTokens({ id: user?.id! }, user?.role!);
+
+      return {
+        id: user?.id!,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        email: user?.email,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+        message: "Logged in successfully via Google",
+      };
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "An error occurred during Google login");
+    }
+  }
+  @Mutation(() => LoginResponse)
+  async facebookLogin(
+    @Arg("facebookId") facebookId: string
+  ) {
+    try {
+      console.log(facebookId,"ullala ullala")
+      const user = await this.userService.facebookLogin(facebookId);
       const tokens = webTokenService.generateTokens({ id: user?.id! }, user?.role!);
 
       return {
