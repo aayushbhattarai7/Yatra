@@ -1,7 +1,7 @@
 export const Message = {
   error: "Error occurred",
   notAuthorized: " You are not Authorized",
-  tokenExpire: "Token expired, Please signin again",
+    tokenExpire: "Token expired, Please signin again",
 };
 export const createdMessage = (title: string) => {
   return `${title} created Successfully`;
@@ -12,3 +12,7 @@ export const deletedMessage = (title: string) => {
 export const updatedMessage = (title: string) => {
   return `${title} updated Successfully`;
 };
+
+export const registeredMessage = (title: string) => {
+    return `${title} registered successfully`
+}

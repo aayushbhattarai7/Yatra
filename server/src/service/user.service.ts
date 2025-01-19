@@ -19,7 +19,8 @@ import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
 import { statSync } from "fs";
-import { createdMessage, Message } from "../constant/message";
+import { createdMessage, Message, registeredMessage } from "../constant/message";
+import axios from "axios";
 const emailService = new EmailService();
 interface UserInput{
   email: string
@@ -83,7 +84,7 @@ class UserService {
       });
       await this.userRepo.save(addUser);
       console.log(addUser)
-      return addUser;
+      return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -98,6 +99,7 @@ class UserService {
         where: [{ email: data.email }],
         select: ["id","email", "password", "role","firstName", "middleName","lastName","location","gender","phoneNumber"],
       });
+      console.log("yyy")
 
       if (!user)
         throw HttpException.notFound(
@@ -124,6 +126,7 @@ class UserService {
     async googleLogin(googleId: string) {
     try {
       const decoded: any = jwtDecode(googleId)
+      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded)
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       })
@@ -135,7 +138,70 @@ class UserService {
             firstName : decoded.given_name,
             lastName : decoded.family_name,
             gender : Gender.NONE,
-            phoneNumber : "123",
+            phoneNumber : decoded.jti,
+            password : await bcryptService.hash(decoded?.sub)
+          })
+          const save = await this.userRepo.save(saveUser)
+          return save
+        } catch (error: any) {
+          throw HttpException.badRequest(error.message)
+        }
+      } else {
+        return await this.getByid(user.id)
+      }
+    } catch (error: any) {
+      console.log(error.message)
+    }
+    }
+  
+  async debugFBToken(userAccessToken: string) {
+    if (!DotenvConfig.FACEBOOK_APP_ID || !DotenvConfig.FACEBOOK_SECRET) {
+    throw new Error("Facebook App ID and App Secret must be set in environment variables.");
+  }
+
+  try {
+    const appAccessToken = `${DotenvConfig.FACEBOOK_APP_ID}|${DotenvConfig.FACEBOOK_SECRET}`;
+
+    const url = `https://graph.facebook.com/debug_token?input_token=${userAccessToken}&access_token=${appAccessToken}`;
+
+    const response = await axios.get(url);
+    const data = response.data;
+
+    if (data.data) {
+      console.log("Decoded Token Data:", data.data);
+      return data.data;
+    } else {
+      console.error("Error decoding token:", data.error);
+      throw new Error(data.error.message);
+    }
+  } catch (error: any) {
+    console.error("Error debugging Facebook token:", error.message);
+    throw error;
+  }
+};
+
+
+
+
+  
+    async facebookLogin(userInfo: string) {
+      try {
+      console.log(userInfo,"yoyouo")
+        const decoded:any = await this.debugFBToken(userInfo)
+      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded)
+      const user = await this.userRepo.findOne({
+        where: { email: decoded.email },
+      })
+      if (!user) {
+        try {
+          const saveUser = this.userRepo.create({
+            
+            email : decoded.email,
+            firstName : decoded.first_name,
+            lastName: decoded.last_name,
+            middleName:decoded.middle_name,
+            gender : Gender.NONE,
+            phoneNumber : decoded.jti,
             password : await bcryptService.hash(decoded?.sub)
           })
           const save = await this.userRepo.save(saveUser)

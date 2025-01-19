@@ -13,11 +13,10 @@ phoneNumber: String!
 gender: Enum!
 password: String!
 
-
-
 }
+
 type Mutation {
-  register(firstName: String!, middleName:String, lastName:String!, email:String!, 
+  signup(firstName: String!, middleName:String, lastName:String!, email:String!, 
   role: Enum!, phoneNumber: String!, gender: Enum!, password: String! ): User
   login(email:String!, password:String!):User
 }

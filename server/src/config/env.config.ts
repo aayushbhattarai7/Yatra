@@ -19,7 +19,7 @@ export class DotenvConfig {
   static API_KEY = process.env.API_KEY;
   static DEBUG_MODE = process.env.DEBUG_MODE;
   static OTP_SECRET = process.env.OTP_SECRET;
-  //* Email Information
+
   static MAIL_HOST = process.env.MAIL_HOST;
   static MAIL_AUTH = process.env.MAIL_AUTH;
   static MAIL_PASSWORD = process.env.MAIL_PASSWORD;
@@ -31,5 +31,8 @@ export class DotenvConfig {
 
   static STRIPE_SECRET = process.env.STRIPE_SECRET!;
   static CORS_ORIGIN = process.env.CORS_ORIGIN;
+
+  static FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
+  static FACEBOOK_SECRET = process.env.FACEBOOK_SECRET;
 
 }
