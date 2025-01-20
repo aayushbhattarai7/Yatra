@@ -103,10 +103,7 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
       });
 
       if (res.data) {
-        console.log(
-          "Facebook login successful:",
-          res.data.facebookLogin.tokens.accessToken
-        );
+     
         const accessToken = res.data.facebookLogin.tokens.accessToken;
         Cookies.set("accessToken", accessToken, {
           path: "/",

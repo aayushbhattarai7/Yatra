@@ -1,5 +1,4 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Mail, Lock } from "lucide-react";
 import Label from "../atoms/Label";
 import InputField from "../atoms/InputField";
 import Button from "../atoms/Button";
