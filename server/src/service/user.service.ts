@@ -156,23 +156,21 @@ class UserService {
   
   async debugFBToken(userAccessToken: string) {
     if (!DotenvConfig.FACEBOOK_APP_ID || !DotenvConfig.FACEBOOK_SECRET) {
-    throw new Error("Facebook App ID and App Secret must be set in environment variables.");
+    throw HttpException.internalServerError("Facebook App ID and App Secret must be set in environment variables.");
   }
 
   try {
-    const appAccessToken = `${DotenvConfig.FACEBOOK_APP_ID}|${DotenvConfig.FACEBOOK_SECRET}`;
-
-    const url = `https://graph.facebook.com/debug_token?input_token=${userAccessToken}&access_token=${appAccessToken}`;
+ const fields = "id,first_name,middle_name,last_name,email";
+    const url = `https://graph.facebook.com/me?fields=${fields}&access_token=${userAccessToken}`;
 
     const response = await axios.get(url);
     const data = response.data;
+    console.log("🚀 ~ UserService ~ debugFBToken ~ data:", data)
 
-    if (data.data) {
-      console.log("Decoded Token Data:", data.data);
-      return data.data;
+    if (data) {
+      return data;
     } else {
-      console.error("Error decoding token:", data.error);
-      throw new Error(data.error.message);
+      console.error("Error decoding token:");
     }
   } catch (error: any) {
     console.error("Error debugging Facebook token:", error.message);
@@ -186,9 +184,7 @@ class UserService {
   
     async facebookLogin(userInfo: string) {
       try {
-      console.log(userInfo,"yoyouo")
         const decoded:any = await this.debugFBToken(userInfo)
-      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded)
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       })
@@ -201,8 +197,8 @@ class UserService {
             lastName: decoded.last_name,
             middleName:decoded.middle_name,
             gender : Gender.NONE,
-            phoneNumber : decoded.jti,
-            password : await bcryptService.hash(decoded?.sub)
+            phoneNumber : decoded.id,
+            password : await bcryptService.hash(decoded?.id)
           })
           const save = await this.userRepo.save(saveUser)
           return save

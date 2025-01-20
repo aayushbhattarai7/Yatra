@@ -1,6 +1,8 @@
 import { gql, useMutation } from "@apollo/client";
 import { useEffect, useState } from "react";
-
+import Cookies from "js-cookie";
+import { useMessage } from "@/contexts/MessageContext";
+import { useNavigate } from "react-router-dom";
 const appId = import.meta.env.VITE_FACEBOOK_APP_ID;
 const apiVersion = import.meta.env.VITE_FACEBOOK_VERSION;
 
@@ -18,9 +20,10 @@ const FACEBOOK_MUTATION = gql`
   }
 `;
 const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
+  const { setMessage } = useMessage();
+  const navigate = useNavigate();
   const [facebookLogin, { error, loading }] = useMutation(FACEBOOK_MUTATION);
-  console.log("🚀 ~ FacebookSDK ~ error:", error)
-  useEffect(() => {
+   useEffect(() => {
     const initializeFacebookSDK = () => {
       if (!appId || !apiVersion) {
         console.error(
@@ -66,55 +69,66 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
     initializeFacebookSDK();
   }, []);
 
-const handleFacebookLogin = () => {
-  if (!(window as any).FB) {
-    console.error("Facebook SDK is not loaded yet.");
-    return;
-  }
-
-  (window as any).FB.login(
-    (response: any) => {
-      if (response.authResponse) {
-        const accessToken = response.authResponse.accessToken;
-
-        (window as any).FB.api(
-          "/me",
-          { fields: "first_name,middle_name,last_name,email" },
-          (userInfo: any) => {
-            onLogin(userInfo); 
-            handleFacebookMutation(accessToken);
-          }
-        );
-      } else {
-        console.error("User cancelled login or did not fully authorize.");
-      }
-    },
-    { scope: "email,public_profile" }
-  );
-};
-
-const handleFacebookMutation = async (accessToken: string) => {
-  try {
-    const res = await facebookLogin({
-      variables: { facebookId: accessToken },
-    });
-
-    if (res.data) {
-      console.log("Facebook login successful:", res.data);
+  const handleFacebookLogin = () => {
+    if (!(window as any).FB) {
+      console.error("Facebook SDK is not loaded yet.");
+      return;
     }
-  } catch (error) {
-    console.error("Error during Facebook login mutation:", error);
-  }
-};
 
+    (window as any).FB.login(
+      (response: any) => {
+        if (response.authResponse) {
+          const accessToken = response.authResponse.accessToken;
+
+          (window as any).FB.api(
+            "/me",
+            { fields: "first_name,middle_name,last_name,email" },
+            (userInfo: any) => {
+              onLogin(userInfo);
+              handleFacebookMutation(accessToken);
+            }
+          );
+        } else {
+          console.error("User cancelled login or did not fully authorize.");
+        }
+      },
+      { scope: "email,public_profile" }
+    );
+  };
+
+  const handleFacebookMutation = async (accessToken: string) => {
+    try {
+      const res = await facebookLogin({
+        variables: { facebookId: accessToken },
+      });
+
+      if (res.data) {
+        console.log(
+          "Facebook login successful:",
+          res.data.facebookLogin.tokens.accessToken
+        );
+        const accessToken = res.data.facebookLogin.tokens.accessToken;
+        Cookies.set("accessToken", accessToken, {
+          path: "/",
+          secure: true,
+          sameSite: "Strict",
+        });
+        setMessage("Login successful", "success");
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error during Facebook login mutation:", error);
+    }
+  };
 
   return (
     <button
       type="button"
+      disabled={loading}
       onClick={handleFacebookLogin}
       className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
     >
-      <img
+      <img 
         className="h-9 w-9 mr-2"
         src="https://www.facebook.com/favicon.ico"
         alt="Facebook logo"
