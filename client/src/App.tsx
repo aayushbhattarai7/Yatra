@@ -6,6 +6,8 @@ import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
 import { MessageProvider } from "./contexts/MessageContext";
+import TravelRegister from "./components/TravelRegister";
+import { MapProvider } from "./contexts/MapContext";
 
 function App() {
   const router = createBrowserRouter([
@@ -33,13 +35,20 @@ function App() {
           path: "guide-register",
           element: <GuideRegister />,
         },
+        {
+          path: "travel-register",
+          element: <TravelRegister />,
+        },
       ],
     },
   ]);
   return (
     <>
       <MessageProvider>
+        <MapProvider>
+
         <RouterProvider router={router} />
+        </MapProvider>
       </MessageProvider>
     </>
   );
