@@ -22,5 +22,5 @@ export const errorHandler = (
       message: error.message,
     };
   }
-return res.status(statusCode).json(data.message);
+  return res.status(statusCode).json(data.message);
 };

@@ -9,7 +9,7 @@ import { Gender, KycType, Role } from "../constant/enum";
 import { Field, InputType } from "type-graphql";
 @InputType()
 export class GuideDTO {
-    @Field()
+  @Field()
   @IsNotEmpty()
   firstName: string;
 
@@ -29,10 +29,10 @@ export class GuideDTO {
   @IsNotEmpty()
   phoneNumber: string;
 
-   @Field()
+  @Field()
   @IsEnum(Role, { message: "Invalid Gender" })
-   role: Role;
-  
+  role: Role;
+
   @Field()
   @IsNotEmpty()
   DOB: String;
@@ -69,34 +69,34 @@ export class GuideDTO {
   @IsNotEmpty()
   licenseValidityTo: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   citizenshipId: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   @IsDate()
   citizenshipIssueDate: Date;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   citizenshipIssueFrom: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   passportId: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   @IsDate()
   passportIssueDate: Date;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   @IsDate()
   passportExpiryDate: Date;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   passportIssueFrom: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   voterId: string;
 
-@Field({ nullable: true })
+  @Field({ nullable: true })
   voterAddress: string;
 
   @Field()

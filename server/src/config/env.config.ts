@@ -34,10 +34,8 @@ export class DotenvConfig {
 
   static FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
   static FACEBOOK_SECRET = process.env.FACEBOOK_SECRET;
-  
 
-   static ADMIN_NAME = process.env.ADMIN_NAME;
+  static ADMIN_NAME = process.env.ADMIN_NAME;
   static ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   static ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
-
 }

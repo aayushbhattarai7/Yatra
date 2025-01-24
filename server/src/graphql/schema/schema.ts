@@ -1,7 +1,5 @@
-import { User } from "../../entities/user/user.entity"
-import { Field, ObjectType } from "type-graphql"
-
-
+import { User } from "../../entities/user/user.entity";
+import { Field, ObjectType } from "type-graphql";
 
 @ObjectType()
 class Token {
@@ -20,7 +18,7 @@ export class LoginResponse {
   @Field()
   firstName: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   middleName: string;
 
   @Field()
@@ -43,4 +41,3 @@ export class LoginResponse {
   @Field()
   message: string;
 }
-

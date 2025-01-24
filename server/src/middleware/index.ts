@@ -1,88 +1,80 @@
-import compression from 'compression';
-import cors from 'cors';
-import express, { NextFunction, Request, Response, Application } from 'express';
-import path from 'path';
-import { DotenvConfig } from '../config/env.config';
-import { StatusCodes } from '../constant/StatusCodes';
-import routes from '../routes/index.routes';
-import { errorHandler } from './errorhandler.middleware';
-import morgan from 'morgan';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { buildSchema } from 'type-graphql';
-import bodyParser from 'body-parser';
-import { UserResolver } from '../graphql/resolvers/userReslover';
+import compression from "compression";
+import cors from "cors";
+import express, { NextFunction, Request, Response, Application } from "express";
+import path from "path";
+import { DotenvConfig } from "../config/env.config";
+import { StatusCodes } from "../constant/StatusCodes";
+import routes from "../routes/index.routes";
+import { errorHandler } from "./errorhandler.middleware";
+import morgan from "morgan";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { buildSchema } from "type-graphql";
+import bodyParser from "body-parser";
+import { UserResolver } from "../graphql/resolvers/userReslover";
 
-const resolver = new UserResolver()
+const resolver = new UserResolver();
 interface GraphQlContext {
   req: Request;
 }
 
 const middleware = async (app: Application) => {
-  console.log('DotenvConfig.CORS_ORIGIN', DotenvConfig.CORS_ORIGIN);
-
+  console.log("DotenvConfig.CORS_ORIGIN", DotenvConfig.CORS_ORIGIN);
 
   app.use(compression());
   app.use(
     cors({
       origin: DotenvConfig.CORS_ORIGIN,
-      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-    })
+      methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    }),
   );
 
-
-
   app.use((req: Request, res: Response, next: NextFunction) => {
-    const userAgent = req.headers['user-agent'];
-    const apiKey = req.headers['apikey'];
-    if (userAgent && userAgent.includes('Mozilla')) {
+    const userAgent = req.headers["user-agent"];
+    const apiKey = req.headers["apikey"];
+    if (userAgent && userAgent.includes("Mozilla")) {
       next();
     } else {
       if (apiKey === DotenvConfig.API_KEY) next();
-      else res.status(StatusCodes.FORBIDDEN).send('Forbidden');
+      else res.status(StatusCodes.FORBIDDEN).send("Forbidden");
     }
   });
 
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: "10mb" }));
   // app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
-  app.use(morgan('common'));
+  app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
 
   const schema = await buildSchema({
-
     resolvers: [UserResolver],
-    
   });
 
   const server = new ApolloServer({
-  schema
+    schema,
   });
 
   await server.start();
 
   app.use(
-    '/graphql',
+    "/graphql",
     bodyParser.json(),
-    express.urlencoded({extended:false}),
+    express.urlencoded({ extended: false }),
     expressMiddleware(server, {
       context: async ({ req }: { req: Request }): Promise<GraphQlContext> => ({
         req,
       }),
-    })
+    }),
   );
 
+  app.use("/api", routes);
 
-  app.use('/api', routes);
+  app.use(express.static(path.join(__dirname, "../../public/uploads")));
+  app.use(express.static(path.join(__dirname, "../../public")));
 
-  app.use(express.static(path.join(__dirname, '../../public/uploads')));
-  app.use(express.static(path.join(__dirname, '../../public')));
-
-  app.use('/', (_, res: Response) => {
-    res.render('index');
+  app.use("/", (_, res: Response) => {
+    res.render("index");
   });
 };
 
 export default middleware;
-
-

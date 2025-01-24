@@ -1,8 +1,7 @@
 import { UserDTO } from "../dto/user.dto";
 import { AppDataSource } from "../config/database.config";
 import { User } from "../entities/user/user.entity";
-import BcryptService from "./bcrypt.service";
-const bcryptService = new BcryptService();
+import bcryptService from "./bcrypt.service";
 import HttpException from "../utils/HttpException.utils";
 import { jwtDecode } from "jwt-decode";
 import { LocationDTO } from "../dto/location.dto";
@@ -19,30 +18,31 @@ import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
 import { statSync } from "fs";
-import { createdMessage, Message, registeredMessage } from "../constant/message";
+import {
+  createdMessage,
+  Message,
+  registeredMessage,
+} from "../constant/message";
 import axios from "axios";
 const emailService = new EmailService();
-interface UserInput{
-  email: string
-  password:string
+interface UserInput {
+  email: string;
+  password: string;
 }
 
-interface RequestGuides{
+interface RequestGuides {
   from: string;
   to: string;
   totalDays: string;
   totalPeople: string;
-
 }
-interface RequestTravels{
+interface RequestTravels {
   from: string;
   to: string;
   totalDays: string;
   totalPeople: string;
-  vehicleType: string
-
+  vehicleType: string;
 }
-
 
 interface Signup {
   firstName: string;
@@ -51,7 +51,7 @@ interface Signup {
   email: string;
   phoneNumber: string;
   gender: string;
-  password:string
+  password: string;
 }
 class UserService {
   constructor(
@@ -83,7 +83,7 @@ class UserService {
         password: hashPassword,
       });
       await this.userRepo.save(addUser);
-      console.log(addUser)
+      console.log(addUser);
       return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -97,9 +97,20 @@ class UserService {
     try {
       const user = await this.userRepo.findOne({
         where: [{ email: data.email }],
-        select: ["id","email", "password", "role","firstName", "middleName","lastName","location","gender","phoneNumber"],
+        select: [
+          "id",
+          "email",
+          "password",
+          "role",
+          "firstName",
+          "middleName",
+          "lastName",
+          "location",
+          "gender",
+          "phoneNumber",
+        ],
       });
-      console.log("yyy")
+      console.log("yyy");
 
       if (!user)
         throw HttpException.notFound(
@@ -112,7 +123,7 @@ class UserService {
       if (!passwordMatched) {
         throw HttpException.badRequest("Password didnot matched");
       }
-      
+
       return user;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -123,93 +134,89 @@ class UserService {
     }
   }
 
-    async googleLogin(googleId: string) {
+  async googleLogin(googleId: string) {
     try {
-      const decoded: any = jwtDecode(googleId)
-      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded)
+      const decoded: any = jwtDecode(googleId);
+      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded);
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
-      })
+      });
       if (!user) {
         try {
           const saveUser = this.userRepo.create({
-            
-            email : decoded.email,
-            firstName : decoded.given_name,
-            lastName : decoded.family_name,
-            gender : Gender.NONE,
-            phoneNumber : decoded.jti,
-            password : await bcryptService.hash(decoded?.sub)
-          })
-          const save = await this.userRepo.save(saveUser)
-          return save
+            email: decoded.email,
+            firstName: decoded.given_name,
+            lastName: decoded.family_name,
+            gender: Gender.NONE,
+            phoneNumber: decoded.jti,
+            password: await bcryptService.hash(decoded?.sub),
+          });
+          const save = await this.userRepo.save(saveUser);
+          return save;
         } catch (error: any) {
-          throw HttpException.badRequest(error.message)
+          throw HttpException.badRequest(error.message);
         }
       } else {
-        return await this.getByid(user.id)
+        return await this.getByid(user.id);
       }
     } catch (error: any) {
-      console.log(error.message)
+      console.log(error.message);
     }
-    }
-  
+  }
+
   async debugFBToken(userAccessToken: string) {
     if (!DotenvConfig.FACEBOOK_APP_ID || !DotenvConfig.FACEBOOK_SECRET) {
-    throw HttpException.internalServerError("Facebook App ID and App Secret must be set in environment variables.");
-  }
-
-  try {
- const fields = "id,first_name,middle_name,last_name,email";
-    const url = `https://graph.facebook.com/me?fields=${fields}&access_token=${userAccessToken}`;
-
-    const response = await axios.get(url);
-    const data = response.data;
-    console.log("🚀 ~ UserService ~ debugFBToken ~ data:", data)
-
-    if (data) {
-      return data;
-    } else {
-      console.error("Error decoding token:");
+      throw HttpException.internalServerError(
+        "Facebook App ID and App Secret must be set in environment variables.",
+      );
     }
-  } catch (error: any) {
-    console.error("Error debugging Facebook token:", error.message);
-    throw error;
+
+    try {
+      const fields = "id,first_name,middle_name,last_name,email";
+      const url = `https://graph.facebook.com/me?fields=${fields}&access_token=${userAccessToken}`;
+
+      const response = await axios.get(url);
+      const data = response.data;
+      console.log("🚀 ~ UserService ~ debugFBToken ~ data:", data);
+
+      if (data) {
+        return data;
+      } else {
+        console.error("Error decoding token:");
+      }
+    } catch (error: any) {
+      console.error("Error debugging Facebook token:", error.message);
+      throw error;
+    }
   }
-};
 
-
-
-
-  
-    async facebookLogin(userInfo: string) {
-      try {
-        const decoded:any = await this.debugFBToken(userInfo)
+  async facebookLogin(userInfo: string) {
+    try {
+      const decoded: any = await this.debugFBToken(userInfo);
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
-      })
+      });
       if (!user) {
         try {
           const saveUser = this.userRepo.create({
-            
-            email : decoded.email,
-            firstName : decoded.first_name,
+            email: decoded.email,
+            firstName: decoded.first_name,
             lastName: decoded.last_name,
-            middleName:decoded.middle_name,
-            gender : Gender.NONE,
-            phoneNumber : decoded.id,
-            password : await bcryptService.hash(decoded?.id)
-          })
-          const save = await this.userRepo.save(saveUser)
-          return save
+            middleName: decoded.middle_name,
+            gender: Gender.NONE,
+            phoneNumber: decoded.id,
+            password: await bcryptService.hash(decoded?.id),
+          });
+          const save = await this.userRepo.save(saveUser);
+          return save;
         } catch (error: any) {
-          throw HttpException.badRequest(error.message)
+          throw HttpException.badRequest(error.message);
         }
       } else {
-        return await this.getByid(user.id)
+        return await this.getByid(user.id);
       }
     } catch (error: any) {
-      console.log(error.message)
+      console.log(error.message);
     }
   }
 
@@ -284,15 +291,15 @@ class UserService {
 
   async findGuide(user_id: string) {
     try {
-      console.log("yyyy")
+      console.log("yyyy");
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
         where: { verified: true, approved: true },
         relations: ["details", "location", "kyc"],
       });
-      console.log("🚀 ~ UserService ~ findGuide ~ guides:", guides)
-      console.log("ok")
+      console.log("🚀 ~ UserService ~ findGuide ~ guides:", guides);
+      console.log("ok");
       if (!guides) {
         throw HttpException.notFound("Guide not found");
       }
@@ -419,7 +426,6 @@ class UserService {
           user: { id: user_id },
           travel: { id: travel_id },
         },
-
       });
       console.log("🚀 ~ UserService ~ findRequest:", findRequest);
       if (findRequest.length > 0) {

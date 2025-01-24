@@ -49,7 +49,7 @@ export enum FileType {
 export enum Gender {
   MALE = "MALE",
   FEMALE = "FEMALE",
-  NONE = "NONE"
+  NONE = "NONE",
 }
 
 export enum RoomType {
