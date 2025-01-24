@@ -2,11 +2,10 @@ import { Admin } from "../entities/admin/admin.entity";
 import { AppDataSource } from "../config/database.config";
 import { AdminDTO } from "../dto/admin.dto";
 import HttpException from "../utils/HttpException.utils";
-import BcryptService from "./bcrypt.service";
+import bcryptService from "./bcrypt.service";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { Status } from "../constant/enum";
-const bcryptService = new BcryptService();
 class AdminService {
   constructor(
     private readonly adminrepo = AppDataSource.getRepository(Admin),
