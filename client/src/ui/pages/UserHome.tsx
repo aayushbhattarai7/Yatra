@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   MapPin,
   Users,
@@ -7,14 +7,19 @@ import {
   Bell,
   ShoppingCart,
 } from "lucide-react";
+import { getCookie } from "@/function/GetCookie";
+import { useNavigate } from "react-router-dom";
 
 function UserHome() {
+  const navigate = useNavigate();
+  const isLoggedIn = !!getCookie("accessToken");
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/landing");
+    }
+  }, [isLoggedIn, navigate]);
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-    
-
-      {/* Hero Section */}
       <div className="relative h-[500px]">
         <img
           src="https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
@@ -27,7 +32,6 @@ function UserHome() {
           <h2 className="text-5xl font-bold">places</h2>
         </div>
 
-        {/* Search Form */}
         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl">
           <div className="bg-white rounded-lg shadow-lg p-6 mx-4">
             <div className="grid grid-cols-4 gap-4">
