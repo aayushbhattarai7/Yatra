@@ -8,6 +8,7 @@ import UserHome from "./ui/pages/UserHome";
 import { MessageProvider } from "./contexts/MessageContext";
 import TravelRegister from "./components/TravelRegister";
 import { MapProvider } from "./contexts/MapContext";
+import Landing from "./components/LandingPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -18,6 +19,10 @@ function App() {
         {
           path: "",
           element: <UserHome />,
+        },
+        {
+          path: "/landing",
+          element: <Landing />,
         },
         {
           path: "/user-register",
@@ -45,10 +50,8 @@ function App() {
   return (
     <>
       <MessageProvider>
-        <MapProvider>
 
         <RouterProvider router={router} />
-        </MapProvider>
       </MessageProvider>
     </>
   );
