@@ -42,7 +42,7 @@ export class User extends Base {
   @Column({ name: "password", select: false })
   password: string;
   @Field()
-  @Column({ name: "tokens", nullable:true })
+  @Column({ name: "tokens", nullable: true })
   tokens: string;
 
   @Field(() => Location)

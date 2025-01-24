@@ -7,6 +7,4 @@ export class LoginDTO {
 
   @Field()
   password: string;
-
-  
 }

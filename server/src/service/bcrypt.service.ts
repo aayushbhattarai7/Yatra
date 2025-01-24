@@ -9,4 +9,4 @@ class BcryptService {
     return await bcrypt.compare(password, hash);
   }
 }
-export default new BcryptService;
+export default new BcryptService();

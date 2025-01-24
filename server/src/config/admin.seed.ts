@@ -7,7 +7,7 @@ import { createdMessage } from "../constant/message";
 import HttpException from "../utils/HttpException.utils";
 
 class SeedAdmin {
-constructor(
+  constructor(
     private readonly adminRepsository = AppDataSource.getTreeRepository(Admin),
   ) {}
 
@@ -17,11 +17,11 @@ constructor(
         email: DotenvConfig.ADMIN_EMAIL,
       });
       if (IsAdminExist) throw HttpException.conflict("Admin is already seeded");
-    
-         const hashedPassword = await bcryptService.hash(
+
+      const hashedPassword = await bcryptService.hash(
         DotenvConfig.ADMIN_PASSWORD,
       );
-        
+
       const admin = this.adminRepsository.create({
         name: DotenvConfig.ADMIN_NAME,
         role: Role.ADMIN,
