@@ -9,8 +9,12 @@ import { MessageProvider } from "./contexts/MessageContext";
 import TravelRegister from "./components/TravelRegister";
 import { MapProvider } from "./contexts/MapContext";
 import Landing from "./components/LandingPage";
+import { getCookie } from "./function/GetCookie";
 
 function App() {
+  const isLoggedIn = !!getCookie("accessToken");
+  const home = isLoggedIn ? <UserHome /> : <Landing />;
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -18,11 +22,7 @@ function App() {
       children: [
         {
           path: "",
-          element: <UserHome />,
-        },
-        {
-          path: "/landing",
-          element: <Landing />,
+          element: home,
         },
         {
           path: "/user-register",
@@ -50,7 +50,6 @@ function App() {
   return (
     <>
       <MessageProvider>
-
         <RouterProvider router={router} />
       </MessageProvider>
     </>

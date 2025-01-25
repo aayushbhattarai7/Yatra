@@ -11,13 +11,7 @@ import { getCookie } from "@/function/GetCookie";
 import { useNavigate } from "react-router-dom";
 
 function UserHome() {
-  const navigate = useNavigate();
-  const isLoggedIn = !!getCookie("accessToken");
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/landing");
-    }
-  }, [isLoggedIn, navigate]);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="relative h-[500px]">
