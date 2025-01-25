@@ -7,15 +7,15 @@ export function Route() {
   const token = sessionStorage.getItem("accessToken");
   useEffect(() => {
     if (!token) {
-      navigate("/landing");
+      navigate("/");
     } else {
       try {
         const decoded = jwtDecode(token);
         if (!decoded) {
-          navigate("/landing");
+          navigate("/");
         }
       } catch (error) {
-        navigate("/landing");
+        navigate("/");
       }
     }
   }, [token, navigate]);
