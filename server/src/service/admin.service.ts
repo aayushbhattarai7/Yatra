@@ -6,6 +6,7 @@ import bcryptService from "./bcrypt.service";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { Status } from "../constant/enum";
+import { LoginDTO } from "../dto/login.dto";
 class AdminService {
   constructor(
     private readonly adminrepo = AppDataSource.getRepository(Admin),
@@ -13,30 +14,9 @@ class AdminService {
     private readonly travelRepo = AppDataSource.getRepository(Travel),
   ) {}
 
-  async createAdmin(data: AdminDTO): Promise<Admin> {
-    try {
-      const emailExist = await this.adminrepo.findOneBy({ email: data.email });
-      if (emailExist)
-        throw HttpException.notFound("Entered Email is not registered yet");
 
-      const hashPassword = await bcryptService.hash(data.password);
-      const addAdmin = this.adminrepo.create({
-        name: data.name,
-        email: data.email,
-        password: hashPassword,
-      });
-      await this.adminrepo.save(addAdmin);
-      return addAdmin;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error?.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
-    }
-  }
 
-  async loginAdmin(data: AdminDTO): Promise<Admin> {
+  async login(data: LoginDTO): Promise<Admin> {
     try {
       const admin = await this.adminrepo.findOne({
         where: [{ email: data.email }],
