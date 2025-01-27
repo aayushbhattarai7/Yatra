@@ -19,15 +19,16 @@ import {  Role } from "../../constant/enum";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import adminService from "../../service/admin.service";
+import { Admin } from "../../entities/admin/admin.entity";
 
 interface Message {
   message: string;
 }
-@Resolver((of) => User)
-export class UserResolver {
+@Resolver((of) => Admin)
+export class AdminResolver {
 
   @Mutation(() => LoginResponse)
-  async login(@Arg("email") email: string, @Arg("password") password: string) {
+  async adminLogin(@Arg("email") email: string, @Arg("password") password: string) {
     try {
       const data = { email, password };
       const admin = await adminService.login(data);
@@ -54,13 +55,13 @@ export class UserResolver {
     @Query(() => Guide, { nullable: true })
         @UseMiddleware(authentication, authorization([Role.ADMIN]))
 
-  async getUser(@Arg("id") id: string): Promise<Guide[] | null> {
+  async getGuideApprovalRequestByAdmin(@Arg("id") id: string): Promise<Guide[] | null> {
     return await adminService.getGuideApprovalRequest(id);
   }
 
   @Query(() => [Travel])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async findGuide(@Ctx() ctx: Context): Promise<Travel[] | null> {
+  async getTravelApprovalRequestByAdmin(@Ctx() ctx: Context): Promise<Travel[] | null> {
     try {
       const id = ctx.req.user?.id;
       return adminService.getTravelApprovalRequest(id!);
@@ -70,9 +71,26 @@ export class UserResolver {
   }
 
 
+  @Mutation(() => RequestTravel)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async approveTravel(
+    @Ctx() ctx: Context,
+    @Arg("travel_id") travelId: string,
+  ) {
+    try {
+      const adminId = ctx.req.user?.id!;
+      return await adminService.approveTravel(adminId, travelId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.internalServerError(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Mutation(() => RequestGuide)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async requestGuide(
+  async approveGuide(
     @Ctx() ctx: Context,
     @Arg("guide_id") guideId: string,
   ) {
@@ -90,25 +108,7 @@ export class UserResolver {
 
   @Mutation(() => RequestTravel)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async requestTravel(
-    @Ctx() ctx: Context,
-    @Arg("travel_id") travelId: string,
-  ) {
-    try {
-      const adminId = ctx.req.user?.id!;
-      return await adminService.approveTravel(adminId, travelId);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw HttpException.internalServerError(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
-    }
-  }
-
-  @Query(() => RequestTravel)
-  @UseMiddleware(authentication, authorization([Role.USER]))
-  async getOwnTravelRequest(@Ctx() ctx: Context,
+  async rejectTravel(@Ctx() ctx: Context,
       @Arg("travel_id") travelId: string,
       @Arg("message") message: string,
 ) {
@@ -124,9 +124,9 @@ export class UserResolver {
     }
   }
 
-  @Query(() => RequestGuide)
+  @Mutation(() => RequestGuide)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getOwnGuideRequest(@Ctx() ctx: Context,
+  async rejectGuide(@Ctx() ctx: Context,
     @Arg("guide_id") guideId: string,
       @Arg("message") message: string,) {
     try {

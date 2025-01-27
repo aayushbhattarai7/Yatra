@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { RxPerson } from "react-icons/rx";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { NavLink } from "react-router-dom";
 import backgroundImage1 from "../../../assets/pexels-andreimike-1271619.jpg";
 import backgroundImage2 from "../../../assets/pexels-creative-vix-9754.jpg";
 import backgroundImage3 from "../../../assets/pexels-hikaique-775201.jpg";
