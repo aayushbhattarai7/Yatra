@@ -19,7 +19,7 @@ export function Route() {
       }
     }
   }, [token, navigate]);
-  const noNavbarRoutes = ["/user-login", "/user-register"];
+  const noNavbarRoutes = ["/user-login", "/user-register","/adminLogin"];
   const shouldShowNavbar = !noNavbarRoutes.includes(location.pathname);
   return (
     <>

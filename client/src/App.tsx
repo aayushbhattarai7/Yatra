@@ -10,6 +10,7 @@ import TravelRegister from "./components/TravelRegister";
 import { MapProvider } from "./contexts/MapContext";
 import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
+import AdminLogin from "./ui/common/organisms/AdminLogin";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -43,6 +44,10 @@ function App() {
         {
           path: "travel-register",
           element: <TravelRegister />,
+        },
+        {
+          path: "adminLogin",
+          element: <AdminLogin />,
         },
       ],
     },
