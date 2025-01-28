@@ -1,20 +1,18 @@
 import { Admin } from "../entities/admin/admin.entity";
 import { AppDataSource } from "../config/database.config";
-import { AdminDTO } from "../dto/admin.dto";
 import HttpException from "../utils/HttpException.utils";
 import bcryptService from "./bcrypt.service";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { Status } from "../constant/enum";
 import { LoginDTO } from "../dto/login.dto";
+import { Message } from "../constant/message";
 class AdminService {
   constructor(
     private readonly adminrepo = AppDataSource.getRepository(Admin),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
     private readonly travelRepo = AppDataSource.getRepository(Travel),
   ) {}
-
-
 
   async login(data: LoginDTO): Promise<Admin> {
     try {
@@ -31,11 +29,9 @@ class AdminService {
         throw HttpException.badRequest("Password didnot matched");
       return admin;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
 
@@ -55,21 +51,15 @@ class AdminService {
       if (!getUnapprovedGuide) throw HttpException.notFound("Guide not found");
       return getUnapprovedGuide;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
 
   async getTravelApprovalRequest(adminId: string) {
     try {
       const admin = await this.adminrepo.findOneBy({ id: adminId });
-      console.log(
-        "🚀 ~ AdminService ~ getTravelApprovalRequest ~ admin:",
-        admin,
-      );
       if (!admin)
         throw HttpException.unauthorized("You are not authorized admin");
 
@@ -84,11 +74,9 @@ class AdminService {
         throw HttpException.notFound("Travel not found");
       return getUnapprovedTravel;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
 
@@ -106,11 +94,9 @@ class AdminService {
       );
       return "Approved successfully";
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
 
@@ -127,11 +113,9 @@ class AdminService {
         { approved: true, approval: Status.ACCEPTED },
       );
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
   async rejectGuide(adminId: string, guideId: string, message: string) {
@@ -148,15 +132,12 @@ class AdminService {
         { approveStatus: message, approval: Status.REJECTED },
       );
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
   async rejectTravel(adminId: string, travelId: string, message: string) {
-    console.log("🚀 ~ AdminService ~ rejectTravel ~ message:", message);
     try {
       const admin = await this.adminrepo.findOneBy({ id: adminId });
       if (!admin) throw HttpException.unauthorized("You are not authorized");
@@ -170,11 +151,9 @@ class AdminService {
         { approveStatus: message, approval: Status.REJECTED },
       );
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
     }
   }
 }

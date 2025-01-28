@@ -14,14 +14,11 @@ import bodyParser from "body-parser";
 import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
 
-const resolver = new UserResolver();
 interface GraphQlContext {
   req: Request;
 }
 
 const middleware = async (app: Application) => {
-  console.log("DotenvConfig.CORS_ORIGIN", DotenvConfig.CORS_ORIGIN);
-
   app.use(compression());
   app.use(
     cors({
@@ -76,6 +73,7 @@ const middleware = async (app: Application) => {
   app.use("/", (_, res: Response) => {
     res.render("index");
   });
+  app.use(errorHandler)
 };
 
 export default middleware;

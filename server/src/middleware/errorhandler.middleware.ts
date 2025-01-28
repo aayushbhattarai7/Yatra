@@ -1,5 +1,4 @@
-import { type NextFunction, type Request, type Response } from "express";
-import { DotenvConfig } from "../config/env.config";
+import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
   error: any,
@@ -7,12 +6,12 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log("🚀 ~ errorHandler ~ error:", error);
+  console.log("🚀 ~ errorHandler ~ error:", error.message);
   let statusCode = 500;
   let data = {
     success: false,
     message: "error",
-    ...(DotenvConfig.DEBUG_MODE === "true" && { original: error.message }),
+    ...(process.env.DEBUG_MODE === "true" && { original: error.message }),
   };
 
   if (error?.isOperational || error?.isCustom) {
@@ -22,5 +21,5 @@ export const errorHandler = (
       message: error.message,
     };
   }
-  return res.status(statusCode).json(data.message);
+  res.status(statusCode).json(data);
 };

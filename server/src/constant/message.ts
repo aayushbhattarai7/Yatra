@@ -2,6 +2,7 @@ export const Message = {
   error: "Error occurred",
   notAuthorized: " You are not Authorized",
   tokenExpire: "Token expired, Please signin again",
+  LoggedIn: "LoggedIn Successfully",
 };
 export const createdMessage = (title: string) => {
   return `${title} created Successfully`;
