@@ -68,7 +68,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
       <div>
       </div>
       <div className="w-[23rem] flex justify-center items-center">
-        <Button
+        <Button 
           buttonText={authLabel.login[lang]}
           name=""
           type="submit"

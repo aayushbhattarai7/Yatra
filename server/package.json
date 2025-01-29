@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:dev": "ts-node-dev src/server.ts",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "seed": "ts-node-dev src/config/admin.seed.ts"
   },
   "keywords": [],
   "author": "",
