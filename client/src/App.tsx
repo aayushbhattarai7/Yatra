@@ -7,10 +7,10 @@ import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
 import { MessageProvider } from "./contexts/MessageContext";
 import TravelRegister from "./components/TravelRegister";
-import { MapProvider } from "./contexts/MapContext";
 import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
+import ProtectedRoute from "./components/ProtectedRoute"; 
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -21,43 +21,26 @@ function App() {
       path: "/",
       element: <Route />,
       children: [
+        { path: "", element: home },
+        { path: "/user-register", element: <UserRegister /> },
+        { path: "/user-login", element: <UserLogin /> },
+        { path: "/guides", element: <Guides /> },
+        { path: "guide-register", element: <GuideRegister /> },
+        { path: "travel-register", element: <TravelRegister /> },
+        { path: "adminLogin", element: <AdminLogin /> },
         {
-          path: "",
-          element: home,
-        },
-        {
-          path: "/user-register",
-          element: <UserRegister />,
-        },
-        {
-          path: "/user-login",
-          element: <UserLogin />,
-        },
-        {
-          path: "/guides",
-          element: <Guides />,
-        },
-        {
-          path: "guide-register",
-          element: <GuideRegister />,
-        },
-        {
-          path: "travel-register",
-          element: <TravelRegister />,
-        },
-        {
-          path: "adminLogin",
-          element: <AdminLogin />,
+          path: "/user",
+          element: <ProtectedRoute />, 
+          children: [{ path: "home", element: <UserHome /> }],
         },
       ],
     },
   ]);
+
   return (
-    <>
-      <MessageProvider>
-        <RouterProvider router={router} />
-      </MessageProvider>
-    </>
+    <MessageProvider>
+      <RouterProvider router={router} />
+    </MessageProvider>
   );
 }
 
