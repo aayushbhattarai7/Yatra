@@ -33,7 +33,6 @@ const UserLogin = () => {
       const response = await adminLogin({
         variables: { email: formData.email, password: formData.password },
       });
-      console.log(response,"hhehha-------")
       if (response.data) {
         const { accessToken } = response.data.adminLogin.tokens;
         Cookies.set("accessToken", accessToken, {
