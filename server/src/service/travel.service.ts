@@ -3,7 +3,7 @@ import { passwordRegex } from "../utils/regex.utils";
 import { emailRegex } from "../utils/regex.utils";
 import { TravelDTO } from "../dto/travel.dto";
 import { AppDataSource } from "../config/database.config";
-import BcryptService from "./bcrypt.service";
+import bcryptService from "./bcrypt.service";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Travel } from "../entities/travels/travel.entity";
@@ -14,8 +14,8 @@ import { RequestTravel } from "../entities/user/RequestTravels.entity";
 import { User } from "../entities/user/user.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
+import { Message, registeredMessage } from "../constant/message";
 
-const bcryptService = new BcryptService();
 const hashService = new HashService();
 const otpService = new OtpService();
 class TravelService {
@@ -32,7 +32,7 @@ class TravelService {
     private readonly userRepo = AppDataSource.getRepository(User),
   ) {}
 
-  async create(image: any[], data: TravelDTO): Promise<Travel> {
+  async create(image: any[], data: TravelDTO): Promise<string> {
     return await AppDataSource.transaction(
       async (transactionalEntityManager) => {
         try {
@@ -154,7 +154,7 @@ class TravelService {
             }
           }
 
-          return travel;
+          return registeredMessage("Travel");
         } catch (error: unknown) {
           if (error instanceof Error) {
             console.log(error.message);
