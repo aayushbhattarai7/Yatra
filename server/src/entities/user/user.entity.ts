@@ -33,6 +33,9 @@ export class User extends Base {
   @Field()
   @Column({ name: "phone_number", unique: true })
   phoneNumber: string;
+  @Field()
+  @Column({ name: "verified", nullable:true })
+  verified: boolean;
 
   @Field()
   @Column({ type: "enum", enum: Gender })

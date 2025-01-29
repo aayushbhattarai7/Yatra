@@ -6,7 +6,7 @@ import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
 import { MessageProvider } from "./contexts/MessageContext";
-import TravelRegister from "./components/TravelRegister";
+import TravelRegister from "./ui/common/organisms/TravelRegister";
 import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";

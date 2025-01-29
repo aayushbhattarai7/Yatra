@@ -108,6 +108,7 @@ class UserService {
           "location",
           "gender",
           "phoneNumber",
+          "verified"
         ],
       });
       console.log("yyy");
@@ -116,6 +117,8 @@ class UserService {
         throw HttpException.notFound(
           "The email you provided is not registered yet, please try with the registered one or create new account",
         );
+      
+      if(!user.verified) throw HttpException.badRequest("You are not verified user, please verify your otp")
       const passwordMatched = await bcryptService.compare(
         data.password,
         user.password,
