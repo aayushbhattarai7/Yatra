@@ -11,6 +11,7 @@ import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute"; 
+import { Provider } from "./components/ui/provider";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -39,7 +40,10 @@ function App() {
 
   return (
     <MessageProvider>
+      <Provider>
+
       <RouterProvider router={router} />
+      </Provider>
     </MessageProvider>
   );
 }
