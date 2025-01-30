@@ -40,10 +40,8 @@ function App() {
 
   return (
     <MessageProvider>
-      <Provider>
 
       <RouterProvider router={router} />
-      </Provider>
     </MessageProvider>
   );
 }
