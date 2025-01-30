@@ -1,5 +1,4 @@
-import { Spinner } from "@chakra-ui/react";
-
+import {image} from '../../../config/constant/image'
 interface ButtonProps {
   name?: string;
   type: "submit" | "reset" | "button";
@@ -26,7 +25,7 @@ const Button: React.FC<ButtonProps> = ({
         className={` w-32 mb-4 bg-[#1366D9] text-white hover:bg-blue-700 p-3 rounded-xl font-poppins shadow-xl ${className}`}
         onClick={onClick}
       >
-        {disabled ? <Spinner /> : buttonText}
+        {disabled ? <image /> : buttonText}
       </button>
     </div>
   );
