@@ -262,6 +262,7 @@ class UserService {
 
   async getByid(id: string) {
     try {
+      console.log(id,"haha")
       const users = this.userRepo
         .createQueryBuilder("user")
         .where("user.id =:id", { id });
