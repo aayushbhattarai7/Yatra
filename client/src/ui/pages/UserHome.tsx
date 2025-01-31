@@ -5,11 +5,8 @@ import {
   Users,
   Calendar,
   Compass,
-  Bell,
-  ShoppingCart,
 } from "lucide-react";
-import { getCookie } from "@/function/GetCookie";
-import { useNavigate } from "react-router-dom";
+
 
 function UserHome() {
 

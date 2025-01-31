@@ -34,7 +34,7 @@ export class User extends Base {
   @Column({ name: "phone_number", unique: true })
   phoneNumber: string;
   @Field()
-  @Column({ name: "verified", nullable:true })
+  @Column({ name: "verified", nullable: true })
   verified: boolean;
 
   @Field()

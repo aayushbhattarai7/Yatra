@@ -16,12 +16,12 @@ class AdminService {
 
   async login(data: LoginDTO): Promise<Admin> {
     try {
-      console.log("admin")
+      console.log("admin");
       const admin = await this.adminrepo.findOne({
         where: [{ email: data.email }],
         select: ["id", "email", "password", "role"],
       });
-      console.log(admin)
+      console.log(admin);
       if (!admin) throw HttpException.notFound("Invalid Email");
       const checkPassword = await bcryptService.compare(
         data.password,
