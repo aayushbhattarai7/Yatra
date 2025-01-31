@@ -1,8 +1,8 @@
 import upload from "../utils/fileUpload.utils";
 import { GuideController } from "../controllers/guide.controller";
 import { Router } from "express";
-import { authentication } from "../middleware/authentication.middleware";
-import { authorization } from "../middleware/authorization.middleware";
+import { authentication } from "../middleware/authentication";
+import { authorization } from "../middleware/authorization";
 import { Role } from "../constant/enum";
 const guideController = new GuideController();
 const router: Router = Router();

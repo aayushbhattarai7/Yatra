@@ -13,6 +13,7 @@ import { buildSchema } from "type-graphql";
 import bodyParser from "body-parser";
 import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
+import { GuideResolver } from "../graphql/resolvers/GuideReslover";
 
 interface GraphQlContext {
   req: Request;
@@ -45,7 +46,7 @@ const middleware = async (app: Application) => {
   app.use(express.urlencoded({ extended: false }));
 
   const schema = await buildSchema({
-    resolvers: [UserResolver, AdminResolver],
+    resolvers: [UserResolver, AdminResolver, GuideResolver],
   });
 
   const server = new ApolloServer({
