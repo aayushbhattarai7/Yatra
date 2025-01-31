@@ -3,14 +3,14 @@ import { useMessage } from "../../../contexts/MessageContext";
 import { useEffect, useState } from "react";
 
 const GET_GUIDE_QUERY = gql`
-  query Query {
+  query FindGuide {
     findGuide {
       id
       firstName
       middleName
       lastName
-      gender
       guiding_location
+      gender
     }
   }
 `;

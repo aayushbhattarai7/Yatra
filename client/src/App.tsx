@@ -12,6 +12,7 @@ import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import { Provider } from "./components/ui/provider";
+import Travels from "./components/Travels";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -25,14 +26,20 @@ function App() {
         { path: "", element: home },
         { path: "/user-register", element: <UserRegister /> },
         { path: "/user-login", element: <UserLogin /> },
-        { path: "/guides", element: <Guides /> },
         { path: "guide-register", element: <GuideRegister /> },
         { path: "travel-register", element: <TravelRegister /> },
         { path: "adminLogin", element: <AdminLogin /> },
         {
-          path: "/user",
+          path: "/",
           element: <ProtectedRoute />, 
-          children: [{ path: "home", element: <UserHome /> }],
+          children: [{ path: "home", element: <UserHome /> },
+            {
+              path: 'travel',
+              element:<Travels/>
+            },
+            { path: "guide", element: <Guides /> },
+          ],
+
         },
       ],
     },

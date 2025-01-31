@@ -26,6 +26,7 @@ const middleware = async (app: Application) => {
       origin: DotenvConfig.CORS_ORIGIN,
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
+      credentials:true
     }),
   );
 
