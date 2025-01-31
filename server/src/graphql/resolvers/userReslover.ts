@@ -143,7 +143,7 @@ export class UserResolver {
         },
         message: "Logged in successfully via Google",
       };
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error
           ? error.message
@@ -152,15 +152,13 @@ export class UserResolver {
     }
   }
 
-
-
   @Query(() => User)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getUser(@Ctx() ctx: Context): Promise<User| null> {
+  async getUser(@Ctx() ctx: Context): Promise<User | null> {
     try {
       const id = ctx.req.user?.id;
       return this.userService.getByid(id!);
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error
           ? error.message
