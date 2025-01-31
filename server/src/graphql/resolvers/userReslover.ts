@@ -143,8 +143,8 @@ export class UserResolver {
         },
         message: "Logged in successfully via Google",
       };
-    } catch (error) {
-      throw new Error(
+    } catch (error:unknown) {
+      throw HttpException.badRequest(
         error instanceof Error
           ? error.message
           : "An error occurred during Google login",
@@ -152,11 +152,22 @@ export class UserResolver {
     }
   }
 
-  @Query(() => User, { nullable: true })
-  async getUser(@Arg("id") id: string): Promise<User | null> {
-    return await this.userService.getByid(id);
-  }
 
+
+  @Query(() => User)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getUser(@Ctx() ctx: Context): Promise<User| null> {
+    try {
+      const id = ctx.req.user?.id;
+      return this.userService.getByid(id!);
+    } catch (error:unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during Google login",
+      );
+    }
+  }
   @Query(() => [Guide])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async findGuide(@Ctx() ctx: Context): Promise<Guide[] | null> {

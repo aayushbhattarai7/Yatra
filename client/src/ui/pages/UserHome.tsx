@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import {landingImage} from '../../config/constant/image'
 import {
   MapPin,
   Users,
@@ -16,15 +17,11 @@ function UserHome() {
     <div className="min-h-screen bg-white">
       <div className="relative h-[500px]">
         <img
-          src="https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+          src={landingImage}
           alt="Mountain view from tent"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white">
-          <h1 className="text-5xl font-bold mb-4">Discover the</h1>
-          <h2 className="text-5xl font-bold mb-4">most engaging</h2>
-          <h2 className="text-5xl font-bold">places</h2>
-        </div>
+      
 
         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl">
           <div className="bg-white rounded-lg shadow-lg p-6 mx-4">

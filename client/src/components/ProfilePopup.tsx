@@ -1,8 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
-
+import { gql, useQuery } from "@apollo/client";
+interface FormData {
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  gender: string;
+  email: string;
+  phoneNumber: string;
+}
 const ProfilePopup = () => {
   const [logout, setLogout] = useState<boolean>(false);
+ 
+  const [user, setUser] = useState<FormData | null>(null);
+  const GET_USER_QUERY = gql`
+    query GetUser {
+      getUser {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+        gender
+      }
+    }
+  `;
+  const { data, loading, error } = useQuery(GET_USER_QUERY);
+  useEffect(() => {
+    if (data) {
+      setUser(data.getUser);
+    }
+  }, [data]);
 
   return (
     <>
@@ -17,8 +47,9 @@ const ProfilePopup = () => {
               alt="Profile"
             />
             <div>
-              <h4 className="text-sm font-semibold">Jon Doe</h4>
-              <p className="text-xs text-gray-600">jon.doe@example.com</p>
+              <h4 className="text-sm font-semibold">{user?.firstName} {user?.middleName} {user?.lastName}</h4>
+              <p className="text-xs text-gray-600">{user?.email}</p>
+              <p className="text-xs text-gray-600">{user?.phoneNumber}</p>
             </div>
           </div>
         </div>

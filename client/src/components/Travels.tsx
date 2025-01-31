@@ -52,7 +52,7 @@ const Travels = () => {
           <p>First Name: {travel.firstName}</p>
           <p>Middle Name: {travel.middleName}</p>
           <p>Last Name: {travel.lastName}</p>
-          <p>Guiding Location: {travel.vehicle_type}</p>
+          <p>Vehicle: {travel.vehicle_type}</p>
           <p>Gender: {travel.gender}</p>
         </div>
       ))}
