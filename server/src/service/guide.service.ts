@@ -4,7 +4,7 @@ import { emailRegex } from "../utils/regex.utils";
 import { GuideDTO } from "../dto/guide.dto";
 import { AppDataSource } from "../config/database.config";
 import { Guide } from "../entities/guide/guide.entity";
-import BcryptService from "./bcrypt.service";
+import bcryptService from "./bcrypt.service";
 import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
@@ -15,7 +15,6 @@ import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
-const bcryptService = new BcryptService();
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {

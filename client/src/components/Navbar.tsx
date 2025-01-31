@@ -14,7 +14,6 @@ const Navbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Check if the user is logged in using the cookie
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {

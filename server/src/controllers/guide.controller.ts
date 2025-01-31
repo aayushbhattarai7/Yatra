@@ -75,7 +75,7 @@ export class GuideController {
             }
           : null;
       } else {
-        return res.status(StatusCodes.BAD_REQUEST).json({
+        res.status(StatusCodes.BAD_REQUEST).json({
           message: "Invalid KYC type provided.",
         });
       }

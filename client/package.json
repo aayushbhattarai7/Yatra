@@ -21,6 +21,7 @@
     "apollo-client": "^2.6.10",
     "apollo-upload-client": "^18.0.1",
     "button": "link:components/ui/button",
+    "framer-motion": "^12.0.6",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
