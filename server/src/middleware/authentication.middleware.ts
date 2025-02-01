@@ -11,13 +11,11 @@ export const authentication: MiddlewareFn<Context> = async (
   const tokens = context.req.headers.authorization?.split(" ");
 
   try {
-    console.log("heehjahjhhhhhhhhhhhhhhhhhh", tokens);
     if (!tokens) {
       throw new Error("You are not authorized1234");
     }
     const mode = tokens[0];
     const accessToken = tokens[1];
-    console.log("okok");
     if (mode !== "Bearer" || !accessToken) {
       throw new Error("You are not authorized");
     }

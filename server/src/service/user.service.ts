@@ -19,6 +19,7 @@ import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
 import { statSync } from "fs";
 import {
+  bookRequestMessage,
   createdMessage,
   Message,
   registeredMessage,
@@ -437,7 +438,7 @@ class UserService {
       console.log("🚀 ~ UserService ~ findRequest:", findRequest);
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
-          "Request already sent to this travel, Please wait a while for your verification",
+          "Request already sent to this travel, Please wait a while for the travel response",
         );
       }
       if (!travel) {
@@ -460,7 +461,7 @@ class UserService {
       //   subject: `${user.firstName} sent you a travel request`,
       //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
       // });
-      return request;
+      return bookRequestMessage("Travel");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);

@@ -17,3 +17,6 @@ export const updatedMessage = (title: string) => {
 export const registeredMessage = (title: string) => {
   return `${title} registered successfully`;
 };
+export const bookRequestMessage = (title: string) => {
+  return `${title} booking request sent successfully`;
+};

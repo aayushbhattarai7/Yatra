@@ -1,5 +1,9 @@
+import { authLabel } from "@/localization/auth";
 import { gql, useQuery } from "@apollo/client";
+import Button from "../ui/common/atoms/Button";
 import { useEffect, useState } from "react";
+import { useLang } from "@/hooks/useLang";
+import RequestTravelBooking from "./RequestTravelBooking";
 
 const GET_TRAVEL_QUERY = gql`
   query FindTravel {
@@ -20,21 +24,17 @@ interface FormData {
   firstName: string;
   middleName: string;
   lastName: string;
-  vehicle_type: string;
+  vehicleType: string;
   gender: string;
-  location: Location;
-  nationality: string;
-}
-
-interface Location {
-  latitude: string;
-  longitude: string;
 }
 
 const Travels = () => {
   const [travels, setTravels] = useState<FormData[] | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { lang } = useLang();
 
   const { data, loading, error } = useQuery(GET_TRAVEL_QUERY);
+
   useEffect(() => {
     if (data) {
       setTravels(data.findTravel);
@@ -45,18 +45,26 @@ const Travels = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div>
-      {travels?.map((travel) => (
-        <div key={travel.id}>
-          <p>ID: {travel.id}</p>
-          <p>First Name: {travel.firstName}</p>
-          <p>Middle Name: {travel.middleName}</p>
-          <p>Last Name: {travel.lastName}</p>
-          <p>Vehicle: {travel.vehicle_type}</p>
-          <p>Gender: {travel.gender}</p>
-        </div>
-      ))}
-    </div>
+    <>
+      {selectedId && <RequestTravelBooking id={selectedId} />}
+      <div>
+        {travels?.map((travel) => (
+          <div key={travel.id}>
+            <p>ID: {travel.id}</p>
+            <p>First Name: {travel.firstName}</p>
+            <p>Middle Name: {travel.middleName}</p>
+            <p>Last Name: {travel.lastName}</p>
+            <p>Vehicle: {travel.vehicleType}</p>
+            <p>Gender: {travel.gender}</p>
+            <Button
+              type="button"
+              buttonText={authLabel.book[lang]}
+              onClick={() => setSelectedId(travel.id)}
+            />
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 
