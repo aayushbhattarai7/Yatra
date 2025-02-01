@@ -14,6 +14,7 @@ import bodyParser from "body-parser";
 import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
 import { GuideResolver } from "../graphql/resolvers/GuideReslover";
+import fileUpload from "express-fileupload";
 
 interface GraphQlContext {
   req: Request;
@@ -42,7 +43,7 @@ const middleware = async (app: Application) => {
   });
 
   app.use(express.json({ limit: "10mb" }));
-  // app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+app.use(fileUpload());
   app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
 

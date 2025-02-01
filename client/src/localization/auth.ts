@@ -154,6 +154,32 @@ export const authLabel: LabelTypes = {
     en: "You haven't connected with anyone yet.",
     ne:'तपाईंले अहिलेसम्म कुनै साथी बनाउनुभएको छैन।'
   }, 
+  book: {
+    en: "Book",
+    Ne:"बुक"
+  },
+  from: {
+    en: "from",
+    ne:"कहाँबाट"
+  },
+  to: {
+    en: "to",
+    ne:"कहाँसम्म"
+  },
+  totalPeople: {
+    en: "Total People",
+    ne:"जम्मा मानिस"
+  }
+  ,
+  totalDays: {
+    en: "Total Days",
+    ne:"जम्मा दिन"
+  }
+  ,
+  vehicleType: {
+    en: "Vehicle Type",
+    ne:"गाडीको प्रकार"
+  }
  
  
 };
