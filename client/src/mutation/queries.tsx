@@ -15,7 +15,7 @@ export const SIGNUP_MUTATION = gql`
 `;
 
 
-export const BOOKING_MUTATION = gql`
+export const TRAVEL_BOOKING_MUTATION = gql`
   mutation RequestTravel(
     $vehicleType: String!
     $totalPeople: String!
@@ -31,6 +31,23 @@ export const BOOKING_MUTATION = gql`
       to: $to
       from: $from
       travel_id: $travelId
+    )
+  }
+`;
+export const GUIDE_BOOKING_MUTATION = gql`
+  mutation RequestGuide(
+    $totalPeople: String!
+    $totalDays: String!
+    $to: String!
+    $from: String!
+    $guideId: String!
+  ) {
+    requestGuide(
+      totalPeople: $totalPeople
+      totalDays: $totalDays
+      to: $to
+      from: $from
+      guide_id: $guideId
     )
   }
 `;

@@ -13,6 +13,7 @@ import AdminLogin from "./ui/common/organisms/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 import { Provider } from "./components/ui/provider";
 import Travels from "./components/Travels";
+import ToastNotification from "./components/ToastNotification";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -47,7 +48,7 @@ function App() {
 
   return (
     <MessageProvider>
-
+<ToastNotification/>
       <RouterProvider router={router} />
     </MessageProvider>
   );

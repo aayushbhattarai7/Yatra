@@ -5,9 +5,8 @@ import { useLang } from "@/hooks/useLang";
 import Label from "@/ui/common/atoms/Label";
 import { RxPerson } from "react-icons/rx";
 import Button from "@/ui/common/atoms/Button";
-import { TRAVEL_BOOKING_MUTATION } from "@/mutation/queries";
+import { GUIDE_BOOKING_MUTATION } from "@/mutation/queries";
 import { useMutation } from "@apollo/client";
-import { showToast } from "./ToastNotification";
 
 interface RequestProps {
   id: string;
@@ -16,35 +15,31 @@ interface RequestProps {
 
 interface FormData {
   id: string;
-  vehicleType: string;
   totalPeople: string;
   totalDays: string;
   to: string;
   from: string;
 }
 
-const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
+const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, handleSubmit } = useForm<FormData>();
-  const [requestTravel, { loading, error }] = useMutation(TRAVEL_BOOKING_MUTATION);
+  const [requestGuide, { loading }] = useMutation(GUIDE_BOOKING_MUTATION);
 
   const submit: SubmitHandler<FormData> = async (formData) => {
     try {
-      const response = await requestTravel({
+      const response = await requestGuide({
         variables: {
           from: formData.from,
           to: formData.to,
-          vehicleType: formData.vehicleType,
-          travelId: id,
+          guideId: id,
           totalPeople: formData.totalPeople,
           totalDays: formData.totalDays,
         },
       });
-        console.log(response.data);
-        onClose();
-    } catch (err: unknown) {
-        console.log(error?.message,"ahah")
-        showToast(error?.message || "error occured","error")
+      console.log(response.data);
+      onClose();
+    } catch (err) {
       console.error("GraphQL Error:", err);
     }
   };
@@ -65,7 +60,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
 
         <form onSubmit={handleSubmit(submit)} className="space-y-4">
           <div>
-            <Label name="from" label={authLabel.from[lang]} required />
+            <Label name="from" label={authLabel.from[lang]} />
             <InputField
               placeholder={authLabel.from[lang]}
               type="text"
@@ -77,7 +72,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           </div>
 
           <div>
-            <Label name="to" label={authLabel.to[lang]} required />
+            <Label name="to" label={authLabel.to[lang]} />
             <InputField
               placeholder={authLabel.to[lang]}
               type="text"
@@ -89,11 +84,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           </div>
 
           <div>
-            <Label
-              name="totalPeople"
-              label={authLabel.totalPeople[lang]}
-              required
-            />
+            <Label name="totalPeople" label={authLabel.totalPeople[lang]} />
             <InputField
               placeholder={authLabel.totalPeople[lang]}
               type="text"
@@ -105,11 +96,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           </div>
 
           <div>
-            <Label
-              name="totalDays"
-              label={authLabel.totalDays[lang]}
-              required
-            />
+            <Label name="totalDays" label={authLabel.totalDays[lang]} />
             <InputField
               placeholder={authLabel.totalDays[lang]}
               type="text"
@@ -120,22 +107,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
             />
           </div>
 
-          <div>
-            <Label
-              name="vehicleType"
-              label={authLabel.vehicleType[lang]}
-              required
-            />
-            <InputField
-              placeholder={authLabel.vehicleType[lang]}
-              type="text"
-              name="vehicleType"
-              register={register}
-              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              icon={<RxPerson />}
-            />
-          </div>
-
+        
           <div className="flex justify-center">
             <Button
               buttonText={authLabel.book[lang]}
@@ -149,4 +121,4 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   );
 };
 
-export default RequestTravelBooking;
+export default RequestGuideBooking;
