@@ -15,6 +15,10 @@ const GET_TRAVEL_QUERY = gql`
       gender
       available
       vehicleType
+      kyc {
+        id
+        path
+      }
     }
   }
 `;
@@ -26,6 +30,11 @@ interface FormData {
   lastName: string;
   vehicleType: string;
   gender: string;
+  kyc: KYC[]
+}
+interface KYC{
+  id: string;
+  path: string;
 }
 
 const Travels = () => {
@@ -34,22 +43,32 @@ const Travels = () => {
   const { lang } = useLang();
 
   const { data, loading, error } = useQuery(GET_TRAVEL_QUERY);
+  console.log("🚀 ~ Travels ~ data:", data);
 
   useEffect(() => {
     if (data) {
       setTravels(data.findTravel);
     }
   }, [data]);
+  const travel = travels?.map((travel) => {
+    console.log("🚀 ~ travel ~ travel.kyc[0]:", travel.kyc[0])
 
+})
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
     <>
-      {selectedId && <RequestTravelBooking id={selectedId} />}
+      {selectedId && (
+        <RequestTravelBooking
+          id={selectedId}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
       <div>
         {travels?.map((travel) => (
           <div key={travel.id}>
+           <img src={travel.kyc[0]?.path} alt="jhjh" />
             <p>ID: {travel.id}</p>
             <p>First Name: {travel.firstName}</p>
             <p>Middle Name: {travel.middleName}</p>

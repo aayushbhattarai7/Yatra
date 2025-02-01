@@ -25,6 +25,9 @@ import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { GuideRequestDTO } from "../../dto/requestGuide.dto";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { TravelRequestDTO } from "../../dto/requestTravel.dto";
+import GuideKYC from "../../entities/guide/guideKyc.entity";
+import TravelKyc from "../../entities/travels/travelKyc.entity";
+import { TravelDetails } from "../../entities/travels/travelDetails.entity";
 
 interface Message {
   message: string;
@@ -166,7 +169,7 @@ export class UserResolver {
       );
     }
   }
-  @Query(() => [Guide])
+  @Query(() => [Guide, GuideKYC])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async findGuide(@Ctx() ctx: Context): Promise<Guide[] | null> {
     try {
@@ -177,12 +180,14 @@ export class UserResolver {
     }
   }
 
-  @Query(() => [Travel])
+  @Query(() => [Travel, TravelKyc, TravelDetails])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async findTravel(@Ctx() ctx: Context): Promise<Travel[] | null> {
     try {
       const id = ctx.req.user?.id;
-      return this.userService.findTravel(id!);
+      const data = await this.userService.findTravel(id!);
+      console.log("🚀 ~ UserResolver ~ findTravel ~ data:", data)
+      return data
     } catch (error) {
       throw HttpException.internalServerError;
     }
