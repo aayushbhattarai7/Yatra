@@ -328,6 +328,7 @@ class UserService {
         where: { verified: true, approved: true },
         relations: ["details", "location", "kyc"],
       });
+      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
