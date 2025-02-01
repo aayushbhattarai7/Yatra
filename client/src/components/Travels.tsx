@@ -50,10 +50,7 @@ const Travels = () => {
       setTravels(data.findTravel);
     }
   }, [data]);
-  const travel = travels?.map((travel) => {
-    console.log("🚀 ~ travel ~ travel.kyc[0]:", travel.kyc[0])
-
-})
+ 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 

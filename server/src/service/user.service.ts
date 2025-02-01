@@ -386,7 +386,8 @@ class UserService {
         },
       });
       if (findRequest.length > 0) {
-        throw HttpException.badRequest("Request already sent to this guide");
+        throw HttpException.badRequest(
+          "Request already sent to this travel, Please wait a while for the travel response")
       }
 
       const request = this.guideRequestRepo.create({
@@ -404,7 +405,7 @@ class UserService {
       //   subject: `${user.firstName} sent you a travel request`,
       //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
       // });
-      return request;
+      return bookRequestMessage("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.log(error.message);

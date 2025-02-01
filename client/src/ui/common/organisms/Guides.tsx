@@ -1,6 +1,9 @@
+import RequestGuideBooking from "@/components/RequestGuideBooking";
 import { gql, useQuery } from "@apollo/client";
-import { useMessage } from "../../../contexts/MessageContext";
 import { useEffect, useState } from "react";
+import Button from "../atoms/Button";
+import { authLabel } from "@/localization/auth";
+import { useLang } from "@/hooks/useLang";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -32,9 +35,9 @@ interface Location {
 }
 
 const Guides = () => {
-  const { setMessage } = useMessage();
   const [guides, setGuides] = useState<FormData[] | null>(null);
-
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+const {lang} = useLang()
   const { data, loading, error } = useQuery(GET_GUIDE_QUERY);
 console.log(data,"jaja")
   useEffect(() => {
@@ -48,18 +51,30 @@ console.log(data,"jaja")
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div>
-      {guides?.map((guide) => (
-        <div key={guide.id}>
-          <p>ID: {guide.id}</p>
-          <p>First Name: {guide.firstName}</p>
-          <p>Middle Name: {guide.middleName}</p>
-          <p>Last Name: {guide.lastName}</p>
-          <p>Guiding Location: {guide.guiding_location}</p>
-          <p>Gender: {guide.gender}</p>
-        </div>
-      ))}
-    </div>
+    <>
+      {selectedId && (
+        <RequestGuideBooking
+          id={selectedId}
+          onClose={() => setSelectedId(null)}
+        />
+      )}
+      <div>
+        {guides?.map((guide) => (
+          <div key={guide.id}>
+            <p>First Name: {guide.firstName}</p>
+            <p>Middle Name: {guide.middleName}</p>
+            <p>Last Name: {guide.lastName}</p>
+            <p>Guiding Location: {guide.guiding_location}</p>
+            <p>Gender: {guide.gender}</p>
+            <Button
+              type="button"
+              buttonText={authLabel.book[lang]}
+              onClick={() => setSelectedId(guide.id)}
+            />
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 

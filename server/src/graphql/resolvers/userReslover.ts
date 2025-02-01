@@ -208,7 +208,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => RequestGuide)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async requestGuide(
     @Ctx() ctx: Context,
