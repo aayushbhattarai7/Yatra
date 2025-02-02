@@ -26,7 +26,9 @@ interface FormData {
 const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, handleSubmit } = useForm<FormData>();
-  const [requestTravel, { loading, error }] = useMutation(TRAVEL_BOOKING_MUTATION);
+  const [requestTravel, { loading, error }] = useMutation(
+    TRAVEL_BOOKING_MUTATION
+  );
 
   const submit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -40,11 +42,12 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           totalDays: formData.totalDays,
         },
       });
-        console.log(response.data);
-        onClose();
+
+      showToast(response.data.requestTravel, "success");
+      onClose();
     } catch (err: unknown) {
-        console.log(error?.message,"ahah")
-        showToast(error?.message || "error occured","error")
+      console.log(error?.message, "ahah");
+      showToast(error?.message || "error occured", "error");
       console.error("GraphQL Error:", err);
     }
   };
