@@ -387,7 +387,7 @@ class UserService {
       });
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
-          "Request already sent to this travel, Please wait a while for the travel response")
+          "Request already sent to this guide, Please wait a while for the travel response")
       }
 
       const request = this.guideRequestRepo.create({

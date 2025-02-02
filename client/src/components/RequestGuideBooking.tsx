@@ -7,6 +7,7 @@ import { RxPerson } from "react-icons/rx";
 import Button from "@/ui/common/atoms/Button";
 import { GUIDE_BOOKING_MUTATION } from "@/mutation/queries";
 import { useMutation } from "@apollo/client";
+import { showToast } from "./ToastNotification";
 
 interface RequestProps {
   id: string;
@@ -24,7 +25,7 @@ interface FormData {
 const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, handleSubmit } = useForm<FormData>();
-  const [requestGuide, { loading }] = useMutation(GUIDE_BOOKING_MUTATION);
+  const [requestGuide, { loading, error }] = useMutation(GUIDE_BOOKING_MUTATION);
 
   const submit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -37,9 +38,11 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           totalDays: formData.totalDays,
         },
       });
-      console.log(response.data);
+        console.log(response.data);
+        showToast(response.data.requestGuide,"success")
       onClose();
     } catch (err) {
+        showToast(error?.message || "error occured","error")
       console.error("GraphQL Error:", err);
     }
   };
