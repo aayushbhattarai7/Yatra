@@ -6,7 +6,7 @@ import HttpException from "../utils/HttpException.utils";
 import { jwtDecode } from "jwt-decode";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
-import { Gender, RequestStatus, Role } from "../constant/enum";
+import { Gender, RequestStatus, Role, Status } from "../constant/enum";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
@@ -483,7 +483,34 @@ class UserService {
       }
      const data = await this.travelRequestRepo.createQueryBuilder('requestTravel').leftJoinAndSelect('requestTravel.travel', 'travel')
         .leftJoinAndSelect("travel.kyc", "kyc").leftJoinAndSelect("requestTravel.user", "user")
-        .where("requestTravel.user_id =:user_id", { user_id })
+       .where("requestTravel.user_id =:user_id", { user_id })
+              .andWhere("requestTravel.travelStatus NOT IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
+
+      .getMany()
+      
+      if(!data) throw HttpException.notFound("You do not requested any travels for booking")
+      return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error)
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError("An unknown error occured");
+      }
+    }
+  }
+  async getTravelRequestsHistory(user_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({
+        id: user_id,
+      });
+      if (!user) {
+        throw HttpException.unauthorized("You are not authorized");
+      }
+     const data = await this.travelRequestRepo.createQueryBuilder('requestTravel').leftJoinAndSelect('requestTravel.travel', 'travel')
+        .leftJoinAndSelect("travel.kyc", "kyc").leftJoinAndSelect("requestTravel.user", "user")
+       .where("requestTravel.user_id =:user_id", { user_id })
+              .andWhere("requestTravel.travelStatus IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
       .getMany()
       
       if(!data) throw HttpException.notFound("You do not requested any travels for booking")
@@ -509,7 +536,8 @@ class UserService {
         .leftJoinAndSelect("requestGuide.guide", "guide")
         .leftJoinAndSelect("guide.kyc", 'kyc')
         .leftJoinAndSelect("requestGuide.user", "user")
-        .where("requestGuide.user_id = :user_id", { user_id })
+       .where("requestGuide.user_id = :user_id", { user_id })
+       .andWhere("requestGuide.guideStatus != :status",{status:RequestStatus.COMPLETED})
       .getMany()
      
       return data;

@@ -74,3 +74,27 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
     }
   }
 `;
+export const USER_TRAVEL_BOOKING_HISTORY = gql`
+  query GetTravelHistory {
+    getTravelHistory {
+      id
+      from
+      to
+      totalDays
+      travelStatus
+      price
+      totalPeople
+      travel {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+        kyc {
+          id
+          path
+        }
+      }
+    }
+  }
+`;

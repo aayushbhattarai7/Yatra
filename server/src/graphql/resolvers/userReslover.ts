@@ -270,6 +270,21 @@ export class UserResolver {
       }
     }
   }
+  @Query(() => [RequestTravel])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getTravelHistory(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      return await this.userService.getTravelRequestsHistory(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   @Query(() => [RequestGuide])
   @UseMiddleware(authentication, authorization([Role.USER]))

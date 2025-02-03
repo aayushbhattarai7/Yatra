@@ -15,6 +15,7 @@ import { Provider } from "./components/ui/provider";
 import Travels from "./components/Travels";
 import ToastNotification from "./components/ToastNotification";
 import TravelBookingHistory from "./components/TravelBookingHistory";
+import TravelBooking from "./components/TravelBooking";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -40,7 +41,8 @@ function App() {
               element:<Travels/>
             },
             { path: "guide", element: <Guides /> },
-            {path:'/booking', element: <TravelBookingHistory/>}
+            {path:'/booking', element: <TravelBooking/>},
+            {path:'/history', element: <TravelBookingHistory/>}
           ],
 
         },
