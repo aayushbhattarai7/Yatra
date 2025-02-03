@@ -25,7 +25,6 @@ const TravelBooking = () => {
     null
   );
   const { data, loading, error } = useQuery(USER_REQUESTS_FOR_TRAVEL);
-  console.log("🚀 ~ TravelBookingHistory ~ data:", data);
 
   useEffect(() => {
     if (data) setTravelBooking(data.getOwnTravelRequest);

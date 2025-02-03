@@ -387,7 +387,7 @@ class UserService {
       });
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
-          "Request already sent to this guide, Please wait a while for the travel response")
+          "Request already sent to this guide, Please wait a while for the guide response")
       }
 
       const request = this.guideRequestRepo.create({
@@ -535,9 +535,9 @@ class UserService {
      const data =  await this.guideRequestRepo.createQueryBuilder("requestGuide")
         .leftJoinAndSelect("requestGuide.guide", "guide")
         .leftJoinAndSelect("guide.kyc", 'kyc')
-        .leftJoinAndSelect("requestGuide.user", "user")
+        .leftJoinAndSelect("requestGuide.users", "user")
        .where("requestGuide.user_id = :user_id", { user_id })
-       .andWhere("requestGuide.guideStatus != :status",{status:RequestStatus.COMPLETED})
+       .andWhere("requestGuide.guideStatus NOT IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
       .getMany()
      
       return data;

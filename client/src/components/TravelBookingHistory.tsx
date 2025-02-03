@@ -28,7 +28,7 @@ const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
     null
   );
-  const { data, loading, error } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
+  const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
   console.log("🚀 ~ TravelBookingHistory ~ data:", data);
 
   useEffect(() => {
