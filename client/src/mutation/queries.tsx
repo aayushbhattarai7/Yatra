@@ -61,6 +61,7 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
       totalPeople
       createdAt
       travelStatus
+      lastActionBy
       travel {
         firstName
         middleName

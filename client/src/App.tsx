@@ -18,6 +18,8 @@ import TravelBookingHistory from "./components/TravelBookingHistory";
 import TravelBooking from "./components/TravelBooking";
 import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
+import GuideLogin from "./ui/common/organisms/GuideLogin";
+import GuideHome from "./ui/common/organisms/GuideHome";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -32,6 +34,7 @@ function App() {
         { path: "/user-register", element: <UserRegister /> },
         { path: "/user-login", element: <UserLogin /> },
         { path: "guide-register", element: <GuideRegister /> },
+        { path: "guide-login", element: <GuideLogin /> },
         { path: "travel-register", element: <TravelRegister /> },
         { path: "adminLogin", element: <AdminLogin /> },
         {
@@ -48,6 +51,8 @@ function App() {
             { path: "/history", element: <TravelBookingHistory /> },
             { path: "travel-booking", element: <TravelBooking /> },
             { path: "guide-booking", element: <GuideBooking /> },
+            { path: "guide-home", element: <GuideHome /> },
+
           ],
         },
       ],

@@ -81,8 +81,9 @@ export class GuideResolver {
   }
 
   @Mutation(() => LoginResponse)
-  async login(@Arg("data") data: LoginDTO) {
+  async guideLogin(@Arg("email") email: string, @Arg("password") password: string) {
     try {
+      const data = {email, password}
       const user = await this.guideService.loginGuide(data);
       console.log("🚀 ~ UserResolver ~ login ~ user:", user);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
