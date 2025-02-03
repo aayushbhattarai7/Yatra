@@ -255,11 +255,12 @@ export class UserResolver {
     }
   }
 
-  @Query(() => RequestTravel)
+  @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getOwnTravelRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
       return await this.userService.getOwnTravelRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -270,11 +271,11 @@ export class UserResolver {
     }
   }
 
-  @Query(() => RequestGuide)
+  @Query(() => [RequestGuide])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getOwnGuideRequest(@Ctx() ctx: Context) {
     try {
-      const userId = ctx.req.user?.id!;
+      const userId = ctx.req.user?.id as string;
       return await this.userService.getOwnGuideRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
