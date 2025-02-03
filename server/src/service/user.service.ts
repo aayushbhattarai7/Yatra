@@ -481,14 +481,12 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized");
       }
-      const data = await this.travelRequestRepo.find({
-        where: {
-          user: { id: user_id },
-        },
-        relations: ["travel"],
-      });
+     const data = await this.travelRequestRepo.createQueryBuilder('requestTravel').leftJoinAndSelect('requestTravel.travel', 'travel')
+        .leftJoinAndSelect("travel.kyc", "kyc").leftJoinAndSelect("requestTravel.user", "user")
+        .where("requestTravel.user_id =:user_id", { user_id })
+      .getMany()
+      
       if(!data) throw HttpException.notFound("You do not requested any travels for booking")
-      console.log(data)
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -507,13 +505,13 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized");
       }
-      const data = await this.guideRequestRepo.find({
-        where: {
-          users: { id: user_id },
-        },
-        relations: ["guide"],
-      });
-      console.log("yess", data)
+     const data =  await this.guideRequestRepo.createQueryBuilder("requestGuide")
+        .leftJoinAndSelect("requestGuide.guide", "guide")
+        .leftJoinAndSelect("guide.kyc", 'kyc')
+        .leftJoinAndSelect("requestGuide.user", "user")
+        .where("requestGuide.user_id = :user_id", { user_id })
+      .getMany()
+     
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {

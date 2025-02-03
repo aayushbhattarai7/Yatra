@@ -1,16 +1,15 @@
-import { USER_REQUESTS_FOR_TRAVEL } from '@/mutation/queries'
-import Button from '@/ui/common/atoms/Button';
-import { useQuery } from '@apollo/client'
-import React, { useEffect, useState } from 'react'
-import { NavLink } from './ActiveNavLink';
+import { USER_REQUESTS_FOR_TRAVEL } from "@/mutation/queries";
+import Button from "@/ui/common/atoms/Button";
+import { useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 
 interface TravelBooking {
   id: string;
-  from: string,
+  from: string;
   to: string;
   totalDays: string;
   totalPeople: string;
-  travel: Travel
+  travel: Travel;
   travelStatus: string;
 }
 interface Travel {
@@ -21,17 +20,18 @@ interface Travel {
   vehicleType: string;
   gender: string;
 }
-const TravelBookingHistory = () => {
-  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(null)
-        const { data, loading, error } = useQuery(USER_REQUESTS_FOR_TRAVEL)
-        console.log("🚀 ~ TravelBookingHistory ~ data:", data)
-        
+const TravelBooking = () => {
+  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
+    null
+  );
+  const { data, loading, error } = useQuery(USER_REQUESTS_FOR_TRAVEL);
+  console.log("🚀 ~ TravelBookingHistory ~ data:", data);
+
   useEffect(() => {
-      if(data) setTravelBooking(data.getOwnTravelRequest);
-    })
+    if (data) setTravelBooking(data.getOwnTravelRequest);
+  });
   return (
     <>
-     
       <div>
         {travelBooking?.map((book) => (
           <div className="border border-black flex mb-4 gap-20 items-center p-10">
@@ -57,6 +57,6 @@ const TravelBookingHistory = () => {
       </div>
     </>
   );
-}
+};
 
-export default TravelBookingHistory;
+export default TravelBooking;
