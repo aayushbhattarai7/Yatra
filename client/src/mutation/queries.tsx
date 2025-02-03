@@ -14,7 +14,6 @@ export const SIGNUP_MUTATION = gql`
   }
 `;
 
-
 export const TRAVEL_BOOKING_MUTATION = gql`
   mutation RequestTravel(
     $vehicleType: String!
@@ -52,7 +51,6 @@ export const GUIDE_BOOKING_MUTATION = gql`
   }
 `;
 
-
 export const USER_REQUESTS_FOR_TRAVEL = gql`
   query GetOwnTravelRequest {
     getOwnTravelRequest {
@@ -70,6 +68,27 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
         gender
         role
         vehicleType
+      }
+    }
+  }
+`;
+export const USER_REQUESTS_FOR_GUIDE = gql`
+  query GetOwnGuideRequest {
+    getOwnGuideRequest {
+      id
+      from
+      to
+      totalDays
+      totalPeople
+      guideStatus
+      lastActionBy
+      price
+      guide {
+        id
+        firstName
+        middleName
+        lastName
+        gender
       }
     }
   }

@@ -10,12 +10,14 @@ import TravelRegister from "./ui/common/organisms/TravelRegister";
 import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
-import ProtectedRoute from "./components/ProtectedRoute"; 
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Provider } from "./components/ui/provider";
 import Travels from "./components/Travels";
 import ToastNotification from "./components/ToastNotification";
 import TravelBookingHistory from "./components/TravelBookingHistory";
 import TravelBooking from "./components/TravelBooking";
+import Booking from "./ui/common/organisms/Booking";
+import GuideBooking from "./components/GuideBooking";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -34,17 +36,19 @@ function App() {
         { path: "adminLogin", element: <AdminLogin /> },
         {
           path: "/",
-          element: <ProtectedRoute />, 
-          children: [{ path: "home", element: <UserHome /> },
+          element: <ProtectedRoute />,
+          children: [
+            { path: "home", element: <UserHome /> },
             {
-              path: 'travel',
-              element:<Travels/>
+              path: "travel",
+              element: <Travels />,
             },
             { path: "guide", element: <Guides /> },
-            {path:'/booking', element: <TravelBooking/>},
-            {path:'/history', element: <TravelBookingHistory/>}
+            { path: "/booking", element: <Booking /> },
+            { path: "/history", element: <TravelBookingHistory /> },
+            { path: "travel-booking", element: <TravelBooking /> },
+            { path: "guide-booking", element: <GuideBooking /> },
           ],
-
         },
       ],
     },
@@ -52,7 +56,7 @@ function App() {
 
   return (
     <MessageProvider>
-<ToastNotification/>
+      <ToastNotification />
       <RouterProvider router={router} />
     </MessageProvider>
   );
