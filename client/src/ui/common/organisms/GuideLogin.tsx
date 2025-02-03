@@ -24,7 +24,7 @@ interface FormData {
 
 const GuideLogin = () => {
   const navigate = useNavigate();
-  const [guideLogin, { error, loading }] = useMutation(LOGIN_MUTATION);
+  const [guideLogin, {  loading }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {

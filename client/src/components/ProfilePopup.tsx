@@ -43,7 +43,6 @@ const ProfilePopup = () => {
           <div className="flex items-center space-x-3">
             <img
               className="h-10 w-10 rounded-full"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
               alt="Profile"
             />
             <div>
@@ -55,7 +54,7 @@ const ProfilePopup = () => {
         </div>
         <div className="py-2">
           {[
-            { label: "Your Profile", href: "/profile" },
+            { label: "Your Profile", href: "/user-profile" },
             { label: "Settings", href: "/settings" },
             { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },

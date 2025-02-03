@@ -20,6 +20,7 @@ import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
 import GuideLogin from "./ui/common/organisms/GuideLogin";
 import GuideHome from "./ui/common/organisms/GuideHome";
+import UserProfile from "./components/UserProfile";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -47,6 +48,7 @@ function App() {
               element: <Travels />,
             },
             { path: "guide", element: <Guides /> },
+            { path: "user-profile", element: <UserProfile /> },
             { path: "/booking", element: <Booking /> },
             { path: "/history", element: <TravelBookingHistory /> },
             { path: "travel-booking", element: <TravelBooking /> },
