@@ -487,9 +487,12 @@ class UserService {
         },
         relations: ["travel"],
       });
+      if(!data) throw HttpException.notFound("You do not requested any travels for booking")
+      console.log(data)
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
+        console.log(error)
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -510,6 +513,7 @@ class UserService {
         },
         relations: ["guide"],
       });
+      console.log("yess", data)
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {

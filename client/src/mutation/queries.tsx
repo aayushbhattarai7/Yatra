@@ -51,3 +51,25 @@ export const GUIDE_BOOKING_MUTATION = gql`
     )
   }
 `;
+
+
+export const USER_REQUESTS_FOR_TRAVEL = gql`
+  query GetOwnTravelRequest {
+    getOwnTravelRequest {
+      id
+      from
+      to
+      totalDays
+      totalPeople
+      createdAt
+      travel {
+        firstName
+        middleName
+        lastName
+        gender
+        role
+        vehicleType
+      }
+    }
+  }
+`;
