@@ -20,6 +20,7 @@ interface FormData {
   price: string;
   gender: string;
   users: User;
+  lastActionBy:string
 }
 
 interface User {
@@ -41,23 +42,25 @@ const GuideRequests = () => {
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
-  const { data, loading, error } = useQuery(GUIDE_REQUESTS);
+  const { data, loading, error, refetch } = useQuery(GUIDE_REQUESTS);
   const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
   const [sendPriceByGuide] = useMutation(SEND_PRICE_BY_GUIDE);
   const { register, handleSubmit, reset } = useForm<Price>();
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     if (!selectedId) return;
-   const res = await sendPriceByGuide({
+    const res = await sendPriceByGuide({
       variables: { price: price.price, requestId: selectedId },
-   });
+    });
     showToast(res.data.sendPriceByGuide, "success");
     reset();
     setSelectedId(null);
+    refetch();
   };
 
   const rejectRequest = async (id: string) => {
     await rejectRequestByGuide({ variables: { requestId: id } });
+    refetch();
   };
 
   useEffect(() => {
@@ -84,21 +87,53 @@ const GuideRequests = () => {
                 User Name: {request.users.firstName} {request.users.middleName}{" "}
                 {request.users.lastName}
               </p>
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  buttonText={
-                    request.price === null
-                      ? authLabel.sendPrice[lang]
-                      : authLabel.respond[lang]
-                  }
-                  onClick={() => setSelectedId(request.id)}
-                />
+              <p>{request.lastActionBy}</p>
+              <div className="flex gap-5">
+
+              {request.lastActionBy == "GUIDE" ? (
+                <div className="flex gap-4">
+                  {request.price === null ? (
+                    <Button
+                      type="button"
+                      disabled={loading}
+                      buttonText={authLabel.waiting[lang]}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      disabled={loading}
+                      buttonText={authLabel.waiting[lang]}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="flex gap-4">
+                  {request.price === null ? (
+                    <Button
+                      type="button"
+                      buttonText={authLabel.sendPrice[lang]}
+                      onClick={() => setSelectedId(request.id)}
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      buttonText={authLabel.respond[lang]}
+                    />
+                  )}
+                  <Button
+                    type="button"
+                    buttonText={authLabel.reject[lang]}
+                    onClick={() => rejectRequest(request.id)}
+                  />
+                </div>
+              )}
+              <div>
                 <Button
                   type="button"
                   buttonText={authLabel.reject[lang]}
                   onClick={() => rejectRequest(request.id)}
                 />
+              </div>
               </div>
             </div>
           ))}

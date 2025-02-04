@@ -101,6 +101,7 @@ export const GUIDE_REQUESTS = gql`
       totalDays
       totalPeople
       price
+      lastActionBy
       users {
         id
         firstName
