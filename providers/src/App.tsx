@@ -12,6 +12,7 @@ import GuideLogin from "../../providers/src/ui/organisms/GuideLogin";
 import GuideHome from "./ui/organisms/GuideHome";
 import GuideRequests from "./ui/organisms/GuidesRequests";
 import GuideHistory from "./ui/organisms/GuideHistory";
+import GuideProfile from "./components/GuideProfile";
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
             { path: "guide-home", element: <GuideHome /> },
             { path: "booking", element: <GuideRequests /> },
             { path: "history", element: <GuideHistory /> },
+            { path: "guide-profile", element: <GuideProfile /> },
           ],
         },
       ],

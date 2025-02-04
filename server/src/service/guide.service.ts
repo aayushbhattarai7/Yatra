@@ -328,6 +328,25 @@ class GuideService {
       }
     }
   }
+  async getGuideDetails(guide_id: string) {
+    try {
+      const guide = await this.guideRepo.findOne({
+        where: {
+        id:guide_id
+      }, relations:["details", "kyc"]});
+      console.log("🚀 ~ GuideService ~ getGuideDetails ~ guide:", guide)
+      if (!guide) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      return guide;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   async getHistory(guide_id: string) {
     console.log("🚀 ~ GuideService ~ getHistory ~ guide_id:", guide_id)
     try {

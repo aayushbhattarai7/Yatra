@@ -136,6 +136,25 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
     }
   }
 `;
+export const GET_GUIDE_PROFILE = gql`
+  query GetGuideDetails {
+    getGuideDetails {
+      id
+      firstName
+      middleName
+      lastName
+      email
+      phoneNumber
+      gender
+  createdAt
+      kyc {
+        id
+        path
+      }
+      
+    }
+  }
+`;
 
 export const REJECT_REQUEST_BY_GUIDE = gql`
   mutation RejectRequestByGuide($requestId: String!) {
