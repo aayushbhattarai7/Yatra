@@ -24,12 +24,13 @@ const middleware = async (app: Application) => {
   app.use(compression());
   app.use(
     cors({
-      origin: DotenvConfig.CORS_ORIGIN,
+      origin: 'http://localhost:3002',
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
     }),
   );
+  console.log("🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:", DotenvConfig.CORS_ORIGIN)
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];

@@ -15,6 +15,8 @@ import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
+import { rejectRequest } from "../constant/message";
+import { In, Not } from "typeorm";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
@@ -311,6 +313,8 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
+              guideStatus: Not(In([RequestStatus.COMPLETED, RequestStatus.REJECTED, RequestStatus.CANCELLED])),
+
         },
         relations: ["users"],
       });
@@ -382,6 +386,38 @@ class GuideService {
         },
       );
       return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+  async rejectRequest(guide_id: string, requestId: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!guide) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+
+      const requests = await this.guideRequestRepo.findOne({
+        where: {
+          guide: { id: guide_id },
+          id: requestId,
+        },
+      });
+      if (!requests) {
+        throw HttpException.notFound("no request found");
+      }
+      const data = await this.guideRequestRepo.update(
+        { id: requests.id },
+        {
+          guideStatus: RequestStatus.REJECTED,
+          lastActionBy: Role.GUIDE,
+        },
+      );
+      return rejectRequest("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

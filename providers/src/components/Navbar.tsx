@@ -74,9 +74,6 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/" label="Home" />
-            <NavLink to="/places" label="Places" />
-            <NavLink to="/travel" label="Travel" />
-            <NavLink to="/guide" label="Guide" />
             <NavLink to="/booking" label="Booking" />
             <NavLink to="/history" label="History" />
           </div>

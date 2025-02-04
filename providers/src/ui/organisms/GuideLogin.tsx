@@ -32,6 +32,7 @@ const GuideLogin = () => {
       const response = await guideLogin({
         variables: { email: formData.email, password: formData.password },
       });
+      console.log("🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ response:", response)
       if (response.data) {
         const { accessToken } = response.data.guideLogin.tokens;
         Cookies.set("accessToken", accessToken, {

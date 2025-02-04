@@ -1,14 +1,16 @@
-import { Arg, Ctx, Mutation } from "type-graphql";
+import { Arg, Args, Ctx, Mutation, Query, UseMiddleware } from "type-graphql";
 import { Guide } from "../../entities/guide/guide.entity";
 import GuideService from "../../service/guide.service";
 import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
-import { FileType, KycType } from "../../constant/enum";
+import { FileType, KycType, Role } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-import { LoginDTO } from "../../dto/login.dto";
 import { LoginResponse } from "../../graphql/schema/schema";
 import webTokenService from "../../service/webToken.service";
 import { Message } from "../../constant/message";
+import { authentication } from "../../middleware/authentication.middleware";
+import { authorization } from "../../middleware/authorization.middleware";
+import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 
 export class GuideResolver {
   private guideService = new GuideService();
@@ -108,6 +110,39 @@ export class GuideResolver {
           ? error.message
           : "An error occurred during login",
       );
+    }
+  }
+
+   @Query(() => [RequestGuide])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getRequestsByGuide(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      return await this.guideService.getRequests(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+   @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+   async rejectRequestByGuide(
+     @Arg("requestId") requestId: string,
+     @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      return await this.guideService.rejectRequest(userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 }
