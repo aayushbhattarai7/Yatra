@@ -1,12 +1,11 @@
-import axiosInstance from "../../service/axiosInstance";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Label from "../common/atoms/Label";
 import axios from "axios";
 import InputField from "../common/atoms/InputField";
 import Button from "../common/atoms/Button";
 import { useState } from "react";
+import { gql } from "@apollo/client";
 import { showToast } from "../../components/ToastNotification";
-// import OTP from "@/components/Otp";
 
 interface FormData {
   firstName: string;
@@ -19,7 +18,6 @@ interface FormData {
   citizenshipFront: FileList;
   citizenshipBack: FileList;
   license: FileList;
-  vehicleRegistration: FileList;
   voterCard: FileList;
   passport: FileList;
   gender: string;
@@ -27,11 +25,10 @@ interface FormData {
   nationality: string;
   province: string;
   district: string;
+  licenseNumber: string;
+  licenseValidityFrom: string;
+  licenseValidityTo: string;
   municipality: string;
-  engineNumber: string;
-  chasisNumber: string;
-  vehicleNumber: string;
-  vehicleType: string;
   citizenshipId: string;
   citizenshipIssueDate: string;
   citizenshipIssueFrom: string;
@@ -43,7 +40,7 @@ interface FormData {
   voterAddress: string;
 }
 
-const TravelRegister: React.FC = () => {
+const GuideRegister: React.FC = () => {
   const [registered, setRegistered] = useState<boolean>(false);
   const [showIdentityFields, setShowIdentityFields] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
@@ -85,16 +82,17 @@ const TravelRegister: React.FC = () => {
       formData.append("password", basicInfo.password);
       formData.append("DOB", basicInfo.DOB);
       formData.append("nationality", basicInfo.nationality);
+      formData.append("licenseNumber", basicInfo.licenseNumber);
+      formData.append("licenseValidityFrom", basicInfo.licenseValidityFrom);
+      formData.append("licenseValidityTo", basicInfo.licenseValidityTo);
+
       formData.append("province", basicInfo.province);
       formData.append("district", basicInfo.district);
       formData.append("municipality", basicInfo.municipality);
-      formData.append("engineNumber", basicInfo.engineNumber);
-      formData.append("chasisNumber", basicInfo.chasisNumber);
-      formData.append("vehicleNumber", basicInfo.vehicleNumber);
-      formData.append("vehicleType", basicInfo.vehicleType);
       formData.append("passPhoto", data.passPhoto[0]);
       formData.append("type", "PROFILE");
-      formData.append("vehicleRegistration", data.vehicleRegistration[0]);
+      formData.append("license", data.license[0]);
+      console.log("akjsj");
       if (identityType === "citizenship") {
         formData.append("citizenshipId", data.citizenshipId);
         formData.append("citizenshipIssueDate", data.citizenshipIssueDate);
@@ -116,13 +114,16 @@ const TravelRegister: React.FC = () => {
         formData.append("kycType", "VOTERCARD");
       }
       setEmail(basicInfo.email);
-      const response = await axiosInstance.post("/travel/signup", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = gql`
+        mutation guideSignup($data: formData!, $files: [Upload!]!) {
+          guideSignup(data: $data, files: $files) {
+            data
+            files
+          }
+        }
+      `;
       console.log(response, "ka");
-      showToast(response.data.message, "success");
+      showToast("Success", "success");
       setRegistered(true);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -258,37 +259,38 @@ const TravelRegister: React.FC = () => {
             </div>
 
             <div className="mb-4">
-              <Label name="engineNumber" label="engineNumber" required />
+              <Label name="licenseNumber" label="licenseNumber" required />
               <InputField
                 type="text"
-                name="engineNumber"
-                register={register}
-                className={""}
-              />
-              <div className="mb-4">
-                <Label name="chasisNumber" label="chasisNumber" required />
-                <InputField
-                  type="text"
-                  name="chasisNumber"
-                  register={register}
-                  className={""}
-                />
-              </div>
-            </div>
-            <div className="mb-4">
-              <Label name="vehicleNumber" label="vehicleNumber" required />
-              <InputField
-                type="text"
-                name="vehicleNumber"
+                name="licenseNumber"
                 register={register}
                 className={""}
               />
             </div>
+
             <div className="mb-4">
-              <Label name="vehicleType" label="Vehicle Type" required />
+              <Label
+                name="licenseValidityFrom"
+                label="licenseValidityFrom"
+                required
+              />
               <InputField
-                type="text"
-                name="vehicleType"
+                type="date"
+                name="licenseValidityFrom"
+                register={register}
+                className={""}
+              />
+            </div>
+
+            <div className="mb-4">
+              <Label
+                name="licenseValidityTo"
+                label="licenseValidityTo"
+                required
+              />
+              <InputField
+                type="date"
+                name="licenseValidityTo"
                 register={register}
                 className={""}
               />
@@ -457,12 +459,8 @@ const TravelRegister: React.FC = () => {
               <input type="file" {...register("passPhoto")} className="" />
             </div>
             <div className="mb-4">
-              <Label name="vehicleRegistration" label={"vehicleRegistration"} />
-              <input
-                type="file"
-                {...register("vehicleRegistration")}
-                className=""
-              />
+              <Label name="license" label={"license"} />
+              <input type="file" {...register("license")} className="" />
             </div>
 
             <Button
@@ -480,4 +478,4 @@ const TravelRegister: React.FC = () => {
   );
 };
 
-export default TravelRegister;
+export default GuideRegister;
