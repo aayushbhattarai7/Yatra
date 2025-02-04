@@ -5,12 +5,13 @@ import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
 import { FileType, KycType, Role } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-import { LoginResponse } from "../../graphql/schema/schema";
+import { GuideResponse, LoginResponse } from "../../graphql/schema/schema";
 import webTokenService from "../../service/webToken.service";
 import { Message } from "../../constant/message";
 import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
+import { GuideDetails } from "../../entities/guide/guideDetails.entity";
 
 export class GuideResolver {
   private guideService = new GuideService();
@@ -118,8 +119,21 @@ export class GuideResolver {
   async getRequestsByGuide(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
       return await this.guideService.getRequests(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+@Query(() => Guide,{nullable:true})
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getGuideDetails(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.guideService.getGuideDetails(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

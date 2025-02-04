@@ -1,5 +1,8 @@
+import { Guide } from "../../entities/guide/guide.entity";
 import { User } from "../../entities/user/user.entity";
 import { Field, ObjectType } from "type-graphql";
+import { GuideDetails } from "../../entities/guide/guideDetails.entity";
+import GuideKYC from "../../entities/guide/guideKyc.entity";
 
 @ObjectType()
 class Token {
@@ -40,4 +43,18 @@ export class LoginResponse {
 
   @Field()
   message: string;
+}
+
+
+
+@ObjectType()
+export class GuideResponse {
+  @Field(() => Guide, {nullable:true})
+  guide: Guide;
+
+  @Field(() => GuideDetails, { nullable: true })
+  details?: GuideDetails;
+
+  @Field(() => GuideKYC, { nullable: true })
+  kyc: GuideKYC;
 }

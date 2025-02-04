@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
-import { gql, useQuery } from "@apollo/client";
+import {  useQuery } from "@apollo/client";
+import { GET_GUIDE_PROFILE } from "../mutation/queries";
 interface FormData {
   id: string;
   firstName: string;
@@ -14,23 +15,11 @@ const ProfilePopup = () => {
   const [logout, setLogout] = useState<boolean>(false);
  
   const [user, setUser] = useState<FormData | null>(null);
-  const GET_USER_QUERY = gql`
-    query GetUser {
-      getUser {
-        id
-        firstName
-        middleName
-        lastName
-        email
-        phoneNumber
-        gender
-      }
-    }
-  `;
-  const { data, loading, error } = useQuery(GET_USER_QUERY);
+
+  const { data, loading, error } = useQuery(GET_GUIDE_PROFILE);
   useEffect(() => {
     if (data) {
-      setUser(data.getUser);
+      setUser(data.getGuideDetails);
     }
   }, [data]);
 
@@ -54,7 +43,7 @@ const ProfilePopup = () => {
         </div>
         <div className="py-2">
           {[
-            { label: "Your Profile", href: "/user-profile" },
+            { label: "Your Profile", href: "/guide-profile" },
             { label: "Settings", href: "/settings" },
             { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },
