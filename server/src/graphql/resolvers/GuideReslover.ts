@@ -174,4 +174,21 @@ export class GuideResolver {
       }
     }
   }
+   @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+   async sendPriceByGuide(
+     @Arg("requestId") requestId: string,
+     @Arg("price") price:string,
+     @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.guideService.sendPrice(price,userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

@@ -191,7 +191,12 @@ export const authLabel: LabelTypes = {
   details: {
     en: "Details",
     ne:"विवरण"
-  }
+  },
+   sendPrice: {
+    en: "Send Price",
+    ne:"गाडीको प्रकार"
+  },
+ 
 
  
  

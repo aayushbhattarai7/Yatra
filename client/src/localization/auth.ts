@@ -179,7 +179,7 @@ export const authLabel: LabelTypes = {
   vehicleType: {
     en: "Vehicle Type",
     ne:"गाडीको प्रकार"
-  }
+  },
  
  
 };
