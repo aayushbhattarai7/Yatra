@@ -187,7 +187,12 @@ export const authLabel: LabelTypes = {
   reject: {
     en: "Reject",
     ne:"अस्वीकार गर्नु"
+  },
+  details: {
+    en: "Details",
+    ne:"विवरण"
   }
+
  
  
 };

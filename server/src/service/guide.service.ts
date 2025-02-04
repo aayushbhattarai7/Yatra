@@ -328,6 +328,32 @@ class GuideService {
       }
     }
   }
+  async getHistory(guide_id: string) {
+    console.log("🚀 ~ GuideService ~ getHistory ~ guide_id:", guide_id)
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!guide) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      const requests = await this.guideRequestRepo.find({
+        where: {
+          guide: { id: guide_id },
+              guideStatus: RequestStatus.COMPLETED,
+
+        },
+        relations: ["users"],
+      });
+      console.log("🚀 ~ GuideService ~ getHistory ~ requests:", requests)
+
+      return requests;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   async sendPrice(price: string, guide_id: string, requestId: string) {
     try {

@@ -50,6 +50,25 @@ export const GUIDE_BOOKING_MUTATION = gql`
     )
   }
 `;
+export const GET_GUIDE_HISTORY = gql`
+  query GetRequestHistoryOfGuide {
+    getRequestHistoryOfGuide {
+      id
+      from
+      to
+      totalPeople
+      totalDays
+      updatedAt
+      price
+      users {
+        id
+        firstName
+        middleName
+        lastName
+      }
+    }
+  }
+`;
 
 export const USER_REQUESTS_FOR_TRAVEL = gql`
   query GetOwnTravelRequest {
