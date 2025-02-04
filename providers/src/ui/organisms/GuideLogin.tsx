@@ -2,9 +2,9 @@ import { gql, useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import LoginForm from "./LoginForm";
-import LoginHero from "./LoginHero";
-import { showToast } from "@/components/ToastNotification";
+import LoginForm from "../../../../client/src/ui/common/organisms/LoginForm";
+import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
+import { showToast } from "../../components/ToastNotification";
 
 const LOGIN_MUTATION = gql`
   mutation GuideLogin($password: String!, $email: String!) {
@@ -24,7 +24,7 @@ interface FormData {
 
 const GuideLogin = () => {
   const navigate = useNavigate();
-  const [guideLogin, {  loading }] = useMutation(LOGIN_MUTATION);
+  const [guideLogin, { loading }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -44,9 +44,9 @@ const GuideLogin = () => {
       } else {
         console.error("No response data:", response);
         showToast(response.data.guideLogin.message, "error");
-    }
-} catch (err) {
-    if (err instanceof Error) {
+      }
+    } catch (err) {
+      if (err instanceof Error) {
         console.log("ohno");
         showToast(err.message, "error");
 

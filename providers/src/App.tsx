@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import GuideRegister from "./ui/organisms/GuideRegister";
+import { Route } from "./components/route";
+
+import { MessageProvider } from "./contexts/MessageContext";
+import TravelRegister from "./ui/organisms/TravelRegister";
+import Landing from "./ui/pages/LandingPage";
+import { getCookie } from "./function/GetCookie";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ToastNotification from "./components/ToastNotification";
+import GuideLogin from "../../providers/src/ui/organisms/GuideLogin";
+import GuideHome from "./ui/organisms/GuideHome";
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const isLoggedIn = !!getCookie("accessToken");
+  const home = isLoggedIn ? <GuideHome /> : <Landing />;
+
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Route />,
+      children: [
+        { path: "", element: home },
+        { path: "guide-register", element: <GuideRegister /> },
+        { path: "guide-login", element: <GuideLogin /> },
+        { path: "travel-register", element: <TravelRegister /> },
+        {
+          path: "/",
+          element: <ProtectedRoute />,
+          children: [
+            { path: "home", element: <GuideHome /> },
+           
+         
+            { path: "guide-home", element: <GuideHome /> },
+          ],
+        },
+      ],
+    },
+  ]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <MessageProvider>
+      <ToastNotification />
+      <RouterProvider router={router} />
+    </MessageProvider>
+  );
 }
 
-export default App
+export default App;

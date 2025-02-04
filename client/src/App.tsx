@@ -18,7 +18,7 @@ import TravelBookingHistory from "./components/TravelBookingHistory";
 import TravelBooking from "./components/TravelBooking";
 import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
-import GuideLogin from "./ui/common/organisms/GuideLogin";
+import GuideLogin from "../../providers/src/ui/organisms/GuideLogin";
 import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
 
@@ -54,7 +54,6 @@ function App() {
             { path: "travel-booking", element: <TravelBooking /> },
             { path: "guide-booking", element: <GuideBooking /> },
             { path: "guide-home", element: <GuideHome /> },
-
           ],
         },
       ],
