@@ -128,6 +128,21 @@ export class GuideResolver {
       }
     }
   }
+   @Query(() => [RequestGuide])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getRequestHistoryOfGuide(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      return await this.guideService.getHistory(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
    @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
    async rejectRequestByGuide(

@@ -1,11 +1,11 @@
-import {  useMutation, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
 import { useLang } from "../../hooks/useLang";
 import {
-  GUIDE_REQUESTS,
-  REJECT_REQUEST_BY_GUIDE,
+    GET_GUIDE_HISTORY,
+
 } from "../../mutation/queries";
 
 interface FormData {
@@ -30,24 +30,15 @@ interface User {
   nationality: string;
 }
 
-const GuideRequests = () => {
+const GuideHistory = () => {
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
-  const { data, loading, error } = useQuery(GUIDE_REQUESTS);
-  console.log(data, "jaja");
-  const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
+  const { data, loading, error } = useQuery(GET_GUIDE_HISTORY);
 
-  const rejectRequest = async (id: string) => {
-    const response = await rejectRequestByGuide({
-      variables: { requestId: id! },
-    });
-    console.log(response.data);
-  };
   useEffect(() => {
     if (data) {
-      setGuides(data.getRequestsByGuide);
-      console.log(data, "ajja");
+      setGuides(data.getRequestHistoryOfGuide);
     }
   }, [data]);
 
@@ -74,23 +65,18 @@ const GuideRequests = () => {
               <div className="flex gap-4">
                 <Button
                   type="button"
-                  buttonText={authLabel.respond[lang]}
+                  buttonText={authLabel.details[lang]}
                   onClick={() => setSelectedId(request.id)}
-                />
-                <Button
-                  type="button"
-                  buttonText={authLabel.reject[lang]}
-                  onClick={() => rejectRequest(request.id)}
                 />
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p>No requests yet</p>
+        <p>No History yet</p>
       )}
     </>
   );
 };
 
-export default GuideRequests;
+export default GuideHistory;
