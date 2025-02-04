@@ -196,7 +196,10 @@ export const authLabel: LabelTypes = {
     en: "Send Price",
     ne:"गाडीको प्रकार"
   },
- 
+  waiting: {
+    en: "Waiting",
+    ne:""
+ }
 
  
  
