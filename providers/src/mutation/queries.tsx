@@ -73,23 +73,22 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
     }
   }
 `;
-export const USER_REQUESTS_FOR_GUIDE = gql`
-  query GetOwnGuideRequest {
-    getOwnGuideRequest {
+export const GUIDE_REQUESTS = gql`
+  query GetRequestsByGuide {
+    getRequestsByGuide {
       id
       from
       to
       totalDays
       totalPeople
-      guideStatus
-      lastActionBy
       price
-      guide {
+      users {
         id
         firstName
         middleName
         lastName
         gender
+        role
       }
     }
   }
@@ -116,5 +115,11 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
         }
       }
     }
+  }
+`;
+
+export const REJECT_REQUEST_BY_GUIDE = gql`
+  mutation RejectRequestByGuide($requestId: String!) {
+    rejectRequestByGuide(requestId: $requestId)
   }
 `;

@@ -179,6 +179,14 @@ export const authLabel: LabelTypes = {
   vehicleType: {
     en: "Vehicle Type",
     ne:"गाडीको प्रकार"
+  },
+  respond: {
+    en: "Respond",
+    ne:"प्रतिक्रिया दिनु"
+  },
+  reject: {
+    en: "Reject",
+    ne:"अस्वीकार गर्नु"
   }
  
  

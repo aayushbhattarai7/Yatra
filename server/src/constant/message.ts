@@ -20,3 +20,6 @@ export const registeredMessage = (title: string) => {
 export const bookRequestMessage = (title: string) => {
   return `${title} booking request sent successfully`;
 };
+export const rejectRequest = (title: string) => {
+  return ` Booking request rejected by ${title}`;
+};
