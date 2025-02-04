@@ -15,7 +15,7 @@ import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
-import { rejectRequest } from "../constant/message";
+import { Message, rejectRequest } from "../constant/message";
 import { In, Not } from "typeorm";
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -397,7 +397,7 @@ class GuideService {
           lastActionBy: Role.GUIDE,
         },
       );
-      return data;
+      return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

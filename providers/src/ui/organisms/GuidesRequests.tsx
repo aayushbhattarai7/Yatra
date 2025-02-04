@@ -1,4 +1,4 @@
-import {  useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
@@ -6,7 +6,10 @@ import { useLang } from "../../hooks/useLang";
 import {
   GUIDE_REQUESTS,
   REJECT_REQUEST_BY_GUIDE,
+  SEND_PRICE_BY_GUIDE,
 } from "../../mutation/queries";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { showToast } from "../../components/ToastNotification";
 
 interface FormData {
   id: string;
@@ -30,24 +33,36 @@ interface User {
   nationality: string;
 }
 
+interface Price {
+  price: string;
+}
+
 const GuideRequests = () => {
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
   const { data, loading, error } = useQuery(GUIDE_REQUESTS);
-  console.log(data, "jaja");
   const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
+  const [sendPriceByGuide] = useMutation(SEND_PRICE_BY_GUIDE);
+  const { register, handleSubmit, reset } = useForm<Price>();
+
+  const sendPrice: SubmitHandler<Price> = async (price) => {
+    if (!selectedId) return;
+   const res = await sendPriceByGuide({
+      variables: { price: price.price, requestId: selectedId },
+   });
+    showToast(res.data.sendPriceByGuide, "success");
+    reset();
+    setSelectedId(null);
+  };
 
   const rejectRequest = async (id: string) => {
-    const response = await rejectRequestByGuide({
-      variables: { requestId: id! },
-    });
-    console.log(response.data);
+    await rejectRequestByGuide({ variables: { requestId: id } });
   };
+
   useEffect(() => {
     if (data) {
       setGuides(data.getRequestsByGuide);
-      console.log(data, "ajja");
     }
   }, [data]);
 
@@ -56,8 +71,6 @@ const GuideRequests = () => {
 
   return (
     <>
-      {loading && <div>Loading...</div>}
-
       {!loading && !error && guides && guides.length > 0 ? (
         <div>
           {guides.map((request) => (
@@ -74,7 +87,11 @@ const GuideRequests = () => {
               <div className="flex gap-4">
                 <Button
                   type="button"
-                  buttonText={authLabel.respond[lang]}
+                  buttonText={
+                    request.price === null
+                      ? authLabel.sendPrice[lang]
+                      : authLabel.respond[lang]
+                  }
                   onClick={() => setSelectedId(request.id)}
                 />
                 <Button
@@ -88,6 +105,30 @@ const GuideRequests = () => {
         </div>
       ) : (
         <p>No requests yet</p>
+      )}
+
+      {selectedId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="mb-4">Enter Price</h2>
+            <form onSubmit={handleSubmit(sendPrice)}>
+              <input
+                type="text"
+                {...register("price", { required: true })}
+                className="border p-2 rounded w-full mb-4"
+                placeholder="Enter price"
+              />
+              <div className="flex gap-4">
+                <Button type="submit" buttonText="Submit" />
+                <Button
+                  type="button"
+                  buttonText="Cancel"
+                  onClick={() => setSelectedId(null)}
+                />
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </>
   );

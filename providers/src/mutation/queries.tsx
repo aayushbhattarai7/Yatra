@@ -161,3 +161,8 @@ export const REJECT_REQUEST_BY_GUIDE = gql`
     rejectRequestByGuide(requestId: $requestId)
   }
 `;
+export const SEND_PRICE_BY_GUIDE = gql`
+  mutation SendPriceByGuide($price: String!, $requestId: String!) {
+    sendPriceByGuide(price: $price, requestId: $requestId)
+  }
+`;
