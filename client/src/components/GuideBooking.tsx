@@ -1,3 +1,5 @@
+import { useLang } from "@/hooks/useLang";
+import { authLabel } from "@/localization/auth";
 import { USER_REQUESTS_FOR_GUIDE } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";
@@ -11,7 +13,8 @@ interface GuideBooking {
   totalPeople: string;
   guide: Guide;
   guideStatus: string;
-  price:string
+  price: string
+  lastActionBy:string
 }
 interface Guide {
   id: string;
@@ -22,9 +25,9 @@ interface Guide {
 }
 const GuideBooking = () => {
   const [guideBooking, setGuideBooking] = useState<GuideBooking[] | null>(null);
-  const { data } = useQuery(USER_REQUESTS_FOR_GUIDE);
+  const { data, loading } = useQuery(USER_REQUESTS_FOR_GUIDE);
   console.log("🚀 ~ TravelBookingHistory ~ data:", data);
-
+const {lang} = useLang()
   useEffect(() => {
     if (data) setGuideBooking(data.getOwnGuideRequest);
   });
@@ -48,7 +51,17 @@ const GuideBooking = () => {
             {book.guideStatus === "COMPLETED" ? (
               <Button buttonText="Re-Book" type="submit" />
             ) : (
-              <Button buttonText="Cancel" type="submit" />
+              <div>
+                {book.lastActionBy === "GUIDE" ? (
+                  <div>
+                    <Button buttonText={authLabel.accept[lang]} type="submit" />
+                      <Button buttonText={ authLabel.bargain[lang]} type="submit" />
+                  </div>
+                ) : (
+                  <Button buttonText={authLabel.waiting[lang]} disabled={loading} type="submit" />
+                )}
+                <Button buttonText="Cancel" type="submit" />
+              </div>
             )}
             <Button buttonText="Details" type="button" />
           </div>

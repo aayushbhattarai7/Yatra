@@ -180,6 +180,17 @@ export const authLabel: LabelTypes = {
     en: "Vehicle Type",
     ne:"गाडीको प्रकार"
   },
- 
+  accept: {
+    en: "Accept",
+    ne:"स्वीकार गर्नुहोस्"
+ },
+  bargain: {
+    en: "Bargain",
+    ne:"मोलतोल गर्नुहोस्"
+  },
+  waiting: {
+    en: "Waiting",
+    ne:"प्रतीक्षा गर्नुहोस्"
+  }
  
 };
