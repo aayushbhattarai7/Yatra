@@ -11,6 +11,7 @@ interface GuideBooking {
   totalPeople: string;
   guide: Guide;
   guideStatus: string;
+  price:string
 }
 interface Guide {
   id: string;
@@ -37,6 +38,7 @@ const GuideBooking = () => {
             <p> to: {book.to}</p>
             <p>Total Days: {book.totalDays}</p>
             <p>Total People: {book.totalPeople}</p>
+            <p>Price: {book.price}</p>
             <p className=" flex">
               Guides name:
               {book.guide.firstName} {book.guide.middleName}{" "}

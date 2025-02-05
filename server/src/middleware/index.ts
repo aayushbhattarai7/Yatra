@@ -24,7 +24,7 @@ const middleware = async (app: Application) => {
   app.use(compression());
   app.use(
     cors({
-      origin: 'http://localhost:3002',
+      origin: 'http://localhost:3001',
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,

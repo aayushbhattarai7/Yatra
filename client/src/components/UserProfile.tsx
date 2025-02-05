@@ -105,7 +105,7 @@ const UserProfile = () => {
               <motion.div whileHover={{ scale: 1.05 }}>
                 <img
                   className="w-32 h-32 rounded-full border-4 border-gray-50 dark:border-gray-700 hover:border-blue-500 transition-all"
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                  src=""
                   alt="Profile"
                 />
               </motion.div>
