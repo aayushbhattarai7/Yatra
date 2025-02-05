@@ -134,6 +134,7 @@ export class UserResolver {
         { id: user?.id! },
         user?.role!,
       );
+      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens)
 
       return {
         id: user?.id!,
