@@ -427,9 +427,13 @@ class GuideService {
         { id: requests.id },
         {
           guideStatus: RequestStatus.ACCEPTED,
+        
           lastActionBy: Role.GUIDE,
         },
       );
+      await this.guideRepo.update({ id: guide_id }, {
+        available: false
+      })
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
