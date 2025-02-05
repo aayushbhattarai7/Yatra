@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GuideBooking from "@/components/GuideBooking";
 import TravelBooking from "@/components/TravelBooking";
 
 const Booking = () => {
-  const [activeTab, setActiveTab] = useState<"travel" | "guide">("travel");
+  const [activeTab, setActiveTab] = useState<"travel" | "guide">(() => {
+    return (
+      (localStorage.getItem("activeTab") as "travel" | "guide") || "travel"
+    );
+  });
+
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
 
   return (
     <div>
