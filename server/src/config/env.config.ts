@@ -30,7 +30,7 @@ export class DotenvConfig {
   static BASE_URL = process.env.BASE_URL;
 
   static STRIPE_SECRET = process.env.STRIPE_SECRET!;
-  static CORS_ORIGIN = process.env.CORS_ORIGIN;
+  static CORS_ORIGIN = process.env.CORS_ORIGIN!.split(',') || []
 
   static FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
   static FACEBOOK_SECRET = process.env.FACEBOOK_SECRET;
