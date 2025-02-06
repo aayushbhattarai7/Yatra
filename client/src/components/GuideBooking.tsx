@@ -1,11 +1,17 @@
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
-import { SEND_PRICE_TO_GUIDE, USER_REQUESTS_FOR_GUIDE } from "@/mutation/queries";
+import {
+  CANCEL_GUIDE_REQUEST,
+  SEND_PRICE_TO_GUIDE,
+  USER_REQUESTS_FOR_GUIDE,
+} from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "./ToastNotification";
+import { IoClose } from "react-icons/io5";
+import { motion } from "framer-motion";
 
 interface GuideBooking {
   id: string;
@@ -15,8 +21,9 @@ interface GuideBooking {
   totalPeople: string;
   guide: Guide;
   guideStatus: string;
-  price: string
-  lastActionBy:string
+  userStatus: string;
+  price: string;
+  lastActionBy: string;
 }
 interface Guide {
   id: string;
@@ -29,22 +36,34 @@ interface Price {
   price: string;
 }
 const GuideBooking = () => {
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [cancellationId, setCancellationId] = useState<string | null>(null);
   const [guideBooking, setGuideBooking] = useState<GuideBooking[] | null>(null);
-  const { data, loading, refetch} = useQuery(USER_REQUESTS_FOR_GUIDE);
-  const { lang } = useLang()
-    const [sendPriceToGuide] = useMutation(SEND_PRICE_TO_GUIDE);
-    const { register, handleSubmit, reset } = useForm<Price>();
-   const sendPrice: SubmitHandler<Price> = async (price) => {
-     if (!selectedId) return;
-     const res = await sendPriceToGuide({
-       variables: { price: price.price, requestId: selectedId },
-     });
-     showToast(res.data.sendPriceToGuide, "success");
-     reset();
-     setSelectedId(null);
-     refetch();
-   };
+  const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_GUIDE);
+  const { lang } = useLang();
+  const [sendPriceToGuide] = useMutation(SEND_PRICE_TO_GUIDE);
+  const { register, handleSubmit, reset } = useForm<Price>();
+  const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
+  const sendPrice: SubmitHandler<Price> = async (price) => {
+    if (!selectedId) return;
+    const res = await sendPriceToGuide({
+      variables: { price: price.price, requestId: selectedId },
+    });
+    showToast(res.data.sendPriceToGuide, "success");
+    reset();
+    setSelectedId(null);
+    refetch();
+  };
+
+  const CancelRequest = async () => {
+    const res = await cancelGuideRequest({
+      variables: { requestId: cancellationId },
+    });
+    reset();
+    setCancellationId(null);
+    refetch();
+    showToast(res.data.cancelGuideRequest, "success");
+  };
   useEffect(() => {
     if (data) setGuideBooking(data.getOwnGuideRequest);
   });
@@ -65,26 +84,41 @@ const GuideBooking = () => {
               {book.guide.lastName}
             </p>
             <p>Status: {book.guideStatus}</p>
-            {book.guideStatus === "COMPLETED" ? (
-              <Button buttonText="Re-Book" type="submit" />
+            {book.userStatus === "CANCELLED" ||
+            book.guideStatus === "CANCELLED" ? (
+              <p>Cancelled</p>
             ) : (
               <div>
-                {book.lastActionBy === "GUIDE" ? (
+                {book.guideStatus === "COMPLETED" ? (
+                  <Button buttonText="Re-Book" type="submit" />
+                ) : (
                   <div>
-                    <Button buttonText={authLabel.accept[lang]} type="submit" />
-                    <Button onClick={()=>setSelectedId(book.id)}
-                      buttonText={authLabel.bargain[lang]}
+                    {book.lastActionBy === "GUIDE" ? (
+                      <div>
+                        <Button
+                          buttonText={authLabel.accept[lang]}
+                          type="submit"
+                        />
+                        <Button
+                          onClick={() => setSelectedId(book.id)}
+                          buttonText={authLabel.bargain[lang]}
+                          type="submit"
+                        />
+                      </div>
+                    ) : (
+                      <Button
+                        buttonText={authLabel.waiting[lang]}
+                        disabled={loading}
+                        type="submit"
+                      />
+                    )}
+                    <Button
+                      buttonText="Cancel"
                       type="submit"
+                      onClick={() => setCancellationId(book.id)}
                     />
                   </div>
-                ) : (
-                  <Button
-                    buttonText={authLabel.waiting[lang]}
-                    disabled={loading}
-                    type="submit"
-                  />
                 )}
-                <Button buttonText="Cancel" type="submit" />
               </div>
             )}
             <Button buttonText="Details" type="button" />
@@ -112,6 +146,48 @@ const GuideBooking = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {cancellationId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white rounded-lg shadow-lg w-full max-w-sm mx-4"
+          >
+            <div className="flex justify-end p-2">
+              <button
+                onClick={() => setCancellationId(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <IoClose size={24} />
+              </button>
+            </div>
+            <div className="px-6 pb-6">
+              <h2 className="text-xl font-semibold mb-2">
+                Are you sure you want to cancel this booking request?
+              </h2>
+              <p className="text-gray-600 mb-6">
+                You won't be able to continue this request after cancellation.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCancellationId(null)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  No
+                </button>
+                <button
+                  onClick={CancelRequest}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
     </>
