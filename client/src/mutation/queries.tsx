@@ -118,3 +118,8 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
     }
   }
 `;
+export const SEND_PRICE_TO_GUIDE = gql`
+  mutation SendPriceToGuide($price: String!, $requestId: String!) {
+    sendPriceToGuide(price: $price, requestId: $requestId)
+  }
+`;

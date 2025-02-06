@@ -114,11 +114,18 @@ const GuideRequests = () => {
                       buttonText={authLabel.sendPrice[lang]}
                       onClick={() => setSelectedId(request.id)}
                     />
-                  ) : (
-                    <Button
-                      type="button"
-                      buttonText={authLabel.respond[lang]}
-                    />
+                      ) : (
+                          <div>
+
+                            <Button
+                              type="button"
+                              buttonText={authLabel.accept[lang]}
+                            />
+                            <Button
+                              type="button"
+                              buttonText={authLabel.bargain[lang]}
+                            />
+                          </div>
                   )}
                   <Button
                     type="button"
@@ -130,8 +137,7 @@ const GuideRequests = () => {
               <div>
                 <Button
                   type="button"
-                  buttonText={authLabel.reject[lang]}
-                  onClick={() => rejectRequest(request.id)}
+                  buttonText={authLabel.details[lang]}
                 />
               </div>
               </div>

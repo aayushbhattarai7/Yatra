@@ -21,10 +21,11 @@ interface GraphQlContext {
 }
 
 const middleware = async (app: Application) => {
+  console.log(DotenvConfig.CORS_ORIGIN)
   app.use(compression());
   app.use(
     cors({
-      origin: 'http://localhost:3001',
+      origin: DotenvConfig.CORS_ORIGIN,
       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,

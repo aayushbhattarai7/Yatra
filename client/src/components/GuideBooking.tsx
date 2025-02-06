@@ -1,9 +1,11 @@
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
-import { USER_REQUESTS_FOR_GUIDE } from "@/mutation/queries";
+import { SEND_PRICE_TO_GUIDE, USER_REQUESTS_FOR_GUIDE } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { showToast } from "./ToastNotification";
 
 interface GuideBooking {
   id: string;
@@ -23,11 +25,26 @@ interface Guide {
   lastName: string;
   gender: string;
 }
+interface Price {
+  price: string;
+}
 const GuideBooking = () => {
+    const [selectedId, setSelectedId] = useState<string | null>(null);
   const [guideBooking, setGuideBooking] = useState<GuideBooking[] | null>(null);
-  const { data, loading } = useQuery(USER_REQUESTS_FOR_GUIDE);
-  console.log("🚀 ~ TravelBookingHistory ~ data:", data);
-const {lang} = useLang()
+  const { data, loading, refetch} = useQuery(USER_REQUESTS_FOR_GUIDE);
+  const { lang } = useLang()
+    const [sendPriceToGuide] = useMutation(SEND_PRICE_TO_GUIDE);
+    const { register, handleSubmit, reset } = useForm<Price>();
+   const sendPrice: SubmitHandler<Price> = async (price) => {
+     if (!selectedId) return;
+     const res = await sendPriceToGuide({
+       variables: { price: price.price, requestId: selectedId },
+     });
+     showToast(res.data.sendPriceToGuide, "success");
+     reset();
+     setSelectedId(null);
+     refetch();
+   };
   useEffect(() => {
     if (data) setGuideBooking(data.getOwnGuideRequest);
   });
@@ -55,10 +72,17 @@ const {lang} = useLang()
                 {book.lastActionBy === "GUIDE" ? (
                   <div>
                     <Button buttonText={authLabel.accept[lang]} type="submit" />
-                      <Button buttonText={ authLabel.bargain[lang]} type="submit" />
+                    <Button onClick={()=>setSelectedId(book.id)}
+                      buttonText={authLabel.bargain[lang]}
+                      type="submit"
+                    />
                   </div>
                 ) : (
-                  <Button buttonText={authLabel.waiting[lang]} disabled={loading} type="submit" />
+                  <Button
+                    buttonText={authLabel.waiting[lang]}
+                    disabled={loading}
+                    type="submit"
+                  />
                 )}
                 <Button buttonText="Cancel" type="submit" />
               </div>
@@ -67,6 +91,29 @@ const {lang} = useLang()
           </div>
         ))}
       </div>
+      {selectedId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="mb-4">Enter Price</h2>
+            <form onSubmit={handleSubmit(sendPrice)}>
+              <input
+                type="text"
+                {...register("price", { required: true })}
+                className="border p-2 rounded w-full mb-4"
+                placeholder="Enter price"
+              />
+              <div className="flex gap-4">
+                <Button type="submit" buttonText="Submit" />
+                <Button
+                  type="button"
+                  buttonText="Cancel"
+                  onClick={() => setSelectedId(null)}
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };

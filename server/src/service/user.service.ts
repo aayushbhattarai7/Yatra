@@ -607,7 +607,7 @@ class UserService {
           lastActionBy: Role.USER,
         },
       );
-      return data;
+      return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
