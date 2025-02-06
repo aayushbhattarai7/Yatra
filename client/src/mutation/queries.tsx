@@ -83,6 +83,7 @@ export const USER_REQUESTS_FOR_GUIDE = gql`
       totalPeople
       guideStatus
       lastActionBy
+      userStatus
       price
       guide {
         id
@@ -121,5 +122,11 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
 export const SEND_PRICE_TO_GUIDE = gql`
   mutation SendPriceToGuide($price: String!, $requestId: String!) {
     sendPriceToGuide(price: $price, requestId: $requestId)
+  }
+`;
+
+export const CANCEL_GUIDE_REQUEST = gql`
+  mutation CancelGuideRequest($requestId: String!) {
+    cancelGuideRequest(requestId: $requestId)
   }
 `;

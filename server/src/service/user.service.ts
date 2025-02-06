@@ -20,6 +20,7 @@ import { LoginDTO } from "../dto/login.dto";
 import { statSync } from "fs";
 import {
   bookRequestMessage,
+  cancelRequest,
   createdMessage,
   Message,
   registeredMessage,
@@ -683,6 +684,37 @@ class UserService {
         },
       );
       return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+  async cancelGuideRequest(user_id: string, requestId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id });
+      if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const requests = await this.guideRequestRepo.findOne({
+        where: {
+          users: { id: user_id },
+          id: requestId,
+        },
+      });
+      if (!requests) {
+        throw HttpException.notFound("no request found");
+      }
+      await this.guideRequestRepo.update(
+        { id: requests.id },
+        {
+          userStatus: RequestStatus.CANCELLED,
+          lastActionBy: Role.USER,
+        },
+      );
+      return cancelRequest("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

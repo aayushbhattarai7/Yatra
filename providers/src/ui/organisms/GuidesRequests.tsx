@@ -89,57 +89,53 @@ const GuideRequests = () => {
               </p>
               <p>{request.lastActionBy}</p>
               <div className="flex gap-5">
-
-              {request.lastActionBy == "GUIDE" ? (
-                <div className="flex gap-4">
-                  {request.price === null ? (
+                {request.lastActionBy == "GUIDE" ? (
+                  <div className="flex gap-4">
+                    {request.price === null ? (
+                      <Button
+                        type="button"
+                        disabled={loading}
+                        buttonText={authLabel.waiting[lang]}
+                      />
+                    ) : (
+                      <Button
+                        type="button"
+                        disabled={loading}
+                        buttonText={authLabel.waiting[lang]}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex gap-4">
+                    {request.price === null ? (
+                      <Button
+                        type="button"
+                        buttonText={authLabel.sendPrice[lang]}
+                        onClick={() => setSelectedId(request.id)}
+                      />
+                    ) : (
+                      <div>
+                        <Button
+                          type="button"
+                          buttonText={authLabel.accept[lang]}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => setSelectedId(request.id)}
+                          buttonText={authLabel.bargain[lang]}
+                        />
+                      </div>
+                    )}
                     <Button
                       type="button"
-                      disabled={loading}
-                      buttonText={authLabel.waiting[lang]}
+                      buttonText={authLabel.reject[lang]}
+                      onClick={() => rejectRequest(request.id)}
                     />
-                  ) : (
-                    <Button
-                      type="button"
-                      disabled={loading}
-                      buttonText={authLabel.waiting[lang]}
-                    />
-                  )}
+                  </div>
+                )}
+                <div>
+                  <Button type="button" buttonText={authLabel.details[lang]} />
                 </div>
-              ) : (
-                <div className="flex gap-4">
-                  {request.price === null ? (
-                    <Button
-                      type="button"
-                      buttonText={authLabel.sendPrice[lang]}
-                      onClick={() => setSelectedId(request.id)}
-                    />
-                      ) : (
-                          <div>
-
-                            <Button
-                              type="button"
-                              buttonText={authLabel.accept[lang]}
-                            />
-                            <Button
-                              type="button"
-                              buttonText={authLabel.bargain[lang]}
-                            />
-                          </div>
-                  )}
-                  <Button
-                    type="button"
-                    buttonText={authLabel.reject[lang]}
-                    onClick={() => rejectRequest(request.id)}
-                  />
-                </div>
-              )}
-              <div>
-                <Button
-                  type="button"
-                  buttonText={authLabel.details[lang]}
-                />
-              </div>
               </div>
             </div>
           ))}
