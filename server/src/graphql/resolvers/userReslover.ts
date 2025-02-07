@@ -134,7 +134,7 @@ export class UserResolver {
         { id: user?.id! },
         user?.role!,
       );
-      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens)
+      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens);
 
       return {
         id: user?.id!,
@@ -187,8 +187,8 @@ export class UserResolver {
     try {
       const id = ctx.req.user?.id;
       const data = await this.userService.findTravel(id!);
-      console.log("🚀 ~ UserResolver ~ findTravel ~ data:", data)
-      return data
+      console.log("🚀 ~ UserResolver ~ findTravel ~ data:", data);
+      return data;
     } catch (error) {
       throw HttpException.internalServerError;
     }
@@ -261,7 +261,7 @@ export class UserResolver {
   async getOwnTravelRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.userService.getOwnTravelRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -276,7 +276,7 @@ export class UserResolver {
   async getTravelHistory(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.userService.getTravelRequestsHistory(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -334,15 +334,16 @@ export class UserResolver {
     }
   }
 
-     @Mutation(() => String)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-   async sendPriceToGuide(
-     @Arg("requestId") requestId: string,
-     @Arg("price") price:string,
-     @Ctx() ctx: Context) {
+  async sendPriceToGuide(
+    @Arg("requestId") requestId: string,
+    @Arg("price") price: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.sendGuidePrice(price,userId, requestId);
+      return await this.userService.sendGuidePrice(price, userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -351,11 +352,12 @@ export class UserResolver {
       }
     }
   }
-     @Mutation(() => String)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-   async cancelGuideRequest(
-     @Arg("requestId") requestId: string,
-     @Ctx() ctx: Context) {
+  async cancelGuideRequest(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
       return await this.userService.cancelGuideRequest(userId, requestId);

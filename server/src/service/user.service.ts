@@ -329,7 +329,7 @@ class UserService {
         where: { verified: true, approved: true },
         relations: ["details", "location", "kyc"],
       });
-      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
+      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel);
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -388,7 +388,8 @@ class UserService {
       });
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
-          "Request already sent to this guide, Please wait a while for the guide response")
+          "Request already sent to this guide, Please wait a while for the guide response",
+        );
       }
 
       const request = this.guideRequestRepo.create({
@@ -482,18 +483,26 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized");
       }
-     const data = await this.travelRequestRepo.createQueryBuilder('requestTravel').leftJoinAndSelect('requestTravel.travel', 'travel')
-        .leftJoinAndSelect("travel.kyc", "kyc").leftJoinAndSelect("requestTravel.user", "user")
-       .where("requestTravel.user_id =:user_id", { user_id })
-              .andWhere("requestTravel.travelStatus NOT IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
+      const data = await this.travelRequestRepo
+        .createQueryBuilder("requestTravel")
+        .leftJoinAndSelect("requestTravel.travel", "travel")
+        .leftJoinAndSelect("travel.kyc", "kyc")
+        .leftJoinAndSelect("requestTravel.user", "user")
+        .where("requestTravel.user_id =:user_id", { user_id })
+        .andWhere("requestTravel.travelStatus NOT IN (:...statuses)", {
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+        })
 
-      .getMany()
-      
-      if(!data) throw HttpException.notFound("You do not requested any travels for booking")
+        .getMany();
+
+      if (!data)
+        throw HttpException.notFound(
+          "You do not requested any travels for booking",
+        );
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error)
+        console.log(error);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -508,17 +517,25 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized");
       }
-     const data = await this.travelRequestRepo.createQueryBuilder('requestTravel').leftJoinAndSelect('requestTravel.travel', 'travel')
-        .leftJoinAndSelect("travel.kyc", "kyc").leftJoinAndSelect("requestTravel.user", "user")
-       .where("requestTravel.user_id =:user_id", { user_id })
-              .andWhere("requestTravel.travelStatus IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
-      .getMany()
-      
-      if(!data) throw HttpException.notFound("You do not requested any travels for booking")
+      const data = await this.travelRequestRepo
+        .createQueryBuilder("requestTravel")
+        .leftJoinAndSelect("requestTravel.travel", "travel")
+        .leftJoinAndSelect("travel.kyc", "kyc")
+        .leftJoinAndSelect("requestTravel.user", "user")
+        .where("requestTravel.user_id =:user_id", { user_id })
+        .andWhere("requestTravel.travelStatus IN (:...statuses)", {
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+        })
+        .getMany();
+
+      if (!data)
+        throw HttpException.notFound(
+          "You do not requested any travels for booking",
+        );
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error)
+        console.log(error);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -533,14 +550,17 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized");
       }
-     const data =  await this.guideRequestRepo.createQueryBuilder("requestGuide")
+      const data = await this.guideRequestRepo
+        .createQueryBuilder("requestGuide")
         .leftJoinAndSelect("requestGuide.guide", "guide")
-        .leftJoinAndSelect("guide.kyc", 'kyc')
+        .leftJoinAndSelect("guide.kyc", "kyc")
         .leftJoinAndSelect("requestGuide.users", "user")
-       .where("requestGuide.user_id = :user_id", { user_id })
-       .andWhere("requestGuide.guideStatus NOT IN (:...statuses)",{statuses:[RequestStatus.COMPLETED, RequestStatus.CANCELLED]})
-      .getMany()
-     
+        .where("requestGuide.user_id = :user_id", { user_id })
+        .andWhere("requestGuide.guideStatus NOT IN (:...statuses)", {
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+        })
+        .getMany();
+
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {

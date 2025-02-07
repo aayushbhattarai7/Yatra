@@ -303,13 +303,14 @@ class TravelService {
     }
   }
 
-
-    async getTravelDetails(travel_id: string) {
+  async getTravelDetails(travel_id: string) {
     try {
       const travel = await this.travelrepo.findOne({
         where: {
-        id:travel_id
-      }, relations:["details", "kyc"]});
+          id: travel_id,
+        },
+        relations: ["details", "kyc"],
+      });
       if (!travel) {
         throw HttpException.unauthorized("you are not authorized");
       }
