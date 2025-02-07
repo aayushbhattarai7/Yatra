@@ -16,6 +16,9 @@ export class TravelDTO {
 
   @IsNotEmpty()
   lastName: string;
+  
+  @IsNotEmpty()
+  kycType: string;
 
   @IsNotEmpty()
   email: string;

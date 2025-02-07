@@ -15,7 +15,6 @@ export enum Status {
 export enum RequestStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  BARGAIN = "BARGAIN",
   REJECTED = "REJECTED",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED"
