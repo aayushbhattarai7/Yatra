@@ -5,7 +5,7 @@ import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
 import { FileType, KycType, Role } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-import {  LoginResponse } from "../../graphql/schema/schema";
+import { LoginResponse } from "../../graphql/schema/schema";
 import webTokenService from "../../service/webToken.service";
 import { Message } from "../../constant/message";
 import { authentication } from "../../middleware/authentication.middleware";
@@ -16,15 +16,15 @@ import { TravelDTO } from "../../dto/travel.dto";
 import travelService from "../../service/travel.service";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 
-export class TravelResolver{
+export class TravelResolver {
   private guideService = new GuideService();
   @Mutation(() => Travel)
   async guideSignup(
     @Arg("data") data: TravelDTO,
     @Ctx() req: Context,
   ): Promise<String> {
-      try {
-           const { kycType } = req.body;
+    try {
+      const { kycType } = req.body;
       const uploadedPhotos: any = {
         passPhoto: req.files?.passPhoto?.[0]
           ? {
@@ -89,8 +89,7 @@ export class TravelResolver{
             }
           : null;
       } else {
-        return "Invalid KYC type provided."
-    
+        return "Invalid KYC type provided.";
       }
       console.log(uploadedPhotos);
       const details = await travelService.create(
@@ -98,11 +97,8 @@ export class TravelResolver{
         req.body as TravelDTO,
       );
 
-     
-        return "Travel is registered successfully"
-      
-      }
-    catch (error: unknown) {
+      return "Travel is registered successfully";
+    } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
       );
@@ -110,9 +106,12 @@ export class TravelResolver{
   }
 
   @Mutation(() => LoginResponse)
-  async travelLogin(@Arg("email") email: string, @Arg("password") password: string) {
+  async travelLogin(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+  ) {
     try {
-      const data = {email, password}
+      const data = { email, password };
       const user = await travelService.loginTravel(data);
       console.log("🚀 ~ UserResolver ~ login ~ user:", user);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
@@ -140,7 +139,7 @@ export class TravelResolver{
     }
   }
 
-   @Query(() => [RequestTravel])
+  @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getRequestByTravel(@Ctx() ctx: Context) {
     try {
@@ -154,7 +153,7 @@ export class TravelResolver{
       }
     }
   }
-@Query(() => Travel,{nullable:true})
+  @Query(() => Travel, { nullable: true })
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getGuideDetails(@Ctx() ctx: Context) {
     try {
@@ -168,5 +167,4 @@ export class TravelResolver{
       }
     }
   }
-  
 }

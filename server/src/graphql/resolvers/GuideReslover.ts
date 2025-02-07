@@ -84,9 +84,12 @@ export class GuideResolver {
   }
 
   @Mutation(() => LoginResponse)
-  async guideLogin(@Arg("email") email: string, @Arg("password") password: string) {
+  async guideLogin(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+  ) {
     try {
-      const data = {email, password}
+      const data = { email, password };
       const user = await this.guideService.loginGuide(data);
       console.log("🚀 ~ UserResolver ~ login ~ user:", user);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
@@ -114,7 +117,7 @@ export class GuideResolver {
     }
   }
 
-   @Query(() => [RequestGuide])
+  @Query(() => [RequestGuide])
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async getRequestsByGuide(@Ctx() ctx: Context) {
     try {
@@ -128,7 +131,7 @@ export class GuideResolver {
       }
     }
   }
-@Query(() => Guide,{nullable:true})
+  @Query(() => Guide, { nullable: true })
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async getGuideDetails(@Ctx() ctx: Context) {
     try {
@@ -142,12 +145,12 @@ export class GuideResolver {
       }
     }
   }
-   @Query(() => [RequestGuide])
+  @Query(() => [RequestGuide])
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async getRequestHistoryOfGuide(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.guideService.getHistory(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -157,14 +160,15 @@ export class GuideResolver {
       }
     }
   }
-   @Mutation(() => String)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
-   async rejectRequestByGuide(
-     @Arg("requestId") requestId: string,
-     @Ctx() ctx: Context) {
+  async rejectRequestByGuide(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId)
+      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.guideService.rejectRequest(userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
@@ -174,15 +178,16 @@ export class GuideResolver {
       }
     }
   }
-   @Mutation(() => String)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
-   async sendPriceByGuide(
-     @Arg("requestId") requestId: string,
-     @Arg("price") price:string,
-     @Ctx() ctx: Context) {
+  async sendPriceByGuide(
+    @Arg("requestId") requestId: string,
+    @Arg("price") price: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.guideService.sendPrice(price,userId, requestId);
+      return await this.guideService.sendPrice(price, userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

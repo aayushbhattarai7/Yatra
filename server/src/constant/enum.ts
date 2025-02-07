@@ -17,7 +17,7 @@ export enum RequestStatus {
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
   COMPLETED = "COMPLETED",
-  CANCELLED = "CANCELLED"
+  CANCELLED = "CANCELLED",
 }
 
 export enum KycType {

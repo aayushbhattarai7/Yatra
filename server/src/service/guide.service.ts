@@ -313,8 +313,13 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
-              guideStatus: Not(In([RequestStatus.COMPLETED, RequestStatus.REJECTED, RequestStatus.CANCELLED])),
-
+          guideStatus: Not(
+            In([
+              RequestStatus.COMPLETED,
+              RequestStatus.REJECTED,
+              RequestStatus.CANCELLED,
+            ]),
+          ),
         },
         relations: ["users"],
       });
@@ -332,9 +337,11 @@ class GuideService {
     try {
       const guide = await this.guideRepo.findOne({
         where: {
-        id:guide_id
-      }, relations:["details", "kyc"]});
-      console.log("🚀 ~ GuideService ~ getGuideDetails ~ guide:", guide)
+          id: guide_id,
+        },
+        relations: ["details", "kyc"],
+      });
+      console.log("🚀 ~ GuideService ~ getGuideDetails ~ guide:", guide);
       if (!guide) {
         throw HttpException.unauthorized("you are not authorized");
       }
@@ -348,7 +355,7 @@ class GuideService {
     }
   }
   async getHistory(guide_id: string) {
-    console.log("🚀 ~ GuideService ~ getHistory ~ guide_id:", guide_id)
+    console.log("🚀 ~ GuideService ~ getHistory ~ guide_id:", guide_id);
     try {
       const guide = await this.guideRepo.findOneBy({ id: guide_id });
       if (!guide) {
@@ -357,12 +364,11 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
-              guideStatus: RequestStatus.COMPLETED,
-
+          guideStatus: RequestStatus.COMPLETED,
         },
         relations: ["users"],
       });
-      console.log("🚀 ~ GuideService ~ getHistory ~ requests:", requests)
+      console.log("🚀 ~ GuideService ~ getHistory ~ requests:", requests);
 
       return requests;
     } catch (error: unknown) {
@@ -427,13 +433,16 @@ class GuideService {
         { id: requests.id },
         {
           guideStatus: RequestStatus.ACCEPTED,
-        
+
           lastActionBy: Role.GUIDE,
         },
       );
-      await this.guideRepo.update({ id: guide_id }, {
-        available: false
-      })
+      await this.guideRepo.update(
+        { id: guide_id },
+        {
+          available: false,
+        },
+      );
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {

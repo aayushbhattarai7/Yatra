@@ -3,7 +3,7 @@ export const Message = {
   notAuthorized: " You are not Authorized",
   tokenExpire: "Token expired, Please signin again",
   LoggedIn: "LoggedIn Successfully",
-  priceSent:"Price sent successfully"
+  priceSent: "Price sent successfully",
 };
 export const createdMessage = (title: string) => {
   return `${title} created Successfully`;
@@ -27,4 +27,3 @@ export const rejectRequest = (title: string) => {
 export const cancelRequest = (title: string) => {
   return `${title} booking request cancelled successfully`;
 };
-

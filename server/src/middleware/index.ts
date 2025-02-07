@@ -21,7 +21,7 @@ interface GraphQlContext {
 }
 
 const middleware = async (app: Application) => {
-  console.log(DotenvConfig.CORS_ORIGIN)
+  console.log(DotenvConfig.CORS_ORIGIN);
   app.use(compression());
   app.use(
     cors({
@@ -31,7 +31,10 @@ const middleware = async (app: Application) => {
       credentials: true,
     }),
   );
-  console.log("🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:", DotenvConfig.CORS_ORIGIN)
+  console.log(
+    "🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:",
+    DotenvConfig.CORS_ORIGIN,
+  );
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];
@@ -45,7 +48,7 @@ const middleware = async (app: Application) => {
   });
 
   app.use(express.json({ limit: "10mb" }));
-app.use(fileUpload());
+  app.use(fileUpload());
   app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
 

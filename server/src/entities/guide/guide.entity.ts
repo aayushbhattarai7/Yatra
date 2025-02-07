@@ -57,11 +57,10 @@ export class Guide extends Base {
   @Column({ name: "otp", nullable: true })
   otp: string;
 
-    @Field()
+  @Field()
   @Column({ name: "available", default: true })
   available: boolean;
 
-  
   @Field()
   @Column({ name: "verified", default: false })
   verified: boolean;

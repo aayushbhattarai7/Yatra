@@ -45,11 +45,9 @@ export class LoginResponse {
   message: string;
 }
 
-
-
 @ObjectType()
 export class GuideResponse {
-  @Field(() => Guide, {nullable:true})
+  @Field(() => Guide, { nullable: true })
   guide: Guide;
 
   @Field(() => GuideDetails, { nullable: true })
