@@ -2,12 +2,11 @@ import { type Request, type Response } from "express";
 import { StatusCodes } from "../constant/StatusCodes";
 import { TravelDTO } from "../dto/travel.dto";
 import webTokenService from "../service/webToken.service";
-import TravelService from "../service/travel.service";
+import travelService from "../service/travel.service";
 import { FileType, KycType } from "../constant/enum";
 import { DotenvConfig } from "../config/env.config";
 import HttpException from "../utils/HttpException.utils";
 import { LocationDTO } from "../dto/location.dto";
-const travelService = new TravelService();
 export class TravelController {
   async create(req: Request, res: Response) {
     try {

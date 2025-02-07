@@ -15,6 +15,7 @@ import { User } from "../entities/user/user.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
 import { Message, registeredMessage } from "../constant/message";
+import { LoginDTO } from "../dto/login.dto";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -226,7 +227,7 @@ class TravelService {
     }
   }
 
-  async loginTravel(data: TravelDTO) {
+  async loginTravel(data: LoginDTO) {
     try {
       console.log(data, "adtadta");
       const travel = await this.travelrepo.findOne({
@@ -302,6 +303,25 @@ class TravelService {
     }
   }
 
+
+    async getTravelDetails(travel_id: string) {
+    try {
+      const travel = await this.travelrepo.findOne({
+        where: {
+        id:travel_id
+      }, relations:["details", "kyc"]});
+      if (!travel) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      return travel;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   async sendPrice(price: string, travel_id: string, requestId: string) {
     try {
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
@@ -428,4 +448,4 @@ class TravelService {
     }
   }
 }
-export default TravelService;
+export default new TravelService();
