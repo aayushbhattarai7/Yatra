@@ -171,22 +171,22 @@ export class GuideController {
     }
   }
 
-  async addLocation(req: Request, res: Response) {
-    try {
-      const guide_id = req.user?.id;
-      const data = await guideService.addLocation(
-        guide_id as string,
-        req.body as LocationDTO,
-      );
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
+  // async addLocation(req: Request, res: Response) {
+  //   try {
+  //     const guide_id = req.user?.id;
+  //     const data = await guideService.addLocation(
+  //       guide_id as string,
+  //       req.body as LocationDTO,
+  //     );
+  //     res.status(StatusCodes.SUCCESS).json({ data });
+  //   } catch (error: unknown) {
+  //     if (error instanceof Error) {
+  //       res.status(StatusCodes.BAD_REQUEST).json({
+  //         message: error?.message,
+  //       });
+  //     }
+  //   }
+  // }
 
   async getRequests(req: Request, res: Response) {
     try {

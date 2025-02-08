@@ -17,9 +17,8 @@ import travelService from "../../service/travel.service";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 
 export class TravelResolver {
-  private guideService = new GuideService();
-  @Mutation(() => Travel)
-  async guideSignup(
+  @Mutation(() => String)
+  async travelSignup(
     @Arg("data") data: TravelDTO,
     @Ctx() req: Context,
   ): Promise<String> {
@@ -94,7 +93,7 @@ export class TravelResolver {
       console.log(uploadedPhotos);
       const details = await travelService.create(
         uploadedPhotos as any,
-        req.body as TravelDTO,
+        data
       );
 
       return "Travel is registered successfully";

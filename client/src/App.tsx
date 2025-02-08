@@ -6,7 +6,6 @@ import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
 import { MessageProvider } from "./contexts/MessageContext";
-import TravelRegister from "./ui/common/organisms/TravelRegister";
 import Landing from "./components/LandingPage";
 import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
@@ -34,9 +33,7 @@ function App() {
         { path: "", element: home },
         { path: "/user-register", element: <UserRegister /> },
         { path: "/user-login", element: <UserLogin /> },
-        { path: "guide-register", element: <GuideRegister /> },
-        { path: "guide-login", element: <GuideLogin /> },
-        { path: "travel-register", element: <TravelRegister /> },
+     
         { path: "adminLogin", element: <AdminLogin /> },
         {
           path: "/",
