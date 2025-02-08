@@ -15,6 +15,7 @@ import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
 import { GuideResolver } from "../graphql/resolvers/GuideReslover";
 import fileUpload from "express-fileupload";
+import { TravelResolver } from "../graphql/resolvers/travelResolver";
 
 interface GraphQlContext {
   req: Request;
@@ -53,13 +54,14 @@ const middleware = async (app: Application) => {
   app.use(express.urlencoded({ extended: false }));
 
   const schema = await buildSchema({
-    resolvers: [UserResolver, AdminResolver, GuideResolver],
+    resolvers: [UserResolver, AdminResolver, GuideResolver, TravelResolver],
   });
 
   const server = new ApolloServer({
     schema,
   });
 
+  app.use("/api", routes);
   await server.start();
 
   app.use(
@@ -73,7 +75,6 @@ const middleware = async (app: Application) => {
     }),
   );
 
-  app.use("/api", routes);
 
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));

@@ -23,7 +23,7 @@ router.post("/verify", guideController.verifyUser);
 router.post("/login", guideController.guideLogin);
 router.use(authentication());
 router.use(authorization([Role.GUIDE]));
-router.post("/add-location", guideController.addLocation);
+// router.post("/add-location", guideController.addLocation);
 router.get("/get-requests", guideController.getRequests);
 router.patch("/send-price", guideController.sendPrice);
 router.patch("/accept-request/:id", guideController.acceptRequest);

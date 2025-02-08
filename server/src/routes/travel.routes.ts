@@ -1,8 +1,8 @@
 import upload from "../utils/fileUpload.utils";
 import { Router } from "express";
 import { TravelController } from "../controllers/travel.controller";
-import { authentication } from "../middleware/authentication.middleware";
-import { authorization } from "../middleware/authorization.middleware";
+import { authentication } from "../middleware/authentication";
+import { authorization } from "../middleware/authorization";
 import { Role } from "../constant/enum";
 const travelController = new TravelController();
 const router: Router = Router();

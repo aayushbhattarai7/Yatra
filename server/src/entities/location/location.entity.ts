@@ -22,10 +22,10 @@ export class Location extends Base {
   @JoinColumn({ name: "user_id" })
   user: User;
 
-  @Field()
-  @OneToOne(() => Guide, (guide) => guide.location, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "guide_id" })
-  guide: Guide;
+@Field(() => Guide, { nullable: true }) 
+@OneToOne(() => Guide, (guide) => guide.location, { onDelete: "CASCADE", nullable: true })
+@JoinColumn({ name: "guide_id" })
+guide: Guide;
 
   @Field()
   @OneToOne(() => Travel, (travel) => travel.location, { onDelete: "CASCADE" })

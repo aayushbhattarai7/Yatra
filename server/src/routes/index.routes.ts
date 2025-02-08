@@ -1,10 +1,10 @@
 import { Router } from "express";
-import place from "./place.routes";
-import user from "./user.routes";
-import admin from "./admin.routes";
-import guide from "./guide.routes";
+// import place from "./place.routes";
+// import user from "./user.routes";
+// import admin from "./admin.routes";
+// import guide from "./guide.routes";
 import travel from "./travel.routes";
-import hotel from "./hotel.routes";
+// import hotel from "./hotel.routes";
 export interface Route {
   path: string;
   route: Router;
@@ -27,10 +27,10 @@ const routes: Route[] = [
   //   path: "/guide",
   //   route: guide,
   // },
-  // {
-  //   path: "/travel",
-  //   route: travel,
-  // },
+  {
+    path: "/travel",
+    route: travel,
+  },
   // {
   //   path: "/hotel",
   //   route: hotel,
