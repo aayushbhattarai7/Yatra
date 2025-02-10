@@ -48,8 +48,8 @@ const middleware = async (app: Application) => {
     }
   });
 
-  app.use(express.json({ limit: "10mb" }));
-  app.use(fileUpload());
+  // app.use(express.json({ limit: "10mb" }));
+  // app.use(fileUpload());
   app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
 

@@ -6,7 +6,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  console.log("🚀 ~ errorHandler ~ error:", error.message);
+  console.log("🚀 ~ errorHandler ~ error:", error);
   let statusCode = 500;
   let data = {
     success: false,
