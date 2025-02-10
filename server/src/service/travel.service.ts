@@ -43,6 +43,7 @@ class TravelService {
               where: { email: data.email },
             },
           );
+          console.log("🚀 ~ TravelService ~ emailExist:", emailExist)
           if (emailExist)
             throw HttpException.badRequest(
               "Entered email is already registered",
@@ -147,7 +148,7 @@ class TravelService {
                 );
               }
 
-              await otpService.sendOtp(travel.email, otp, expires);
+              // await otpService.sendOtp(travel.email, otp, expires);
             } else {
               throw HttpException.badRequest(
                 "Pleas provide all necessary items.",
