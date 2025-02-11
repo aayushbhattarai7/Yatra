@@ -1,21 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Label from "..//ui/common/atoms/Label";
-import axios from "axios";
-import InputField from "..//ui/common/atoms/InputField";
+import { useMutation } from "@apollo/client";
+import Label from "../ui/common/atoms/Label";
+import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
 import { useMessage } from "../contexts/MessageContext";
+import { TRAVEL_OTP } from "../mutation/queries";
 
 interface FormData {
   otp: string;
 }
-interface OTPprops {
+
+interface OTPProps {
   email: string;
+  registerType:  "travel";
 }
 
-const OTP: React.FC<OTPprops> = ({ email }) => {
+const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
   const { setMessage } = useMessage();
-
   const navigate = useNavigate();
   const {
     register,
@@ -23,30 +25,23 @@ const OTP: React.FC<OTPprops> = ({ email }) => {
     formState: { isSubmitting },
   } = useForm<FormData>();
 
-  const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+  const mutationMap = {
+  
+    travel: TRAVEL_OTP,
+  };
+
+  const [verifyOTP] = useMutation(mutationMap[registerType]);
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("otp", data.otp);
-      const requestBody = {
-        email: email,
-        otp: data.otp,
-      };
-      console.log(data.otp, "ka");
-      const response = await axios.post("/travel/verify", requestBody);
-      setMessage(response.data.message, "success");
+      const response = await verifyOTP({ variables: { email, otp: data.otp } });
+      setMessage(response.data.verifyOtp.message, "success");
       navigate("/login");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setMessage(
-          error.response?.data?.message || "An error occurred",
-          "error"
-        );
-      } else {
-        setMessage("Required fields should not be empty", "error");
-      }
+    console.log("🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ error:", error)
     }
   };
+
   return (
     <div>
       <form
@@ -55,15 +50,14 @@ const OTP: React.FC<OTPprops> = ({ email }) => {
         className="flex flex-col justify-center items-center"
       >
         <div className="mb-4">
-          <Label name="otp" label="Enter OTP: " />
-          <InputField className="" type="text" name="otp" register={register} />
+          <Label name="otp" label="Enter OTP:" />
+          <InputField type="text" name="otp" register={register} className={""} />
         </div>
         <Button
           buttonText="Verify"
           name="verify"
           type="submit"
           disabled={isSubmitting}
-          className=""
         />
       </form>
     </div>
