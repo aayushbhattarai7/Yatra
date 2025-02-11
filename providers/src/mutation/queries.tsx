@@ -167,3 +167,9 @@ export const SEND_PRICE_BY_GUIDE = gql`
     sendPriceByGuide(price: $price, requestId: $requestId)
   }
 `;
+
+export const TRAVEL_OTP = gql`
+  mutation TravelVerifyOTP($otp: String!) {
+    travelVerifyOTP(otp: $otp)
+  }
+`;

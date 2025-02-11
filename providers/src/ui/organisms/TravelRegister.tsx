@@ -172,464 +172,456 @@ const TravelRegister: React.FC = () => {
               className={`step ${registered ? "step-active" : "step-inactive"}`}
             />
           </div>
-          {registered ? (
-            <form
-              onSubmit={handleSubmit(
-                showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
-              )}
-              noValidate
-              encType="multipart/form-data"
-              className="space-y-6"
-            >
-              {!showIdentityFields ? (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                    Basic Information
-                  </h2>
+          <form
+            onSubmit={handleSubmit(
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
+            )}
+            noValidate
+            encType="multipart/form-data"
+            className="space-y-6"
+          >
+            {!showIdentityFields ? (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+                  Basic Information
+                </h2>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label name="firstName" label="First Name" required />
-                      <InputField
-                        type="text"
-                        name="firstName"
-                        register={register}
-                        className="form-input"
-                        placeholder="John"
-                      />
-                    </div>
-                    <div>
-                      <Label name="middleName" label="Middle Name" />
-                      <InputField
-                        type="text"
-                        name="middleName"
-                        register={register}
-                        className="form-input"
-                        placeholder="David"
-                      />
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label name="lastName" label="Last Name" required />
+                    <Label name="firstName" label="First Name" required />
                     <InputField
                       type="text"
-                      name="lastName"
+                      name="firstName"
                       register={register}
                       className="form-input"
-                      placeholder="Smith"
+                      placeholder="John"
                     />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label name="email" label="Email" required />
-                      <InputField
-                        type="email"
-                        name="email"
-                        register={register}
-                        className="form-input"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                    <div>
-                      <Label name="phoneNumber" label="Phone Number" required />
-                      <InputField
-                        type="tel"
-                        name="phoneNumber"
-                        register={register}
-                        className="form-input"
-                        placeholder="+1234567890"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label name="gender" label="Gender" required />
-                      <select
-                        {...register("gender", { required: true })}
-                        className="form-select"
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label name="password" label="Password" required />
-                      <InputField
-                        type="password"
-                        name="password"
-                        register={register}
-                        className="form-input"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <Label name="DOB" label="Date Of Birth" required />
+                    <Label name="middleName" label="Middle Name" />
                     <InputField
-                      type="date"
-                      name="DOB"
+                      type="text"
+                      name="middleName"
                       register={register}
                       className="form-input"
+                      placeholder="David"
                     />
                   </div>
+                </div>
 
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-                      <MapPin className="w-5 h-5" />
-                      Location Details
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label
-                          name="nationality"
-                          label="Nationality"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="nationality"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <Label name="province" label="Province" required />
-                        <InputField
-                          type="text"
-                          name="province"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label name="district" label="District" required />
-                        <InputField
-                          type="text"
-                          name="district"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <Label
-                          name="municipality"
-                          label="Municipality"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="municipality"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Vehicle Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Vehicle Details
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label
-                          name="engineNumber"
-                          label="Engine Number"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="engineNumber"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <Label
-                          name="chasisNumber"
-                          label="Chassis Number"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="chasisNumber"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label
-                          name="vehicleNumber"
-                          label="Vehicle Number"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="vehicleNumber"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                      <div>
-                        <Label
-                          name="vehicleType"
-                          label="Vehicle Type"
-                          required
-                        />
-                        <InputField
-                          type="text"
-                          name="vehicleType"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label name="identityType" label="Identity Type" required />
-                    <select
-                      value={identityType}
-                      onChange={handleIdentityChange}
-                      className="form-select"
-                      required
-                    >
-                      <option value="">Select Identity Type</option>
-                      <option value="citizenship">Citizenship</option>
-                      <option value="passport">Passport</option>
-                      <option value="voterCard">Voter Card</option>
-                    </select>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    name=""
-                    buttonText="Continue to Documents"
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                <div>
+                  <Label name="lastName" label="Last Name" required />
+                  <InputField
+                    type="text"
+                    name="lastName"
+                    register={register}
+                    className="form-input"
+                    placeholder="Smith"
                   />
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-                    Document Upload
-                  </h2>
 
-                  {identityType === "citizenship" && (
-                    <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label name="email" label="Email" required />
+                    <InputField
+                      type="email"
+                      name="email"
+                      register={register}
+                      className="form-input"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label name="phoneNumber" label="Phone Number" required />
+                    <InputField
+                      type="tel"
+                      name="phoneNumber"
+                      register={register}
+                      className="form-input"
+                      placeholder="+1234567890"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label name="gender" label="Gender" required />
+                    <select
+                      {...register("gender", { required: true })}
+                      className="form-select"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+                  <div>
+                    <Label name="password" label="Password" required />
+                    <InputField
+                      type="password"
+                      name="password"
+                      register={register}
+                      className="form-input"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label name="DOB" label="Date Of Birth" required />
+                  <InputField
+                    type="date"
+                    name="DOB"
+                    register={register}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    Location Details
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label name="nationality" label="Nationality" required />
+                      <InputField
+                        type="text"
+                        name="nationality"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label name="province" label="Province" required />
+                      <InputField
+                        type="text"
+                        name="province"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label name="district" label="District" required />
+                      <InputField
+                        type="text"
+                        name="district"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        name="municipality"
+                        label="Municipality"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="municipality"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vehicle Information */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Vehicle Details
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label
+                        name="engineNumber"
+                        label="Engine Number"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="engineNumber"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        name="chasisNumber"
+                        label="Chassis Number"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="chasisNumber"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label
+                        name="vehicleNumber"
+                        label="Vehicle Number"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="vehicleNumber"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label name="vehicleType" label="Vehicle Type" required />
+                      <InputField
+                        type="text"
+                        name="vehicleType"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <Label name="identityType" label="Identity Type" required />
+                  <select
+                    value={identityType}
+                    onChange={handleIdentityChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Identity Type</option>
+                    <option value="citizenship">Citizenship</option>
+                    <option value="passport">Passport</option>
+                    <option value="voterCard">Voter Card</option>
+                  </select>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  name=""
+                  buttonText="Continue to Documents"
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+                  Document Upload
+                </h2>
+
+                {identityType === "citizenship" && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label
+                        name="citizenshipId"
+                        label="Citizenship ID"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="citizenshipId"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label
-                          name="citizenshipId"
-                          label="Citizenship ID"
+                          name="citizenshipIssueDate"
+                          label="Issue Date"
                           required
                         />
                         <InputField
-                          type="text"
-                          name="citizenshipId"
+                          type="date"
+                          name="citizenshipIssueDate"
                           register={register}
                           className="form-input"
                         />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label
-                            name="citizenshipIssueDate"
-                            label="Issue Date"
-                            required
-                          />
-                          <InputField
-                            type="date"
-                            name="citizenshipIssueDate"
-                            register={register}
-                            className="form-input"
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            name="citizenshipIssueFrom"
-                            label="Issued From"
-                            required
-                          />
-                          <InputField
-                            type="text"
-                            name="citizenshipIssueFrom"
-                            register={register}
-                            className="form-input"
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label
-                            name="citizenshipFront"
-                            label="Citizenship Front"
-                          />
-                          <input
-                            type="file"
-                            {...register("citizenshipFront")}
-                            className="file-input"
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            name="citizenshipBack"
-                            label="Citizenship Back"
-                          />
-                          <input
-                            type="file"
-                            {...register("citizenshipBack")}
-                            className="file-input"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {identityType === "passport" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label name="passportId" label="Passport ID" required />
-                        <InputField
-                          type="text"
-                          name="passportId"
-                          register={register}
-                          className="form-input"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label
-                            name="passportIssueDate"
-                            label="Issue Date"
-                            required
-                          />
-                          <InputField
-                            type="date"
-                            name="passportIssueDate"
-                            register={register}
-                            className="form-input"
-                          />
-                        </div>
-                        <div>
-                          <Label
-                            name="passportExpiryDate"
-                            label="Expiry Date"
-                            required
-                          />
-                          <InputField
-                            type="date"
-                            name="passportExpiryDate"
-                            register={register}
-                            className="form-input"
-                          />
-                        </div>
                       </div>
                       <div>
                         <Label
-                          name="passportIssueFrom"
+                          name="citizenshipIssueFrom"
                           label="Issued From"
                           required
                         />
                         <InputField
                           type="text"
-                          name="passportIssueFrom"
+                          name="citizenshipIssueFrom"
                           register={register}
                           className="form-input"
                         />
                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label name="passport" label="Passport Document" />
+                        <Label
+                          name="citizenshipFront"
+                          label="Citizenship Front"
+                        />
                         <input
                           type="file"
-                          {...register("passport")}
+                          {...register("citizenshipFront")}
+                          className="file-input"
+                        />
+                      </div>
+                      <div>
+                        <Label
+                          name="citizenshipBack"
+                          label="Citizenship Back"
+                        />
+                        <input
+                          type="file"
+                          {...register("citizenshipBack")}
                           className="file-input"
                         />
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {identityType === "voterCard" && (
-                    <div className="space-y-4">
+                {identityType === "passport" && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label name="passportId" label="Passport ID" required />
+                      <InputField
+                        type="text"
+                        name="passportId"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label name="voterId" label="Voter ID" required />
+                        <Label
+                          name="passportIssueDate"
+                          label="Issue Date"
+                          required
+                        />
                         <InputField
-                          type="text"
-                          name="voterId"
+                          type="date"
+                          name="passportIssueDate"
                           register={register}
                           className="form-input"
                         />
                       </div>
                       <div>
                         <Label
-                          name="voterAddress"
-                          label="Voter Address"
+                          name="passportExpiryDate"
+                          label="Expiry Date"
                           required
                         />
                         <InputField
-                          type="text"
-                          name="voterAddress"
+                          type="date"
+                          name="passportExpiryDate"
                           register={register}
                           className="form-input"
                         />
                       </div>
-                      <div>
-                        <Label name="voterCard" label="Voter Card Document" />
-                        <input
-                          type="file"
-                          {...register("voterCard")}
-                          className="file-input"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    <div>
-                      <Label name="passPhoto" label="Passport Size Photo" />
-                      <input
-                        type="file"
-                        {...register("passPhoto")}
-                        className="file-input"
-                      />
                     </div>
                     <div>
                       <Label
-                        name="vehicleRegistration"
-                        label="Vehicle Registration"
+                        name="passportIssueFrom"
+                        label="Issued From"
+                        required
                       />
+                      <InputField
+                        type="text"
+                        name="passportIssueFrom"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label name="passport" label="Passport Document" />
                       <input
                         type="file"
-                        {...register("vehicleRegistration")}
+                        {...register("passport")}
                         className="file-input"
                       />
                     </div>
                   </div>
+                )}
 
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    name=""
-                    buttonText="Complete Registration"
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                  />
+                {identityType === "voterCard" && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label name="voterId" label="Voter ID" required />
+                      <InputField
+                        type="text"
+                        name="voterId"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        name="voterAddress"
+                        label="Voter Address"
+                        required
+                      />
+                      <InputField
+                        type="text"
+                        name="voterAddress"
+                        register={register}
+                        className="form-input"
+                      />
+                    </div>
+                    <div>
+                      <Label name="voterCard" label="Voter Card Document" />
+                      <input
+                        type="file"
+                        {...register("voterCard")}
+                        className="file-input"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <Label name="passPhoto" label="Passport Size Photo" />
+                    <input
+                      type="file"
+                      {...register("passPhoto")}
+                      className="file-input"
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      name="vehicleRegistration"
+                      label="Vehicle Registration"
+                    />
+                    <input
+                      type="file"
+                      {...register("vehicleRegistration")}
+                      className="file-input"
+                    />
+                  </div>
                 </div>
-              )}
-            </form>
-          ) : (
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  name=""
+                  buttonText="Complete Registration"
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                />
+              </div>
+            )}
+          </form>
+
+          {registered && (
             <div className="mt-8">
               <OTP email={email} />
             </div>

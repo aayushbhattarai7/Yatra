@@ -152,6 +152,22 @@ export class TravelResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async travelVerifyOTP(
+    @Arg('otp') otp:string, 
+    @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await travelService.verifyUser(userId, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Query(() => Travel, { nullable: true })
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getGuideDetails(@Ctx() ctx: Context) {
