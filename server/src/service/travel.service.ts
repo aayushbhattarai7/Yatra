@@ -198,11 +198,10 @@ class TravelService {
     }
   }
 
-  async verifyUser(id: string, otp: string): Promise<string> {
+  async verifyUser(email: string, otp: string): Promise<string> {
     try {
-      const travel = await this.travelrepo.findOneBy({ id });
+      const travel = await this.travelrepo.findOneBy({ email });
       if (!travel) throw HttpException.unauthorized("You are not authorized");
-      const travelEmail = travel.email
 
       console.log(otp, "kaa");
       if (travel.verified === true) {
@@ -214,10 +213,10 @@ class TravelService {
       if (Date.now() > +expires)
         throw HttpException.badRequest("Otp ie expired");
 
-      const payload = `${travel.email}.${otp}.${expires}`;
+      const payload = `${email}.${otp}.${expires}`;
       const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
       if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
-      await this.travelrepo.update({ id }, { verified: true });
+      await this.travelrepo.update({ email }, { verified: true });
       return `Your verification was successful! Please allow up to 24 hours for admin approval.`;
     } catch (error: unknown) {
       if (error instanceof Error) {

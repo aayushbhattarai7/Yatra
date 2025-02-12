@@ -153,13 +153,24 @@ export class TravelResolver {
     }
   }
   @Mutation(() => String)
-  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async travelVerifyOTP(
-    @Arg('otp') otp:string, 
-    @Ctx() ctx: Context) {
+    @Arg('email') email:string, 
+    @Arg('otp') otp:string) {
     try {
-      const userId = ctx.req.user?.id!;
-      return await travelService.verifyUser(userId, otp);
+      return await travelService.verifyUser(email, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  async travelResendOTP(
+    @Arg('email') email:string) {
+    try {
+      return await travelService.reSendOtp(email);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

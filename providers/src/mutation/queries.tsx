@@ -147,12 +147,11 @@ export const GET_GUIDE_PROFILE = gql`
       email
       phoneNumber
       gender
-  createdAt
+      createdAt
       kyc {
         id
         path
       }
-      
     }
   }
 `;
@@ -169,7 +168,23 @@ export const SEND_PRICE_BY_GUIDE = gql`
 `;
 
 export const TRAVEL_OTP = gql`
-  mutation TravelVerifyOTP($otp: String!) {
-    travelVerifyOTP(otp: $otp)
+  mutation TravelVerifyOTP($otp: String!, $email: String!) {
+    travelVerifyOTP(otp: $otp, email: $email)
+  }
+`;
+
+export const TRAVEL_RESEND_OTP = gql`
+  mutation TravelResendOTP($email: String!) {
+    travelResendOTP(email: $email)
+  }
+`;
+export const TRAVEL_LOGIN = gql`
+  mutation TravelLogin($password: String!, $email: String!) {
+    travelLogin(password: $password, email: $email) {
+      message
+      tokens {
+        accessToken
+      }
+    }
   }
 `;

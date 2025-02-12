@@ -13,6 +13,8 @@ import GuideHome from "./ui/organisms/GuideHome";
 import GuideRequests from "./ui/organisms/GuidesRequests";
 import GuideHistory from "./ui/organisms/GuideHistory";
 import GuideProfile from "./components/GuideProfile";
+import TravelLogin from "./ui/organisms/TravelLogin";
+import TravelHome from "./ui/organisms/TravelHome";
 
 
 function App() {
@@ -27,6 +29,7 @@ function App() {
         { path: "", element: home },
         { path: "guide-register", element: <GuideRegister /> },
         { path: "guide-login", element: <GuideLogin /> },
+        { path: "travel-login", element: <TravelLogin /> },
         { path: "travel-register", element: <TravelRegister /> },
         {
           path: "/",
@@ -36,6 +39,7 @@ function App() {
            
          
             { path: "guide-home", element: <GuideHome /> },
+            { path: "travel-home", element: <TravelHome /> },
             { path: "booking", element: <GuideRequests /> },
             { path: "history", element: <GuideHistory /> },
             { path: "guide-profile", element: <GuideProfile /> },

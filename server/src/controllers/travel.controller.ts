@@ -77,9 +77,10 @@ export class TravelController {
           : null;
       } else {
         console.log("errroooooooooooooooooood")
-         return res.status(StatusCodes.BAD_REQUEST).json({
+          res.status(StatusCodes.BAD_REQUEST).json({
           message: "Invalid KYC type provided.",
-        });
+          });
+        return
       }
       console.log(uploadedPhotos);
       console.log(req.body,"--------------------------")
