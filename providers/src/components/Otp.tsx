@@ -5,7 +5,8 @@ import Label from "../ui/common/atoms/Label";
 import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
 import { useMessage } from "../contexts/MessageContext";
-import { TRAVEL_OTP } from "../mutation/queries";
+import { TRAVEL_OTP, TRAVEL_RESEND_OTP } from "../mutation/queries";
+import { showToast } from "./ToastNotification";
 
 interface FormData {
   otp: string;
@@ -13,7 +14,7 @@ interface FormData {
 
 interface OTPProps {
   email: string;
-  registerType:  "travel";
+  registerType: "travel";
 }
 
 const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
@@ -26,20 +27,32 @@ const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
   } = useForm<FormData>();
 
   const mutationMap = {
-  
     travel: TRAVEL_OTP,
   };
 
   const [verifyOTP] = useMutation(mutationMap[registerType]);
-
+  const [travelResendOTP] = useMutation(TRAVEL_RESEND_OTP);
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const response = await verifyOTP({ variables: { email, otp: data.otp } });
-      setMessage(response.data.verifyOtp.message, "success");
-      navigate("/login");
-    } catch (error) {
-    console.log("🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ error:", error)
+      console.log(
+        "🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ response:",
+        response.data
+      );
+      showToast(response.data.travelVerifyOTP, "success");
+      navigate("/guide-login");
+    } catch (error: any) {
+      console.log(
+        "🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ error:",
+        error
+      );
     }
+  };
+
+  const resendOTP = async () => {
+    const res = await travelResendOTP({ variables: { email } });
+    console.log(res.data);
+    showToast(res.data.travelResendOTP, "success");
   };
 
   return (
@@ -51,7 +64,12 @@ const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
       >
         <div className="mb-4">
           <Label name="otp" label="Enter OTP:" />
-          <InputField type="text" name="otp" register={register} className={""} />
+          <InputField
+            type="text"
+            name="otp"
+            register={register}
+            className={""}
+          />
         </div>
         <Button
           buttonText="Verify"
@@ -60,6 +78,12 @@ const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
           disabled={isSubmitting}
         />
       </form>
+      <Button
+        buttonText="Didnot get the code? resend otp"
+        className=""
+        type="submit"
+        onClick={resendOTP}
+      />
     </div>
   );
 };

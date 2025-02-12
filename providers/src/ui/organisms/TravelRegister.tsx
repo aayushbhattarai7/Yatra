@@ -623,7 +623,7 @@ const TravelRegister: React.FC = () => {
 
           {registered && (
             <div className="mt-8">
-              <OTP email={email} />
+              <OTP email={email} registerType="travel"/>
             </div>
           )}
         </div>
