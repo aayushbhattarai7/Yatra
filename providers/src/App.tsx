@@ -19,39 +19,31 @@ import TravelHome from "./ui/organisms/TravelHome";
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
   const home = isLoggedIn ? <GuideHome /> : <Landing />;
-  const travelHome = isLoggedIn ? <TravelHome /> : <Landing />;
 
   const router = createBrowserRouter([
     {
-      path: "travel",
+      path: "/",
       element: <Route />,
       children: [
-        { path: "", element: travelHome },
+        { path: "", element: home },
+        { path: "guide-register", element: <GuideRegister /> },
+        { path: "guide-login", element: <GuideLogin /> },
         { path: "travel-login", element: <TravelLogin /> },
         { path: "travel-register", element: <TravelRegister /> },
         {
           path: "guide",
           element: <GuideProtectedRoute />,
           children: [
-            { path: "home", element: <GuideHome /> },
+            { path: "", element: <GuideHome /> },
             { path: "booking", element: <GuideRequests /> },
             { path: "history", element: <GuideHistory /> },
             { path: "guide-profile", element: <GuideProfile /> },
           ],
         },
         {
-          path: "guide",
-          element: <Route />,
-          children: [
-            { path: "", element: home},
-            { path: "guide-register", element: <GuideRegister /> },
-            { path: "guide-login", element: <GuideLogin /> },
-          ],
-        },
-        {
           path: "travel",
           element: <TravelProtectedRoute />,
-          children: [{ path: "home", element: <TravelHome /> }],
+          children: [{ path: "", element: <TravelHome /> }],
         },
       ],
     },
