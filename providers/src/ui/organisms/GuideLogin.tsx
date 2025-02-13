@@ -41,7 +41,7 @@ const GuideLogin = () => {
           sameSite: "Strict",
         });
         showToast(response.data.guideLogin.message, "success");
-        navigate("/guide-home");
+        navigate("/guide/home");
       } else {
         console.error("No response data:", response);
         showToast(response.data.guideLogin.message, "error");
