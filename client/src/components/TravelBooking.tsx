@@ -3,6 +3,7 @@ import { authLabel } from "@/localization/auth";
 import {
   CANCEL_GUIDE_REQUEST,
   SEND_PRICE_TO_GUIDE,
+  SEND_PRICE_TO_TRAVEL,
   USER_REQUESTS_FOR_GUIDE,
   USER_REQUESTS_FOR_TRAVEL,
 } from "@/mutation/queries";
@@ -45,7 +46,7 @@ const TravelBooking = () => {
   );
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
-  const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_GUIDE);
+  const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset } = useForm<Price>();
   const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
   const sendPrice: SubmitHandler<Price> = async (price) => {
@@ -100,7 +101,7 @@ const TravelBooking = () => {
                   <Button buttonText="Re-Book" type="submit" />
                 ) : (
                   <div>
-                    {book.lastActionBy === "GUIDE" ? (
+                    {book.lastActionBy === "TRAVEL" ? (
                       <div>
                         <Button
                           buttonText={authLabel.accept[lang]}

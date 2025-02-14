@@ -337,6 +337,8 @@ class TravelService {
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
+      if(requests.travelBargain> 2) throw HttpException.badRequest("Bargain limit exceed")
+
       const data = await this.travelRequestRepo.update(
         { id: requests.id },
         {

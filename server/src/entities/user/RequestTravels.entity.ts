@@ -21,6 +21,13 @@ export class RequestTravel extends Base {
   totalDays: number;
 
   @Field()
+  @Column({ name: "user_bargain", nullable:true })
+  userBargain: number;
+  @Field()
+  @Column({ name: "travel_bargain", nullable:true })
+  travelBargain: number;
+
+  @Field()
   @Column({ name: "total_people" })
   totalPeople: number;
 
