@@ -29,7 +29,7 @@ const SocialLogin = () => {
           />
           Login with Google
           <GoogleAuth />
-      </button>
+        </button>
         <br />
         <FacebookSDK onLogin={handleFacebookLogin} />
       </div>

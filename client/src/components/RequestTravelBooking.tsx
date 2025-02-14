@@ -27,7 +27,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, handleSubmit } = useForm<FormData>();
   const [requestTravel, { loading, error }] = useMutation(
-    TRAVEL_BOOKING_MUTATION
+    TRAVEL_BOOKING_MUTATION,
   );
 
   const submit: SubmitHandler<FormData> = async (formData) => {

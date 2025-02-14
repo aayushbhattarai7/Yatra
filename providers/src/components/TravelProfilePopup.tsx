@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
 import { useQuery } from "@apollo/client";
-import { GET_GUIDE_PROFILE } from "../mutation/queries";
+import { GET_TRAVEL_PROFILE } from "../mutation/queries";
 interface FormData {
   id: string;
   firstName: string;
@@ -11,12 +11,12 @@ interface FormData {
   email: string;
   phoneNumber: string;
 }
-const ProfilePopup = () => {
+const TravelProfilePopup = () => {
   const [logout, setLogout] = useState<boolean>(false);
 
   const [user, setUser] = useState<FormData | null>(null);
 
-  const { data, loading, error } = useQuery(GET_GUIDE_PROFILE);
+  const { data, loading, error } = useQuery(GET_TRAVEL_PROFILE);
   useEffect(() => {
     if (data) {
       setUser(data.getGuideDetails);
@@ -42,7 +42,7 @@ const ProfilePopup = () => {
         </div>
         <div className="py-2">
           {[
-            { label: "Your Profile", href: "/guide-profile" },
+            { label: "Your Profile", href: "/travel/profile" },
             { label: "Settings", href: "/settings" },
             { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },
@@ -70,4 +70,4 @@ const ProfilePopup = () => {
   );
 };
 
-export default ProfilePopup;
+export default TravelProfilePopup;

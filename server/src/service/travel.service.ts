@@ -14,7 +14,7 @@ import { RequestTravel } from "../entities/user/RequestTravels.entity";
 import { User } from "../entities/user/user.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
-import { Message, registeredMessage } from "../constant/message";
+import { Message, registeredMessage, rejectRequest } from "../constant/message";
 import { LoginDTO } from "../dto/login.dto";
 
 const hashService = new HashService();
@@ -43,7 +43,7 @@ class TravelService {
               where: { email: data.email },
             },
           );
-          console.log("🚀 ~ TravelService ~ emailExist:", emailExist)
+          console.log("🚀 ~ TravelService ~ emailExist:", emailExist);
           if (emailExist)
             throw HttpException.badRequest(
               "Entered email is already registered",
@@ -230,7 +230,6 @@ class TravelService {
 
   async loginTravel(data: LoginDTO) {
     try {
-      console.log(data, "adtadta");
       const travel = await this.travelrepo.findOne({
         where: [{ email: data.email }],
         select: [
@@ -252,9 +251,7 @@ class TravelService {
           "Invalid Email, Entered Email is not registered yet",
         );
       if (!travel.verified) {
-        throw HttpException.badRequest(
-          "You are not verified, please verify your email first",
-        );
+        await this.reSendOtp(travel.email);
       }
 
       if (!travel.approved) {
@@ -347,7 +344,7 @@ class TravelService {
           lastActionBy: Role.TRAVEL,
         },
       );
-      return data;
+      return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -396,15 +393,24 @@ class TravelService {
         throw HttpException.unauthorized("You are not authorized");
       }
 
-      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      const request = await this.travelRequestRepo.findOne({
+        where: {
+          travel: { id: travel_id },
+          id: requestId,
+        },
+      });
       if (!request) {
         throw HttpException.notFound("Request not found");
       }
 
-      await this.travelRequestRepo.delete({
-        id: request.id,
-      });
-      return "Request Rejected";
+      await this.travelRequestRepo.update(
+        { id: request.id },
+        {
+          travelStatus: RequestStatus.REJECTED,
+          lastActionBy: Role.TRAVEL,
+        },
+      );
+      return rejectRequest("Travel");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

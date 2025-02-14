@@ -1,4 +1,4 @@
-import {image} from '../../../config/constant/image'
+import { image } from "../../../config/constant/image";
 interface ButtonProps {
   name?: string;
   type: "submit" | "reset" | "button";

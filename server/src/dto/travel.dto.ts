@@ -10,11 +10,10 @@ import { Field, InputType } from "type-graphql";
 
 @InputType()
 export class TravelDTO {
-
-    @Field()
+  @Field()
   @IsNotEmpty()
-    firstName: string;
-  
+  firstName: string;
+
   @Field()
   @IsNotEmpty()
   middleName: string;
@@ -51,7 +50,7 @@ export class TravelDTO {
   @IsNotEmpty()
   district: string;
 
-@Field()
+  @Field()
   @IsNotEmpty()
   municipality: string;
 

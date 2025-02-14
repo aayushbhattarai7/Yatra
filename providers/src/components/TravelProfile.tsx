@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { motion } from "framer-motion";
 import { Settings, LogOut, Mail, Phone, User, Calendar } from "lucide-react";
+import { GET_TRAVEL_PROFILE } from "../mutation/queries";
 
 interface UserData {
   id: string;
@@ -13,32 +14,22 @@ interface UserData {
   email: string;
   phoneNumber: string;
   createdAt: string;
+  kyc: KYC[];
+}
+interface KYC {
+  id: string;
+  path: string;
 }
 
-const UserProfile = () => {
+const TravelProfile = () => {
   const [logout, setLogout] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
 
-  const GET_USER_QUERY = gql`
-    query GetUser {
-      getUser {
-        id
-        firstName
-        middleName
-        lastName
-        gender
-        email
-        phoneNumber
-        createdAt
-      }
-    }
-  `;
-
-  const { data, loading, error } = useQuery(GET_USER_QUERY);
+  const { data, loading, error } = useQuery(GET_TRAVEL_PROFILE);
 
   useEffect(() => {
-    if (data?.getUser) {
-      setUser(data.getUser);
+    if (data?.getTravelDetails) {
+      setUser(data.getTravelDetails);
     }
   }, [data]);
 
@@ -60,34 +51,38 @@ const UserProfile = () => {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4">
-        <div className="text-center max-w-md">
-          <div className="mb-6 text-red-500 mx-auto">
-            <svg
-              className="w-16 h-16 mx-auto"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
+      <>
+        {logout && <LogoutPopup onClose={() => setLogout(false)} />}
+
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 p-4">
+          <div className="text-center max-w-md">
+            <div className="mb-6 text-red-500 mx-auto">
+              <svg
+                className="w-16 h-16 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Failed to Load Profile
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
+              We couldn't retrieve your profile data. Please try again.
+            </p>
+            <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all">
+              Retry
+            </button>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Failed to Load Profile
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            We couldn't retrieve your profile data. Please try again.
-          </p>
-          <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all">
-            Retry
-          </button>
         </div>
-      </div>
+      </>
     );
 
   return (
@@ -105,7 +100,7 @@ const UserProfile = () => {
               <motion.div whileHover={{ scale: 1.05 }}>
                 <img
                   className="w-32 h-32 rounded-full border-4 border-gray-50 dark:border-gray-700 hover:border-blue-500 transition-all"
-                  src=""
+                  src={user?.kyc[0].path}
                   alt="Profile"
                 />
               </motion.div>
@@ -216,7 +211,7 @@ const UserProfile = () => {
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
-                    onClick={() => setLogout(false)}
+                    onClick={() => setLogout(true)}
                     className="w-full flex items-center justify-center gap-3 p-4 text-red-600 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/20 transition-colors"
                   >
                     <LogOut className="w-5 h-5" />
@@ -232,4 +227,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default TravelProfile;

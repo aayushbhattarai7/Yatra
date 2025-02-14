@@ -466,9 +466,9 @@ class GuideService {
         },
       });
       if (!requests) {
-        throw HttpException.notFound("no request found");
+        throw HttpException.notFound("Request not found");
       }
-      const data = await this.guideRequestRepo.update(
+      await this.guideRequestRepo.update(
         { id: requests.id },
         {
           guideStatus: RequestStatus.REJECTED,

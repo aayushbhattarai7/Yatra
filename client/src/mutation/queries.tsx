@@ -124,6 +124,11 @@ export const SEND_PRICE_TO_GUIDE = gql`
     sendPriceToGuide(price: $price, requestId: $requestId)
   }
 `;
+export const SEND_PRICE_TO_TRAVEL = gql`
+  mutation SendPriceToTravel($price: String!, $requestId: String!) {
+    sendPriceToTravel(price: $price, requestId: $requestId)
+  }
+`;
 
 export const CANCEL_GUIDE_REQUEST = gql`
   mutation CancelGuideRequest($requestId: String!) {

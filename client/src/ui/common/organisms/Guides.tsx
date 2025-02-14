@@ -37,13 +37,13 @@ interface Location {
 const Guides = () => {
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-const {lang} = useLang()
+  const { lang } = useLang();
   const { data, loading, error } = useQuery(GET_GUIDE_QUERY);
-console.log(data,"jaja")
+  console.log(data, "jaja");
   useEffect(() => {
     if (data) {
       setGuides(data.findGuide);
-      console.log(data,"ajja")
+      console.log(data, "ajja");
     }
   }, [data]);
 

@@ -4,9 +4,9 @@ import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
 import { useLang } from "../../hooks/useLang";
 import {
-  GUIDE_REQUESTS,
-  REJECT_REQUEST_BY_GUIDE,
-  SEND_PRICE_BY_GUIDE,
+  TRAVEL_REQUESTS,
+  SEND_PRICE_BY_TRAEL,
+  REJECT_REQUEST_BY_TRAVEL,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
@@ -19,7 +19,7 @@ interface FormData {
   totalDays: string;
   price: string;
   gender: string;
-  users: User;
+  user: User;
   lastActionBy: string;
 }
 
@@ -28,7 +28,6 @@ interface User {
   firstName: string;
   middleName: string;
   lastName: string;
-  guiding_location: string;
   gender: string;
   location: Location;
   nationality: string;
@@ -38,34 +37,34 @@ interface Price {
   price: string;
 }
 
-const GuideRequests = () => {
-  const [guides, setGuides] = useState<FormData[] | null>(null);
+const TravelRequests = () => {
+  const [travels, setTravels] = useState<FormData[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
-  const { data, loading, error, refetch } = useQuery(GUIDE_REQUESTS);
-  const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
-  const [sendPriceByGuide] = useMutation(SEND_PRICE_BY_GUIDE);
+  const { data, loading, error, refetch } = useQuery(TRAVEL_REQUESTS);
+  const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
+  const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
   const { register, handleSubmit, reset } = useForm<Price>();
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     if (!selectedId) return;
-    const res = await sendPriceByGuide({
+    const res = await sendPriceByTravel({
       variables: { price: price.price, requestId: selectedId },
     });
-    showToast(res.data.sendPriceByGuide, "success");
+    showToast(res.data.sendPriceByTravel, "success");
     reset();
     setSelectedId(null);
     refetch();
   };
 
   const rejectRequest = async (id: string) => {
-    await rejectRequestByGuide({ variables: { requestId: id } });
+    await rejectRequestByTravel({ variables: { requestId: id } });
     refetch();
   };
 
   useEffect(() => {
     if (data) {
-      setGuides(data.getRequestsByGuide);
+      setTravels(data.getRequestByTravel);
     }
   }, [data]);
 
@@ -74,9 +73,9 @@ const GuideRequests = () => {
 
   return (
     <>
-      {!loading && !error && guides && guides.length > 0 ? (
+      {!loading && !error && travels && travels.length > 0 ? (
         <div>
-          {guides.map((request) => (
+          {travels.map((request) => (
             <div key={request.id}>
               <p>From: {request.from}</p>
               <p>To: {request.to}</p>
@@ -84,12 +83,12 @@ const GuideRequests = () => {
               <p>Total Days: {request.totalDays}</p>
               <p>Price: {request.price || "Not set yet"}</p>
               <p>
-                User Name: {request.users.firstName} {request.users.middleName}{" "}
-                {request.users.lastName}
+                User Name: {request.user.firstName} {request.user.middleName}{" "}
+                {request.user.lastName}
               </p>
               <p>{request.lastActionBy}</p>
               <div className="flex gap-5">
-                {request.lastActionBy == "GUIDE" ? (
+                {request.lastActionBy == "TRAVEL" ? (
                   <div className="flex gap-4">
                     {request.price === null ? (
                       <Button
@@ -171,4 +170,4 @@ const GuideRequests = () => {
   );
 };
 
-export default GuideRequests;
+export default TravelRequests;

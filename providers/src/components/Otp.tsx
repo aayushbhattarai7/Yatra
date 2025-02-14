@@ -4,7 +4,6 @@ import { useMutation } from "@apollo/client";
 import Label from "../ui/common/atoms/Label";
 import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
-import { useMessage } from "../contexts/MessageContext";
 import { TRAVEL_OTP, TRAVEL_RESEND_OTP } from "../mutation/queries";
 import { showToast } from "./ToastNotification";
 
@@ -18,7 +17,6 @@ interface OTPProps {
 }
 
 const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
-  const { setMessage } = useMessage();
   const navigate = useNavigate();
   const {
     register,
@@ -37,14 +35,14 @@ const OTP: React.FC<OTPProps> = ({ email, registerType }) => {
       const response = await verifyOTP({ variables: { email, otp: data.otp } });
       console.log(
         "🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ response:",
-        response.data
+        response.data,
       );
       showToast(response.data.travelVerifyOTP, "success");
       navigate("/guide-login");
     } catch (error: any) {
       console.log(
         "🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ error:",
-        error
+        error,
       );
     }
   };

@@ -14,18 +14,17 @@ interface UserData {
   email: string;
   phoneNumber: string;
   createdAt: string;
-  kyc:KYC[]
+  kyc: KYC[];
 }
-interface KYC{
+interface KYC {
   id: string;
-  path:string
+  path: string;
 }
 
 const GuideProfile = () => {
   const [logout, setLogout] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
 
- 
   const { data, loading, error } = useQuery(GET_GUIDE_PROFILE);
 
   useEffect(() => {
@@ -99,14 +98,11 @@ const GuideProfile = () => {
           <div className="p-8 border-b border-gray-100 dark:border-gray-700">
             <div className="flex flex-col md:flex-row items-center gap-8">
               <motion.div whileHover={{ scale: 1.05 }}>
-               
-                  
                 <img
                   className="w-32 h-32 rounded-full border-4 border-gray-50 dark:border-gray-700 hover:border-blue-500 transition-all"
                   src={user?.kyc[0].path}
                   alt="Profile"
                 />
-                
               </motion.div>
 
               <div className="text-center md:text-left space-y-4">
@@ -174,7 +170,7 @@ const GuideProfile = () => {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
-                          }
+                          },
                         )}
                       </div>
                     </div>
@@ -223,8 +219,6 @@ const GuideProfile = () => {
                   </motion.button>
                 </div>
               </div>
-
-             
             </div>
           </div>
         </motion.div>

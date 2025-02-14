@@ -24,7 +24,7 @@ const GoogleAuth = () => {
     useMutation(GoogleLoginMutation);
 
   const handleSuccess = async (
-    credentialResponse: CustomCredentialResponse
+    credentialResponse: CustomCredentialResponse,
   ) => {
     const id = credentialResponse.credential;
 

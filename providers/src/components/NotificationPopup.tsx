@@ -1,4 +1,3 @@
-
 const NotificationsPopup = () => {
   const notifications = [
     {

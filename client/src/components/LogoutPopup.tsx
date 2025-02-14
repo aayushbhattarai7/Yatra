@@ -7,8 +7,8 @@ export function LogoutPopup({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    Cookies.remove("accessToken"); 
-    navigate("/user-login"); 
+    Cookies.remove("accessToken");
+    navigate("/user-login");
   };
 
   return (

@@ -22,7 +22,7 @@ const LoginHero = ({ title, description }: LoginHeroProps) => {
 
   return (
     <div
-      className="hidden md:block md:w-[60%] bg-cover bg-center h-screen"
+      className="hidden md:block md:w-[100%] bg-cover bg-center h-screen"
       style={{ backgroundImage: `url(${images[currentImageIndex]})` }}
     >
       <div className="h-full w-[70rem] flex flex-col justify-start items-center text-white p-12">

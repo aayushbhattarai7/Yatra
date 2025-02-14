@@ -113,6 +113,28 @@ export const GUIDE_REQUESTS = gql`
     }
   }
 `;
+export const TRAVEL_REQUESTS = gql`
+  query GetRequestByTravel {
+    getRequestByTravel {
+      id
+      from
+      to
+      totalDays
+      totalPeople
+      price
+      lastActionBy
+      vehicleType
+      user {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+        role
+      }
+    }
+  }
+`;
 export const USER_TRAVEL_BOOKING_HISTORY = gql`
   query GetTravelHistory {
     getTravelHistory {
@@ -155,15 +177,43 @@ export const GET_GUIDE_PROFILE = gql`
     }
   }
 `;
+export const GET_TRAVEL_PROFILE = gql`
+  query GetTravelDetails {
+    getTravelDetails {
+      id
+      firstName
+      middleName
+      lastName
+      email
+      phoneNumber
+      gender
+      createdAt
+      kyc {
+        id
+        path
+      }
+    }
+  }
+`;
 
 export const REJECT_REQUEST_BY_GUIDE = gql`
   mutation RejectRequestByGuide($requestId: String!) {
     rejectRequestByGuide(requestId: $requestId)
   }
 `;
+export const REJECT_REQUEST_BY_TRAVEL = gql`
+  mutation RejectRequestByTravel($requestId: String!) {
+    rejectRequestByTravel(requestId: $requestId)
+  }
+`;
 export const SEND_PRICE_BY_GUIDE = gql`
   mutation SendPriceByGuide($price: String!, $requestId: String!) {
     sendPriceByGuide(price: $price, requestId: $requestId)
+  }
+`;
+export const SEND_PRICE_BY_TRAEL = gql`
+  mutation SendPriceByTravel($price: String!, $requestId: String!) {
+    sendPriceByTravel(price: $price, requestId: $requestId)
   }
 `;
 
@@ -182,6 +232,7 @@ export const TRAVEL_LOGIN = gql`
   mutation TravelLogin($password: String!, $email: String!) {
     travelLogin(password: $password, email: $email) {
       message
+      verified
       tokens {
         accessToken
       }

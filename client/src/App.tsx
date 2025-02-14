@@ -33,7 +33,7 @@ function App() {
         { path: "", element: home },
         { path: "/user-register", element: <UserRegister /> },
         { path: "/user-login", element: <UserLogin /> },
-     
+
         { path: "adminLogin", element: <AdminLogin /> },
         {
           path: "/",

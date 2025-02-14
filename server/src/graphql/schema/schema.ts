@@ -43,6 +43,8 @@ export class LoginResponse {
 
   @Field()
   message: string;
+  @Field()
+  verified: boolean;
 }
 
 @ObjectType()

@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
 import { useLang } from "../../hooks/useLang";
-import {
-    GET_GUIDE_HISTORY,
-
-} from "../../mutation/queries";
+import { GET_GUIDE_HISTORY } from "../../mutation/queries";
 
 interface FormData {
   id: string;

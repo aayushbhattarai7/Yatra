@@ -58,7 +58,7 @@ const TravelRegister: React.FC = () => {
   } = useForm<FormData>();
 
   const handleIdentityChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setIdentityType(event.target.value);
   };
@@ -74,7 +74,7 @@ const TravelRegister: React.FC = () => {
       const basicInfo = JSON.parse(localStorage.getItem("basicInfo") || "{}");
       console.log(
         "🚀 ~ constonSubmitIdentity:SubmitHandler<FormData>= ~ basicInfo:",
-        basicInfo
+        basicInfo,
       );
 
       const formData = new FormData();
@@ -134,7 +134,7 @@ const TravelRegister: React.FC = () => {
         console.log(error, "------");
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error"
+          "error",
         );
       } else {
         console.log(error);
@@ -174,7 +174,7 @@ const TravelRegister: React.FC = () => {
           </div>
           <form
             onSubmit={handleSubmit(
-              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo,
             )}
             noValidate
             encType="multipart/form-data"
@@ -623,7 +623,7 @@ const TravelRegister: React.FC = () => {
 
           {registered && (
             <div className="mt-8">
-              <OTP email={email} registerType="travel"/>
+              <OTP email={email} registerType="travel" />
             </div>
           )}
         </div>

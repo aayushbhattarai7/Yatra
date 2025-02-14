@@ -1,11 +1,11 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import encryptDecrypt from "../function/encryptDecrypt";
-import { getCookie } from '@/function/GetCookie';
+import { getCookie } from "@/function/GetCookie";
 
 const authLink = setContext((_, { headers }) => {
   const encryptedToken = getCookie("accessToken");
-  console.log("🚀 ~ authLink ~ encryptedToken:", encryptedToken)
+  console.log("🚀 ~ authLink ~ encryptedToken:", encryptedToken);
 
   const token = encryptedToken ? encryptDecrypt.decrypt(encryptedToken) : null;
 
@@ -20,8 +20,8 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',
-  credentials: 'include',
+  uri: "http://localhost:3000/graphql",
+  credentials: "include",
 });
 
 const client = new ApolloClient({

@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const GuideHome = () => {
-  return (
-    <div>GuideHome</div>
-  )
-}
+  return <div>GuideHome</div>;
+};
 
-export default GuideHome
+export default GuideHome;

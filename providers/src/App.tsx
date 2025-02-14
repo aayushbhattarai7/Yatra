@@ -15,6 +15,10 @@ import GuideHistory from "./ui/organisms/GuideHistory";
 import GuideProfile from "./components/GuideProfile";
 import TravelLogin from "./ui/organisms/TravelLogin";
 import TravelHome from "./ui/organisms/TravelHome";
+import TravelProfilePopup from "./components/TravelProfilePopup";
+import TravelProfile from "./components/TravelProfile";
+import TravelRequests from "./ui/organisms/TravelRequests";
+import TravelHistory from "./ui/organisms/TravelHistory";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -34,16 +38,21 @@ function App() {
           path: "guide",
           element: <GuideProtectedRoute />,
           children: [
-            { path: "", element: <GuideHome /> },
+            { path: "home", element: <GuideHome /> },
             { path: "booking", element: <GuideRequests /> },
             { path: "history", element: <GuideHistory /> },
-            { path: "guide-profile", element: <GuideProfile /> },
+            { path: "profile", element: <GuideProfile /> },
           ],
         },
         {
           path: "travel",
           element: <TravelProtectedRoute />,
-          children: [{ path: "", element: <TravelHome /> }],
+          children: [
+            { path: "home", element: <TravelHome /> },
+            { path: "booking", element: <TravelRequests /> },
+            { path: "profile", element: <TravelProfile /> },
+            { path: "history", element: <TravelHistory /> },
+          ],
         },
       ],
     },

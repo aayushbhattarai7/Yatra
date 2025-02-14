@@ -9,7 +9,7 @@ import HttpException from "../utils/HttpException.utils";
 import { LocationDTO } from "../dto/location.dto";
 export class TravelController {
   async create(req: Request, res: Response) {
-    console.log("yess", req.files)
+    console.log("yess", req.files);
     try {
       const { kycType } = req.body;
       const uploadedPhotos: any = {
@@ -76,21 +76,21 @@ export class TravelController {
             }
           : null;
       } else {
-        console.log("errroooooooooooooooooood")
-          res.status(StatusCodes.BAD_REQUEST).json({
+        console.log("errroooooooooooooooooood");
+        res.status(StatusCodes.BAD_REQUEST).json({
           message: "Invalid KYC type provided.",
-          });
-        return
+        });
+        return;
       }
       console.log(uploadedPhotos);
-      console.log(req.body,"--------------------------")
+      console.log(req.body, "--------------------------");
       const details = await travelService.create(
         uploadedPhotos as any,
         req.body as TravelDTO,
       );
 
       res.status(StatusCodes.CREATED).json({
-        details
+        details,
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
