@@ -17,7 +17,7 @@ export const LanguageContext = createContext<{
 
 const LanguageProvider = ({ children }: LanguageProviderProps) => {
   const [language, setLanguage] = useState<LanguageEnum>(
-    (localStorage.getItem("lang") as LanguageEnum) || LanguageEnum.en
+    (localStorage.getItem("lang") as LanguageEnum) || LanguageEnum.en,
   );
 
   useEffect(() => {

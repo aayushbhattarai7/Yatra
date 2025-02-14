@@ -77,7 +77,7 @@ export class Guide extends Base {
   @Column({ name: "approve_status", nullable: true })
   approveStatus: string;
 
-  @Field(() => Location, {nullable:true})
+  @Field(() => Location, { nullable: true })
   @OneToOne(() => Location, (location) => location.guide, { cascade: true })
   location: Location;
 

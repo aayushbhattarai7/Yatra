@@ -22,7 +22,7 @@ const RegisterHero = ({ title, description }: LoginHeroProps) => {
         setCurrentImageIndex(nextImageIndex);
         setNextImageIndex((nextIndex) => (nextIndex + 1) % images.length);
         setIsTransitioning(false);
-      }, 1000); 
+      }, 1000);
     }, 10000);
 
     return () => clearInterval(interval);

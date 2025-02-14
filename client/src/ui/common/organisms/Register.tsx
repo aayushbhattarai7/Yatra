@@ -22,7 +22,7 @@ interface FormData {
 }
 
 const UserRegister = () => {
-  const {setMessage}  = useMessage()
+  const { setMessage } = useMessage();
   const { register, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
       email: "",
@@ -42,14 +42,13 @@ const UserRegister = () => {
     try {
       await signup({ variables: { data: formData } });
 
-        alert(`Signup successful! Welcome, ${data.signup.firstName}!`);
-        reset(); 
-      
+      alert(`Signup successful! Welcome, ${data.signup.firstName}!`);
+      reset();
     } catch (err) {
       console.error("Error signing up:", err);
       if (err instanceof Error) {
-        const graphqlError = error?.graphQLErrors?.[0]?.message
-        setMessage(graphqlError || 'An error occured',"error")
+        const graphqlError = error?.graphQLErrors?.[0]?.message;
+        setMessage(graphqlError || "An error occured", "error");
       }
     }
   };

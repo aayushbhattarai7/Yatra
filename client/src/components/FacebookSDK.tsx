@@ -23,11 +23,11 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
   const { setMessage } = useMessage();
   const navigate = useNavigate();
   const [facebookLogin, { error, loading }] = useMutation(FACEBOOK_MUTATION);
-   useEffect(() => {
+  useEffect(() => {
     const initializeFacebookSDK = () => {
       if (!appId || !apiVersion) {
         console.error(
-          "Facebook App ID or API version is not set in environment variables."
+          "Facebook App ID or API version is not set in environment variables.",
         );
         return;
       }
@@ -47,7 +47,7 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
       const s = "script";
       const id = "facebook-jssdk";
       let js: HTMLScriptElement | null = d.getElementById(
-        id
+        id,
       ) as HTMLScriptElement;
 
       if (!js) {
@@ -86,13 +86,13 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
             (userInfo: any) => {
               onLogin(userInfo);
               handleFacebookMutation(accessToken);
-            }
+            },
           );
         } else {
           console.error("User cancelled login or did not fully authorize.");
         }
       },
-      { scope: "email,public_profile" }
+      { scope: "email,public_profile" },
     );
   };
 
@@ -103,7 +103,6 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
       });
 
       if (res.data) {
-     
         const accessToken = res.data.facebookLogin.tokens.accessToken;
         Cookies.set("accessToken", accessToken, {
           path: "/",
@@ -125,7 +124,7 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
       onClick={handleFacebookLogin}
       className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
     >
-      <img 
+      <img
         className="h-9 w-9 mr-2"
         src="https://www.facebook.com/favicon.ico"
         alt="Facebook logo"

@@ -25,7 +25,9 @@ interface FormData {
 const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, handleSubmit } = useForm<FormData>();
-  const [requestGuide, { loading, error }] = useMutation(GUIDE_BOOKING_MUTATION);
+  const [requestGuide, { loading, error }] = useMutation(
+    GUIDE_BOOKING_MUTATION,
+  );
 
   const submit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -38,11 +40,11 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           totalDays: formData.totalDays,
         },
       });
-        console.log(response.data);
-        showToast(response.data.requestGuide,"success")
+      console.log(response.data);
+      showToast(response.data.requestGuide, "success");
       onClose();
     } catch (err) {
-        showToast(error?.message || "error occured","error")
+      showToast(error?.message || "error occured", "error");
       console.error("GraphQL Error:", err);
     }
   };
@@ -110,7 +112,6 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
             />
           </div>
 
-        
           <div className="flex justify-center">
             <Button
               buttonText={authLabel.book[lang]}

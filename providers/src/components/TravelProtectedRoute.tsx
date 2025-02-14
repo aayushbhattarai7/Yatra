@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getCookie } from "../function/GetCookie";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const TravelProtectedRoute = () => {
   const token = getCookie("accessToken");

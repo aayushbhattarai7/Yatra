@@ -91,10 +91,7 @@ export class TravelResolver {
         return "Invalid KYC type provided.";
       }
       console.log(uploadedPhotos);
-      const details = await travelService.create(
-        uploadedPhotos as any,
-        data
-      );
+      const details = await travelService.create(uploadedPhotos as any, data);
 
       return "Travel is registered successfully";
     } catch (error: unknown) {
@@ -120,6 +117,7 @@ export class TravelResolver {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        verified: user.verified,
 
         phoneNumber: user.phoneNumber,
         gender: user.gender,
@@ -153,9 +151,7 @@ export class TravelResolver {
     }
   }
   @Mutation(() => String)
-  async travelVerifyOTP(
-    @Arg('email') email:string, 
-    @Arg('otp') otp:string) {
+  async travelVerifyOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
     try {
       return await travelService.verifyUser(email, otp);
     } catch (error) {
@@ -167,8 +163,7 @@ export class TravelResolver {
     }
   }
   @Mutation(() => String)
-  async travelResendOTP(
-    @Arg('email') email:string) {
+  async travelResendOTP(@Arg("email") email: string) {
     try {
       return await travelService.reSendOtp(email);
     } catch (error) {
@@ -181,10 +176,47 @@ export class TravelResolver {
   }
   @Query(() => Travel, { nullable: true })
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
-  async getGuideDetails(@Ctx() ctx: Context) {
+  async getTravelDetails(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
       return await travelService.getTravelDetails(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async rejectRequestByTravel(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await travelService.rejectRequest(userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async sendPriceByTravel(
+    @Arg("requestId") requestId: string,
+    @Arg("price") price: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await travelService.sendPrice(price, userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

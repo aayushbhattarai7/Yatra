@@ -1,15 +1,8 @@
 import React, { useEffect } from "react";
-import {landingImage} from '../../config/constant/image'
-import {
-  MapPin,
-  Users,
-  Calendar,
-  Compass,
-} from "lucide-react";
-
+import { landingImage } from "../../config/constant/image";
+import { MapPin, Users, Calendar, Compass } from "lucide-react";
 
 function UserHome() {
-
   return (
     <div className="min-h-screen bg-white">
       <div className="relative h-[500px]">
@@ -18,7 +11,6 @@ function UserHome() {
           alt="Mountain view from tent"
           className="w-full h-full object-cover"
         />
-      
 
         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl">
           <div className="bg-white rounded-lg shadow-lg p-6 mx-4">

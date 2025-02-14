@@ -7,8 +7,8 @@ const axiosInstance: AxiosInstance = axios.create({
 encryptDecrypt.decrypt(localStorage.getItem("accessToken") as string) ||
   encryptDecrypt.decrypt(sessionStorage.getItem("accessToken") as string);
 
-  const token = sessionStorage.getItem("accessToken") as string
-  console.log("🚀 ~ token:", token)
+const token = sessionStorage.getItem("accessToken") as string;
+console.log("🚀 ~ token:", token);
 axiosInstance.interceptors.request.use(async (config: any) => {
   const token =
     sessionStorage.getItem("accessToken") ||

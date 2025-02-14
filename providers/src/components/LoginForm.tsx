@@ -59,16 +59,19 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-        <div className="py-2">
-       <NavLink to={''} className={'text-blue-500 underline'}>forgot password?</NavLink>
-       <NavLink to={'/adminLogin'} className={'text-blue-500 underline'}>Login as Admin</NavLink>
-        </div>
+          <div className="py-2">
+            <NavLink to={""} className={"text-blue-500 underline"}>
+              forgot password?
+            </NavLink>
+            <NavLink to={"/adminLogin"} className={"text-blue-500 underline"}>
+              Login as Admin
+            </NavLink>
+          </div>
         </div>
       </div>
-      <div>
-      </div>
+      <div></div>
       <div className="w-[23rem] flex justify-center items-center">
-        <Button 
+        <Button
           buttonText={authLabel.login[lang]}
           name=""
           type="submit"

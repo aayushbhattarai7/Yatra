@@ -3,29 +3,18 @@ import { NavLink as RouterNavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotificationsPopup from "./NotificationPopup";
 import ChatPopup from "./ChatPopup";
-import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "../function/GetCookie";
-import {jwtDecode} from "jwt-decode";
-import { gql, useQuery } from "@apollo/client";
+import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
-interface FormData {
-  id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  vehicle_type: string;
-  gender: string;
-  location: Location;
-  nationality: string;
-}
+import TravelProfilePopup from "./TravelProfilePopup";
 
-const Navbar = () => {
+const TravelNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
- 
+
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {
@@ -64,7 +53,7 @@ const Navbar = () => {
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-[1920px] mx-auto px-6">
         <div className="flex items-center justify-between h-[60px]">
-          <RouterNavLink to="/" className="text-xl font-bold">
+          <RouterNavLink to="/travel/home" className="text-xl font-bold">
             Yatra
           </RouterNavLink>
 
@@ -73,9 +62,9 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink to="/" label="Home" />
-            <NavLink to="/booking" label="Booking" />
-            <NavLink to="/history" label="History" />
+            <NavLink to="/travel/home" label="Home" />
+            <NavLink to="/travel/booking" label="Booking" />
+            <NavLink to="/travel/history" label="History" />
           </div>
 
           {isLoggedIn ? (
@@ -99,14 +88,14 @@ const Navbar = () => {
               <PopupButton
                 onClick={() => setShowProfile(!showProfile)}
                 show={showProfile}
-                popup={<ProfilePopup />}
+                popup={<TravelProfilePopup />}
                 profileImage
               />
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-6">
-              <NavLink to="/guide-login" label="Login" />
-              <NavLink to="/guide-register" label="Sign Up" />
+              <NavLink to="/travel-login" label="Login" />
+              <NavLink to="/travel-register" label="Sign Up" />
             </div>
           )}
         </div>
@@ -115,32 +104,17 @@ const Navbar = () => {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               <MobileNavLink
-                to="/"
+                to="/travel/home"
                 label="Home"
                 onClick={() => setIsOpen(false)}
               />
               <MobileNavLink
-                to="/places"
-                label="Places"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/travel"
-                label="Travel"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/guide"
-                label="Guide"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/booking"
+                to="/travel/booking"
                 label="Booking"
                 onClick={() => setIsOpen(false)}
               />
               <MobileNavLink
-                to="/history"
+                to="/travel/history"
                 label="History"
                 onClick={() => setIsOpen(false)}
               />
@@ -149,14 +123,14 @@ const Navbar = () => {
               {!isLoggedIn ? (
                 <div className="flex flex-col space-y-4 px-4">
                   <RouterNavLink
-                    to="/login"
+                    to="/travel-login"
                     className="block text-center text-sm font-medium text-white bg-green-600 py-2 rounded-md hover:bg-green-700 transition"
                     onClick={() => setIsOpen(false)}
                   >
                     Login
                   </RouterNavLink>
                   <RouterNavLink
-                    to="/signup"
+                    to="/travel-register"
                     className="block text-center text-sm font-medium text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-600 hover:text-white transition"
                     onClick={() => setIsOpen(false)}
                   >
@@ -171,8 +145,7 @@ const Navbar = () => {
                     alt="Profile"
                   />
                   <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800">
-                    </div>
+                    <div className="text-base font-medium text-gray-800"></div>
                   </div>
                 </div>
               )}
@@ -208,11 +181,7 @@ const PopupButton = ({
       className="flex items-center space-x-2"
     >
       {profileImage ? (
-        <img
-          className="h-8 w-8 rounded-full"
-          src=""
-          alt="Profile"
-        />
+        <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
       ) : (
         Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
@@ -271,4 +240,4 @@ interface NotificationIconProps {
   count: number;
 }
 
-export default Navbar;
+export default TravelNavBar;

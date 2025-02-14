@@ -30,9 +30,9 @@ interface FormData {
   lastName: string;
   vehicleType: string;
   gender: string;
-  kyc: KYC[]
+  kyc: KYC[];
 }
-interface KYC{
+interface KYC {
   id: string;
   path: string;
 }
@@ -50,7 +50,7 @@ const Travels = () => {
       setTravels(data.findTravel);
     }
   }, [data]);
- 
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
@@ -65,7 +65,7 @@ const Travels = () => {
       <div>
         {travels?.map((travel) => (
           <div key={travel.id}>
-           <img src={travel.kyc[0]?.path} alt="jhjh" />
+            <img src={travel.kyc[0]?.path} alt="jhjh" />
             <p>ID: {travel.id}</p>
             <p>First Name: {travel.firstName}</p>
             <p>Middle Name: {travel.middleName}</p>

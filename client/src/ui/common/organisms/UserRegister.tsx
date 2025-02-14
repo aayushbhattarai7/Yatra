@@ -2,7 +2,6 @@ import { gql, useMutation } from "@apollo/client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useMessage } from "../../../contexts/MessageContext";
 
-
 import RegsiterForm from "./RegisterForm";
 import RegisterHero from "./RegisterHero";
 import SocialRegister from "./SocialRegiser";
@@ -69,7 +68,10 @@ const UserRegister = () => {
             </p>
           </div>
 
-          <RegsiterForm onSubmit={handleSubmit(onSubmit)} isSubmitting={loading} />
+          <RegsiterForm
+            onSubmit={handleSubmit(onSubmit)}
+            isSubmitting={loading}
+          />
           <SocialRegister />
         </div>
       </div>

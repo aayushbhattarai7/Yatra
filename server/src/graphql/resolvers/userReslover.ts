@@ -352,6 +352,25 @@ export class UserResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async sendPriceToTravel(
+    @Arg("requestId") requestId: string,
+    @Arg("price") price: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.userService.sendTravelPrice(price, userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async cancelGuideRequest(

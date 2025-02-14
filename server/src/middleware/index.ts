@@ -75,7 +75,6 @@ const middleware = async (app: Application) => {
     }),
   );
 
-
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));
 

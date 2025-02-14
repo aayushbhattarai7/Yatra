@@ -26,7 +26,7 @@ interface Travel {
 }
 const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
-    null
+    null,
   );
   const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
   console.log("🚀 ~ TravelBookingHistory ~ data:", data);
