@@ -577,7 +577,6 @@ class UserService {
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
-
       const requests = await this.travelRequestRepo.findOne({
         where: {
           user: { id: user_id },
@@ -587,14 +586,17 @@ class UserService {
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
-      const data = await this.travelRequestRepo.update(
+
+      if(requests.userBargain> 2) throw HttpException.badRequest("Bargain limit exceed")
+       await this.travelRequestRepo.update(
         { id: requests.id },
         {
           price: price,
           lastActionBy: Role.USER,
+          userBargain: requests.userBargain+1
         },
       );
-      return data;
+      return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
