@@ -239,3 +239,14 @@ export const TRAVEL_LOGIN = gql`
     }
   }
 `;
+
+export const ADD_GUIDE_LOCATION = gql`
+  mutation AddLocationOfGuide($longitude: Float!, $latitude: Float!) {
+    addLocationOfGuide(longitude: $longitude, latitude: $latitude)
+  }
+`;
+export const ADD_TRAVEL_LOCATION = gql`
+  mutation AddLocationOfTravel($longitude: Float!, $latitude: Float!) {
+    addLocationOfTravel(longitude: $longitude, latitude: $latitude)
+  }
+`;

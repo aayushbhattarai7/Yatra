@@ -61,6 +61,8 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
       totalPeople
       createdAt
       travelStatus
+      price
+      userStatus
       lastActionBy
       travel {
         firstName
@@ -133,5 +135,10 @@ export const SEND_PRICE_TO_TRAVEL = gql`
 export const CANCEL_GUIDE_REQUEST = gql`
   mutation CancelGuideRequest($requestId: String!) {
     cancelGuideRequest(requestId: $requestId)
+  }
+`;
+export const CANCEL_TRAVEL_REQUEST = gql`
+  mutation CancelTravelRequest($requestId: String!) {
+    cancelTravelRequest(requestId: $requestId)
   }
 `;

@@ -4,6 +4,7 @@ export const Message = {
   tokenExpire: "Token expired, Please signin again",
   LoggedIn: "LoggedIn Successfully",
   priceSent: "Price sent successfully",
+  locationSent: "Location sent successfully"
 };
 export const createdMessage = (title: string) => {
   return `${title} created Successfully`;

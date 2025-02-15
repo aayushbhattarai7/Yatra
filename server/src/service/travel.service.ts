@@ -43,7 +43,6 @@ class TravelService {
               where: { email: data.email },
             },
           );
-          console.log("🚀 ~ TravelService ~ emailExist:", emailExist);
           if (emailExist)
             throw HttpException.badRequest(
               "Entered email is already registered",
@@ -56,7 +55,6 @@ class TravelService {
           if (!emailRegex.test(data.email)) {
             throw HttpException.badRequest("Please enter a valid email");
           }
-          console.log(data.password);
           if (!passwordRegex.test(data.password)) {
             throw HttpException.badRequest(
               "Password requires an uppercase, digit, and special char.",
@@ -117,15 +115,12 @@ class TravelService {
               const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
               for (const key in image) {
                 const file = image[key];
-                console.log("🚀 ~ TravelService ~ file:", file.fileType);
 
-                console.log(file.mimetype);
                 if (!allowedMimeTypes.includes(file.mimetype)) {
                   throw HttpException.badRequest(
                     "Invalid image type. Only jpg, jpeg, and png are accepted.",
                   );
                 }
-                console.log(file.fileType);
 
                 const kyc = transactionalEntityManager.create(
                   this.travelKycRepo.target,
@@ -159,7 +154,6 @@ class TravelService {
           return registeredMessage("Travel");
         } catch (error: unknown) {
           if (error instanceof Error) {
-            console.log(error.message);
             throw HttpException.badRequest(error?.message);
           } else {
             throw HttpException.internalServerError;
@@ -203,7 +197,6 @@ class TravelService {
       const travel = await this.travelrepo.findOneBy({ email });
       if (!travel) throw HttpException.unauthorized("You are not authorized");
 
-      console.log(otp, "kaa");
       if (travel.verified === true) {
         throw HttpException.badRequest(
           "You are already verified please wait for the approval",
@@ -220,7 +213,6 @@ class TravelService {
       return `Your verification was successful! Please allow up to 24 hours for admin approval.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError;
@@ -277,10 +269,8 @@ class TravelService {
   }
 
   async getRequests(travel_id: string) {
-    console.log(travel_id, "idid");
     try {
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
-      console.log(travel_id === travel?.id);
       if (!travel) {
         throw HttpException.unauthorized("you are not authorized");
       }
@@ -344,6 +334,7 @@ class TravelService {
         {
           price: price,
           lastActionBy: Role.TRAVEL,
+          travelBargain:requests.travelBargain+1,
         },
       );
       return Message.priceSent;
@@ -439,7 +430,7 @@ class TravelService {
             longitude: data.longitude,
           },
         );
-        return location;
+        return Message.locationSent;
       } else {
         const addLocation = this.locationRepo.create({
           latitude: data.latitude,
@@ -447,7 +438,7 @@ class TravelService {
           travel: travel,
         });
         await this.locationRepo.save(addLocation);
-        return addLocation;
+        return Message.locationSent;
       }
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -68,6 +68,9 @@ export class Travel extends Base {
   @Field()
   @Column({ name: "vehicle_type" })
   vehicleType: string;
+  @Field()
+  @Column({ name: "connects", nullable:true })
+  connects: number;
 
   @Field()
   @Column({ name: "available", default: true })

@@ -10,12 +10,12 @@ import { Hotel } from "../../entities/hotels/hotel.entity";
 @Entity("location")
 export class Location extends Base {
   @Field()
-  @Column({ name: "latitude" })
-  latitude: string;
+  @Column({ name: "latitude", type:"float" })
+  latitude: number;
 
   @Field()
-  @Column({ name: "longitude" })
-  longitude: string;
+  @Column({ name: "longitude", type:"float" })
+  longitude: number;
 
   @Field(() => User)
   @OneToOne(() => User, (user) => user.location, { onDelete: "CASCADE" })

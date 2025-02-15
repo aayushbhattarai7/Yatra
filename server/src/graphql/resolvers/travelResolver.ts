@@ -225,4 +225,24 @@ export class TravelResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async addLocationOfTravel(
+    @Arg("latitude") latitude: number,
+    @Arg("longitude") longitude: number,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const data = { latitude, longitude }
+
+      const travelId = ctx.req.user?.id!;
+      return await travelService.addLocation(travelId, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

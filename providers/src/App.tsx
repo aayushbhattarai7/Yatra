@@ -19,6 +19,7 @@ import TravelProfilePopup from "./components/TravelProfilePopup";
 import TravelProfile from "./components/TravelProfile";
 import TravelRequests from "./ui/organisms/TravelRequests";
 import TravelHistory from "./ui/organisms/TravelHistory";
+import { LocationProvider } from "./contexts/LocationContext";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -59,10 +60,10 @@ function App() {
   ]);
 
   return (
-    <MessageProvider>
+    <LocationProvider>
       <ToastNotification />
       <RouterProvider router={router} />
-    </MessageProvider>
+    </LocationProvider>
   );
 }
 

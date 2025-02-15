@@ -26,6 +26,7 @@ import {
   registeredMessage,
 } from "../constant/message";
 import axios from "axios";
+import { MoreThan, Not } from "typeorm";
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -304,8 +305,10 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
-        where: { verified: true, approved: true },
+        where: { verified: true, approved: true,connects: MoreThan(0),
+ },
         relations: ["details", "location", "kyc"],
+
       });
       console.log("🚀 ~ UserService ~ findGuide ~ guides:", guides);
       console.log("ok");
@@ -326,10 +329,13 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const travel = await this.travelrepo.find({
-        where: { verified: true, approved: true },
+        where: {
+          verified: true, approved: true,
+              connects: MoreThan(0),
+
+         },
         relations: ["details", "location", "kyc"],
       });
-      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel);
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -375,6 +381,8 @@ class UserService {
         id: guide_id,
         approved: true,
         verified: true,
+        connects: MoreThan(0),
+
       });
 
       if (!guide) {
@@ -401,12 +409,12 @@ class UserService {
         guide: guide,
       });
       await this.guideRequestRepo.save(request);
-      // await emailService.sendMail({
-      //   to: guide.email,
-      //   text: "Request Incomming",
-      //   subject: `${user.firstName} sent you a travel request`,
-      //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
-      // });
+      await emailService.sendMail({
+        to: guide.email,
+        text: "Request Incomming",
+        subject: `${user.firstName} sent you a guide booking request`,
+        html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
+      });
       return bookRequestMessage("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -431,12 +439,17 @@ class UserService {
 
       const travel = await this.travelrepo.findOneBy({
         id: travel_id,
+        connects: MoreThan(0),
+
       });
 
       const findRequest = await this.travelRequestRepo.find({
         where: {
           user: { id: user_id },
           travel: { id: travel_id },
+          
+          userStatus: Not(RequestStatus.CANCELLED),
+    travelStatus: Not(RequestStatus.CANCELLED),
         },
       });
       console.log("🚀 ~ UserService ~ findRequest:", findRequest);
@@ -459,12 +472,12 @@ class UserService {
         travel: travel,
       });
       await this.travelRequestRepo.save(request);
-      // await emailService.sendMail({
-      //   to: travel.email,
-      //   text: "Request Incomming",
-      //   subject: `${user.firstName} sent you a travel request`,
-      //   html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
-      // });
+      await emailService.sendMail({
+        to: travel.email,
+        text: "Request Incomming",
+        subject: `${user.firstName} sent you a travel booking request`,
+        html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
+      });
       return bookRequestMessage("Travel");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -492,7 +505,9 @@ class UserService {
         .andWhere("requestTravel.travelStatus NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
-
+        .andWhere("requestTravel.userStatus NOT IN (:...statuses)", {
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+        })
         .getMany();
 
       if (!data)
@@ -737,6 +752,37 @@ class UserService {
         },
       );
       return cancelRequest("Guide");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+  async cancelTravelRequest(user_id: string, requestId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id });
+      if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const requests = await this.travelRequestRepo.findOne({
+        where: {
+          user: { id: user_id },
+          id: requestId,
+        },
+      });
+      if (!requests) {
+        throw HttpException.notFound("no request found");
+      }
+      await this.travelRequestRepo.update(
+        { id: requests.id },
+        {
+          userStatus: RequestStatus.CANCELLED,
+          lastActionBy: Role.USER,
+        },
+      );
+      return cancelRequest("Travel");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

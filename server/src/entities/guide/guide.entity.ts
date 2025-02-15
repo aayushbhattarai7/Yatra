@@ -45,6 +45,10 @@ export class Guide extends Base {
   @Column({ name: "guiding_location", nullable: true })
   guiding_location: string;
 
+   @Field()
+  @Column({ name: "connects", nullable:true })
+   connects: number;
+  
   @Field()
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
