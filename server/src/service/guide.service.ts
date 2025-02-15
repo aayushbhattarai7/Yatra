@@ -9,7 +9,7 @@ import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Gender, RequestStatus, Role } from "../constant/enum";
-// import { Location } from "../entities/location/location.entity";
+import { Location } from "../entities/location/location.entity";
 import { GuideDetails } from "../entities/guide/guideDetails.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
@@ -22,7 +22,7 @@ const otpService = new OtpService();
 class GuideService {
   constructor(
     private readonly guideRepo = AppDataSource.getRepository(Guide),
-    // private readonly locationRepo = AppDataSource.getRepository(Location),
+    private readonly locationRepo = AppDataSource.getRepository(Location),
     private readonly guideDetailsrepo = AppDataSource.getRepository(
       GuideDetails,
     ),
@@ -267,42 +267,42 @@ class GuideService {
     }
   }
 
-  // async addLocation(guide_id: string, data: LocationDTO) {
-  //   try {
-  //     const guide = await this.guideRepo.findOneBy({ id: guide_id });
-  //     if (!guide) throw HttpException.unauthorized("you are not authorized");
-  //     const isLocation = await this.locationRepo.findOneBy({
-  //       guide: { id: guide_id },
-  //     });
-  //     if (isLocation) {
-  //       const updateLocation = this.locationRepo.update(
-  //         {
-  //           id: isLocation.id,
-  //           guide: { id: guide_id },
-  //         },
-  //         {
-  //           latitude: data.latitude,
-  //           longitude: data.longitude,
-  //         },
-  //       );
-  //       return updateLocation;
-  //     } else {
-  //       const addLocation = this.locationRepo.create({
-  //         latitude: data.latitude,
-  //         longitude: data.longitude,
-  //         guide: guide,
-  //       });
-  //       await this.locationRepo.save(addLocation);
-  //       return addLocation;
-  //     }
-  //   } catch (error: unknown) {
-  //     if (error instanceof Error) {
-  //       throw HttpException.badRequest(error.message);
-  //     } else {
-  //       throw HttpException.internalServerError;
-  //     }
-  //   }
-  // }
+  async addLocation(guide_id: string, data: LocationDTO) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!guide) throw HttpException.unauthorized("you are not authorized");
+      const isLocation = await this.locationRepo.findOneBy({
+        guide: { id: guide_id },
+      });
+      if (isLocation) {
+        const updateLocation = this.locationRepo.update(
+          {
+            id: isLocation.id,
+            guide: { id: guide_id },
+          },
+          {
+            latitude: data.latitude,
+            longitude: data.longitude,
+          },
+        );
+        return Message.locationSent;
+      } else {
+        const addLocation = this.locationRepo.create({
+          latitude: data.latitude,
+          longitude: data.longitude,
+          guide: guide,
+        });
+        await this.locationRepo.save(addLocation);
+        return Message.locationSent;
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   async getRequests(guide_id: string) {
     try {

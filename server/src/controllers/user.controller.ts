@@ -153,11 +153,11 @@ export class UserController {
       const user_id = req.user?.id;
       console.log("🚀 ~ UserController ~ requestTravel ~ user_id:", user_id);
       const travel_id = req.params.id;
-      await userService.requestTravel(
-        user_id as string,
-        travel_id,
-        req.body as TravelRequestDTO,
-      );
+      // await userService.requestTravel(
+      //   user_id as string,
+      //   travel_id,
+      //   req.body as TravelRequestDTO,
+      // );
       res.status(StatusCodes.SUCCESS).json({
         message:
           "Your request for a travel has been received. Please wait a moment for a response.",

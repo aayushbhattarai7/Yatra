@@ -46,15 +46,22 @@ const TravelRequests = () => {
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
   const { register, handleSubmit, reset } = useForm<Price>();
 
-  const sendPrice: SubmitHandler<Price> = async (price) => {
-    if (!selectedId) return;
-    const res = await sendPriceByTravel({
-      variables: { price: price.price, requestId: selectedId },
-    });
-    showToast(res.data.sendPriceByTravel, "success");
-    reset();
-    setSelectedId(null);
-    refetch();
+    const sendPrice: SubmitHandler<Price> = async (price) => {
+      try {
+        if (!selectedId) return;
+        const res = await sendPriceByTravel({
+          variables: { price: price.price, requestId: selectedId },
+        });
+        showToast(res.data.sendPriceByTravel, "success");
+        reset();
+        setSelectedId(null);
+        refetch();
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+            showToast(error.message || "An error occured", "error");
+            setSelectedId(null)
+        }
+      }
   };
 
   const rejectRequest = async (id: string) => {

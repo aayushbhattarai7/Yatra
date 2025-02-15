@@ -18,7 +18,6 @@ class webTokenService {
     );
   }
   verify(token: string, secret: string): any {
-    console.log(token, secret, "bcabca");
     return jwt.verify(token, secret);
   }
   generateTokens(

@@ -196,4 +196,24 @@ export class GuideResolver {
       }
     }
   }
+
+   @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async addLocationOfGuide(
+    @Arg("latitude") latitude: number,
+    @Arg("longitude") longitude: number,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const data = {latitude, longitude}
+      const travelId = ctx.req.user?.id!;
+      return await this.guideService.addLocation(travelId, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

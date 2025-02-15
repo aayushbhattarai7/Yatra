@@ -1,9 +1,9 @@
-import { IsNotEmpty } from "class-validator";
+import { Field } from "type-graphql";
 
 export class LocationDTO {
-  @IsNotEmpty()
-  latitude: string;
+  @Field()
+  latitude: number;
 
-  @IsNotEmpty()
-  longitude: string;
+  @Field()
+  longitude: number;
 }

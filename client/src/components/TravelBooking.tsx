@@ -1,10 +1,8 @@
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
 import {
-  CANCEL_GUIDE_REQUEST,
-  SEND_PRICE_TO_GUIDE,
+  CANCEL_TRAVEL_REQUEST,
   SEND_PRICE_TO_TRAVEL,
-  USER_REQUESTS_FOR_GUIDE,
   USER_REQUESTS_FOR_TRAVEL,
 } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
@@ -41,44 +39,50 @@ interface Price {
 const TravelBooking = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
-  const [guideBooking, setGuideBooking] = useState<TravelBooking[] | null>(
-    null,
+  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
+    null
   );
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset } = useForm<Price>();
-  const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
+  const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
   const sendPrice: SubmitHandler<Price> = async (price) => {
-    if (!selectedId) return;
-    const res = await sendPriceToTravel({
-      variables: { price: price.price, requestId: selectedId },
-    });
-    showToast(res.data.sendPriceToTravel, "success");
-    reset();
-    setSelectedId(null);
-    refetch();
+    try {
+      if (!selectedId) return;
+      const res = await sendPriceToTravel({
+        variables: { price: price.price, requestId: selectedId },
+      });
+      refetch();
+      showToast(res.data.sendPriceToTravel, "success");
+      reset();
+      setSelectedId(null);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occured", "error");
+      }
+    }
   };
 
   const CancelRequest = async () => {
-    const res = await cancelGuideRequest({
+    const res = await cancelTravelRequest({
       variables: { requestId: cancellationId },
     });
     reset();
     setCancellationId(null);
     refetch();
-    showToast(res.data.cancelGuideRequest, "success");
+    showToast(res.data.cancelTravelRequest, "success");
   };
   useEffect(() => {
     if (data) {
       console.log(data);
-      setGuideBooking(data.getOwnTravelRequest);
+      setTravelBooking(data.getOwnTravelRequest);
     }
   });
   return (
     <>
       <div>
-        {guideBooking?.map((book) => (
+        {travelBooking?.map((book) => (
           <div className="border border-black flex mb-4 gap-20 items-center p-10">
             <p> id:{book.id}</p>
             <p>from : {book.from}</p>
