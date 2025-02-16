@@ -150,7 +150,6 @@ export class GuideResolver {
   async getRequestHistoryOfGuide(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.guideService.getHistory(userId);
     } catch (error) {
       if (error instanceof Error) {

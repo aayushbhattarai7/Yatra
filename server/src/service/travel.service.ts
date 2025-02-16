@@ -448,5 +448,31 @@ class TravelService {
       }
     }
   }
+
+    async getHistory(travel_id: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!travel) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      console.log(travel)
+      const requests = await this.travelRequestRepo.find({
+        where: {
+          travel: { id: travel_id },
+          travelStatus: RequestStatus.COMPLETED,
+        },
+        relations: ["user","travel"],
+      });
+      console.log("🚀 ~ TravelService ~ getHistory ~ requests:", requests)
+
+      return requests;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }
 export default new TravelService();
