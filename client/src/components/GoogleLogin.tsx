@@ -20,7 +20,7 @@ const GoogleAuth = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const { setMessage } = useMessage();
   const navigate = useNavigate();
-  const [googleLogin, { error, loading, data }] =
+  const [googleLogin] =
     useMutation(GoogleLoginMutation);
 
   const handleSuccess = async (

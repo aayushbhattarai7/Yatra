@@ -1,32 +1,36 @@
-import React, { createContext, useContext, ReactNode } from "react";
-import { LatLngTuple } from "leaflet";
+import React, { createContext, useContext, useState } from "react";
+
+export interface MarkerData {
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  latitude: number;
+  longitude: number;
+  photo: string;
+}
 
 interface MapContextType {
-  center: LatLngTuple;
-  zoom: number;
-  setCenter: (center: LatLngTuple) => void;
-  setZoom: (zoom: number) => void;
+  markers: MarkerData[];
+  setMarkers: React.Dispatch<React.SetStateAction<MarkerData[]>>;
 }
 
 const MapContext = createContext<MapContextType | undefined>(undefined);
 
-export const MapProvider: React.FC<{ children: ReactNode }> = ({
+export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [center, setCenter] = React.useState<LatLngTuple>([34.0522, -118.2437]); // Los Angeles
-  const [zoom, setZoom] = React.useState(13);
-
+  const [markers, setMarkers] = useState<MarkerData[]>([]);
   return (
-    <MapContext.Provider value={{ center, zoom, setCenter, setZoom }}>
+    <MapContext.Provider value={{ markers, setMarkers }}>
       {children}
     </MapContext.Provider>
   );
 };
 
-export const useMap = () => {
+export const useMapContext = () => {
   const context = useContext(MapContext);
   if (!context) {
-    throw new Error("useMap must be used within a MapProvider");
+    throw new Error("useMapContext must be used within a MapProvider");
   }
   return context;
 };

@@ -6,20 +6,9 @@ import ChatPopup from "./ChatPopup";
 import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
-import { gql, useQuery } from "@apollo/client";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
-interface FormData {
-  id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  vehicle_type: string;
-  gender: string;
-  location: Location;
-  nationality: string;
-}
 
-const GuideNavBar = () => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -78,37 +67,10 @@ const GuideNavBar = () => {
             <NavLink to="/guide/history" label="History" />
           </div>
 
-          {isLoggedIn ? (
-            <div className="hidden md:flex items-center space-x-6">
-              <div className="flex items-center space-x-4">
-                <PopupButton
-                  onClick={() => setShowChat(!showChat)}
-                  show={showChat}
-                  popup={<ChatPopup />}
-                  icon={MessageSquare}
-                  count={1}
-                />
-                <PopupButton
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  show={showNotifications}
-                  popup={<NotificationsPopup />}
-                  icon={Bell}
-                  count={2}
-                />
-              </div>
-              <PopupButton
-                onClick={() => setShowProfile(!showProfile)}
-                show={showProfile}
-                popup={<ProfilePopup />}
-                profileImage
-              />
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center space-x-6">
-              <NavLink to="/guide-login" label="Login" />
-              <NavLink to="/guide-register" label="Sign Up" />
-            </div>
-          )}
+          <div className="hidden md:flex items-center space-x-6">
+            <NavLink to="/guide-login" label="Login" />
+            <NavLink to="/guide-register" label="Sign Up" />
+          </div>
         </div>
 
         {isOpen && (
@@ -131,35 +93,22 @@ const GuideNavBar = () => {
               />
             </div>
             <div className="pt-4 pb-3 border-t border-gray-200">
-              {!isLoggedIn ? (
-                <div className="flex flex-col space-y-4 px-4">
-                  <RouterNavLink
-                    to="/guide-login"
-                    className="block text-center text-sm font-medium text-white bg-green-600 py-2 rounded-md hover:bg-green-700 transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Login
-                  </RouterNavLink>
-                  <RouterNavLink
-                    to="/guide-register"
-                    className="block text-center text-sm font-medium text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-600 hover:text-white transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign Up
-                  </RouterNavLink>
-                </div>
-              ) : (
-                <div className="flex items-center px-5">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src=""
-                    alt="Profile"
-                  />
-                  <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800"></div>
-                  </div>
-                </div>
-              )}
+              <div className="flex flex-col space-y-4 px-4">
+                <RouterNavLink
+                  to="/guide-login"
+                  className="block text-center text-sm font-medium text-white bg-green-600 py-2 rounded-md hover:bg-green-700 transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </RouterNavLink>
+                <RouterNavLink
+                  to="/guide-register"
+                  className="block text-center text-sm font-medium text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-600 hover:text-white transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign Up
+                </RouterNavLink>
+              </div>
             </div>
           </div>
         )}
@@ -251,4 +200,4 @@ interface NotificationIconProps {
   count: number;
 }
 
-export default GuideNavBar;
+export default Navbar;

@@ -20,6 +20,8 @@ import GuideBooking from "./components/GuideBooking";
 import GuideLogin from "../../providers/src/ui/organisms/GuideLogin";
 import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
+import { MapProvider } from "./contexts/MapContext";
+import MapView from "./components/MapView";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -58,10 +60,10 @@ function App() {
   ]);
 
   return (
-    <MessageProvider>
+    <MapProvider>
       <ToastNotification />
       <RouterProvider router={router} />
-    </MessageProvider>
+    </MapProvider>
   );
 }
 

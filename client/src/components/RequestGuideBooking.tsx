@@ -24,7 +24,7 @@ interface FormData {
 
 const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
-  const { register, handleSubmit } = useForm<FormData>();
+  const { register, setValue, handleSubmit } = useForm<FormData>();
   const [requestGuide, { loading, error }] = useMutation(
     GUIDE_BOOKING_MUTATION,
   );
@@ -67,6 +67,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="from" label={authLabel.from[lang]} />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.from[lang]}
               type="text"
               name="from"
@@ -79,6 +80,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="to" label={authLabel.to[lang]} />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.to[lang]}
               type="text"
               name="to"
@@ -91,6 +93,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="totalPeople" label={authLabel.totalPeople[lang]} />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.totalPeople[lang]}
               type="text"
               name="totalPeople"
@@ -103,6 +106,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="totalDays" label={authLabel.totalDays[lang]} />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.totalDays[lang]}
               type="text"
               name="totalDays"
