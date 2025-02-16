@@ -25,7 +25,7 @@ interface FormData {
 
 const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
-  const { register, handleSubmit } = useForm<FormData>();
+  const { register, setValue, handleSubmit } = useForm<FormData>();
   const [requestTravel, { loading, error }] = useMutation(
     TRAVEL_BOOKING_MUTATION,
   );
@@ -70,6 +70,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="from" label={authLabel.from[lang]} required />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.from[lang]}
               type="text"
               name="from"
@@ -82,6 +83,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           <div>
             <Label name="to" label={authLabel.to[lang]} required />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.to[lang]}
               type="text"
               name="to"
@@ -98,6 +100,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
               required
             />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.totalPeople[lang]}
               type="text"
               name="totalPeople"
@@ -114,6 +117,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
               required
             />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.totalDays[lang]}
               type="text"
               name="totalDays"
@@ -130,6 +134,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
               required
             />
             <InputField
+              setValue={setValue}
               placeholder={authLabel.vehicleType[lang]}
               type="text"
               name="vehicleType"

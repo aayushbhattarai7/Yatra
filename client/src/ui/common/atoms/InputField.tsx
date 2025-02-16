@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FieldError, UseFormRegister } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { FieldError, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface InputFieldProps {
@@ -9,6 +9,7 @@ interface InputFieldProps {
   readOnly?: boolean;
   error?: FieldError;
   register: UseFormRegister<any>;
+  setValue: UseFormSetValue<any>; 
   multiple?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   className: string;
@@ -27,6 +28,7 @@ const InputField: React.FC<InputFieldProps> = ({
   readOnly,
   error,
   register,
+  setValue, 
   multiple,
   onChange,
   className,
@@ -40,6 +42,15 @@ const InputField: React.FC<InputFieldProps> = ({
   const toggleField = () => {
     setShowPassword((prev) => !prev);
   };
+
+  useEffect(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      `input[name="${name}"]`
+    );
+    if (input && input.value) {
+      setValue(name, input.value, { shouldValidate: true }); 
+    }
+  }, [name, setValue]);
 
   return (
     <div className="flex relative items-center">

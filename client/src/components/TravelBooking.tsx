@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
+import InputField from "@/ui/common/atoms/InputField";
 
 interface TravelBooking {
   id: string;
@@ -45,7 +46,7 @@ const TravelBooking = () => {
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
-  const { register, handleSubmit, reset } = useForm<Price>();
+  const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -142,9 +143,11 @@ const TravelBooking = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="mb-4">Enter Price</h2>
             <form onSubmit={handleSubmit(sendPrice)}>
-              <input
+              <InputField
+                register={register}
+                setValue={setValue}
                 type="text"
-                {...register("price", { required: true })}
+                name="price"
                 className="border p-2 rounded w-full mb-4"
                 placeholder="Enter price"
               />
