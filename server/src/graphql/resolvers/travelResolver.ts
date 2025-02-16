@@ -245,4 +245,22 @@ export class TravelResolver {
       }
     }
   }
+
+    @Query(() => [RequestTravel], {nullable:true})
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getRequestHistoryOfTravel(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log(userId)
+      const x = await travelService.getHistory(userId);
+      console.log(x,"xxxxx")
+      return x
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

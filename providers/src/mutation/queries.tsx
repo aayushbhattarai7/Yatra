@@ -135,9 +135,9 @@ export const TRAVEL_REQUESTS = gql`
     }
   }
 `;
-export const USER_TRAVEL_BOOKING_HISTORY = gql`
-  query GetTravelHistory {
-    getTravelHistory {
+export const TRAVEL_BOOKING_HISTORY = gql`
+  query GetRequestHistoryOfTravel {
+    getRequestHistoryOfTravel {
       id
       from
       to
@@ -151,10 +151,12 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
         middleName
         lastName
         gender
-        kyc {
-          id
-          path
-        }
+      }
+      user {
+        firstName
+        middleName
+        lastName
+        gender
       }
     }
   }

@@ -355,7 +355,6 @@ class GuideService {
     }
   }
   async getHistory(guide_id: string) {
-    console.log("🚀 ~ GuideService ~ getHistory ~ guide_id:", guide_id);
     try {
       const guide = await this.guideRepo.findOneBy({ id: guide_id });
       if (!guide) {
@@ -368,7 +367,6 @@ class GuideService {
         },
         relations: ["users"],
       });
-      console.log("🚀 ~ GuideService ~ getHistory ~ requests:", requests);
 
       return requests;
     } catch (error: unknown) {

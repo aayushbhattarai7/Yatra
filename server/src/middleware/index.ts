@@ -48,8 +48,6 @@ const middleware = async (app: Application) => {
     }
   });
 
-  // app.use(express.json({ limit: "10mb" }));
-  // app.use(fileUpload());
   app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
 
@@ -78,9 +76,6 @@ const middleware = async (app: Application) => {
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));
 
-  app.use("/", (_, res: Response) => {
-    res.render("index");
-  });
   app.use(errorHandler);
 };
 
