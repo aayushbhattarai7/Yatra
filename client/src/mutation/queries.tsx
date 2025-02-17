@@ -51,6 +51,27 @@ export const GUIDE_BOOKING_MUTATION = gql`
   }
 `;
 
+export const GET_TRAVELS = gql`
+  query FindTravel {
+    findTravel {
+      id
+      firstName
+      middleName
+      lastName
+      vehicleType
+      gender
+      location {
+        latitude
+        longitude
+      }
+      kyc {
+        id
+        path
+      }
+    }
+  }
+`;
+
 export const USER_REQUESTS_FOR_TRAVEL = gql`
   query GetOwnTravelRequest {
     getOwnTravelRequest {
@@ -60,9 +81,9 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
       totalDays
       totalPeople
       createdAt
-      travelStatus
       price
-      userStatus
+      status
+      userBargain
       lastActionBy
       travel {
         firstName
@@ -83,9 +104,8 @@ export const USER_REQUESTS_FOR_GUIDE = gql`
       to
       totalDays
       totalPeople
-      guideStatus
+      status
       lastActionBy
-      userStatus
       price
       guide {
         id
@@ -104,7 +124,7 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
       from
       to
       totalDays
-      travelStatus
+      status
       price
       totalPeople
       travel {

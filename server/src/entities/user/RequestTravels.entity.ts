@@ -35,13 +35,10 @@ export class RequestTravel extends Base {
   @Column({ name: "vehicle_type" })
   vehicleType: string;
 
-  @Field()
-  @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
-  travelStatus: RequestStatus;
 
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
-  userStatus: RequestStatus;
+  status: RequestStatus;
 
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })

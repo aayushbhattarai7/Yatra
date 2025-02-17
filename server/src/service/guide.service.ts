@@ -34,7 +34,6 @@ class GuideService {
   ) {}
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
-    console.log(image, "shdhshghghfgdfdf");
     return await AppDataSource.transaction(
       async (transactionalEntityManager) => {
         try {
@@ -313,7 +312,7 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
-          guideStatus: Not(
+          status: Not(
             In([
               RequestStatus.COMPLETED,
               RequestStatus.REJECTED,
@@ -363,7 +362,7 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
-          guideStatus: RequestStatus.COMPLETED,
+          status: RequestStatus.COMPLETED,
         },
         relations: ["users"],
       });
@@ -430,7 +429,7 @@ class GuideService {
       const data = await this.guideRequestRepo.update(
         { id: requests.id },
         {
-          guideStatus: RequestStatus.ACCEPTED,
+          status: RequestStatus.ACCEPTED,
 
           lastActionBy: Role.GUIDE,
         },
@@ -469,7 +468,7 @@ class GuideService {
       await this.guideRequestRepo.update(
         { id: requests.id },
         {
-          guideStatus: RequestStatus.REJECTED,
+          status: RequestStatus.REJECTED,
           lastActionBy: Role.GUIDE,
         },
       );

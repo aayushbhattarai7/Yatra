@@ -20,8 +20,8 @@ interface GuideBooking {
   totalDays: string;
   totalPeople: string;
   guide: Guide;
-  guideStatus: string;
-  userStatus: string;
+  status: string;
+  status: string;
   price: string;
   lastActionBy: string;
 }
@@ -83,13 +83,12 @@ const GuideBooking = () => {
               {book.guide.firstName} {book.guide.middleName}{" "}
               {book.guide.lastName}
             </p>
-            <p>Status: {book.guideStatus}</p>
-            {book.userStatus === "CANCELLED" ||
-            book.guideStatus === "CANCELLED" ? (
+            <p>Status: {book.status}</p>
+            {book.status === "CANCELLED" || book.status === "CANCELLED" ? (
               <p>Cancelled</p>
             ) : (
               <div>
-                {book.guideStatus === "COMPLETED" ? (
+                {book.status === "COMPLETED" ? (
                   <Button buttonText="Re-Book" type="submit" />
                 ) : (
                   <div>

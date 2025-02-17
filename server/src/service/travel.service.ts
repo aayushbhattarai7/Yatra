@@ -16,6 +16,7 @@ import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
 import { Message, registeredMessage, rejectRequest } from "../constant/message";
 import { LoginDTO } from "../dto/login.dto";
+import { In, Not } from "typeorm";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -278,6 +279,13 @@ class TravelService {
       const requests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travel_id },
+            status: Not(
+            In([
+              RequestStatus.COMPLETED,
+              RequestStatus.REJECTED,
+              RequestStatus.CANCELLED,
+            ]),
+          ),
         },
         relations: ["user", "travel"],
       });
@@ -365,7 +373,7 @@ class TravelService {
       const data = await this.travelRequestRepo.update(
         { id: requests.id },
         {
-          travelStatus: RequestStatus.ACCEPTED,
+          status: RequestStatus.ACCEPTED,
           lastActionBy: Role.TRAVEL,
         },
       );
@@ -399,7 +407,7 @@ class TravelService {
       await this.travelRequestRepo.update(
         { id: request.id },
         {
-          travelStatus: RequestStatus.REJECTED,
+          status: RequestStatus.REJECTED,
           lastActionBy: Role.TRAVEL,
         },
       );
@@ -459,7 +467,13 @@ class TravelService {
       const requests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travel_id },
-          travelStatus: RequestStatus.COMPLETED,
+            status:
+            In([
+              RequestStatus.COMPLETED,
+              RequestStatus.REJECTED,
+              RequestStatus.CANCELLED,
+            ]),
+          
         },
         relations: ["user","travel"],
       });

@@ -4,4 +4,4 @@ export const image = {
   loader,
   landingImage,
 };
-export { landingImage };
+export { landingImage, loader };

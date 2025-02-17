@@ -21,11 +21,11 @@ interface TravelBooking {
   totalDays: string;
   totalPeople: string;
   travel: Travel;
-  travelStatus: string;
+  status: string;
   vehicleType: string;
-  userStatus: string;
   price: string;
   lastActionBy: string;
+  userBargain: number;
 }
 interface Travel {
   id: string;
@@ -96,13 +96,12 @@ const TravelBooking = () => {
               {book.travel.firstName} {book.travel.middleName}{" "}
               {book.travel.lastName}
             </p>
-            <p>Status: {book.travelStatus}</p>
-            {book.userStatus === "CANCELLED" ||
-            book.travelStatus === "CANCELLED" ? (
+            <p>Status: {book.status}</p>
+            {book.status === "CANCELLED" || book.status === "CANCELLED" ? (
               <p>Cancelled</p>
             ) : (
               <div>
-                {book.travelStatus === "COMPLETED" ? (
+                {book.status === "COMPLETED" ? (
                   <Button buttonText="Re-Book" type="submit" />
                 ) : (
                   <div>
@@ -115,6 +114,7 @@ const TravelBooking = () => {
                         <Button
                           onClick={() => setSelectedId(book.id)}
                           buttonText={authLabel.bargain[lang]}
+                          disabled={book.userBargain > 2}
                           type="submit"
                         />
                       </div>
