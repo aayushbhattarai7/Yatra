@@ -14,7 +14,7 @@ interface TravelBooking {
   totalDays: string;
   totalPeople: string;
   travel: Travel;
-  travelStatus: string;
+  status: string;
 }
 interface Travel {
   id: string;
@@ -26,7 +26,7 @@ interface Travel {
 }
 const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
-    null,
+    null
   );
   const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
   console.log("🚀 ~ TravelBookingHistory ~ data:", data);
@@ -49,7 +49,7 @@ const TravelBookingHistory = () => {
               {book.travel.firstName} {book.travel.middleName}{" "}
               {book.travel.lastName}
             </p>
-            <p>Status: {book.travelStatus}</p>
+            <p>Status: {book.status}</p>
 
             <Button buttonText="Re-Book" type="submit" />
 

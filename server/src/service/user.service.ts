@@ -336,6 +336,7 @@ class UserService {
          },
         relations: ["details", "location", "kyc"],
       });
+      console.log(travel,'------------------------------')
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -448,8 +449,7 @@ class UserService {
           user: { id: user_id },
           travel: { id: travel_id },
           
-          userStatus: Not(RequestStatus.CANCELLED),
-    travelStatus: Not(RequestStatus.CANCELLED),
+          status: Not(RequestStatus.CANCELLED),
         },
       });
       console.log("🚀 ~ UserService ~ findRequest:", findRequest);
@@ -502,10 +502,10 @@ class UserService {
         .leftJoinAndSelect("travel.kyc", "kyc")
         .leftJoinAndSelect("requestTravel.user", "user")
         .where("requestTravel.user_id =:user_id", { user_id })
-        .andWhere("requestTravel.travelStatus NOT IN (:...statuses)", {
+        .andWhere("requestTravel.status NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
-        .andWhere("requestTravel.userStatus NOT IN (:...statuses)", {
+        .andWhere("requestTravel.status NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
@@ -538,10 +538,11 @@ class UserService {
         .leftJoinAndSelect("travel.kyc", "kyc")
         .leftJoinAndSelect("requestTravel.user", "user")
         .where("requestTravel.user_id =:user_id", { user_id })
-        .andWhere("requestTravel.travelStatus IN (:...statuses)", {
+        .andWhere("requestTravel.status IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
+        console.log("🚀 ~ UserService ~ getTravelRequestsHistory ~ data:", data)
 
       if (!data)
         throw HttpException.notFound(
@@ -571,7 +572,7 @@ class UserService {
         .leftJoinAndSelect("guide.kyc", "kyc")
         .leftJoinAndSelect("requestGuide.users", "user")
         .where("requestGuide.user_id = :user_id", { user_id })
-        .andWhere("requestGuide.guideStatus NOT IN (:...statuses)", {
+        .andWhere("requestGuide.status NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
@@ -672,7 +673,7 @@ class UserService {
         where: {
           travel: { id: travel.id },
           user: { id: user.id },
-          userStatus: RequestStatus.PENDING,
+          status: RequestStatus.PENDING,
         },
       });
       console.log(
@@ -685,7 +686,7 @@ class UserService {
       const data = await this.travelRequestRepo.update(
         { id: requests.id },
         {
-          userStatus: RequestStatus.ACCEPTED,
+          status: RequestStatus.ACCEPTED,
           lastActionBy: Role.USER,
         },
       );
@@ -716,7 +717,7 @@ class UserService {
       const data = await this.guideRequestRepo.update(
         { id: requests.id },
         {
-          userStatus: RequestStatus.ACCEPTED,
+          status: RequestStatus.ACCEPTED,
           lastActionBy: Role.USER,
         },
       );
@@ -747,7 +748,7 @@ class UserService {
       await this.guideRequestRepo.update(
         { id: requests.id },
         {
-          userStatus: RequestStatus.CANCELLED,
+          status: RequestStatus.CANCELLED,
           lastActionBy: Role.USER,
         },
       );
@@ -778,7 +779,7 @@ class UserService {
       await this.travelRequestRepo.update(
         { id: requests.id },
         {
-          userStatus: RequestStatus.CANCELLED,
+          status: RequestStatus.CANCELLED,
           lastActionBy: Role.USER,
         },
       );
@@ -810,8 +811,7 @@ class UserService {
       const isAccepted = await this.travelRequestRepo.findOneBy({
         user: { id: user_id },
         travel: { id: travel_id },
-        userStatus: RequestStatus.ACCEPTED,
-        travelStatus: RequestStatus.ACCEPTED,
+        status: RequestStatus.ACCEPTED,
       });
       if (!isAccepted) {
         throw HttpException.notFound("The request is not completed");
@@ -851,8 +851,7 @@ class UserService {
       const isAccepted = await this.guideRequestRepo.findOneBy({
         users: { id: user_id },
         guide: { id: guide_id },
-        userStatus: RequestStatus.ACCEPTED,
-        guideStatus: RequestStatus.ACCEPTED,
+        status: RequestStatus.ACCEPTED,
       });
       if (!isAccepted) {
         throw HttpException.notFound("The request is not completed");
@@ -908,7 +907,7 @@ class UserService {
             user: { id: user.id },
           },
           {
-            userStatus: RequestStatus.ACCEPTED,
+            status: RequestStatus.ACCEPTED,
           },
         );
       }

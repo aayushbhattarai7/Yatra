@@ -1,27 +1,23 @@
 import React, { createContext, useContext, useState } from "react";
+import { LatLngTuple } from "leaflet";
 
-export interface MarkerData {
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  latitude: number;
-  longitude: number;
-  photo: string;
+interface MapContextProps {
+  center: LatLngTuple;
+  zoom: number;
+  setCenter: (center: LatLngTuple) => void;
+  setZoom: (zoom: number) => void;
 }
 
-interface MapContextType {
-  markers: MarkerData[];
-  setMarkers: React.Dispatch<React.SetStateAction<MarkerData[]>>;
-}
-
-const MapContext = createContext<MapContextType | undefined>(undefined);
+const MapContext = createContext<MapContextProps | undefined>(undefined);
 
 export const MapProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [center, setCenter] = useState<LatLngTuple>([27.7172, 85.324]);
+  const [zoom, setZoom] = useState<number>(13);
+
   return (
-    <MapContext.Provider value={{ markers, setMarkers }}>
+    <MapContext.Provider value={{ center, zoom, setCenter, setZoom }}>
       {children}
     </MapContext.Provider>
   );

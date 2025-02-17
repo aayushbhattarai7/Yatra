@@ -26,11 +26,7 @@ export class RequestGuide extends Base {
 
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
-  guideStatus: RequestStatus;
-
-  @Field()
-  @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
-  userStatus: RequestStatus;
+  status: RequestStatus;
 
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })
