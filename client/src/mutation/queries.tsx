@@ -162,3 +162,9 @@ export const CANCEL_TRAVEL_REQUEST = gql`
     cancelTravelRequest(requestId: $requestId)
   }
 `;
+
+export const ADVANCE_PAYMENT_FOR_TRAVEL = gql`
+  mutation AdvancePaymentForTravel($amount: Float!, $travelId: String!) {
+    AdvancePaymentForTravel(amount: $amount, travelId: $travelId)
+  }
+`;

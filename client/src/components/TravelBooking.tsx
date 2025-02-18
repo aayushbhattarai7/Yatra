@@ -13,6 +13,7 @@ import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
+import Checkout from "./StripeCheckout";
 
 interface TravelBooking {
   id: string;
@@ -43,6 +44,7 @@ const TravelBooking = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
     null
   );
+  const [pay, setPay] = useState<boolean>(false)
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
@@ -65,6 +67,9 @@ const TravelBooking = () => {
     }
   };
 
+  const acceptRequest = async () => {
+    setPay(true)
+  }
   const CancelRequest = async () => {
     const res = await cancelTravelRequest({
       variables: { requestId: cancellationId },
@@ -72,7 +77,7 @@ const TravelBooking = () => {
     reset();
     setCancellationId(null);
     refetch();
-    showToast(res.data.cancelTravelRequest, "success");
+  showToast(res.data.cancelTravelRequest, "success");
   };
   useEffect(() => {
     if (data) {
@@ -107,7 +112,8 @@ const TravelBooking = () => {
                   <div>
                     {book.lastActionBy === "TRAVEL" ? (
                       <div>
-                        <Button
+                            <Button 
+                              onClick={acceptRequest}
                           buttonText={authLabel.accept[lang]}
                           type="submit"
                         />
@@ -134,6 +140,7 @@ const TravelBooking = () => {
                 )}
               </div>
             )}
+            {pay && <Checkout travelId={book.id} amount={parseInt(book.price)} refresh={()=>refetch} />}
             <Button buttonText="Details" type="button" />
           </div>
         ))}

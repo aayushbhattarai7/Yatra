@@ -1,4 +1,4 @@
-export interface Travel {
+export interface Data {
   id: string;
   firstName: string;
   middleName?: string;
@@ -8,4 +8,5 @@ export interface Travel {
     latitude: number;
     longitude: number;
   };
+    gender:String
 }

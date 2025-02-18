@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Data } from "../types/Travels";
+import { Data } from "@/types/Travels";
 import Button from "@/ui/common/atoms/Button";
-import RequestTravelBooking from "./RequestTravelBooking";
+import RequestGuideBooking from "../RequestGuideBooking";
 
 interface Props {
   props: Data[];
@@ -12,12 +12,8 @@ interface Props {
   zoom?: number;
 }
 
-const TravelMap: React.FC<Props> = ({
-  props,
-  center = [0, 0],
-  zoom = 10,
-}) => {
-  const [travelId, setTravelId] = useState<string>('')
+const GuideMap: React.FC<Props> = ({ props, center = [0, 0], zoom = 10 }) => {
+  const [guideId, setGuideId] = useState<string>("");
 
   return (
     <>
@@ -64,8 +60,7 @@ const TravelMap: React.FC<Props> = ({
                   />
                   <p className="font-semibold">
                     {prop.firstName}
-                    {prop.middleName && ` ${prop.middleName}`}{" "}
-                    {prop.lastName}
+                    {prop.middleName && ` ${prop.middleName}`} {prop.lastName}
                   </p>
                   <p className="text-sm text-gray-600">{prop.gender}</p>
                   <div className="mt-2 flex gap-2 justify-center">
@@ -73,8 +68,9 @@ const TravelMap: React.FC<Props> = ({
                       buttonText="Book Now"
                       className=""
                       type="button"
-                      onClick={() => setTravelId(prop.id)}
-                    />set
+                      onClick={() => setGuideId(prop.id)}
+                    />
+                    set
                     <Button
                       buttonText="View Details"
                       className=""
@@ -87,12 +83,11 @@ const TravelMap: React.FC<Props> = ({
           );
         })}
       </MapContainer>
-      {travelId && travelId && (
-        <RequestTravelBooking id={travelId} onClose={()=>setTravelId('')} />
-      
+      {guideId && guideId && (
+        <RequestGuideBooking id={guideId} onClose={() => setGuideId("")} />
       )}
     </>
   );
 };
 
-export default TravelMap;
+export default GuideMap;

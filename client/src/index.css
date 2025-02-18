@@ -2,3 +2,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.leaflet-popup {
+  z-index: 1001 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  z-index: 1001 !important;
+}
+
+.leaflet-popup-tip {
+  z-index: 1001 !important;
+}
