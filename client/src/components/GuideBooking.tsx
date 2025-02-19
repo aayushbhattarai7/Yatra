@@ -21,7 +21,6 @@ interface GuideBooking {
   totalPeople: string;
   guide: Guide;
   status: string;
-  status: string;
   price: string;
   lastActionBy: string;
 }

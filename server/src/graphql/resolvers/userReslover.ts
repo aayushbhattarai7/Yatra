@@ -405,4 +405,22 @@ export class UserResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async AdvancePaymentForTravel(
+    @Arg("travelId") travelId: string,
+    @Arg("amount") amount: number,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.userService.advancePaymentForTravel(userId, travelId, amount);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

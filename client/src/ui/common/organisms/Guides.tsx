@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Button from "../atoms/Button";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
+import GuideMap from "@/components/ui/GuideMap";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -12,8 +13,16 @@ const GET_GUIDE_QUERY = gql`
       firstName
       middleName
       lastName
-      guiding_location
       gender
+      guiding_location
+      location {
+        latitude
+        longitude
+      }
+      kyc {
+        id
+        path
+      }
     }
   }
 `;
@@ -27,6 +36,12 @@ interface FormData {
   gender: string;
   location: Location;
   nationality: string;
+  kyc: Kyc[];
+}
+
+interface Kyc {
+  id: string;
+  path: string;
 }
 
 interface Location {
@@ -35,8 +50,10 @@ interface Location {
 }
 
 const Guides = () => {
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null
+  );
   const [guides, setGuides] = useState<FormData[] | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
   const { data, loading, error } = useQuery(GET_GUIDE_QUERY);
   console.log(data, "jaja");
@@ -46,35 +63,57 @@ const Guides = () => {
       console.log(data, "ajja");
     }
   }, [data]);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setUserLocation([28.3949, 84.124]);
+        }
+      );
+    } else {
+      setUserLocation([28.3949, 84.124]);
+    }
+  }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <>
-      {selectedId && (
-        <RequestGuideBooking
-          id={selectedId}
-          onClose={() => setSelectedId(null)}
+    <div>
+      <h2 style={{ padding: "1rem", fontSize: "1.25rem", fontWeight: "600" }}>
+        Travels
+      </h2>
+      {guides && guides.length > 0 ? (
+        <GuideMap
+          props={guides.map((travel) => ({
+            id: travel.id,
+            firstName: travel.firstName,
+            middleName: travel.middleName || "",
+            lastName: travel.lastName,
+            rating: 345,
+            image: travel.kyc[0].path,
+            location: {
+              latitude: Number(travel.location.latitude),
+              longitude: Number(travel.location.longitude),
+            },
+            gender: travel.gender,
+          }))}
+          center={userLocation!}
+          zoom={12}
         />
+      ) : (
+        <p style={{ padding: "1rem", fontSize: "0.875rem" }}>
+          No guide data available.
+        </p>
       )}
-      <div>
-        {guides?.map((guide) => (
-          <div key={guide.id}>
-            <p>First Name: {guide.firstName}</p>
-            <p>Middle Name: {guide.middleName}</p>
-            <p>Last Name: {guide.lastName}</p>
-            <p>Guiding Location: {guide.guiding_location}</p>
-            <p>Gender: {guide.gender}</p>
-            <Button
-              type="button"
-              buttonText={authLabel.book[lang]}
-              onClick={() => setSelectedId(guide.id)}
-            />
-          </div>
-        ))}
-      </div>
-    </>
+    </div>
   );
 };
 

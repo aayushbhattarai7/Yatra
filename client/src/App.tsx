@@ -16,6 +16,7 @@ import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
 import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
+import { StripeProvider } from "./contexts/StripeContext";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -51,8 +52,10 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
+      <StripeProvider>
       <ToastNotification />
       <RouterProvider router={router} />
+      </StripeProvider>
     </>
   );
 }
