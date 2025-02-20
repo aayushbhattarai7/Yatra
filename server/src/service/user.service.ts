@@ -922,6 +922,55 @@ class UserService {
       }
     }
   }
+
+
+  async advancePaymentForGuide(
+    userId: string,
+    requestId: string,
+    amount: number,
+  ) {
+    try {
+      const totalAmount = amount * 100
+      const user = await this.userRepo.findOneBy({
+        id: userId,
+      });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+      const request = await this.guideRequestRepo.findOneBy({
+        id: requestId,
+      });
+      if (!request) {
+        throw HttpException.notFound("Travel not found");
+      }
+
+      const stripe = new Stripe(DotenvConfig.STRIPE_SECRET);
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount:totalAmount,
+        currency: "npr",
+        payment_method_types: ["card"],
+      });
+      if (paymentIntent) {
+        await this.guideRequestRepo.update(
+          {
+           id:request.id,
+          },
+          {
+            status: RequestStatus.ACCEPTED,
+          },
+        );
+      }
+      return paymentIntent.client_secret;
+    } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ error:", error)
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
 }
 
 export default UserService;

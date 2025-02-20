@@ -168,3 +168,8 @@ export const ADVANCE_PAYMENT_FOR_TRAVEL = gql`
     AdvancePaymentForTravel(amount: $amount, travelId: $travelId)
   }
 `;
+export const ADVANCE_PAYMENT_FOR_GUIDE = gql`
+  mutation AdvancePaymentForGuide($amount: Float!, $guideId: String!) {
+    AdvancePaymentForGuide(amount: $amount, guideId: $guideId)
+  }
+`;

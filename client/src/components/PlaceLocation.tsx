@@ -74,7 +74,7 @@ const TravelMap: React.FC<Props> = ({
                       className=""
                       type="button"
                       onClick={() => setTravelId(prop.id)}
-                    />set
+                    />
                     <Button
                       buttonText="View Details"
                       className=""
