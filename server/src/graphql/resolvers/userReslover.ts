@@ -413,10 +413,27 @@ export class UserResolver {
     @Arg("amount") amount: number,
     @Ctx() ctx: Context,
   ) {
-    console.log("🚀 ~ UserResolver ~ amount:", amount)
     try {
       const userId = ctx.req.user?.id!;
       return await this.userService.advancePaymentForTravel(userId, travelId, amount);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async AdvancePaymentForGuide(
+    @Arg("guideId") guideId: string,
+    @Arg("amount") amount: number,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.userService.advancePaymentForGuide(userId, guideId, amount);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

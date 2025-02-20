@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
+import CheckoutGuide from "./CheckoutOfGuide";
 
 interface GuideBooking {
   id: string;
@@ -35,6 +36,8 @@ interface Price {
   price: string;
 }
 const GuideBooking = () => {
+  const [pay, setPay] = useState<boolean>(false);
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
   const [guideBooking, setGuideBooking] = useState<GuideBooking[] | null>(null);
@@ -54,6 +57,9 @@ const GuideBooking = () => {
     refetch();
   };
 
+    const acceptRequest = async () => {
+      setPay(true);
+    };
   const CancelRequest = async () => {
     const res = await cancelGuideRequest({
       variables: { requestId: cancellationId },
@@ -93,7 +99,8 @@ const GuideBooking = () => {
                   <div>
                     {book.lastActionBy === "GUIDE" ? (
                       <div>
-                        <Button
+                            <Button
+                              onClick={acceptRequest}
                           buttonText={authLabel.accept[lang]}
                           type="submit"
                         />
@@ -118,6 +125,14 @@ const GuideBooking = () => {
                   </div>
                 )}
               </div>
+            )}
+            {pay && (
+              <CheckoutGuide
+                guideId={book.id}
+                amount={parseInt(book.price)}
+                refresh={() => refetch}
+                onClose={() => setPay(false)}
+              />
             )}
             <Button buttonText="Details" type="button" />
           </div>

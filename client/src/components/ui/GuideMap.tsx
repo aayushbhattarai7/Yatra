@@ -70,7 +70,7 @@ const GuideMap: React.FC<Props> = ({ props, center = [0, 0], zoom = 10 }) => {
                       type="button"
                       onClick={() => setGuideId(prop.id)}
                     />
-                    set
+                    
                     <Button
                       buttonText="View Details"
                       className=""

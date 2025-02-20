@@ -88,7 +88,7 @@ const Guides = () => {
   return (
     <div>
       <h2 style={{ padding: "1rem", fontSize: "1.25rem", fontWeight: "600" }}>
-        Travels
+        Guides
       </h2>
       {guides && guides.length > 0 ? (
         <GuideMap
