@@ -28,6 +28,7 @@ import { TravelRequestDTO } from "../../dto/requestTravel.dto";
 import GuideKYC from "../../entities/guide/guideKyc.entity";
 import TravelKyc from "../../entities/travels/travelKyc.entity";
 import { TravelDetails } from "../../entities/travels/travelDetails.entity";
+import { PaymentIntentResponse } from "../../dto/stripe.dto";
 
 interface Message {
   message: string;
@@ -412,6 +413,7 @@ export class UserResolver {
     @Arg("amount") amount: number,
     @Ctx() ctx: Context,
   ) {
+    console.log("🚀 ~ UserResolver ~ amount:", amount)
     try {
       const userId = ctx.req.user?.id!;
       return await this.userService.advancePaymentForTravel(userId, travelId, amount);

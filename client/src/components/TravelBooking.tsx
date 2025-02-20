@@ -44,7 +44,7 @@ const TravelBooking = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
     null
   );
-  const [pay, setPay] = useState<boolean>(false)
+  const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
@@ -68,8 +68,8 @@ const TravelBooking = () => {
   };
 
   const acceptRequest = async () => {
-    setPay(true)
-  }
+    setPay(true);
+  };
   const CancelRequest = async () => {
     const res = await cancelTravelRequest({
       variables: { requestId: cancellationId },
@@ -77,7 +77,7 @@ const TravelBooking = () => {
     reset();
     setCancellationId(null);
     refetch();
-  showToast(res.data.cancelTravelRequest, "success");
+    showToast(res.data.cancelTravelRequest, "success");
   };
   useEffect(() => {
     if (data) {
@@ -112,17 +112,22 @@ const TravelBooking = () => {
                   <div>
                     {book.lastActionBy === "TRAVEL" ? (
                       <div>
-                            <Button 
+                        {book.status !== "ACCEPTED" && (
+                          <>
+                            <Button
                               onClick={acceptRequest}
-                          buttonText={authLabel.accept[lang]}
-                          type="submit"
-                        />
-                        <Button
-                          onClick={() => setSelectedId(book.id)}
-                          buttonText={authLabel.bargain[lang]}
-                          disabled={book.userBargain > 2}
-                          type="submit"
-                        />
+                              buttonText={authLabel.accept[lang]}
+                              type="submit"
+                            />
+                            <Button
+                              onClick={() => setSelectedId(book.id)}
+                              buttonText={authLabel.bargain[lang]}
+                              disabled={book.userBargain > 2}
+                              type="submit"
+                                />
+                                
+                          </>
+                        )}
                       </div>
                     ) : (
                       <Button
@@ -140,7 +145,14 @@ const TravelBooking = () => {
                 )}
               </div>
             )}
-            {pay && <Checkout travelId={book.id} amount={parseInt(book.price)} refresh={()=>refetch} />}
+            {pay && (
+              <Checkout
+                travelId={book.id}
+                amount={parseInt(book.price)}
+                refresh={() => refetch}
+                onClose={() => setPay(false)}
+              />
+            )}
             <Button buttonText="Details" type="button" />
           </div>
         ))}

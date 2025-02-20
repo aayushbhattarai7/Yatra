@@ -7,12 +7,19 @@ interface CheckoutProps {
   amount: number;
   travelId: string;
   refresh: (travelId: string) => void;
+  onClose: () => void;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ amount, travelId, refresh }) => {
+const Checkout: React.FC<CheckoutProps> = ({
+  amount,
+  travelId,
+  refresh,
+  onClose,
+}) => {
   const stripe = useStripe();
   const elements = useElements();
-const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
+  const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!stripe || !elements) return;
@@ -20,13 +27,14 @@ const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
     const cardElement = elements.getElement(CardElement);
 
     try {
-        const response = await AdvancePaymentForTravel({
-          variables:{travelId,price:amount}
-        })
-      const { clientSecret } = response.data;
+      const response = await AdvancePaymentForTravel({
+        variables: { travelId, amount: amount },
+      });
+      const client_secret  = response.data.AdvancePaymentForTravel;
+      console.log("🚀 ~ handleSubmit ~ client_secret:", client_secret)
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
+        client_secret,
         {
           payment_method: {
             card: cardElement!,
@@ -39,6 +47,7 @@ const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
       } else if (paymentIntent?.status === "succeeded") {
         alert("Payment successful!");
         refresh(travelId);
+        onClose();
       }
     } catch (error) {
       console.error("Error during payment process:", error);
@@ -46,12 +55,28 @@ const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CardElement />
-      <button type="submit">
-        Pay ${amount / 100}
-      </button>
-    </form>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
+        <button
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <h2 className="text-xl font-semibold mb-4">Payment</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4 border p-3 rounded">
+            <CardElement />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          >
+            Pay Rs.{amount}
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 
