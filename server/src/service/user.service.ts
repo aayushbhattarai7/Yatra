@@ -876,43 +876,45 @@ class UserService {
 
   async advancePaymentForTravel(
     userId: string,
-    travelId: string,
+    requestId: string,
     amount: number,
   ) {
     try {
+      const totalAmount = amount * 100
       const user = await this.userRepo.findOneBy({
         id: userId,
       });
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-      const travel = await this.travelrepo.findOneBy({
-        id: travelId,
+      const request = await this.travelRequestRepo.findOneBy({
+        id: requestId,
       });
-      if (!travel) {
+      if (!request) {
         throw HttpException.notFound("Travel not found");
       }
 
       const stripe = new Stripe(DotenvConfig.STRIPE_SECRET);
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: "usd",
+        amount:totalAmount,
+        currency: "npr",
         payment_method_types: ["card"],
       });
-
+      console.log("🚀 ~ UserService ~ paymentIntent:", paymentIntent.currency)
       if (paymentIntent) {
         await this.travelRequestRepo.update(
           {
-            user: { id: user.id },
+           id:request.id,
           },
           {
             status: RequestStatus.ACCEPTED,
           },
         );
       }
-      return paymentIntent!;
+      return paymentIntent.client_secret;
     } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ error:", error)
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {
