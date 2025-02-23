@@ -506,15 +506,13 @@ class UserService {
         .andWhere("requestTravel.status NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
-        .andWhere("requestTravel.status NOT IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
-        })
         .getMany();
 
       if (!data)
         throw HttpException.notFound(
           "You do not requested any travels for booking",
         );
+      console.log(data,"--")
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -677,10 +675,7 @@ class UserService {
           status: RequestStatus.PENDING,
         },
       });
-      console.log(
-        "🚀 ~ UserService ~ acceptTravelRequest ~ requests:",
-        requests,
-      );
+
       if (!requests) {
         throw HttpException.notFound("no request found");
       }

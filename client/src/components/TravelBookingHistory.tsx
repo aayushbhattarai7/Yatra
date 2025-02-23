@@ -36,6 +36,8 @@ const TravelBookingHistory = () => {
   });
   return (
     <>
+      {travelBooking && travelBooking.length >0 ? (
+        
       <div>
         {travelBooking?.map((book) => (
           <div className="border border-black flex mb-4 gap-20 items-center p-10">
@@ -57,6 +59,9 @@ const TravelBookingHistory = () => {
           </div>
         ))}
       </div>
+      ): (
+          <p>No history available</p>
+      )}
     </>
   );
 };

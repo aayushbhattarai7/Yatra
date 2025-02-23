@@ -32,13 +32,11 @@ const Travels: React.FC = () => {
   );
 
   const { data } = useQuery(GET_TRAVELS);
-
-  useEffect(() => {
-    if (data) {
-      setTravels(data.findTravel);
-      console.log(data.findTravel, "ajja");
-    }
-  }, [data]);
+useEffect(() => {
+  if (data?.findTravel) {
+    setTravels(data.findTravel);
+  }
+}, [data]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -51,44 +49,46 @@ const Travels: React.FC = () => {
         },
         (error) => {
           console.error("Error getting location:", error);
-          setUserLocation([28.3949, 84.124]);
         }
       );
-    } else {
-      setUserLocation([28.3949, 84.124]);
-    }
+    } 
   }, []);
+if (!data) {
+  return <p style={{ padding: "1rem", fontSize: "0.875rem" }}>Loading...</p>;
+}
+return (
+  <div>
+    <h2 style={{ padding: "1rem", fontSize: "1.25rem", fontWeight: "600" }}>
+      Travels
+    </h2>
+    {!travels || !userLocation ? (
+      <p style={{ padding: "1rem", fontSize: "0.875rem" }}>Loading map...</p>
+    ) : travels.length > 0 ? (
+      <TravelMap
+        props={travels.map((travel) => ({
+          id: travel.id,
+          firstName: travel.firstName,
+          middleName: travel.middleName || "",
+          lastName: travel.lastName,
+          rating: 345,
+          image: travel.kyc?.[0]?.path || "",
+          location: {
+            latitude: Number(travel.location?.latitude) || 0,
+            longitude: Number(travel.location?.longitude) || 0,
+          },
+          gender: travel.gender,
+        }))}
+        center={userLocation}
+        zoom={12}
+      />
+    ) : (
+      <p style={{ padding: "1rem", fontSize: "0.875rem" }}>
+        No travel data available.
+      </p>
+    )}
+  </div>
+);
 
-  return (
-    <div>
-      <h2 style={{ padding: "1rem", fontSize: "1.25rem", fontWeight: "600" }}>
-        Travels
-      </h2>
-      {travels && travels.length > 0 ? (
-        <TravelMap
-          props={travels.map((travel) => ({
-            id: travel.id,
-            firstName: travel.firstName,
-            middleName: travel.middleName || "",
-            lastName: travel.lastName,
-            rating:345,
-            image: travel.kyc[0].path,
-            location: {
-              latitude: Number(travel.location.latitude),
-              longitude: Number(travel.location.longitude),
-            },
-            gender:travel.gender
-          }))}
-          center={userLocation!} 
-          zoom={12} 
-        />
-      ) : (
-        <p style={{ padding: "1rem", fontSize: "0.875rem" }}>
-          No travel data available.
-        </p>
-      )}
-    </div>
-  );
 };
 
 export default Travels;

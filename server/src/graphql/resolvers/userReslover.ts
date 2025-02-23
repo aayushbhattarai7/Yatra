@@ -265,7 +265,7 @@ export class UserResolver {
       }
     }
   }
-  @Query(() => [RequestTravel])
+  @Query(() => [RequestTravel], {nullable:true})
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getTravelHistory(@Ctx() ctx: Context) {
     try {

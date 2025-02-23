@@ -20,7 +20,7 @@ export class RequestTravel extends Base {
   @Column({ name: "total_days" })
   totalDays: number;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "user_bargain", nullable:true })
   userBargain: number;
   @Field()

@@ -1,8 +1,6 @@
-import RequestGuideBooking from "@/components/RequestGuideBooking";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
-import Button from "../atoms/Button";
-import { authLabel } from "@/localization/auth";
+
 import { useLang } from "@/hooks/useLang";
 import GuideMap from "@/components/ui/GuideMap";
 
@@ -74,47 +72,42 @@ const Guides = () => {
         },
         (error) => {
           console.error("Error getting location:", error);
-          setUserLocation([28.3949, 84.124]);
         }
       );
-    } else {
-      setUserLocation([28.3949, 84.124]);
-    }
+    } 
   }, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
 
-  return (
-    <div>
-      <h2 style={{ padding: "1rem", fontSize: "1.25rem", fontWeight: "600" }}>
-        Guides
-      </h2>
-      {guides && guides.length > 0 ? (
-        <GuideMap
-          props={guides.map((travel) => ({
-            id: travel.id,
-            firstName: travel.firstName,
-            middleName: travel.middleName || "",
-            lastName: travel.lastName,
-            rating: 345,
-            image: travel.kyc[0].path,
-            location: {
-              latitude: Number(travel.location.latitude),
-              longitude: Number(travel.location.longitude),
-            },
-            gender: travel.gender,
-          }))}
-          center={userLocation!}
-          zoom={12}
-        />
-      ) : (
-        <p style={{ padding: "1rem", fontSize: "0.875rem" }}>
-          No guide data available.
-        </p>
-      )}
-    </div>
-  );
+   return (
+     <div>
+       <h2 className="p-4 text-xl font-semibold">Guides</h2>
+       {!userLocation ? (
+         <p className="text-center py-4">Loading map...</p>
+       ) : guides && guides.length > 0 ? (
+         <GuideMap
+           props={guides.map((guide) => ({
+             id: guide.id,
+             firstName: guide.firstName,
+             middleName: guide.middleName || "",
+             lastName: guide.lastName,
+             rating: 345,
+             image: guide.kyc.length > 0 ? guide.kyc[0].path : "",
+             location: {
+               latitude: Number(guide.location.latitude),
+               longitude: Number(guide.location.longitude),
+             },
+             gender: guide.gender,
+           }))}
+           center={userLocation}
+           zoom={12}
+         />
+       ) : (
+         <p className="p-4 text-sm">No guide data available.</p>
+       )}
+     </div>
+   );
 };
 
 export default Guides;

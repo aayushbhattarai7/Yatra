@@ -47,6 +47,7 @@ const TravelBooking = () => {
   );
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
+  console.log("🚀 ~ TravelBooking ~ data:", data)
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
@@ -147,8 +148,8 @@ const TravelBooking = () => {
               </div>
             )}
             {pay && (
-              <Payments
-                id={book.id}
+              <Checkout
+                travelId={book.id}
                 amount={parseInt(book.price)}
                 refresh={() => refetch}
                 onClose={() => setPay(false)}
