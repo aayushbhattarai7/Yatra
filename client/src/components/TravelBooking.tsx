@@ -14,6 +14,7 @@ import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
+import Payments from "./Payments";
 
 interface TravelBooking {
   id: string;
@@ -146,8 +147,8 @@ const TravelBooking = () => {
               </div>
             )}
             {pay && (
-              <Checkout
-                travelId={book.id}
+              <Payments
+                id={book.id}
                 amount={parseInt(book.price)}
                 refresh={() => refetch}
                 onClose={() => setPay(false)}

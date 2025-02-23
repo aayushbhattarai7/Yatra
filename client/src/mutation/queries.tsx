@@ -173,3 +173,20 @@ export const ADVANCE_PAYMENT_FOR_GUIDE = gql`
     AdvancePaymentForGuide(amount: $amount, guideId: $guideId)
   }
 `;
+export const GET_PAYMENT_DETAILS = gql`
+  query GeneratePaymentDetails($productCode: String!, $totalAmount: Float!) {
+    generatePaymentDetails(
+      product_code: $productCode
+      total_amount: $totalAmount
+    ) {
+      transaction_uuid
+      signature
+      amount
+      tax_amount
+      total_amount
+      product_code
+      success_url
+      failure_url
+    }
+  }
+`;
