@@ -8,9 +8,7 @@ import {
 } from "type-graphql";
 import { User } from "../../entities/user/user.entity";
 import UserService from "../../service/user.service";
-import { UserDTO } from "../../dto/user.dto";
 import webTokenService from "../../service/webToken.service";
-import { LoginDTO } from "../../dto/login.dto";
 import { LoginResponse } from "../../graphql/schema/schema";
 import { Location } from "../../entities/location/location.entity";
 import { Guide } from "../../entities/guide/guide.entity";
@@ -20,19 +18,14 @@ import { Context } from "../../types/context";
 import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
 import { Gender, Role } from "../../constant/enum";
-import { LocationDTO } from "../../dto/location.dto";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
-import { GuideRequestDTO } from "../../dto/requestGuide.dto";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
-import { TravelRequestDTO } from "../../dto/requestTravel.dto";
 import GuideKYC from "../../entities/guide/guideKyc.entity";
 import TravelKyc from "../../entities/travels/travelKyc.entity";
 import { TravelDetails } from "../../entities/travels/travelDetails.entity";
-import { PaymentIntentResponse } from "../../dto/stripe.dto";
+import { PaymentDetails } from "../../interface/esewa.interface";
 
-interface Message {
-  message: string;
-}
+
 @Resolver((of) => User)
 export class UserResolver {
   private userService = new UserService();
@@ -272,7 +265,7 @@ export class UserResolver {
       }
     }
   }
-  @Query(() => [RequestTravel])
+  @Query(() => [RequestTravel], {nullable:true})
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getTravelHistory(@Ctx() ctx: Context) {
     try {
@@ -435,6 +428,24 @@ export class UserResolver {
       const userId = ctx.req.user?.id!;
       return await this.userService.advancePaymentForGuide(userId, guideId, amount);
     } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+    @Query(() => PaymentDetails)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+    async generatePaymentDetails(@Arg("total_amount") totalAmount: number,
+    @Arg("product_code") product_code:string
+    ) {
+      try {
+      console.log("shdhuhwuh")
+      const data = await this.userService.generatePaymentDetails(totalAmount, product_code);
+      return data;
+    } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {

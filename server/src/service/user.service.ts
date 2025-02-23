@@ -17,7 +17,8 @@ import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
-import { statSync } from "fs";
+import crypto from "crypto";
+import { v4 as uuidv4 } from "uuid";
 import {
   bookRequestMessage,
   cancelRequest,
@@ -505,15 +506,13 @@ class UserService {
         .andWhere("requestTravel.status NOT IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
-        .andWhere("requestTravel.status NOT IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
-        })
         .getMany();
 
       if (!data)
         throw HttpException.notFound(
           "You do not requested any travels for booking",
         );
+      console.log(data,"--")
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -676,10 +675,7 @@ class UserService {
           status: RequestStatus.PENDING,
         },
       });
-      console.log(
-        "🚀 ~ UserService ~ acceptTravelRequest ~ requests:",
-        requests,
-      );
+
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
@@ -970,6 +966,31 @@ class UserService {
         throw HttpException.badRequest("An error occured");
       }
     }
+  }
+   async generateSignature(data: string):Promise<string> {
+    const hmac = crypto.createHmac("sha256", DotenvConfig.ESEWA_SECRET_KEY);
+    hmac.update(data);
+    return hmac.digest("base64");
+  }
+
+  async generatePaymentDetails(total_amount: number, product_code: string) {
+    const transaction_uuid = uuidv4();
+    const tax_amount = 10;
+    const amount = total_amount - tax_amount;
+
+    const signedData = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
+    const signature = await this.generateSignature(signedData)
+
+    return {
+      transaction_uuid,
+      signature,
+      amount,
+      tax_amount,
+      total_amount,
+      product_code,
+      success_url: DotenvConfig.ESEWA_SUCCESS_URL,
+      failure_url: DotenvConfig.ESEWA_FAILURE_URL,
+    };
   }
 }
 

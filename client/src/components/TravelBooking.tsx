@@ -14,6 +14,7 @@ import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
+import Payments from "./Payments";
 
 interface TravelBooking {
   id: string;
@@ -46,6 +47,7 @@ const TravelBooking = () => {
   );
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
+  console.log("🚀 ~ TravelBooking ~ data:", data)
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset, setValue } = useForm<Price>();

@@ -38,4 +38,7 @@ export class DotenvConfig {
   static ADMIN_NAME = process.env.ADMIN_NAME;
   static ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   static ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
+  static ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY!;
+  static ESEWA_SUCCESS_URL = process.env.ESEWA_SUCCESS_URL;
+  static ESEWA_FAILURE_URL = process.env.ESEWA_FAILURE_URL!;
 }
