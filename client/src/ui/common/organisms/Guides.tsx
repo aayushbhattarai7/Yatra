@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import { useLang } from "@/hooks/useLang";
 import GuideMap from "@/components/ui/GuideMap";
+import { authLabel } from "@/localization/auth";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -77,7 +78,7 @@ const Guides = () => {
     } 
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{ authLabel.loading[lang]}</div>;
   if (error) return <div>Error: {error.message}</div>;
 
    return (

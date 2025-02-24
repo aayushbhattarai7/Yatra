@@ -27,7 +27,7 @@ const ProfilePopup = () => {
       }
     }
   `;
-  const { data, loading, error } = useQuery(GET_USER_QUERY);
+  const { data } = useQuery(GET_USER_QUERY);
   useEffect(() => {
     if (data) {
       setUser(data.getUser);

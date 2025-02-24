@@ -122,13 +122,11 @@ export class UserResolver {
   @Mutation(() => LoginResponse)
   async facebookLogin(@Arg("facebookId") facebookId: string) {
     try {
-      console.log(facebookId, "ullala ullala");
       const user = await this.userService.facebookLogin(facebookId);
       const tokens = webTokenService.generateTokens(
         { id: user?.id! },
         user?.role!,
       );
-      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens);
 
       return {
         id: user?.id!,
@@ -181,7 +179,6 @@ export class UserResolver {
     try {
       const id = ctx.req.user?.id;
       const data = await this.userService.findTravel(id!);
-      console.log("🚀 ~ UserResolver ~ findTravel ~ data:", data);
       return data;
     } catch (error) {
       throw HttpException.internalServerError;
@@ -255,7 +252,6 @@ export class UserResolver {
   async getOwnTravelRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.userService.getOwnTravelRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -270,7 +266,6 @@ export class UserResolver {
   async getTravelHistory(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.userService.getTravelRequestsHistory(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -442,7 +437,6 @@ export class UserResolver {
     @Arg("product_code") product_code:string
     ) {
       try {
-      console.log("shdhuhwuh")
       const data = await this.userService.generatePaymentDetails(totalAmount, product_code);
       return data;
     } catch (error: unknown) {

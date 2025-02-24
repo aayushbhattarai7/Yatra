@@ -191,4 +191,16 @@ export const authLabel: LabelTypes = {
     en: "Waiting",
     ne: "प्रतीक्षा गर्नुहोस्",
   },
+  booknow: {
+    en: "Book Now",
+    ne: "प्रतीक्षा गर्नुहोस्",
+  },
+  viewProfile: {
+    en: "View Profile",
+    ne: "प्रतीक्षा गर्नुहोस्",
+  },
+  loading: {
+    en: "Loading",
+    ne: "प्रतीक्षा गर्नुहोस्",
+  },
 };
