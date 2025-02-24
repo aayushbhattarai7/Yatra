@@ -1,4 +1,3 @@
-import { UserDTO } from "../dto/user.dto";
 import { AppDataSource } from "../config/database.config";
 import { User } from "../entities/user/user.entity";
 import bcryptService from "./bcrypt.service";
@@ -10,9 +9,7 @@ import { Gender, RequestStatus, Role, Status } from "../constant/enum";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
-import { GuideRequestDTO } from "../dto/requestGuide.dto";
 import { RequestTravel } from "../entities/user/RequestTravels.entity";
-import { TravelRequestDTO } from "../dto/requestTravel.dto";
 import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
@@ -87,7 +84,6 @@ class UserService {
         password: hashPassword,
       });
       await this.userRepo.save(addUser);
-      console.log(addUser);
       return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -115,7 +111,6 @@ class UserService {
           "verified",
         ],
       });
-      console.log("yyy");
 
       if (!user)
         throw HttpException.notFound(
@@ -147,7 +142,6 @@ class UserService {
   async googleLogin(googleId: string) {
     try {
       const decoded: any = jwtDecode(googleId);
-      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded);
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       });
@@ -170,7 +164,6 @@ class UserService {
         return await this.getByid(user.id);
       }
     } catch (error: any) {
-      console.log(error.message);
     }
   }
 
@@ -187,15 +180,12 @@ class UserService {
 
       const response = await axios.get(url);
       const data = response.data;
-      console.log("🚀 ~ UserService ~ debugFBToken ~ data:", data);
 
       if (data) {
         return data;
       } else {
-        console.error("Error decoding token:");
       }
     } catch (error: any) {
-      console.error("Error debugging Facebook token:", error.message);
       throw error;
     }
   }
@@ -226,7 +216,6 @@ class UserService {
         return await this.getByid(user.id);
       }
     } catch (error: any) {
-      console.log(error.message);
     }
   }
 
@@ -269,7 +258,6 @@ class UserService {
 
   async getByid(id: string) {
     try {
-      console.log(id, "haha");
       const users = this.userRepo
         .createQueryBuilder("user")
         .where("user.id =:id", { id });
@@ -302,7 +290,6 @@ class UserService {
 
   async findGuide(user_id: string) {
     try {
-      console.log("yyyy");
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
@@ -311,8 +298,6 @@ class UserService {
         relations: ["details", "location", "kyc"],
 
       });
-      console.log("🚀 ~ UserService ~ findGuide ~ guides:", guides);
-      console.log("ok");
       if (!guides) {
         throw HttpException.notFound("Guide not found");
       }
@@ -337,7 +322,7 @@ class UserService {
          },
         relations: ["details", "location", "kyc"],
       });
-      console.log(travel,'------------------------------')
+      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -378,7 +363,6 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("You are not authorized user");
       }
-      console.log(guide_id);
       const guide = await this.guideRepo.findOneBy({
         id: guide_id,
         approved: true,
@@ -420,7 +404,6 @@ class UserService {
       return bookRequestMessage("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error.message);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -453,7 +436,6 @@ class UserService {
           status: Not(RequestStatus.CANCELLED),
         },
       });
-      console.log("🚀 ~ UserService ~ findRequest:", findRequest);
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
           "Request already sent to this travel, Please wait a while for the travel response",
@@ -512,11 +494,9 @@ class UserService {
         throw HttpException.notFound(
           "You do not requested any travels for booking",
         );
-      console.log(data,"--")
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -541,7 +521,6 @@ class UserService {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
-        console.log("🚀 ~ UserService ~ getTravelRequestsHistory ~ data:", data)
 
       if (!data)
         throw HttpException.notFound(
@@ -550,7 +529,6 @@ class UserService {
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error);
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -634,7 +612,6 @@ class UserService {
           id: requestId,
         },
       });
-      console.log(price);
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
@@ -897,7 +874,6 @@ class UserService {
         currency: "npr",
         payment_method_types: ["card"],
       });
-      console.log("🚀 ~ UserService ~ paymentIntent:", paymentIntent.currency)
       if (paymentIntent) {
         await this.travelRequestRepo.update(
           {
@@ -910,7 +886,6 @@ class UserService {
       }
       return paymentIntent.client_secret;
     } catch (error: unknown) {
-      console.log("🚀 ~ UserService ~ error:", error)
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {
@@ -959,7 +934,6 @@ class UserService {
       }
       return paymentIntent.client_secret;
     } catch (error: unknown) {
-      console.log("🚀 ~ UserService ~ error:", error)
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {

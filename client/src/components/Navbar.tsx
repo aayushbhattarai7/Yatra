@@ -6,17 +6,6 @@ import ChatPopup from "./ChatPopup";
 import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "@/function/GetCookie";
 import { jwtDecode } from "jwt-decode";
-import { gql, useQuery } from "@apollo/client";
-interface FormData {
-  id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  vehicle_type: string;
-  gender: string;
-  location: Location;
-  nationality: string;
-}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);

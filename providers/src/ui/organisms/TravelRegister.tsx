@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axiosInstance from "../../service/axiosInstance";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Label from "../common/atoms/Label";
@@ -7,7 +7,7 @@ import InputField from "../common/atoms/InputField";
 import Button from "../common/atoms/Button";
 import { useMessage } from "../../contexts/MessageContext";
 import OTP from "../../components/Otp";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowLeft } from "lucide-react";
 
 interface FormData {
   firstName: string;
@@ -42,6 +42,8 @@ interface FormData {
   passportIssueFrom: string;
   voterId: string;
   voterAddress: string;
+  latitude: number;
+  longitude: number;
 }
 
 const TravelRegister: React.FC = () => {
@@ -50,33 +52,59 @@ const TravelRegister: React.FC = () => {
   const [showIdentityFields, setShowIdentityFields] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [identityType, setIdentityType] = useState<string>("");
-
+  const [location, setLocation] = useState<{
+    latitude: number | null;
+    longitude: number | null;
+  }>({
+    latitude: null,
+    longitude: null,
+  });
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<FormData>();
 
   const handleIdentityChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setIdentityType(event.target.value);
   };
 
-  const onSubmitBasicInfo: SubmitHandler<FormData> = (data) => {
-    localStorage.setItem("basicInfo", JSON.stringify(data));
+  const handleBack = () => {
+    const savedData = JSON.parse(localStorage.getItem("basicInfo") || "{}");
+    reset(savedData);
+    setShowIdentityFields(false);
+  };
 
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ latitude, longitude });
+        localStorage.setItem("latitude", latitude.toString());
+        localStorage.setItem("longitude", longitude.toString());
+      });
+    }
+  }, []);
+
+  useEffect(() => {}, [location]);
+  const onSubmitBasicInfo: SubmitHandler<FormData> = (data) => {
+    if (!identityType) {
+      setMessage("Please select an identity type", "error");
+      return;
+    }
+    console.log(data);
+    localStorage.setItem("basicInfo", JSON.stringify(data));
     setShowIdentityFields(true);
   };
 
   const onSubmitIdentity: SubmitHandler<FormData> = async (data) => {
     try {
       const basicInfo = JSON.parse(localStorage.getItem("basicInfo") || "{}");
-      console.log(
-        "🚀 ~ constonSubmitIdentity:SubmitHandler<FormData>= ~ basicInfo:",
-        basicInfo,
-      );
-
+      const latitude = localStorage.getItem("latitude");
+      const longitude = localStorage.getItem("longitude");
       const formData = new FormData();
       formData.append("firstName", basicInfo.firstName);
       if (basicInfo.middleName)
@@ -87,6 +115,8 @@ const TravelRegister: React.FC = () => {
       formData.append("gender", basicInfo.gender);
       formData.append("password", basicInfo.password);
       formData.append("DOB", basicInfo.DOB);
+      formData.append("latitude", latitude!);
+      formData.append("longitude", longitude!);
       formData.append("nationality", basicInfo.nationality);
       formData.append("province", basicInfo.province);
       formData.append("district", basicInfo.district);
@@ -134,7 +164,7 @@ const TravelRegister: React.FC = () => {
         console.log(error, "------");
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error",
+          "error"
         );
       } else {
         console.log(error);
@@ -155,7 +185,7 @@ const TravelRegister: React.FC = () => {
             </p>
           </div>
 
-          <div className="step-indicator">
+          <div className="step-indicator mb-8">
             <div
               className={`step ${
                 !showIdentityFields ? "step-active" : "step-inactive"
@@ -172,9 +202,20 @@ const TravelRegister: React.FC = () => {
               className={`step ${registered ? "step-active" : "step-inactive"}`}
             />
           </div>
+
+          {showIdentityFields && !registered && (
+            <button
+              onClick={handleBack}
+              className="flex items-center text-blue-600 hover:text-blue-800 mb-6"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Basic Information
+            </button>
+          )}
+
           <form
             onSubmit={handleSubmit(
-              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo,
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
             )}
             noValidate
             encType="multipart/form-data"
@@ -193,9 +234,16 @@ const TravelRegister: React.FC = () => {
                       type="text"
                       name="firstName"
                       register={register}
-                      className="form-input"
-                      placeholder="John"
+                      className={`form-input ${
+                        errors.firstName ? "border-red-500" : ""
+                      }`}
+                      placeholder="First Name"
                     />
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.firstName.message}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label name="middleName" label="Middle Name" />
@@ -204,7 +252,7 @@ const TravelRegister: React.FC = () => {
                       name="middleName"
                       register={register}
                       className="form-input"
-                      placeholder="David"
+                      placeholder="Middle Name"
                     />
                   </div>
                 </div>
@@ -215,9 +263,16 @@ const TravelRegister: React.FC = () => {
                     type="text"
                     name="lastName"
                     register={register}
-                    className="form-input"
-                    placeholder="Smith"
+                    className={`form-input ${
+                      errors.lastName ? "border-red-500" : ""
+                    }`}
+                    placeholder="Last Name"
                   />
+                  {errors.lastName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.lastName.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -227,9 +282,16 @@ const TravelRegister: React.FC = () => {
                       type="email"
                       name="email"
                       register={register}
-                      className="form-input"
-                      placeholder="john@example.com"
+                      className={`form-input ${
+                        errors.email ? "border-red-500" : ""
+                      }`}
+                      placeholder="email@example.com"
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label name="phoneNumber" label="Phone Number" required />
@@ -237,9 +299,16 @@ const TravelRegister: React.FC = () => {
                       type="tel"
                       name="phoneNumber"
                       register={register}
-                      className="form-input"
+                      className={`form-input ${
+                        errors.phoneNumber ? "border-red-500" : ""
+                      }`}
                       placeholder="+1234567890"
                     />
+                    {errors.phoneNumber && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.phoneNumber.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -247,13 +316,22 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="gender" label="Gender" required />
                     <select
-                      {...register("gender", { required: true })}
-                      className="form-select"
+                      {...register("gender", {
+                        required: "Gender is required",
+                      })}
+                      className={`form-select ${
+                        errors.gender ? "border-red-500" : ""
+                      }`}
                     >
                       <option value="">Select Gender</option>
                       <option value="MALE">Male</option>
                       <option value="FEMALE">Female</option>
                     </select>
+                    {errors.gender && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.gender.message}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label name="password" label="Password" required />
@@ -261,9 +339,16 @@ const TravelRegister: React.FC = () => {
                       type="password"
                       name="password"
                       register={register}
-                      className="form-input"
-                      placeholder="••••••••"
+                      className={`form-input ${
+                        errors.password ? "border-red-500" : ""
+                      }`}
+                      placeholder="password"
                     />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -273,8 +358,15 @@ const TravelRegister: React.FC = () => {
                     type="date"
                     name="DOB"
                     register={register}
-                    className="form-input"
+                    className={`form-input ${
+                      errors.DOB ? "border-red-500" : ""
+                    }`}
                   />
+                  {errors.DOB && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.DOB.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -290,8 +382,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="nationality"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.nationality ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.nationality && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.nationality.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label name="province" label="Province" required />
@@ -299,8 +398,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="province"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.province ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.province && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.province.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -311,8 +417,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="district"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.district ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.district && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.district.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label
@@ -324,13 +437,19 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="municipality"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.municipality ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.municipality && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.municipality.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Vehicle Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium text-gray-900">
                     Vehicle Details
@@ -347,8 +466,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="engineNumber"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.engineNumber ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.engineNumber && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.engineNumber.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label
@@ -360,8 +486,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="chasisNumber"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.chasisNumber ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.chasisNumber && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.chasisNumber.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -376,8 +509,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="vehicleNumber"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.vehicleNumber ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.vehicleNumber && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.vehicleNumber.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label name="vehicleType" label="Vehicle Type" required />
@@ -385,8 +525,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="vehicleType"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.vehicleType ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.vehicleType && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.vehicleType.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -396,7 +543,9 @@ const TravelRegister: React.FC = () => {
                   <select
                     value={identityType}
                     onChange={handleIdentityChange}
-                    className="form-select"
+                    className={`form-select ${
+                      !identityType ? "border-red-500" : ""
+                    }`}
                     required
                   >
                     <option value="">Select Identity Type</option>
@@ -404,6 +553,11 @@ const TravelRegister: React.FC = () => {
                     <option value="passport">Passport</option>
                     <option value="voterCard">Voter Card</option>
                   </select>
+                  {!identityType && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Identity type is required
+                    </p>
+                  )}
                 </div>
 
                 <Button
@@ -432,8 +586,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="citizenshipId"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.citizenshipId ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.citizenshipId && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.citizenshipId.message}
+                        </p>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -446,8 +607,15 @@ const TravelRegister: React.FC = () => {
                           type="date"
                           name="citizenshipIssueDate"
                           register={register}
-                          className="form-input"
+                          className={`form-input ${
+                            errors.citizenshipIssueDate ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.citizenshipIssueDate && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.citizenshipIssueDate.message}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label
@@ -459,8 +627,15 @@ const TravelRegister: React.FC = () => {
                           type="text"
                           name="citizenshipIssueFrom"
                           register={register}
-                          className="form-input"
+                          className={`form-input ${
+                            errors.citizenshipIssueFrom ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.citizenshipIssueFrom && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.citizenshipIssueFrom.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -468,23 +643,43 @@ const TravelRegister: React.FC = () => {
                         <Label
                           name="citizenshipFront"
                           label="Citizenship Front"
+                          required
                         />
                         <input
                           type="file"
-                          {...register("citizenshipFront")}
-                          className="file-input"
+                          {...register("citizenshipFront", {
+                            required: "Front image is required",
+                          })}
+                          className={`file-input ${
+                            errors.citizenshipFront ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.citizenshipFront && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.citizenshipFront.message}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label
                           name="citizenshipBack"
                           label="Citizenship Back"
+                          required
                         />
                         <input
                           type="file"
-                          {...register("citizenshipBack")}
-                          className="file-input"
+                          {...register("citizenshipBack", {
+                            required: "Back image is required",
+                          })}
+                          className={`file-input ${
+                            errors.citizenshipBack ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.citizenshipBack && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.citizenshipBack.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -498,8 +693,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="passportId"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.passportId ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.passportId && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.passportId.message}
+                        </p>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -512,8 +714,15 @@ const TravelRegister: React.FC = () => {
                           type="date"
                           name="passportIssueDate"
                           register={register}
-                          className="form-input"
+                          className={`form-input ${
+                            errors.passportIssueDate ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.passportIssueDate && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.passportIssueDate.message}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <Label
@@ -525,8 +734,15 @@ const TravelRegister: React.FC = () => {
                           type="date"
                           name="passportExpiryDate"
                           register={register}
-                          className="form-input"
+                          className={`form-input ${
+                            errors.passportExpiryDate ? "border-red-500" : ""
+                          }`}
                         />
+                        {errors.passportExpiryDate && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.passportExpiryDate.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div>
@@ -539,16 +755,36 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="passportIssueFrom"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.passportIssueFrom ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.passportIssueFrom && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.passportIssueFrom.message}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <Label name="passport" label="Passport Document" />
+                      <Label
+                        name="passport"
+                        label="Passport Document"
+                        required
+                      />
                       <input
                         type="file"
-                        {...register("passport")}
-                        className="file-input"
+                        {...register("passport", {
+                          required: "Passport document is required",
+                        })}
+                        className={`file-input ${
+                          errors.passport ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.passport && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.passport.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -561,8 +797,15 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="voterId"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.voterId ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.voterId && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.voterId.message}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label
@@ -574,39 +817,83 @@ const TravelRegister: React.FC = () => {
                         type="text"
                         name="voterAddress"
                         register={register}
-                        className="form-input"
+                        className={`form-input ${
+                          errors.voterAddress ? "border-red-500" : ""
+                        }`}
+                        required
                       />
+                      {errors.voterAddress && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.voterAddress.message}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <Label name="voterCard" label="Voter Card Document" />
+                      <Label
+                        name="voterCard"
+                        label="Voter Card Document"
+                        required
+                      />
                       <input
                         type="file"
-                        {...register("voterCard")}
-                        className="file-input"
+                        {...register("voterCard", {
+                          required: "Voter card document is required",
+                        })}
+                        className={`file-input ${
+                          errors.voterCard ? "border-red-500" : ""
+                        }`}
                       />
+                      {errors.voterCard && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.voterCard.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-4">
                   <div>
-                    <Label name="passPhoto" label="Passport Size Photo" />
+                    <Label
+                      name="passPhoto"
+                      label="Passport Size Photo"
+                      required
+                    />
                     <input
                       type="file"
-                      {...register("passPhoto")}
-                      className="file-input"
+                      {...register("passPhoto", {
+                        required: "Passport size photo is required",
+                      })}
+                      className={`file-input ${
+                        errors.passPhoto ? "border-red-500" : ""
+                      }`}
                     />
+                    {errors.passPhoto && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.passPhoto.message}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label
                       name="vehicleRegistration"
                       label="Vehicle Registration"
+                      required
                     />
                     <input
                       type="file"
-                      {...register("vehicleRegistration")}
-                      className="file-input"
+                      {...register("vehicleRegistration", {
+                        required: "Vehicle registration is required",
+                      })}
+                      className={`file-input ${
+                        errors.vehicleRegistration ? "border-red-500" : ""
+                      }`}
                     />
+                    {errors.vehicleRegistration && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.vehicleRegistration.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -633,7 +920,7 @@ const TravelRegister: React.FC = () => {
         className="w-1/2 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")',
+            'url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4. 3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")',
         }}
       >
         <div className="h-full w-full bg-black bg-opacity-30 flex items-center justify-center p-12">

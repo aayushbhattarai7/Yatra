@@ -9,9 +9,10 @@ import HttpException from "../utils/HttpException.utils";
 import { LocationDTO } from "../dto/location.dto";
 export class TravelController {
   async create(req: Request, res: Response) {
-    console.log("yess", req.files);
+    console.log("yess", req.body);
     try {
       const { kycType } = req.body;
+      
       const uploadedPhotos: any = {
         passPhoto: req.files?.passPhoto?.[0]
           ? {

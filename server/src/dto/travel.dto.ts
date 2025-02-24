@@ -113,4 +113,8 @@ export class TravelDTO {
   @Field()
   @IsStrongPassword()
   password: string;
+  @Field()
+  latitude: string;
+  @Field()
+  longitude: string;
 }

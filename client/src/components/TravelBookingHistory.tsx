@@ -1,11 +1,9 @@
 import {
-  USER_REQUESTS_FOR_TRAVEL,
   USER_TRAVEL_BOOKING_HISTORY,
 } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";
-import React, { useEffect, useState } from "react";
-import { NavLink } from "./ActiveNavLink";
+import { useEffect, useState } from "react";
 
 interface TravelBooking {
   id: string;

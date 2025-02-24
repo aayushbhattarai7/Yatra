@@ -144,6 +144,12 @@ class TravelService {
                 );
               }
 
+              const location = this.locationRepo.create({
+                latitude: parseFloat(data.latitude),
+                longitude: parseFloat(data.longitude),
+                travel:travel
+              })
+              await this.locationRepo.save(location)
               await otpService.sendOtp(travel.email, otp, expires);
             } else {
               throw HttpException.badRequest(

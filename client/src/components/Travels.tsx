@@ -43,6 +43,7 @@ const Travels = () => {
 
   useEffect(() => {
     if (data?.findTravel) {
+      console.log("🚀 ~ useEffect ~ data:", data)
       setTravels(data.findTravel);
     }
   }, [data]);
@@ -170,7 +171,6 @@ const Travels = () => {
                 },
                 gender: travel.gender,
               }))}
-              center={userLocation}
               zoom={12}
             />
           )}
@@ -198,7 +198,6 @@ const Travels = () => {
                 },
                 gender: travel.gender,
               }))}
-              center={userLocation}
               zoom={12}
             />
           )}

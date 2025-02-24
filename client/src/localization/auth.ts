@@ -199,4 +199,8 @@ export const authLabel: LabelTypes = {
     en: "View Profile",
     ne: "प्रतीक्षा गर्नुहोस्",
   },
+  loading: {
+    en: "Loading",
+    ne: "प्रतीक्षा गर्नुहोस्",
+  },
 };
