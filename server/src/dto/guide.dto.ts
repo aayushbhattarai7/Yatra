@@ -62,6 +62,12 @@ export class GuideDTO {
   licenseNumber: string;
 
   @Field()
+  latitude: string
+  
+  @Field()
+  longitude:string
+
+  @Field()
   @IsNotEmpty()
   licenseValidityFrom: string;
 
