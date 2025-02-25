@@ -103,6 +103,7 @@ export const USER_REQUESTS_FOR_GUIDE = gql`
       from
       to
       totalDays
+      createdAt
       totalPeople
       status
       lastActionBy
@@ -125,6 +126,7 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
       to
       totalDays
       status
+      createdAt
       price
       totalPeople
       travel {

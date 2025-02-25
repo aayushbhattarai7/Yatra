@@ -489,7 +489,7 @@ class UserService {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
-
+console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------------------")
       if (!data)
         throw HttpException.notFound(
           "You do not requested any travels for booking",
