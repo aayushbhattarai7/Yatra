@@ -140,6 +140,13 @@ class GuideService {
                 savedImage.transferKycToUpload(saves.id, savedImage.type);
               }
 
+              const location = this.locationRepo.create({
+                latitude: parseFloat(data.latitude),
+                longitude: parseFloat(data.longitude),
+                guide:guide
+              })
+                            await this.locationRepo.save(location)
+
               await otpService.sendOtp(guide.email, otp, expires);
             } else {
               throw HttpException.badRequest(

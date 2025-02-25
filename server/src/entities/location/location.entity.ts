@@ -31,12 +31,12 @@ export class Location extends Base {
   guide: Guide;
 
   @Field()
-  @OneToOne(() => Travel, (travel) => travel.location, { onDelete: "CASCADE" })
+  @OneToOne(() => Travel, (travel) => travel.location, { onDelete: "CASCADE", nullable:true })
   @JoinColumn({ name: "travel_id" })
   travel: Travel;
 
   @Field()
-  @OneToOne(() => Hotel, (hotel) => hotel.location, { onDelete: "CASCADE" })
+  @OneToOne(() => Hotel, (hotel) => hotel.location, { onDelete: "CASCADE", nullable:true })
   @JoinColumn({ name: "hotel_id" })
   hotel: Hotel;
 }

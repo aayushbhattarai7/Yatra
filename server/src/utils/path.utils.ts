@@ -24,8 +24,8 @@ export const getTempFolderPathForPlace = (): string => {
 
 export const getUploadFolderpathForTravel = (): string => {
   if (process.env.NODE_ENV === Environment.PRODUCTION)
-    return path.resolve(process.cwd(), "public", "travel");
-  return path.join(__dirname, "..", "..", "public", "travel");
+    return path.resolve(process.cwd(), "public");
+  return path.join(__dirname, "..", "..", "public");
 };
 
 export const getTempFolderPathForTravel = (): string => {

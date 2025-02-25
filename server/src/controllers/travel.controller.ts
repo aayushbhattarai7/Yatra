@@ -9,7 +9,6 @@ import HttpException from "../utils/HttpException.utils";
 import { LocationDTO } from "../dto/location.dto";
 export class TravelController {
   async create(req: Request, res: Response) {
-    console.log("yess", req.body);
     try {
       const { kycType } = req.body;
       
@@ -83,8 +82,6 @@ export class TravelController {
         });
         return;
       }
-      console.log(uploadedPhotos);
-      console.log(req.body, "--------------------------");
       const details = await travelService.create(
         uploadedPhotos as any,
         req.body as TravelDTO,

@@ -143,13 +143,17 @@ class TravelService {
                   savedImage.type,
                 );
               }
-
-              const location = this.locationRepo.create({
-                latitude: parseFloat(data.latitude),
-                longitude: parseFloat(data.longitude),
-                travel:travel
-              })
-              await this.locationRepo.save(location)
+              if (travel) {
+                
+               const location =  transactionalEntityManager.create(this.locationRepo.target, {
+                  
+                  latitude: parseFloat(data.latitude),
+                  longitude: parseFloat(data.longitude),
+                  travel: travel
+                })
+               
+                await transactionalEntityManager.save(this.locationRepo.target, location)
+}
               await otpService.sendOtp(travel.email, otp, expires);
             } else {
               throw HttpException.badRequest(
@@ -160,6 +164,7 @@ class TravelService {
 
           return registeredMessage("Travel");
         } catch (error: unknown) {
+          console.log(error)
           if (error instanceof Error) {
             throw HttpException.badRequest(error?.message);
           } else {
