@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
 import {
@@ -7,13 +8,13 @@ import {
 } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useMutation, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
+import { Star, Clock, Phone, Mail, User } from "lucide-react";
 
 interface TravelBooking {
   id: string;
@@ -27,17 +28,23 @@ interface TravelBooking {
   price: string;
   lastActionBy: string;
   userBargain: number;
+  createdAt: string;
 }
+
 interface Travel {
   id: string;
   firstName: string;
   middleName: string;
   lastName: string;
   gender: string;
+  email: string;
+  phoneNumber: string;
 }
+
 interface Price {
   price: string;
 }
+
 const TravelBooking = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
@@ -46,11 +53,33 @@ const TravelBooking = () => {
   );
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
-  console.log("🚀 ~ TravelBooking ~ data:", data)
+  console.log("🚀 ~ TravelBooking ~ data:", data);
   const { lang } = useLang();
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
+
+  const formatTimeDifference = (createdAt: string) => {
+    if (!createdAt) return "Unknown time";
+    const createdTime = new Date(createdAt).getTime();
+    if (isNaN(createdTime)) return "Invalid date";
+
+    const diffInSeconds = Math.floor((Date.now() - createdTime) / 1000);
+    if (diffInSeconds < 60) return `${diffInSeconds} sec ago`;
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} hrs ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    if (diffInWeeks < 4) return `${diffInWeeks} weeks ago`;
+    const diffInMonths = Math.floor(diffInDays / 30);
+    if (diffInMonths < 12) return `${diffInMonths} months ago`;
+    const diffInYears = Math.floor(diffInDays / 365);
+    return `${diffInYears} years ago`;
+  };
+
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
       if (!selectedId) return;
@@ -63,7 +92,7 @@ const TravelBooking = () => {
       setSelectedId(null);
     } catch (error: unknown) {
       if (error instanceof Error) {
-        showToast(error.message || "An error occured", "error");
+        showToast(error.message || "An error occurred", "error");
       }
     }
   };
@@ -71,6 +100,7 @@ const TravelBooking = () => {
   const acceptRequest = async () => {
     setPay(true);
   };
+
   const CancelRequest = async () => {
     const res = await cancelTravelRequest({
       variables: { requestId: cancellationId },
@@ -80,72 +110,155 @@ const TravelBooking = () => {
     refetch();
     showToast(res.data.cancelTravelRequest, "success");
   };
+
   useEffect(() => {
     if (data) {
-      console.log(data);
       setTravelBooking(data.getOwnTravelRequest);
     }
-  });
+  }, [data]);
+
+  const renderStars = () => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star key={star} className="w-5 h-5 text-yellow-400 fill-current" />
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <>
-      <div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-8">Travel Bookings</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {travelBooking?.map((book) => (
-          <div className="border border-black flex mb-4 gap-20 items-center p-10">
-            <p> id:{book.id}</p>
-            <p>from : {book.from}</p>
-            <p> to: {book.to}</p>
-            <p>Total Days: {book.totalDays}</p>
-            <p>Total People: {book.totalPeople}</p>
-            <p>Price: {book.price}</p>
-            <p className=" flex">
-              Travel name:
-              {book.travel.firstName} {book.travel.middleName}{" "}
-              {book.travel.lastName}
-            </p>
-            <p>Status: {book.status}</p>
-            {book.status === "CANCELLED" || book.status === "CANCELLED" ? (
-              <p>Cancelled</p>
-            ) : (
-              <div>
-                {book.status === "COMPLETED" ? (
-                  <Button buttonText="Re-Book" type="submit" />
+          <div
+            key={book.id}
+            className="bg-white rounded-lg shadow-lg overflow-hidden"
+          >
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">
+                    {book.travel.firstName} {book.travel.middleName}{" "}
+                    {book.travel.lastName}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Total People: {book.totalPeople}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">
+                    {book.status === "ACCEPTED"
+                      ? book.travel.email
+                      : " Display after booking is completed"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">
+                    Display after booking is completed
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">
+                    {formatTimeDifference(book.createdAt)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-b py-4 mb-4">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">Price Details</span>
+                  <span className="font-semibold">
+                    Rs. {book.price ? book.price : "Not set"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status</span>
+                  <span
+                    className={`font-semibold ${
+                      book.status === "COMPLETED"
+                        ? "text-green-600"
+                        : book.status === "CANCELLED"
+                        ? "text-red-600"
+                        : "text-blue-600"
+                    }`}
+                  >
+                    {book.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4">{renderStars()}</div>
+
+              <div className="space-y-2">
+                {book.status === "CANCELLED" ? (
+                  <p className="text-red-600 font-medium">Cancelled</p>
                 ) : (
-                  <div>
-                    {book.lastActionBy === "TRAVEL" ? (
-                      <div>
-                        {book.status !== "ACCEPTED" && (
-                          <>
-                            <Button
-                              onClick={acceptRequest}
-                              buttonText={authLabel.accept[lang]}
-                              type="submit"
-                            />
-                            <Button
-                              onClick={() => setSelectedId(book.id)}
-                              buttonText={authLabel.bargain[lang]}
-                              disabled={book.userBargain > 2}
-                              type="submit"
-                                />
-                                
-                          </>
-                        )}
-                      </div>
-                    ) : (
+                  <div className="space-y-2">
+                    {book.status === "COMPLETED" ? (
                       <Button
-                        buttonText={authLabel.waiting[lang]}
-                        disabled={loading}
+                        buttonText="Book Again"
                         type="submit"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
                       />
+                    ) : (
+                      <div className="space-y-2">
+                        {book.lastActionBy === "TRAVEL" ? (
+                          <>
+                            {book.status !== "ACCEPTED" && (
+                              <>
+                                <Button
+                                  onClick={acceptRequest}
+                                  buttonText={authLabel.accept[lang]}
+                                  type="submit"
+                                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                                />
+                                <Button
+                                  onClick={() => setSelectedId(book.id)}
+                                  buttonText={authLabel.bargain[lang]}
+                                  disabled={book.userBargain > 2}
+                                  type="submit"
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md disabled:bg-gray-400"
+                                />
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <Button
+                            buttonText={authLabel.waiting[lang]}
+                            disabled={loading}
+                            type="submit"
+                            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md"
+                          />
+                        )}
+                        <Button
+                          buttonText="Cancel"
+                          type="submit"
+                          onClick={() => setCancellationId(book.id)}
+                          className="w-full border bg-red-600 text-red-600 hover:bg-red-700 py-2 rounded-md"
+                        />
+                      </div>
                     )}
-                    <Button
-                      buttonText="Cancel"
-                      type="submit"
-                      onClick={() => setCancellationId(book.id)}
-                    />
                   </div>
                 )}
+                <Button
+                  buttonText="View Details"
+                  type="button"
+                  className="w-full border bg-blue-600 hover:bg-blue-700 py-2 rounded-md"
+                />
               </div>
-            )}
+            </div>
+
             {pay && (
               <Checkout
                 travelId={book.id}
@@ -154,29 +267,34 @@ const TravelBooking = () => {
                 onClose={() => setPay(false)}
               />
             )}
-            <Button buttonText="Details" type="button" />
           </div>
         ))}
       </div>
+
       {selectedId && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="mb-4">Enter Price</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Enter Price</h2>
             <form onSubmit={handleSubmit(sendPrice)}>
               <InputField
                 register={register}
                 setValue={setValue}
                 type="text"
                 name="price"
-                className="border p-2 rounded w-full mb-4"
+                className="border p-2 rounded-md w-full mb-4"
                 placeholder="Enter price"
               />
               <div className="flex gap-4">
-                <Button type="submit" buttonText="Submit" />
+                <Button
+                  type="submit"
+                  buttonText="Submit"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                />
                 <Button
                   type="button"
                   buttonText="Cancel"
                   onClick={() => setSelectedId(null)}
+                  className="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
                 />
               </div>
             </form>
@@ -225,7 +343,7 @@ const TravelBooking = () => {
           </motion.div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

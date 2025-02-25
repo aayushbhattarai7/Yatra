@@ -27,7 +27,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, setValue, handleSubmit } = useForm<FormData>();
   const [requestTravel, { loading, error }] = useMutation(
-    TRAVEL_BOOKING_MUTATION,
+    TRAVEL_BOOKING_MUTATION
   );
 
   const submit: SubmitHandler<FormData> = async (formData) => {
@@ -46,9 +46,11 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
       showToast(response.data.requestTravel, "success");
       onClose();
     } catch (err: unknown) {
-      console.log(error?.message, "ahah");
-      showToast(error?.message || "error occured", "error");
-      console.error("GraphQL Error:", err);
+      console.log(err, "ahah");
+      if (err instanceof Error) {
+        
+        showToast(err.message, "error");
+      }
     }
   };
 
