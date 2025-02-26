@@ -4,6 +4,7 @@ import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";
 import { Star, MapPin, Calendar, Users, User, Clock } from "lucide-react";
 import { formatTimeDifference } from "@/function/TimeDifference";
+import RequestTravelBooking from "./RequestTravelBooking";
 
 interface TravelBooking {
   id: string;
@@ -13,7 +14,7 @@ interface TravelBooking {
   totalPeople: string;
   travel: Travel;
   status: string;
-  createdAt:string
+  createdAt: string;
 }
 
 interface Travel {
@@ -29,6 +30,7 @@ const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
     null
   );
+  const [travelId, setTravelId] = useState<string>("");
   const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
 
   useEffect(() => {
@@ -123,7 +125,9 @@ const TravelBookingHistory = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">{ formatTimeDifference(book.createdAt)}</span>
+                  <span className="text-sm">
+                    {formatTimeDifference(book.createdAt)}
+                  </span>
                 </div>
               </div>
 
@@ -149,6 +153,7 @@ const TravelBookingHistory = () => {
               <div className="space-y-2">
                 <Button
                   buttonText="Re-Book"
+                  onClick={() => setTravelId(book.travel.id)}
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
                 />
@@ -162,6 +167,9 @@ const TravelBookingHistory = () => {
           </div>
         ))}
       </div>
+      {travelId && (
+        <RequestTravelBooking id={travelId} onClose={() => setTravelId("")} />
+      )}
     </div>
   );
 };

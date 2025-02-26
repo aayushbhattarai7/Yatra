@@ -24,7 +24,7 @@ import {
   registeredMessage,
 } from "../constant/message";
 import axios from "axios";
-import { MoreThan, Not } from "typeorm";
+import { In, MoreThan, Not } from "typeorm";
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -427,15 +427,14 @@ class UserService {
         connects: MoreThan(0),
 
       });
+const findRequest = await this.travelRequestRepo.find({
+    where: {
+        user: { id: user_id },
+        travel: { id: travel_id },
+        status: Not(In([RequestStatus.CANCELLED, RequestStatus.COMPLETED, RequestStatus.REJECTED])),
+    },
+});
 
-      const findRequest = await this.travelRequestRepo.find({
-        where: {
-          user: { id: user_id },
-          travel: { id: travel_id },
-          
-          status: Not(RequestStatus.CANCELLED),
-        },
-      });
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
           "Request already sent to this travel, Please wait a while for the travel response",
