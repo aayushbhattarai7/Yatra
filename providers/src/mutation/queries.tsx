@@ -162,20 +162,14 @@ export const TRAVEL_BOOKING_HISTORY = gql`
   }
 `;
 export const GET_GUIDE_PROFILE = gql`
-  query GetGuideDetails {
-    getGuideDetails {
+  query GetGuideProfile($guideId: String!) {
+    getGuideProfile(guideId: $guideId) {
       id
       firstName
       middleName
       lastName
-      email
-      phoneNumber
       gender
-      createdAt
-      kyc {
-        id
-        path
-      }
+      guiding_location
     }
   }
 `;

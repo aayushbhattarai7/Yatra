@@ -17,6 +17,10 @@ import GuideBooking from "./components/GuideBooking";
 import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
 import { StripeProvider } from "./contexts/StripeContext";
+import EsewaPaymentForm from "./components/EsewaPaymentForm";
+import Success from "./components/EsewaSuccess";
+import Failure from "./components/EsewaFailure";
+import PaymentForm from "./components/EsewaPaymentForm";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -30,6 +34,8 @@ const router = createBrowserRouter([
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
       { path: "adminLogin", element: <AdminLogin /> },
+      { path: "success", element: <Success /> },
+      { path: "failure", element: <Failure /> },
       {
         path: "/",
         element: <ProtectedRoute />,

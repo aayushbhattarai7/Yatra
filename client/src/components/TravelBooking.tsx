@@ -15,6 +15,8 @@ import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
 import { Star, Clock, Phone, Mail, User } from "lucide-react";
+import PaymentForm from "./EsewaPaymentForm";
+import Esewa from "./Esewa";
 
 interface TravelBooking {
   id: string;
@@ -260,11 +262,11 @@ const TravelBooking = () => {
             </div>
 
             {pay && (
-              <Checkout
-                travelId={book.id}
-                amount={parseInt(book.price)}
-                refresh={() => refetch}
-                onClose={() => setPay(false)}
+              <Esewa
+                id={book.id}
+                amounts={parseInt(book.price)}
+                // refresh={() => refetch}
+                // onClose={() => setPay(false)}
               />
             )}
           </div>

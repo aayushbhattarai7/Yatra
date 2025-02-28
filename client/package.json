@@ -22,6 +22,7 @@
     "apollo-client": "^2.6.10",
     "apollo-upload-client": "^18.0.1",
     "button": "link:components/ui/button",
+    "crypto-js": "^4.2.0",
     "framer-motion": "^12.0.6",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
@@ -39,14 +40,17 @@
     "react-router-dom": "^7.0.1",
     "react-toastify": "^11.0.3",
     "shadcn": "^2.1.8",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/crypto-js": "^4.2.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.9.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.13.0",

@@ -2,7 +2,7 @@ import { Router } from "express";
 // import place from "./place.routes";
 // import user from "./user.routes";
 // import admin from "./admin.routes";
-// import guide from "./guide.routes";
+import esewa from "./esewa.routes";
 import travel from "./travel.routes";
 // import hotel from "./hotel.routes";
 export interface Route {
@@ -23,10 +23,10 @@ const routes: Route[] = [
   //   path: "/admin",
   //   route: admin,
   // },
-  // {
-  //   path: "/guide",
-  //   route: guide,
-  // },
+  {
+    path: "/esewa",
+    route: esewa,
+  },
   {
     path: "/travel",
     route: travel,
