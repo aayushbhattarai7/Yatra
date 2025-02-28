@@ -845,6 +845,34 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
       }
     }
   }
+  async getGuideProfile(user_id: string, guide_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({
+        id: user_id,
+      });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+      const guide = await this.guideRepo.findOne({
+        where: {
+        
+          id: guide_id,
+      }, relations:["details","kyc"]
+      }, );
+      if (!guide) {
+        throw HttpException.notFound("Guide not found");
+      }
+     
+      return guide;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error)
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
 
   async advancePaymentForTravel(
     userId: string,
@@ -893,6 +921,35 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
     }
   }
 
+ async advancePaymentForTravelWithEsewa(
+  userId: string,
+  requestId: string,
+  amount: number
+) {
+  try {
+    const user = await this.userRepo.findOneBy({ id: userId });
+    if (!user) {
+      throw HttpException.unauthorized("User not found");
+    }
+
+    const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+    if (!request) {
+      throw HttpException.notFound("Travel not found");
+    }
+   
+    await this.travelRequestRepo.update(
+      { id: request.id },
+      { status: RequestStatus.ACCEPTED }
+    );
+return
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw HttpException.badRequest(error.message);
+    } else {
+      throw HttpException.badRequest("An error occurred");
+    }
+  }
+}
 
   async advancePaymentForGuide(
     userId: string,

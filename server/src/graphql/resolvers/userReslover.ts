@@ -5,6 +5,7 @@ import {
   Arg,
   Ctx,
   UseMiddleware,
+  Args,
 } from "type-graphql";
 import { User } from "../../entities/user/user.entity";
 import UserService from "../../service/user.service";
@@ -24,6 +25,7 @@ import GuideKYC from "../../entities/guide/guideKyc.entity";
 import TravelKyc from "../../entities/travels/travelKyc.entity";
 import { TravelDetails } from "../../entities/travels/travelDetails.entity";
 import { PaymentDetails } from "../../interface/esewa.interface";
+import { GuideDetails } from "../../entities/guide/guideDetails.entity";
 
 
 @Resolver((of) => User)
@@ -261,6 +263,21 @@ export class UserResolver {
       }
     }
   }
+  @Query(() => Guide)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getGuideProfile(@Ctx() ctx: Context, @Arg("guideId") guideId:string) {
+    console.log("🚀 ~ UserResolver ~ getGuideProfile ~ guideId:", guideId)
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.userService.getGuideProfile(userId, guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Query(() => [RequestTravel], {nullable:true})
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getTravelHistory(@Ctx() ctx: Context) {
@@ -404,6 +421,24 @@ export class UserResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await this.userService.advancePaymentForTravel(userId, travelId, amount);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async AdvancePaymentForTravelWithEsewa(
+    @Arg("travelId") travelId: string,
+    @Arg("amount") amount: number,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.userService.advancePaymentForTravelWithEsewa(userId, travelId, amount);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

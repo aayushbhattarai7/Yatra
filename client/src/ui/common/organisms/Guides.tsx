@@ -5,6 +5,7 @@ import GuideMap from "@/components/ui/GuideMap";
 import { authLabel } from "@/localization/auth";
 import Button from "@/ui/common/atoms/Button";
 import RequestGuideBooking from "@/components/RequestGuideBooking";
+import GuideProfileUserView from "@/components/GuideProfile";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -58,6 +59,7 @@ const Guides = () => {
 
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [showMobileList, setShowMobileList] = useState(true);
+  const [guide, setGuide] = useState<string>("");
   const { lang } = useLang();
   const { data, loading } = useQuery(GET_GUIDE_QUERY);
 
@@ -159,6 +161,7 @@ const Guides = () => {
                       type="button"
                     />
                     <Button
+                      onClick={() => setGuide(guide.id)}
                       buttonText={authLabel.viewProfile[lang]}
                       className="border bg-gray-900 border-gray-300 px-4 py-4 rounded-lg text-sm font-medium hover:bg-gray-700"
                       type="button"
@@ -327,6 +330,7 @@ const Guides = () => {
                         type="button"
                       />
                       <Button
+                        onClick={() => setGuide(guide.id)}
                         buttonText={authLabel.viewProfile[lang]}
                         className="border bg-gray-900 border-gray-300 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-700"
                         type="button"
@@ -341,6 +345,13 @@ const Guides = () => {
       </div>
       {guideId && (
         <RequestGuideBooking id={guideId} onClose={() => setGuideId("")} />
+      )}
+      {guide && (
+        <GuideProfileUserView
+          guideId={guide}
+          isOpen={true}
+          onClose={() => setGuide("")}
+        />
       )}
     </div>
   );

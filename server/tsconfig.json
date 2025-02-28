@@ -5,8 +5,8 @@
     "outDir": "./build/",
     "rootDir": "./src",
     "strict": true,
-    "emitDecoratorMetadata": true, 
-    "experimentalDecorators": true, 
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
@@ -19,6 +19,6 @@
     },
     "typeRoots": ["src/types", "./node_modules/@types"]
   },
-  "include": ["src/**/*.ts"], 
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }
