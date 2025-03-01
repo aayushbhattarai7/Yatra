@@ -28,3 +28,6 @@ export const rejectRequest = (title: string) => {
 export const cancelRequest = (title: string) => {
   return `${title} booking request cancelled successfully`;
 };
+export const booked = (title: string) => {
+  return `${title} booked successfully`;
+};

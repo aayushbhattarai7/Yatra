@@ -1,6 +1,6 @@
 import { Router } from "express";
 // import place from "./place.routes";
-// import user from "./user.routes";
+import user from "./user.routes";
 // import admin from "./admin.routes";
 import esewa from "./esewa.routes";
 import travel from "./travel.routes";
@@ -15,10 +15,10 @@ const routes: Route[] = [
   //   path: "/place",
   //   route: place,
   // },
-  // {
-  //   path: "/user",
-  //   route: user,
-  // },
+  {
+    path: "/user",
+    route: user,
+  },
   // {
   //   path: "/admin",
   //   route: admin,

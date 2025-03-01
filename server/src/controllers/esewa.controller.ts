@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { EsewaService } from "../service/esewa.service";
+import  esewaService from "../service/esewa.service";
 import { DotenvConfig } from "../config/env.config";
 
-const esewaService = new EsewaService();
 
 export class EsewaController {
   async initializePayment(req: Request, res: Response) {
@@ -29,7 +28,7 @@ export class EsewaController {
 
   async completePayment(req: Request, res: Response) {
     try {
-      const { token } = req.body;
+        const { token } = req.body;
       console.log("🚀 ~ EsewaController ~ completePayment ~ data:", token);
       const paymentInfo = await esewaService.verifyPayment(token as string);
 

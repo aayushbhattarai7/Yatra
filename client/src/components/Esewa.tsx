@@ -8,6 +8,8 @@ interface PaymentProps {
   amounts: number;
 }
 const Esewa: React.FC<PaymentProps> = ({ id, amounts }) => {
+  const hashedId = `${uuidv4()}_${id}`;
+  console.log("🚀 ~ hashedId:", hashedId)
   const [formData, setformData] = useState({
     amount: amounts.toString(),
     tax_amount: "0",
@@ -16,7 +18,7 @@ const Esewa: React.FC<PaymentProps> = ({ id, amounts }) => {
     product_service_charge: "0",
     product_delivery_charge: "0",
     product_code: "EPAYTEST",
-    success_url: "http://localhost:3001/paymentsuccess",
+    success_url: `http://localhost:3001/paymentsuccess`,
     failure_url: "http://localhost:3001/paymentfailure",
     signed_field_names: "total_amount,transaction_uuid,product_code",
     signature: "",
@@ -31,11 +33,12 @@ const Esewa: React.FC<PaymentProps> = ({ id, amounts }) => {
   ) => {
     const hashString = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
     const hash = CryptoJS.HmacSHA256(hashString, secret);
+    localStorage.setItem("id", hashedId);
+    console.log("🚀 ~ hashString:", hashString);
     const hashedSignature = CryptoJS.enc.Base64.stringify(hash);
     return hashedSignature;
   };
 
-  // useeffect
   useEffect(() => {
     const { total_amount, transaction_uuid, product_code, secret } = formData;
     const hashedSignature = generateSignature(
@@ -44,7 +47,6 @@ const Esewa: React.FC<PaymentProps> = ({ id, amounts }) => {
       product_code,
       secret
     );
-
     setformData({ ...formData, signature: hashedSignature });
   }, [formData.amount]);
 

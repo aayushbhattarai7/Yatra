@@ -34,12 +34,12 @@ const router = createBrowserRouter([
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
       { path: "adminLogin", element: <AdminLogin /> },
-      { path: "paymentsuccess", element: <Success /> },
-      { path: "paymentfailure", element: <Failure /> },
       {
         path: "/",
         element: <ProtectedRoute />,
         children: [
+          { path: "paymentsuccess", element: <Success /> },
+          { path: "paymentfailure", element: <Failure /> },
           { path: "home", element: <UserHome /> },
           { path: "travel", element: <Travels /> },
           { path: "guide", element: <Guides /> },

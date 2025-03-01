@@ -5,11 +5,7 @@ import { getCookie } from "@/function/GetCookie";
 
 const authLink = setContext((_, { headers }) => {
   const encryptedToken = getCookie("accessToken");
-  console.log("🚀 ~ authLink ~ encryptedToken:", encryptedToken);
 
-  const token = encryptedToken ? encryptDecrypt.decrypt(encryptedToken) : null;
-
-  console.log("🚀 ~ authLink ~ token:", token);
 
   return {
     headers: {

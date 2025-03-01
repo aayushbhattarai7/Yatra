@@ -5,7 +5,7 @@ import HttpException from "../utils/HttpException.utils";
 import { jwtDecode } from "jwt-decode";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
-import { Gender, RequestStatus, Role, Status } from "../constant/enum";
+import { Gender, PaymentType, RequestStatus, Role, Status } from "../constant/enum";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
@@ -17,6 +17,7 @@ import { LoginDTO } from "../dto/login.dto";
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import {
+  booked,
   bookRequestMessage,
   cancelRequest,
   createdMessage,
@@ -25,6 +26,7 @@ import {
 } from "../constant/message";
 import axios from "axios";
 import { In, MoreThan, Not } from "typeorm";
+import esewaService from "./esewa.service";
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -923,8 +925,9 @@ class UserService {
   async advancePaymentForTravelWithEsewa(
     userId: string,
     requestId: string,
-    amount: number,
+    token: string,
   ) {
+    console.log("🚀 ~ UserService ~ userId:", userId)
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
@@ -935,12 +938,18 @@ class UserService {
       if (!request) {
         throw HttpException.notFound("Travel not found");
       }
-
-      await this.travelRequestRepo.update(
-        { id: request.id },
-        { status: RequestStatus.ACCEPTED },
-      );
-      return;
+      const payment = await esewaService.verifyPayment(token)
+      console.log(payment?.verifiedData)
+      if (payment) {
+        
+        await this.travelRequestRepo.update(
+          { id: request.id },
+          { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
+        );
+        return booked("Travel");
+      } else {
+        throw HttpException.badRequest("Payment unsuccessful")
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

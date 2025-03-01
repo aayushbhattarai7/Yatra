@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import Base from "../base.entity";
 import { User } from "./user.entity";
 import { Travel } from "../../entities/travels/travel.entity";
-import { RequestStatus, Role } from "../../constant/enum";
+import { PaymentType, RequestStatus, Role } from "../../constant/enum";
 
 @ObjectType()
 @Entity("request_travel")
@@ -42,7 +42,9 @@ export class RequestTravel extends Base {
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })
   price: string;
-
+  @Field({nullable:true})
+  @Column({ type: "enum", enum: PaymentType, nullable:true })
+  paymentType: PaymentType;
   @Field()
   @Column({
     name: "last_action_by",
