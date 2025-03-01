@@ -264,8 +264,7 @@ const TravelBooking = () => {
               <Esewa
                 id={book.id}
                 amounts={parseInt(book.price)}
-                // refresh={() => refetch}
-                // onClose={() => setPay(false)}
+              type="travel"
               />
             )}
           </div>

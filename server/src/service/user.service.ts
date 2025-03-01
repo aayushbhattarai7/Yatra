@@ -936,7 +936,7 @@ class UserService {
 
       const request = await this.travelRequestRepo.findOneBy({ id: requestId });
       if (!request) {
-        throw HttpException.notFound("Travel not found");
+        throw HttpException.notFound("Request not found");
       }
       const payment = await esewaService.verifyPayment(token)
       console.log(payment?.verifiedData)
@@ -947,6 +947,42 @@ class UserService {
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
         return booked("Travel");
+      } else {
+        throw HttpException.badRequest("Payment unsuccessful")
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occurred");
+      }
+    }
+  }
+  async advancePaymentForGuideWithEsewa(
+    userId: string,
+    requestId: string,
+    token: string,
+  ) {
+    console.log("🚀 ~ UserService ~ userId:", requestId)
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+
+      const request = await this.guideRequestRepo.findOneBy({ id: requestId });
+      if (!request) {
+        throw HttpException.notFound("Request not found");
+      }
+      const payment = await esewaService.verifyPayment(token)
+      console.log(payment?.verifiedData)
+      if (payment) {
+        
+        await this.guideRequestRepo.update(
+          { id: request.id },
+          { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
+        );
+        return booked("Guide");
       } else {
         throw HttpException.badRequest("Payment unsuccessful")
       }

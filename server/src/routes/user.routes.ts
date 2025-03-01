@@ -14,5 +14,6 @@ router.use(authorization([Role.USER]));
 router.post("/get-place", placeController.getTrekkingPlaceByMessage);
 router.get("/get-allPlaces", placeController.getPlaces);
 router.post("/travel-esewa", userController.paymentForTravelWithEsewa);
+router.post("/guide-esewa", userController.paymentForGuideWithEsewa);
 
 export default router;

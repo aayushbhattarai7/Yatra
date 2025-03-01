@@ -38,7 +38,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <ProtectedRoute />,
         children: [
-          { path: "paymentsuccess", element: <Success /> },
+          { path: "paymentsuccess/:type/:id", element: <Success /> },
           { path: "paymentfailure", element: <Failure /> },
           { path: "home", element: <UserHome /> },
           { path: "travel", element: <Travels /> },
@@ -59,8 +59,8 @@ function App() {
   return (
     <>
       <StripeProvider>
-      <ToastNotification />
-      <RouterProvider router={router} />
+        <ToastNotification />
+        <RouterProvider router={router} />
       </StripeProvider>
     </>
   );
