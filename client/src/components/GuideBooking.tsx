@@ -14,7 +14,8 @@ import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import CheckoutGuide from "./CheckoutOfGuide";
-import { Star, Clock, MapPin, Users, User } from "lucide-react";
+import { Star, Clock, MapPin, Users, User, Mail, Phone } from "lucide-react";
+import Esewa from "./Esewa";
 
 interface GuideBooking {
   id: string;
@@ -27,6 +28,7 @@ interface GuideBooking {
   price: string;
   lastActionBy: string;
   createdAt: string;
+  userBargain:number
 }
 
 interface Guide {
@@ -35,6 +37,7 @@ interface Guide {
   middleName: string;
   lastName: string;
   gender: string;
+  email:string
 }
 
 interface Price {
@@ -138,30 +141,30 @@ const GuideBooking = () => {
                     {book.guide.lastName}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Gender: {book.guide.gender}
+                    Total People: {book.totalPeople}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <Mail className="w-4 h-4 text-gray-500" />
                   <span className="text-sm">
-                    {book.from} to {book.to}
+                    {book.status === "ACCEPTED"
+                      ? book.guide.email
+                      : " Display after booking is completed"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-gray-500" />
+                  <Phone className="w-4 h-4 text-gray-500" />
                   <span className="text-sm">
-                    Total People: {book.totalPeople}
+                    Display after booking is completed
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-gray-500" />
                   <span className="text-sm">
-                    {book.createdAt
-                      ? formatTimeDifference(book.createdAt)
-                      : "Recently"}
+                    {formatTimeDifference(book.createdAt)}
                   </span>
                 </div>
               </div>
@@ -206,18 +209,23 @@ const GuideBooking = () => {
                       <div className="space-y-2">
                         {book.lastActionBy === "GUIDE" ? (
                           <>
-                            <Button
-                              onClick={acceptRequest}
-                              buttonText={authLabel.accept[lang]}
-                              type="submit"
-                              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
-                            />
-                            <Button
-                              onClick={() => setSelectedId(book.id)}
-                              buttonText={authLabel.bargain[lang]}
-                              type="submit"
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
-                            />
+                            {book.status !== "ACCEPTED" && (
+                              <>
+                                <Button
+                                  onClick={acceptRequest}
+                                  buttonText={authLabel.accept[lang]}
+                                  type="submit"
+                                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                                />
+                                <Button
+                                  onClick={() => setSelectedId(book.id)}
+                                  buttonText={authLabel.bargain[lang]}
+                                  disabled={book.userBargain > 2}
+                                  type="submit"
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md disabled:bg-gray-400"
+                                />
+                              </>
+                            )}
                           </>
                         ) : (
                           <Button
@@ -231,7 +239,7 @@ const GuideBooking = () => {
                           buttonText="Cancel"
                           type="submit"
                           onClick={() => setCancellationId(book.id)}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
+                          className="w-full border bg-red-600 text-red-600 hover:bg-red-700 py-2 rounded-md"
                         />
                       </div>
                     )}
@@ -240,17 +248,16 @@ const GuideBooking = () => {
                 <Button
                   buttonText="View Details"
                   type="button"
-                  className="w-full border bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                  className="w-full border bg-blue-600 hover:bg-blue-700 py-2 rounded-md"
                 />
               </div>
             </div>
 
             {pay && (
-              <CheckoutGuide
-                guideId={book.id}
-                amount={parseInt(book.price)}
-                refresh={() => refetch}
-                onClose={() => setPay(false)}
+              <Esewa
+                id={book.id}
+                amounts={parseInt(book.price)}
+                type="guide"
               />
             )}
           </div>

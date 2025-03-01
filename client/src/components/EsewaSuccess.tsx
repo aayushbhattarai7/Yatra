@@ -5,50 +5,43 @@ import { showToast } from "./ToastNotification";
 
 const Success: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-const [id, setId] = useState<string>("")
-    useEffect(() => {
+  const { type } = useParams();
+  const { id } = useParams();
 
-        const id = localStorage.getItem("id")!;
-        setId(id)
-    },[])
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
-    console.log("🚀 ~ useEffect ~ id:", id);
-    console.log(id, "ha");
-    const [hash, requestId] = id!.split("_");
+    const [hash, requestId] = id?.split("_") || [];
+    console.log(requestId, "hahah");
     const token = searchParams.get("data");
-    if (token) {
+
+    if (token && requestId) {
       sendPaymentDataToBackend(token, requestId);
     }
-  }, [id]);
+  }, []);
 
   const sendPaymentDataToBackend = async (token: string, requestId: string) => {
-      try {
-        console.log( requestId,"akjdjajdjahdjhadajdhjadh")
-      const response = await axiosInstance.post("/user/travel-esewa", {
-        token,
-        requestId,
-      });
-          console.log("Backend Response:", response.data.data);
-          showToast(response.data.data, "success")
-          setInterval(() => {
-              navigate("/booking")
-          }, 2000)
-      } catch (error) {
-          if (error instanceof Error) {
-              
-              showToast(error.message,"success")
-          }
+    try {
+      const endpoint =
+        type === "guide" ? "/user/guide-esewa" : "/user/travel-esewa";
+      console.log(`Sending data to ${endpoint}`);
+      console.log(requestId, "oknice");
+      const response = await axiosInstance.post(endpoint, { token, requestId });
+      console.log("Backend Response:", response.data.data);
+      showToast(response.data.data, "success");
+
+      setTimeout(() => {
+        navigate("/booking");
+      }, 2000);
+    } catch (error) {
+      if (error instanceof Error) {
+        showToast(error.message, "error");
+      }
       console.error("Error sending payment data to backend:", error);
     }
   };
-  
 
-  return (
-    <div>
-    
-    </div>
-  );
+  return <div></div>;
 };
 
 export default Success;

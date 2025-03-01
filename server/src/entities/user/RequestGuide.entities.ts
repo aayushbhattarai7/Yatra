@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import Base from "../base.entity";
 import { User } from "./user.entity";
 import { Guide } from "../../entities/guide/guide.entity";
-import { RequestStatus, Role } from "../../constant/enum";
+import { PaymentType, RequestStatus, Role } from "../../constant/enum";
 
 @ObjectType()
 @Entity("request_guide")
@@ -27,7 +27,8 @@ export class RequestGuide extends Base {
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
   status: RequestStatus;
-
+  @Column({ type: "enum", enum: PaymentType, nullable:true })
+  paymentType: PaymentType;
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })
   price: string;
