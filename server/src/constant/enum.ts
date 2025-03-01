@@ -57,3 +57,9 @@ export enum RoomType {
   STANDARD = "STANDARD",
   FAMILY = "FAMILY",
 }
+
+export enum PaymentType {
+  ESEWA = "ESEWA", 
+  KHALTI = "KHALTI",
+  CARD = "CARD"
+}

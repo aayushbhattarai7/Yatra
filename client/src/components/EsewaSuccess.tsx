@@ -1,39 +1,52 @@
-import React, { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import axiosInstance from "@/service/axiosInstance";
+import { showToast } from "./ToastNotification";
 
 const Success: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+const [id, setId] = useState<string>("")
+    useEffect(() => {
 
+        const id = localStorage.getItem("id")!;
+        setId(id)
+    },[])
   useEffect(() => {
-    const token = searchParams.get("data"); // Get the data token from URL
-    console.log("🚀 ~ useEffect ~ token:", token)
-
+    console.log("🚀 ~ useEffect ~ id:", id);
+    console.log(id, "ha");
+    const [hash, requestId] = id!.split("_");
+    const token = searchParams.get("data");
     if (token) {
-      sendPaymentDataToBackend(token);
+      sendPaymentDataToBackend(token, requestId);
     }
-  }, []);
+  }, [id]);
 
-  const sendPaymentDataToBackend = async (token: string) => {
+  const sendPaymentDataToBackend = async (token: string, requestId: string) => {
       try {
-        console.log(token,"hahahrokk")
-      const response = await axiosInstance.post("/esewa/complete-payment", {
+        console.log( requestId,"akjdjajdjahdjhadajdhjadh")
+      const response = await axiosInstance.post("/user/travel-esewa", {
         token,
+        requestId,
       });
-      console.log("Backend Response:", response.data); // Log response from backend
-    } catch (error) {
+          console.log("Backend Response:", response.data.data);
+          showToast(response.data.data, "success")
+          setInterval(() => {
+              navigate("/booking")
+          }, 2000)
+      } catch (error) {
+          if (error instanceof Error) {
+              
+              showToast(error.message,"success")
+          }
       console.error("Error sending payment data to backend:", error);
     }
   };
+  
 
   return (
     <div>
-      <h1>Payment Successful!</h1>
-      <p>Thank you for your payment. Your transaction was successful.</p>
-      <button onClick={() => navigate("/")} className="go-home-button">
-        Go to Homepage
-      </button>
+    
     </div>
   );
 };
