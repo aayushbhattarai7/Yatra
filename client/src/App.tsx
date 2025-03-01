@@ -21,6 +21,7 @@ import EsewaPaymentForm from "./components/EsewaPaymentForm";
 import Success from "./components/EsewaSuccess";
 import Failure from "./components/EsewaFailure";
 import PaymentForm from "./components/EsewaPaymentForm";
+import { SocketProvider } from "./contexts/SocketContext";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -58,10 +59,12 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
+      <SocketProvider>
       <StripeProvider>
         <ToastNotification />
         <RouterProvider router={router} />
       </StripeProvider>
+      </SocketProvider>
     </>
   );
 }

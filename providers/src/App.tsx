@@ -1,7 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import GuideRegister from "./ui/organisms/GuideRegister";
 import { Route } from "./components/route";
-import { MessageProvider } from "./contexts/MessageContext";
 import TravelRegister from "./ui/organisms/TravelRegister";
 import Landing from "./ui/pages/LandingPage";
 import { getCookie } from "./function/GetCookie";
@@ -15,11 +14,11 @@ import GuideHistory from "./ui/organisms/GuideHistory";
 import GuideProfile from "./components/GuideProfile";
 import TravelLogin from "./ui/organisms/TravelLogin";
 import TravelHome from "./ui/organisms/TravelHome";
-import TravelProfilePopup from "./components/TravelProfilePopup";
 import TravelProfile from "./components/TravelProfile";
 import TravelRequests from "./ui/organisms/TravelRequests";
 import TravelHistory from "./ui/organisms/TravelHistory";
 import { LocationProvider } from "./contexts/LocationContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -60,10 +59,12 @@ function App() {
   ]);
 
   return (
+    <SocketProvider>
     <LocationProvider>
       <ToastNotification />
       <RouterProvider router={router} />
     </LocationProvider>
+    </SocketProvider>
   );
 }
 

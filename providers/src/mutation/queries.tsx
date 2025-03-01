@@ -246,3 +246,13 @@ export const ADD_TRAVEL_LOCATION = gql`
     addLocationOfTravel(longitude: $longitude, latitude: $latitude)
   }
 `;
+
+export const GET_TRAVEL_NOTIFICATIONS = gql`
+  query GetAllNotificationsOfTravel {
+    getAllNotificationsOfTravel {
+      id
+      message
+      isRead
+    }
+  }
+`;

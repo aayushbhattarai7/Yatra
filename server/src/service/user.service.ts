@@ -27,6 +27,8 @@ import {
 import axios from "axios";
 import { In, MoreThan, Not } from "typeorm";
 import esewaService from "./esewa.service";
+import { io } from "../socket/socket";
+import { Notification } from "../entities/notification/notification.entity";
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -68,6 +70,7 @@ class UserService {
     private readonly travelRequestRepo = AppDataSource.getRepository(
       RequestTravel,
     ),
+    private readonly notificationRepo = AppDataSource.getRepository(Notification)
   ) {}
 
   async signup(data: Signup) {
@@ -436,11 +439,11 @@ class UserService {
         },
       });
 
-      if (findRequest.length > 0) {
-        throw HttpException.badRequest(
-          "Request already sent to this travel, Please wait a while for the travel response",
-        );
-      }
+      // if (findRequest.length > 0) {
+      //   throw HttpException.badRequest(
+      //     "Request already sent to this travel, Please wait a while for the travel response",
+      //   );
+      // }
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -455,6 +458,16 @@ class UserService {
         travel: travel,
       });
       await this.travelRequestRepo.save(request);
+    const notification = this.notificationRepo.create({
+          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
+          senderUser: user,
+          receiverTravel:request.travel
+        })
+      await this.notificationRepo.save(notification)
+      if (notification) {
+        const notifications = await this.notificationRepo.findBy({receiverTravel:{id:request.travel.id}})
+        io.to(notification.receiverTravel.id).emit("accepted", notifications)
+      }
       await emailService.sendMail({
         to: travel.email,
         text: "Request Incomming",
@@ -946,6 +959,13 @@ class UserService {
           { id: request.id },
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
+        const notification = this.notificationRepo.create({
+          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
+          senderUser: user,
+          receiverTravel:request.travel
+        })
+         await this.notificationRepo.save(notification)
+        io.to(notification.receiverTravel.id).emit("accepted", notification)
         return booked("Travel");
       } else {
         throw HttpException.badRequest("Payment unsuccessful")

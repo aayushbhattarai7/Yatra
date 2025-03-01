@@ -6,6 +6,7 @@ import { Location } from "../location/location.entity";
 import { RequestTravel } from "./RequestTravels.entity";
 import { RequestGuide } from "./RequestGuide.entities";
 import { BookHotel } from "../../entities/hotels/bookHotel.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @ObjectType()
 @Entity("user")
@@ -67,4 +68,16 @@ export class User extends Base {
     onDelete: "CASCADE",
   })
   requestGuide: RequestGuide[];
+
+  @Field(() => [Notification])
+  @OneToMany(() => Notification, (notification) => notification.senderUser, {
+    onDelete: "CASCADE",
+  })
+  notification: Notification[];
+  
+  @Field(() => [Notification])
+  @OneToMany(() => Notification, (notification) => notification.receiverUser, {
+    onDelete: "CASCADE",
+  })
+  notifications: Notification[];
 }

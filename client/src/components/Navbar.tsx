@@ -84,7 +84,7 @@ const Navbar = () => {
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={2}
+                  count={0}
                 />
               </div>
               <PopupButton

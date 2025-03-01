@@ -7,6 +7,13 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import TravelProfilePopup from "./TravelProfilePopup";
+import { useQuery } from "@apollo/client";
+import { GET_TRAVEL_NOTIFICATIONS } from "../mutation/queries";
+import { useSocket } from "../contexts/SocketContext";
+interface Notifications {
+  id: string;
+  isRead: boolean;
+}
 
 const TravelNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +21,22 @@ const TravelNavBar = () => {
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [notifications, setNotifications] = useState<Notifications[]>([]);
+  const { socket } = useSocket();
+
+  const { data } = useQuery(GET_TRAVEL_NOTIFICATIONS);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  useEffect(() => {
+    if (data?.getAllNotificationsOfTravel) {
+      setNotifications(data.getAllNotificationsOfTravel);
+    }
+  }, [data]);
+  useEffect(() => {
+    socket.on("accepted", (notification) => {
+      setNotifications(notification);
+    });
+  }, [socket]);
 
   useEffect(() => {
     const token = getCookie("accessToken");
@@ -82,7 +105,7 @@ const TravelNavBar = () => {
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={2}
+                  count={unreadCount}
                 />
               </div>
               <PopupButton

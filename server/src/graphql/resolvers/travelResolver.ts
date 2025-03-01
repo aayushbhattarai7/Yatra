@@ -15,6 +15,7 @@ import { Travel } from "../../entities/travels/travel.entity";
 import { TravelDTO } from "../../dto/travel.dto";
 import travelService from "../../service/travel.service";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 export class TravelResolver {
   @Mutation(() => String)
@@ -142,6 +143,20 @@ export class TravelResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await travelService.getRequests(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Notification])
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getAllNotificationsOfTravel(@Ctx() ctx: Context) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await travelService.getAllNotifications(travelId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
