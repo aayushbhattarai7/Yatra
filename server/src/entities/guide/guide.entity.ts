@@ -13,6 +13,7 @@ import { Location } from "../location/location.entity";
 import GuideKYC from "./guideKyc.entity";
 import { GuideDetails } from "./guideDetails.entity";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @ObjectType()
 @Entity("guide")
@@ -98,4 +99,15 @@ export class Guide extends Base {
     onDelete: "CASCADE",
   })
   requestedGuide: RequestGuide;
+
+  @Field(() => [Notification])
+ @OneToMany(() => Notification, (notification) => notification.senderGuide, {
+   onDelete: "CASCADE",
+ })
+ notification: Notification[];
+   @Field(() => [Notification])
+  @OneToMany(() => Notification, (notifications) => notifications.receiverGuide, {
+    onDelete: "CASCADE",
+  })
+  notifications: Notification[];
 }

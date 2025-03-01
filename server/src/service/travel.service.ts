@@ -17,6 +17,7 @@ import { Location } from "../entities/location/location.entity";
 import { Message, registeredMessage, rejectRequest } from "../constant/message";
 import { LoginDTO } from "../dto/login.dto";
 import { In, Not } from "typeorm";
+import { Notification } from "../entities/notification/notification.entity";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -32,6 +33,8 @@ class TravelService {
     ),
     private readonly travelKycRepo = AppDataSource.getRepository(TravelKyc),
     private readonly userRepo = AppDataSource.getRepository(User),
+        private readonly notificationRepo = AppDataSource.getRepository(Notification)
+
   ) {}
 
   async create(image: any[], data: TravelDTO): Promise<string> {
@@ -362,6 +365,26 @@ class TravelService {
         },
       );
       return Message.priceSent;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getAllNotifications(travelId:string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travelId })
+        if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      const notifications = await this.notificationRepo.findBy({ receiverTravel: {id:travelId} })
+      if (!notifications) {
+        throw HttpException.notFound("No notifications yet")
+      }
+      return notifications
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

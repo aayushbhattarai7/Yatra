@@ -15,7 +15,6 @@ import { motion } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
 import { Star, Clock, Phone, Mail, User } from "lucide-react";
-import PaymentForm from "./EsewaPaymentForm";
 import Esewa from "./Esewa";
 
 interface TravelBooking {

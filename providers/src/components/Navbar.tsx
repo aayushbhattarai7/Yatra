@@ -1,12 +1,19 @@
-///import { Bell, MessageSquare, Menu, X } from "lucide-react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
-import NotificationsPopup from "./NotificationPopup";
-import ChatPopup from "./ChatPopup";
-import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
+import { useQuery } from "@apollo/client";
+import { GET_TRAVEL_NOTIFICATIONS } from "../mutation/queries";
+import { useSocket } from "../contexts/SocketContext";
+import NotificationsPopup from "./NotificationPopup";
+import ChatPopup from "./ChatPopup";
+import ProfilePopup from "./ProfilePopup";
+
+interface Notifications {
+  id: string;
+  isRead: boolean;
+}
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +21,24 @@ const Navbar = () => {
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [notifications, setNotifications] = useState<Notifications[]>([]);
+
+  const { socket } = useSocket();
+  const { data } = useQuery(GET_TRAVEL_NOTIFICATIONS);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  useEffect(() => {
+    if (data?.getAllNotificationsOfTravel) {
+      setNotifications(data.getAllNotificationsOfTravel);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    socket.on("accepted", (notification) => {
+      setNotifications(notification);
+    });
+  }, [socket]);
 
   useEffect(() => {
     const token = getCookie("accessToken");
@@ -68,8 +93,34 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-            <NavLink to="/guide-login" label="Login" />
-            <NavLink to="/guide-register" label="Sign Up" />
+            {isLoggedIn ? (
+              <>
+                <PopupButton
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  show={showNotifications}
+                  popup={<NotificationsPopup />}
+                  icon={Bell}
+                  count={unreadCount}
+                />
+                <PopupButton
+                  onClick={() => setShowChat(!showChat)}
+                  show={showChat}
+                  popup={<ChatPopup />}
+                  icon={MessageSquare}
+                />
+                <PopupButton
+                  onClick={() => setShowProfile(!showProfile)}
+                  show={showProfile}
+                  popup={<ProfilePopup />}
+                  profileImage={true}
+                />
+              </>
+            ) : (
+              <>
+                <NavLink to="/guide-login" label="Login" />
+                <NavLink to="/guide-register" label="Sign Up" />
+              </>
+            )}
           </div>
         </div>
 
@@ -140,13 +191,26 @@ const PopupButton = ({
       }}
       className="flex items-center space-x-2"
     >
+      <p>{ count}</p>
       {profileImage ? (
         <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
       ) : (
-        Icon && <NotificationIcon icon={Icon} count={count || 0} />
+          
+      Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
     </button>
     {show && popup}
+  </div>
+);
+
+const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
+  <div className="relative">
+    <Icon className="h-[22px] w-[22px] text-gray-600" />
+    {count > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+        {count}
+      </span>
+    )}
   </div>
 );
 
@@ -175,15 +239,6 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
   >
     {label}
   </RouterNavLink>
-);
-
-const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
-  <div className="relative">
-    <Icon className="h-[22px] w-[22px] text-gray-600" />
-    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-      {count}
-    </span>
-  </div>
 );
 
 interface NavLinkProps {

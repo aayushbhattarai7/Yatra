@@ -13,6 +13,7 @@ import { Location } from "../location/location.entity";
 import TravelKyc from "./travelKyc.entity";
 import { TravelDetails } from "./travelDetails.entity";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @ObjectType()
 @Entity("travel")
@@ -99,4 +100,15 @@ export class Travel extends Base {
     onDelete: "CASCADE",
   })
   requestedTravel: RequestTravel;
+
+   @Field(() => [Notification])
+  @OneToMany(() => Notification, (notifications) => notifications.receiverTravel, {
+    onDelete: "CASCADE",
+  })
+  notifications: Notification[];
+   @Field(() => [Notification])
+  @OneToMany(() => Notification, (notification) => notification.senderTravel, {
+    onDelete: "CASCADE",
+  })
+  notification: Notification[];
 }
