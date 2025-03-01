@@ -144,16 +144,20 @@ class TravelService {
                 );
               }
               if (travel) {
-                
-               const location =  transactionalEntityManager.create(this.locationRepo.target, {
-                  
-                  latitude: parseFloat(data.latitude),
-                  longitude: parseFloat(data.longitude),
-                  travel: travel
-                })
-               
-                await transactionalEntityManager.save(this.locationRepo.target, location)
-}
+                const location = transactionalEntityManager.create(
+                  this.locationRepo.target,
+                  {
+                    latitude: parseFloat(data.latitude),
+                    longitude: parseFloat(data.longitude),
+                    travel: travel,
+                  },
+                );
+
+                await transactionalEntityManager.save(
+                  this.locationRepo.target,
+                  location,
+                );
+              }
               await otpService.sendOtp(travel.email, otp, expires);
             } else {
               throw HttpException.badRequest(
@@ -164,7 +168,7 @@ class TravelService {
 
           return registeredMessage("Travel");
         } catch (error: unknown) {
-          console.log(error)
+          console.log(error);
           if (error instanceof Error) {
             throw HttpException.badRequest(error?.message);
           } else {
@@ -290,7 +294,7 @@ class TravelService {
       const requests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travel_id },
-            status: Not(
+          status: Not(
             In([
               RequestStatus.COMPLETED,
               RequestStatus.REJECTED,
@@ -346,14 +350,15 @@ class TravelService {
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
-      if(requests.travelBargain> 2) throw HttpException.badRequest("Bargain limit exceed")
+      if (requests.travelBargain > 2)
+        throw HttpException.badRequest("Bargain limit exceed");
 
       const data = await this.travelRequestRepo.update(
         { id: requests.id },
         {
           price: price,
           lastActionBy: Role.TRAVEL,
-          travelBargain:requests.travelBargain+1,
+          travelBargain: requests.travelBargain + 1,
         },
       );
       return Message.priceSent;
@@ -468,27 +473,25 @@ class TravelService {
     }
   }
 
-    async getHistory(travel_id: string) {
+  async getHistory(travel_id: string) {
     try {
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
       if (!travel) {
         throw HttpException.unauthorized("you are not authorized");
       }
-      console.log(travel)
+      console.log(travel);
       const requests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travel_id },
-            status:
-            In([
-              RequestStatus.COMPLETED,
-              RequestStatus.REJECTED,
-              RequestStatus.CANCELLED,
-            ]),
-          
+          status: In([
+            RequestStatus.COMPLETED,
+            RequestStatus.REJECTED,
+            RequestStatus.CANCELLED,
+          ]),
         },
-        relations: ["user","travel"],
+        relations: ["user", "travel"],
       });
-      console.log("🚀 ~ TravelService ~ getHistory ~ requests:", requests)
+      console.log("🚀 ~ TravelService ~ getHistory ~ requests:", requests);
 
       return requests;
     } catch (error: unknown) {

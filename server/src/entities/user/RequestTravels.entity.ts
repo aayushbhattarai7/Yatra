@@ -20,11 +20,11 @@ export class RequestTravel extends Base {
   @Column({ name: "total_days" })
   totalDays: number;
 
-  @Field({nullable:true})
-  @Column({ name: "user_bargain", nullable:true })
+  @Field({ nullable: true })
+  @Column({ name: "user_bargain", nullable: true })
   userBargain: number;
   @Field()
-  @Column({ name: "travel_bargain", nullable:true })
+  @Column({ name: "travel_bargain", nullable: true })
   travelBargain: number;
 
   @Field()
@@ -34,7 +34,6 @@ export class RequestTravel extends Base {
   @Field()
   @Column({ name: "vehicle_type" })
   vehicleType: string;
-
 
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
