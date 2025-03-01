@@ -233,7 +233,7 @@ export class TravelResolver {
     @Ctx() ctx: Context,
   ) {
     try {
-      const data = { latitude, longitude }
+      const data = { latitude, longitude };
 
       const travelId = ctx.req.user?.id!;
       return await travelService.addLocation(travelId, data);
@@ -246,15 +246,15 @@ export class TravelResolver {
     }
   }
 
-    @Query(() => [RequestTravel], {nullable:true})
+  @Query(() => [RequestTravel], { nullable: true })
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getRequestHistoryOfTravel(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log(userId)
+      console.log(userId);
       const x = await travelService.getHistory(userId);
-      console.log(x,"xxxxx")
-      return x
+      console.log(x, "xxxxx");
+      return x;
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

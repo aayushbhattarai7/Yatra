@@ -69,7 +69,7 @@ export class Travel extends Base {
   @Column({ name: "vehicle_type" })
   vehicleType: string;
   @Field()
-  @Column({ name: "connects", nullable:true })
+  @Column({ name: "connects", nullable: true })
   connects: number;
 
   @Field()

@@ -9,13 +9,13 @@ declare module "esewajs" {
     secret: string,
     successUrl: string,
     failureUrl: string,
-    baseUrl: string
+    baseUrl: string,
   ): Promise<{ request: { res: { responseUrl: string } } }>;
 
   export function EsewaCheckStatus(
     amount: number,
     productId: string,
     merchantId: string,
-    statusUrl: string
+    statusUrl: string,
   ): Promise<{ status: number }>;
 }

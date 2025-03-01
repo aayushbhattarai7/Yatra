@@ -196,7 +196,7 @@ export class GuideResolver {
     }
   }
 
-   @Mutation(() => String)
+  @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async addLocationOfGuide(
     @Arg("latitude") latitude: number,
@@ -204,7 +204,7 @@ export class GuideResolver {
     @Ctx() ctx: Context,
   ) {
     try {
-      const data = {latitude, longitude}
+      const data = { latitude, longitude };
       const travelId = ctx.req.user?.id!;
       return await this.guideService.addLocation(travelId, data);
     } catch (error) {

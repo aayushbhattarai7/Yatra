@@ -11,7 +11,7 @@ export class TravelController {
   async create(req: Request, res: Response) {
     try {
       const { kycType } = req.body;
-      
+
       const uploadedPhotos: any = {
         passPhoto: req.files?.passPhoto?.[0]
           ? {

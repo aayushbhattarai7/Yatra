@@ -13,7 +13,7 @@ const PaymentForm: React.FC<PaymentProps> = ({ id, amounts }) => {
     e.preventDefault();
 
     try {
-      const formData = { amount, productId: id };
+      const formData = { amount, productId: generateUniqueId() };
       const response = await axiosInstance.post(
         "/esewa/initialize-esewa",
         formData

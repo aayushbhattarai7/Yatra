@@ -163,8 +163,7 @@ class UserService {
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) {
-    }
+    } catch (error: any) {}
   }
 
   async debugFBToken(userAccessToken: string) {
@@ -215,8 +214,7 @@ class UserService {
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) {
-    }
+    } catch (error: any) {}
   }
 
   async addLocation(user_id: string, data: LocationDTO) {
@@ -293,10 +291,8 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
-        where: { verified: true, approved: true,connects: MoreThan(0),
- },
+        where: { verified: true, approved: true, connects: MoreThan(0) },
         relations: ["details", "location", "kyc"],
-
       });
       if (!guides) {
         throw HttpException.notFound("Guide not found");
@@ -316,13 +312,12 @@ class UserService {
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const travel = await this.travelrepo.find({
         where: {
-          verified: true, approved: true,
-              connects: MoreThan(0),
-
-         },
+          verified: true,
+          approved: true,
+          connects: MoreThan(0),
+        },
         relations: ["details", "location", "kyc"],
       });
-      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -368,7 +363,6 @@ class UserService {
         approved: true,
         verified: true,
         connects: MoreThan(0),
-
       });
 
       if (!guide) {
@@ -425,15 +419,20 @@ class UserService {
       const travel = await this.travelrepo.findOneBy({
         id: travel_id,
         connects: MoreThan(0),
-
       });
-const findRequest = await this.travelRequestRepo.find({
-    where: {
-        user: { id: user_id },
-        travel: { id: travel_id },
-        status: Not(In([RequestStatus.CANCELLED, RequestStatus.COMPLETED, RequestStatus.REJECTED])),
-    },
-});
+      const findRequest = await this.travelRequestRepo.find({
+        where: {
+          user: { id: user_id },
+          travel: { id: travel_id },
+          status: Not(
+            In([
+              RequestStatus.CANCELLED,
+              RequestStatus.COMPLETED,
+              RequestStatus.REJECTED,
+            ]),
+          ),
+        },
+      });
 
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
@@ -488,7 +487,6 @@ const findRequest = await this.travelRequestRepo.find({
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
-console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------------------")
       if (!data)
         throw HttpException.notFound(
           "You do not requested any travels for booking",
@@ -579,13 +577,14 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
         throw HttpException.notFound("no request found");
       }
 
-      if(requests.userBargain> 2) throw HttpException.badRequest("Bargain limit exceed")
-       await this.travelRequestRepo.update(
+      if (requests.userBargain > 2)
+        throw HttpException.badRequest("Bargain limit exceed");
+      await this.travelRequestRepo.update(
         { id: requests.id },
         {
           price: price,
           lastActionBy: Role.USER,
-          userBargain: requests.userBargain+1
+          userBargain: requests.userBargain + 1,
         },
       );
       return Message.priceSent;
@@ -855,18 +854,18 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
       }
       const guide = await this.guideRepo.findOne({
         where: {
-        
           id: guide_id,
-      }, relations:["details","kyc"]
-      }, );
+        },
+        relations: ["details", "kyc"],
+      });
       if (!guide) {
         throw HttpException.notFound("Guide not found");
       }
-     
+
       return guide;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.log(error)
+        console.log(error);
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.badRequest("An error occured");
@@ -880,7 +879,7 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
     amount: number,
   ) {
     try {
-      const totalAmount = amount * 100
+      const totalAmount = amount * 100;
       const user = await this.userRepo.findOneBy({
         id: userId,
       });
@@ -897,14 +896,14 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
       const stripe = new Stripe(DotenvConfig.STRIPE_SECRET);
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount:totalAmount,
+        amount: totalAmount,
         currency: "npr",
         payment_method_types: ["card"],
       });
       if (paymentIntent) {
         await this.travelRequestRepo.update(
           {
-           id:request.id,
+            id: request.id,
           },
           {
             status: RequestStatus.ACCEPTED,
@@ -921,35 +920,35 @@ console.log(data,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh--------------------
     }
   }
 
- async advancePaymentForTravelWithEsewa(
-  userId: string,
-  requestId: string,
-  amount: number
-) {
-  try {
-    const user = await this.userRepo.findOneBy({ id: userId });
-    if (!user) {
-      throw HttpException.unauthorized("User not found");
-    }
+  async advancePaymentForTravelWithEsewa(
+    userId: string,
+    requestId: string,
+    amount: number,
+  ) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
 
-    const request = await this.travelRequestRepo.findOneBy({ id: requestId });
-    if (!request) {
-      throw HttpException.notFound("Travel not found");
-    }
-   
-    await this.travelRequestRepo.update(
-      { id: request.id },
-      { status: RequestStatus.ACCEPTED }
-    );
-return
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw HttpException.badRequest(error.message);
-    } else {
-      throw HttpException.badRequest("An error occurred");
+      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      if (!request) {
+        throw HttpException.notFound("Travel not found");
+      }
+
+      await this.travelRequestRepo.update(
+        { id: request.id },
+        { status: RequestStatus.ACCEPTED },
+      );
+      return;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occurred");
+      }
     }
   }
-}
 
   async advancePaymentForGuide(
     userId: string,
@@ -957,7 +956,7 @@ return
     amount: number,
   ) {
     try {
-      const totalAmount = amount * 100
+      const totalAmount = amount * 100;
       const user = await this.userRepo.findOneBy({
         id: userId,
       });
@@ -974,14 +973,14 @@ return
       const stripe = new Stripe(DotenvConfig.STRIPE_SECRET);
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount:totalAmount,
+        amount: totalAmount,
         currency: "npr",
         payment_method_types: ["card"],
       });
       if (paymentIntent) {
         await this.guideRequestRepo.update(
           {
-           id:request.id,
+            id: request.id,
           },
           {
             status: RequestStatus.ACCEPTED,
@@ -997,7 +996,7 @@ return
       }
     }
   }
-   async generateSignature(data: string):Promise<string> {
+  async generateSignature(data: string): Promise<string> {
     const hmac = crypto.createHmac("sha256", DotenvConfig.ESEWA_SECRET_KEY);
     hmac.update(data);
     return hmac.digest("base64");
@@ -1009,7 +1008,7 @@ return
     const amount = total_amount - tax_amount;
 
     const signedData = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
-    const signature = await this.generateSignature(signedData)
+    const signature = await this.generateSignature(signedData);
 
     return {
       transaction_uuid,

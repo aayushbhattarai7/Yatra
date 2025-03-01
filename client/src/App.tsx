@@ -34,8 +34,8 @@ const router = createBrowserRouter([
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
       { path: "adminLogin", element: <AdminLogin /> },
-      { path: "success", element: <Success /> },
-      { path: "failure", element: <Failure /> },
+      { path: "paymentsuccess", element: <Success /> },
+      { path: "paymentfailure", element: <Failure /> },
       {
         path: "/",
         element: <ProtectedRoute />,
