@@ -18,6 +18,7 @@ import { Message, registeredMessage, rejectRequest } from "../constant/message";
 import { LoginDTO } from "../dto/login.dto";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
+import { io } from "../socket/socket";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -349,6 +350,7 @@ class TravelService {
           travel: { id: travel_id },
           id: requestId,
         },
+        relations:["user"]
       });
       if (!requests) {
         throw HttpException.notFound("no request found");
@@ -364,6 +366,20 @@ class TravelService {
           travelBargain: requests.travelBargain + 1,
         },
       );
+
+      if (data) {
+        const notification =  this.notificationRepo.create({
+          message: `Travel ${requests.user.firstName} sent you a price for the trip that you requested recently`,
+          receiverUser: requests.user,
+          senderTravel: requests.travel
+        })
+        await this.notificationRepo.save(notification)
+        const notifications = await this.notificationRepo.findBy({ receiverUser: { id: requests.user.id } })
+        if (!notifications) {
+          throw HttpException.notFound("Notifications not found")
+        }
+        io.to(requests.user.id).emit("notification",notifications)
+      }
       return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../contexts/SocketContext";
 import { useQuery } from "@apollo/client";
 import { GET_TRAVEL_NOTIFICATIONS } from "../mutation/queries";
+import { formatTimeDifference } from "../function/TimeDifference";
+
 interface Notification {
   message: string;
   id: string;
@@ -18,7 +20,7 @@ const NotificationsPopup = () => {
     }
   }, [data]);
   useEffect(() => {
-    socket.on("accepted", (notification) => {
+    socket.on("notification", (notification) => {
       setNotifications(notification);
     });
   }, [socket]);
@@ -37,7 +39,7 @@ const NotificationsPopup = () => {
           >
             <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
             <span className="text-xs text-gray-500 mt-2 block">
-              {notification.createdAt}
+              {formatTimeDifference(notification.createdAt)}
             </span>
           </div>
         ))}

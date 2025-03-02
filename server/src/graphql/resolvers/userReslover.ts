@@ -8,7 +8,7 @@ import {
   Args,
 } from "type-graphql";
 import { User } from "../../entities/user/user.entity";
-import UserService from "../../service/user.service";
+import userService from "../../service/user.service";
 import webTokenService from "../../service/webToken.service";
 import { LoginResponse } from "../../graphql/schema/schema";
 import { Location } from "../../entities/location/location.entity";
@@ -26,10 +26,10 @@ import TravelKyc from "../../entities/travels/travelKyc.entity";
 import { TravelDetails } from "../../entities/travels/travelDetails.entity";
 import { PaymentDetails } from "../../interface/esewa.interface";
 import { GuideDetails } from "../../entities/guide/guideDetails.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @Resolver((of) => User)
 export class UserResolver {
-  private userService = new UserService();
 
   @Mutation(() => String)
   async signup(
@@ -52,7 +52,7 @@ export class UserResolver {
         password,
       };
 
-      const createdUser = await this.userService.signup(newUser);
+      const createdUser = await userService.signup(newUser);
       return createdUser;
     } catch (error) {
       throw new Error(
@@ -67,7 +67,7 @@ export class UserResolver {
   async login(@Arg("email") email: string, @Arg("password") password: string) {
     try {
       const data = { email, password };
-      const user = await this.userService.login(data);
+      const user = await userService.login(data);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
@@ -95,7 +95,7 @@ export class UserResolver {
   @Mutation(() => LoginResponse)
   async googleLogin(@Arg("googleId") googleId: string) {
     try {
-      const user = await this.userService.googleLogin(googleId);
+      const user = await userService.googleLogin(googleId);
       const tokens = webTokenService.generateTokens(
         { id: user?.id! },
         user?.role!,
@@ -123,7 +123,7 @@ export class UserResolver {
   @Mutation(() => LoginResponse)
   async facebookLogin(@Arg("facebookId") facebookId: string) {
     try {
-      const user = await this.userService.facebookLogin(facebookId);
+      const user = await userService.facebookLogin(facebookId);
       const tokens = webTokenService.generateTokens(
         { id: user?.id! },
         user?.role!,
@@ -154,7 +154,7 @@ export class UserResolver {
   async getUser(@Ctx() ctx: Context): Promise<User | null> {
     try {
       const id = ctx.req.user?.id;
-      return this.userService.getByid(id!);
+      return userService.getByid(id!);
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error
@@ -168,7 +168,7 @@ export class UserResolver {
   async findGuide(@Ctx() ctx: Context): Promise<Guide[] | null> {
     try {
       const id = ctx.req.user?.id;
-      return this.userService.findGuide(id!);
+      return userService.findGuide(id!);
     } catch (error) {
       throw HttpException.internalServerError;
     }
@@ -179,7 +179,7 @@ export class UserResolver {
   async findTravel(@Ctx() ctx: Context): Promise<Travel[] | null> {
     try {
       const id = ctx.req.user?.id;
-      const data = await this.userService.findTravel(id!);
+      const data = await userService.findTravel(id!);
       return data;
     } catch (error) {
       throw HttpException.internalServerError;
@@ -191,7 +191,7 @@ export class UserResolver {
   async getLocation(@Ctx() ctx: Context): Promise<Location | null> {
     try {
       const id = ctx.req.user?.id!;
-      return await this.userService.getLocation(id);
+      return await userService.getLocation(id);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -214,7 +214,7 @@ export class UserResolver {
     try {
       const data = { from, to, totalDays, totalPeople };
       const userId = ctx.req.user?.id!;
-      return await this.userService.requestGuide(userId, guideId, data);
+      return await userService.requestGuide(userId, guideId, data);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.internalServerError(error.message);
@@ -238,7 +238,7 @@ export class UserResolver {
     try {
       const data = { from, to, totalDays, totalPeople, vehicleType };
       const userId = ctx.req.user?.id!;
-      return await this.userService.requestTravel(userId, travelId, data);
+      return await userService.requestTravel(userId, travelId, data);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.internalServerError(error.message);
@@ -253,7 +253,7 @@ export class UserResolver {
   async getOwnTravelRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.getOwnTravelRequests(userId);
+      return await userService.getOwnTravelRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -268,7 +268,7 @@ export class UserResolver {
     console.log("🚀 ~ UserResolver ~ getGuideProfile ~ guideId:", guideId);
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.getGuideProfile(userId, guideId);
+      return await userService.getGuideProfile(userId, guideId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -282,7 +282,7 @@ export class UserResolver {
   async getTravelHistory(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.getTravelRequestsHistory(userId);
+      return await userService.getTravelRequestsHistory(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -297,7 +297,7 @@ export class UserResolver {
   async getOwnGuideRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id as string;
-      return await this.userService.getOwnGuideRequests(userId);
+      return await userService.getOwnGuideRequests(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -312,7 +312,7 @@ export class UserResolver {
   async getTravelLocation(@Ctx() ctx: Context, travel_id: string) {
     try {
       const user_id = ctx.req.user?.id!;
-      const data = await this.userService.getTravelLocation(user_id, travel_id);
+      const data = await userService.getTravelLocation(user_id, travel_id);
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -328,7 +328,7 @@ export class UserResolver {
   async getGuideLocation(@Ctx() ctx: Context, guide_id: string) {
     try {
       const user_id = ctx.req.user?.id!;
-      const data = await this.userService.getGuideLocation(user_id, guide_id);
+      const data = await userService.getGuideLocation(user_id, guide_id);
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -348,7 +348,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.sendGuidePrice(price, userId, requestId);
+      return await userService.sendGuidePrice(price, userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -367,7 +367,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.sendTravelPrice(price, userId, requestId);
+      return await userService.sendTravelPrice(price, userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -384,7 +384,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.cancelGuideRequest(userId, requestId);
+      return await userService.cancelGuideRequest(userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -401,7 +401,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.cancelTravelRequest(userId, requestId);
+      return await userService.cancelTravelRequest(userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -419,7 +419,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.advancePaymentForTravel(
+      return await userService.advancePaymentForTravel(
         userId,
         travelId,
         amount,
@@ -441,7 +441,7 @@ export class UserResolver {
   // ) {
   //   try {
   //     const userId = ctx.req.user?.id!;
-  //     return await this.userService.advancePaymentForTravelWithEsewa(
+  //     return await userService.advancePaymentForTravelWithEsewa(
   //       userId,
   //       travelId,
   //       amount,
@@ -454,6 +454,21 @@ export class UserResolver {
   //     }
   //   }
   // }
+
+  @Query(() => [Notification])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getAllNotificationsOfUser(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.getAllNotifications(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async AdvancePaymentForGuide(
@@ -463,7 +478,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await this.userService.advancePaymentForGuide(
+      return await userService.advancePaymentForGuide(
         userId,
         guideId,
         amount,
@@ -477,24 +492,5 @@ export class UserResolver {
     }
   }
 
-  @Query(() => PaymentDetails)
-  @UseMiddleware(authentication, authorization([Role.USER]))
-  async generatePaymentDetails(
-    @Arg("total_amount") totalAmount: number,
-    @Arg("product_code") product_code: string,
-  ) {
-    try {
-      const data = await this.userService.generatePaymentDetails(
-        totalAmount,
-        product_code,
-      );
-      return data;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw HttpException.badRequest(error.message);
-      } else {
-        throw HttpException.internalServerError;
-      }
-    }
-  }
+ 
 }

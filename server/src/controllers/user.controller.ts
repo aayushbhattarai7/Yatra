@@ -1,8 +1,7 @@
-import UserService from "../service/user.service";
+import userService from "../service/user.service";
 import { StatusCodes } from "../constant/StatusCodes";
 import { type Request, type Response } from "express";
 
-const userService = new UserService();
 export class UserController {
   async paymentForTravelWithEsewa(req: Request, res: Response) {
     try {

@@ -35,7 +35,7 @@ const Navbar = () => {
   }, [data]);
 
   useEffect(() => {
-    socket.on("accepted", (notification) => {
+    socket.on("notification", (notification) => {
       setNotifications(notification);
     });
   }, [socket]);

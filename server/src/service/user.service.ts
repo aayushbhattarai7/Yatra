@@ -459,14 +459,14 @@ class UserService {
       });
       await this.travelRequestRepo.save(request);
     const notification = this.notificationRepo.create({
-          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
+          message: `${user.firstName} sent you a travel booking request `,
           senderUser: user,
           receiverTravel:request.travel
         })
       await this.notificationRepo.save(notification)
       if (notification) {
         const notifications = await this.notificationRepo.findBy({receiverTravel:{id:request.travel.id}})
-        io.to(notification.receiverTravel.id).emit("accepted", notifications)
+        io.to(notification.receiverTravel.id).emit("notification", notifications)
       }
       await emailService.sendMail({
         to: travel.email,
@@ -965,7 +965,7 @@ class UserService {
           receiverTravel:request.travel
         })
          await this.notificationRepo.save(notification)
-        io.to(notification.receiverTravel.id).emit("accepted", notification)
+        io.to(notification.receiverTravel.id).emit("notification", notification)
         return booked("Travel");
       } else {
         throw HttpException.badRequest("Payment unsuccessful")
@@ -978,6 +978,47 @@ class UserService {
       }
     }
   }
+
+    async getAllNotifications(userId:string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      const notifications = await this.notificationRepo.findBy({ receiverUser: {id:userId} })
+      if (!notifications) {
+        throw HttpException.notFound("No notifications yet")
+      }
+      return notifications
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+    async readNotification(userId:string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.notificationRepo.update({ receiverUser: { id: userId } }, { isRead: true })
+      
+      const notifications = await this.notificationRepo.findBy({ receiverUser: { id: userId } })
+      io.to(userId).emit("notification", notifications)
+      return notifications
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async advancePaymentForGuideWithEsewa(
     userId: string,
     requestId: string,
@@ -1061,31 +1102,7 @@ class UserService {
       }
     }
   }
-  async generateSignature(data: string): Promise<string> {
-    const hmac = crypto.createHmac("sha256", DotenvConfig.ESEWA_SECRET_KEY);
-    hmac.update(data);
-    return hmac.digest("base64");
-  }
-
-  async generatePaymentDetails(total_amount: number, product_code: string) {
-    const transaction_uuid = uuidv4();
-    const tax_amount = 10;
-    const amount = total_amount - tax_amount;
-
-    const signedData = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
-    const signature = await this.generateSignature(signedData);
-
-    return {
-      transaction_uuid,
-      signature,
-      amount,
-      tax_amount,
-      total_amount,
-      product_code,
-      success_url: DotenvConfig.ESEWA_SUCCESS_URL,
-      failure_url: DotenvConfig.ESEWA_FAILURE_URL,
-    };
-  }
+ 
 }
 
-export default UserService;
+export default new UserService();
