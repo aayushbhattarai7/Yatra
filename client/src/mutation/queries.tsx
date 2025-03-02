@@ -210,3 +210,14 @@ export const GET_PAYMENT_DETAILS = gql`
     }
   }
 `;
+
+export const GET_USER_NOTIFICATIONS = gql`
+  query GetAllNotificationsOfUser {
+    getAllNotificationsOfUser {
+      id
+      message
+      createdAt
+      isRead
+    }
+  }
+`;

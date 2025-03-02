@@ -1,23 +1,31 @@
-import React from "react";
+import { useSocket } from "@/contexts/SocketContext";
+import { formatTimeDifference } from "@/function/TimeDifference";
+import { GET_USER_NOTIFICATIONS } from "@/mutation/queries";
+import { useQuery } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+interface Notifications {
+  id: string;
+  isRead: boolean;
+  message: string;
+  createdAt:string
 
+}
 const NotificationsPopup = () => {
-  const notifications = [
-    {
-      id: 1,
-      title: "New Booking Confirmed",
-      message: "Your booking for Paris trip has been confirmed.",
-      time: "5m ago",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "Travel Update",
-      message: "Flight schedule changed for your upcoming trip.",
-      time: "1h ago",
-      read: true,
-    },
-  ];
+      const [notifications, setNotifications] = useState<Notifications[]>([]);
+  const { socket } = useSocket();
 
+ const { data } = useQuery(GET_USER_NOTIFICATIONS);
+ useEffect(() => {
+   if (data?.getAllNotificationsOfUser) {
+     setNotifications(data.getAllNotificationsOfUser);
+   }
+ }, [data]);
+ useEffect(() => {
+   socket.on("notification", (notification) => {
+     console.log("hehehehahahahah", notification);
+     setNotifications(notification);
+   });
+ }, [socket]);
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       <div className="p-4 border-b border-gray-200">
@@ -28,13 +36,12 @@ const NotificationsPopup = () => {
           <div
             key={notification.id}
             className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-              !notification.read ? "bg-blue-50" : ""
+              !notification.isRead ? "bg-blue-50" : ""
             }`}
           >
-            <h4 className="text-sm font-semibold">{notification.title}</h4>
             <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
             <span className="text-xs text-gray-500 mt-2 block">
-              {notification.time}
+              {formatTimeDifference(notification.createdAt)}
             </span>
           </div>
         ))}

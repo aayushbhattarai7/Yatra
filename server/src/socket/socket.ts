@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import webTokenService from "../service/webToken.service";
 import { DotenvConfig } from "../config/env.config";
-import UserService from "../service/user.service";
+import userService from "../service/user.service";
 import HttpException from "../utils/HttpException.utils";
 import Print from "../utils/print";
 
@@ -18,7 +18,6 @@ function initializeSocket(server: any) {
 
   io.use((socket, next) => {
     const socketToken = socket.handshake.auth.token;
-    console.log("🚀 ~ io.use ~ socketToken:", socketToken)
     if (!socketToken) {
       return next(new Error("You are not authorized"));
     }
@@ -58,15 +57,9 @@ function initializeSocket(server: any) {
         }
       });
 
-      socket.on("complete", async ({ task_id, admin_id }) => {
-        const user_id = socket.data.user.id;
-
-        if (admin_id) {
-          socket.join(admin_id);
-          console.log(`User with ID ${admin_id} has been joined`);
-        } else {
-          console.log("No user ID provided for task assignment");
-        }
+      socket.on("read-user-notification", async (id) => {
+await userService.readNotification(id)
+       
       });
     } catch (error: any) {
       throw HttpException.badRequest(error?.message);

@@ -6,16 +6,41 @@ import ChatPopup from "./ChatPopup";
 import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "@/function/GetCookie";
 import { jwtDecode } from "jwt-decode";
+import { useQuery } from "@apollo/client";
+import { GET_USER_NOTIFICATIONS } from "@/mutation/queries";
+import { useSocket } from "@/contexts/SocketContext";
+interface Notifications {
+  id: string;
+  isRead: boolean;
+}
 
 const Navbar = () => {
+  const { socket } = useSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [notifications, setNotifications] = useState<Notifications[]>([]);
+
+  const { data } = useQuery(GET_USER_NOTIFICATIONS);
 
   useEffect(() => {
-    const token = getCookie("accessToken");
+    if (data) {
+      setNotifications(data.getAllNotificationsOfUser);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    socket.on("notification", (notification) => {
+      console.log("yes", notification);
+      setNotifications(notification);
+    });
+  }, [socket]);
+  const unreadCount = notifications?.filter((n) => !n.isRead).length;
+
+  const token = getCookie("accessToken")!;
+  useEffect(() => {
     if (token) {
       try {
         const decoded = jwtDecode<{ id: string; email: string }>(token);
@@ -41,6 +66,13 @@ const Navbar = () => {
     if (!target.closest(".popup-container")) {
       closeAllPopups();
     }
+  };
+
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
+    const decode = jwtDecode<{ id: string }>(token);
+    console.log(decode.id, "ieeddd");
+    socket.emit("read-user-notification", decode.id);
   };
 
   useEffect(() => {
@@ -80,11 +112,11 @@ const Navbar = () => {
                   count={1}
                 />
                 <PopupButton
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={handleNotificationClick}
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={0}
+                  count={unreadCount}
                 />
               </div>
               <PopupButton
@@ -237,9 +269,11 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
     <Icon className="h-[22px] w-[22px] text-gray-600" />
-    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-      {count}
-    </span>
+    {count > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+        {count}
+      </span>
+    )}
   </div>
 );
 
