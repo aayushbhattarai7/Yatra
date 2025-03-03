@@ -4,10 +4,12 @@ import Cookies from "js-cookie";
 import { useMessage } from "@/contexts/MessageContext";
 import { useNavigate } from "react-router-dom";
 const GoogleLoginMutation = gql`
-  mutation Mutation($googleId: String!) {
+  mutation GoogleLogin($googleId: String!) {
     googleLogin(googleId: $googleId) {
       id
-      accessToken
+      tokens {
+        accessToken
+      }
     }
   }
 `;
@@ -20,11 +22,10 @@ const GoogleAuth = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const { setMessage } = useMessage();
   const navigate = useNavigate();
-  const [googleLogin] =
-    useMutation(GoogleLoginMutation);
+  const [googleLogin] = useMutation(GoogleLoginMutation);
 
   const handleSuccess = async (
-    credentialResponse: CustomCredentialResponse,
+    credentialResponse: CustomCredentialResponse
   ) => {
     const id = credentialResponse.credential;
 
@@ -37,8 +38,7 @@ const GoogleAuth = () => {
       const response = await googleLogin({ variables: { googleId: id } });
 
       if (response.data) {
-        const { accessToken } = response.data.googleLogin;
-        console.log("Access Token:", accessToken);
+        const { accessToken } = response.data.googleLogin.tokens;
         Cookies.set("accessToken", accessToken, {
           path: "/",
           secure: true,
