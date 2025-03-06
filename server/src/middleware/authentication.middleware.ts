@@ -9,6 +9,7 @@ export const authentication: MiddlewareFn<Context> = async (
   next,
 ) => {
   const tokens = context.req.headers.authorization?.split(" ");
+  console.log("🚀 ~ tokens:", tokens)
 
   try {
     if (!tokens) {
@@ -24,6 +25,7 @@ export const authentication: MiddlewareFn<Context> = async (
       accessToken,
       DotenvConfig.ACCESS_TOKEN_SECRET,
     );
+    console.log("🚀 ~ payload:", payload)
 
     if (payload) {
       context.req.user = payload;

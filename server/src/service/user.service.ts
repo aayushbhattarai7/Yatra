@@ -208,6 +208,7 @@ class UserService {
             lastName: decoded.last_name,
             middleName: decoded.middle_name,
             gender: Gender.NONE,
+            role:Role.USER,
             phoneNumber: decoded.id,
             password: await bcryptService.hash(decoded?.id),
           });
@@ -417,6 +418,7 @@ class UserService {
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
+      console.log(user,"jjjjjjaaaa")
       if (!user) {
         throw HttpException.unauthorized("You are not authorized user");
       }
