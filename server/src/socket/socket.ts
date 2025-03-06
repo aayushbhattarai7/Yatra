@@ -4,7 +4,9 @@ import { DotenvConfig } from "../config/env.config";
 import userService from "../service/user.service";
 import HttpException from "../utils/HttpException.utils";
 import Print from "../utils/print";
-
+import travelService from "../service/travel.service";
+import GuideService from "../service/guide.service";
+const guideService = new GuideService()
 
 let io: Server;
 
@@ -59,6 +61,17 @@ function initializeSocket(server: any) {
 
       socket.on("read-user-notification", async (id) => {
 await userService.readNotification(id)
+       
+      });
+      socket.on("travel-location", async ({ id, latitude, longitude }) => {
+        const data = { latitude, longitude }
+        console.log("🚀 ~ socket.on ~ data:", data)
+await travelService.addLocation(id, data)
+       
+      });
+      socket.on("guide-location", async ({ id, latitude, longitude }) => {
+        const data = { latitude, longitude }
+await guideService.addLocation(id, data)
        
       });
     } catch (error: any) {
