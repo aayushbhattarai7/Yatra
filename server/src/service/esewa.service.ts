@@ -12,18 +12,13 @@ import { DotenvConfig } from "../config/env.config";
   }
 
   async verifyPayment(encodedData: string) {
-    console.log("🚀 ~ EsewaService ~ verifyPayment ~ encodedData:", encodedData)
     try {
       const decodedString = Buffer.from(encodedData, "base64").toString(
         "utf-8",
       );
       const decodedData = JSON.parse(decodedString);
-      console.log(
-        "🚀 ~ EsewaService ~ verifyPayment ~ decodedData:",
-        decodedData,
-      );
+   
 const total_amount = decodedData.total_amount.replace(/,/g, '');
-      console.log("🚀 ~ EsewaService ~ verifyPayment ~ total_amount:", total_amount)
       let headersList = {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -35,7 +30,6 @@ const total_amount = decodedData.total_amount.replace(/,/g, '');
         headers: headersList,
       };
       let response = await axios.request(reqOptions);
-      console.log("🚀 ~ EsewaService ~ verifyPayment ~ response:", response);
 
       if (
         response.data.status !== "COMPLETE" ||
