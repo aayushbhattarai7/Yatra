@@ -29,6 +29,7 @@ import { In, MoreThan, Not } from "typeorm";
 import esewaService from "./esewa.service";
 import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
+import khaltiService from "./khalti.service";
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -980,6 +981,51 @@ class UserService {
       }
     }
   }
+
+
+    async advancePaymentForTravelWithKhalti(
+    userId: string,
+    requestId: string,
+    token: string,
+  ) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+
+      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      if (!request) {
+        throw HttpException.notFound("Request not found");
+      }
+      const payment = await khaltiService.verifyPayment(token)
+      console.log(payment?.verifiedData)
+      if (payment) {
+        
+        await this.travelRequestRepo.update(
+          { id: request.id },
+          { status: RequestStatus.ACCEPTED,paymentType:PaymentType.KHALTI },
+        );
+        const notification = this.notificationRepo.create({
+          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
+          senderUser: user,
+          receiverTravel:request.travel
+        })
+         await this.notificationRepo.save(notification)
+        io.to(notification.receiverTravel.id).emit("notification", notification)
+        return booked("Travel");
+      } else {
+        throw HttpException.badRequest("Payment unsuccessful")
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occurred");
+      }
+    }
+  }
+
 
     async getAllNotifications(userId:string) {
     try {
