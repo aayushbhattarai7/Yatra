@@ -34,4 +34,36 @@ export class UserController {
       }
     }
   }
+  async paymentForTravelWithKhalti(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id
+              const { pidx, requestId } = req.body;
+              console.log("🚀 ~ UserController ~ paymentForTravelWithKhalti ~ requestId:", requestId)
+
+      const data = await userService.advancePaymentForTravelWithKhalti(userId as string,requestId, pidx);
+      res.status(StatusCodes.CREATED).json({ data });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(StatusCodes.BAD_REQUEST).send({ message: error.message });
+      } else {
+        res.status(500).send("Failed to fetch trekking place");
+      }
+    }
+  }
+  async paymentForGuideWithKhalti(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id
+              const { token, requestId } = req.body;
+              console.log("🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:", requestId)
+
+      const data = await userService.advancePaymentForGuideWithEsewa(userId as string,requestId, token);
+      res.status(StatusCodes.CREATED).json({ data });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(StatusCodes.BAD_REQUEST).send({ message: error.message });
+      } else {
+        res.status(500).send("Failed to fetch trekking place");
+      }
+    }
+  }
 }

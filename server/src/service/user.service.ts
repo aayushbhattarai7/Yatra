@@ -986,7 +986,7 @@ class UserService {
     async advancePaymentForTravelWithKhalti(
     userId: string,
     requestId: string,
-    token: string,
+    id: string,
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
@@ -994,12 +994,11 @@ class UserService {
         throw HttpException.unauthorized("User not found");
       }
 
-      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      const request = await this.travelRequestRepo.findOne({where:{id:requestId}, relations:["travel"] });
       if (!request) {
         throw HttpException.notFound("Request not found");
       }
-      const payment = await khaltiService.verifyPayment(token)
-      console.log(payment?.verifiedData)
+      const payment = await khaltiService.verifyPayment(id)
       if (payment) {
         
         await this.travelRequestRepo.update(
@@ -1007,12 +1006,18 @@ class UserService {
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.KHALTI },
         );
         const notification = this.notificationRepo.create({
-          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
+          message: `${user.firstName} ${user?.middleName} ${user.lastName} has accepted the price check it out! `,
           senderUser: user,
           receiverTravel:request.travel
         })
-         await this.notificationRepo.save(notification)
-        io.to(notification.receiverTravel.id).emit("notification", notification)
+        const saveNotification = await this.notificationRepo.save(notification)
+        console.log(saveNotification)
+        const notifications = await this.notificationRepo.find({
+          where: {
+          receiverTravel:{id:request.travel.id}
+          }
+        })
+        io.to(saveNotification.receiverTravel.id).emit("notification", notifications)
         return booked("Travel");
       } else {
         throw HttpException.badRequest("Payment unsuccessful")

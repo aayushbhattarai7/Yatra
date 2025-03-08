@@ -6,7 +6,6 @@ export const authorization = (roles: Role[]) => {
     if (!req.user) throw new Error("You are not authorized");
     try {
       const userRole = req.user.role;
-      console.log("🚀 ~ return ~ userRole:", userRole)
       if (userRole && roles.includes(userRole as Role)) {
         next();
       } else {
