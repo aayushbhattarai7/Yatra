@@ -22,6 +22,7 @@ import Success from "./components/EsewaSuccess";
 import Failure from "./components/EsewaFailure";
 import PaymentForm from "./components/EsewaPaymentForm";
 import { SocketProvider } from "./contexts/SocketContext";
+import KhaltiSuccess from "./components/KhaltiSuccess";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           { path: "paymentsuccess/:type/:id", element: <Success /> },
+          { path: "khaltiSuccess/:type/:id", element: <KhaltiSuccess /> },
           { path: "paymentfailure", element: <Failure /> },
           { path: "home", element: <UserHome /> },
           { path: "travel", element: <Travels /> },
@@ -60,10 +62,10 @@ function App() {
   return (
     <>
       <SocketProvider>
-      <StripeProvider>
-        <ToastNotification />
-        <RouterProvider router={router} />
-      </StripeProvider>
+        <StripeProvider>
+          <ToastNotification />
+          <RouterProvider router={router} />
+        </StripeProvider>
       </SocketProvider>
     </>
   );

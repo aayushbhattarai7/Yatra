@@ -2,29 +2,28 @@ import { useSocket } from "@/contexts/SocketContext";
 import { formatTimeDifference } from "@/function/TimeDifference";
 import { GET_USER_NOTIFICATIONS } from "@/mutation/queries";
 import { useQuery } from "@apollo/client";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 interface Notifications {
   id: string;
   isRead: boolean;
   message: string;
-  createdAt:string
-
+  createdAt: string;
 }
 const NotificationsPopup = () => {
-      const [notifications, setNotifications] = useState<Notifications[]>([]);
+  const [notifications, setNotifications] = useState<Notifications[]>([]);
   const { socket } = useSocket();
 
- const { data } = useQuery(GET_USER_NOTIFICATIONS);
- useEffect(() => {
-   if (data?.getAllNotificationsOfUser) {
-     setNotifications(data.getAllNotificationsOfUser);
-   }
- }, [data]);
- useEffect(() => {
-   socket.on("notification", (notification) => {
-     setNotifications(notification);
-   });
- }, [socket]);
+  const { data } = useQuery(GET_USER_NOTIFICATIONS);
+  useEffect(() => {
+    if (data?.getAllNotificationsOfUser) {
+      setNotifications(data.getAllNotificationsOfUser);
+    }
+  }, [data]);
+  useEffect(() => {
+    socket.on("notification", (notification) => {
+      setNotifications(notification);
+    });
+  }, [socket]);
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       <div className="p-4 border-b border-gray-200">
@@ -46,13 +45,12 @@ const NotificationsPopup = () => {
                 <span className="text-xs text-gray-500 mt-2 block">
                   {formatTimeDifference(notification.createdAt)}
                 </span>
-                <div className="p-3 text-center border-t border-gray-200">
-                  <button className="text-sm text-blue-600 hover:text-blue-800">
-                    View All Notifications
-                  </button>
-                </div>
+                <div className="p-3 text-center border-t border-gray-200"></div>
               </div>
             ))}
+            <button className="text-sm text-blue-600 hover:text-blue-800">
+              View All Notifications
+            </button>
           </div>
         ) : (
           <p className="flex justify-center items-center font-poppins p-5">

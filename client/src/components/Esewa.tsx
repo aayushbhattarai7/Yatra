@@ -1,20 +1,19 @@
-// export default EsewaPayment;
 import React from "react";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import CryptoJS from "crypto-js";
 interface PaymentProps {
   id: string;
-  amounts: number;
+  amount: number;
   type:"travel"| "guide"
 }
-const Esewa: React.FC<PaymentProps> = ({ id, amounts, type }) => {
+const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
   const hashedId = `${uuidv4()}_${id}`;
   console.log("🚀 ~ hashedId:", hashedId)
   const [formData, setformData] = useState({
-    amount: amounts.toString(),
+    amount: amount.toString(),
     tax_amount: "0",
-    total_amount: amounts.toString(),
+    total_amount: amount.toString(),
     transaction_uuid: uuidv4(),
     product_service_charge: "0",
     product_delivery_charge: "0",

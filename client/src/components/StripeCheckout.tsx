@@ -8,6 +8,7 @@ interface CheckoutProps {
   travelId: string;
   refresh: (travelId: string) => void;
   onClose: () => void;
+  type:"travel" | "guide"
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
@@ -15,6 +16,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   travelId,
   refresh,
   onClose,
+  type
 }) => {
   const stripe = useStripe();
   const elements = useElements();

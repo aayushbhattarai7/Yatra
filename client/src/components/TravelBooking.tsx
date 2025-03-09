@@ -16,6 +16,8 @@ import InputField from "@/ui/common/atoms/InputField";
 import Checkout from "./StripeCheckout";
 import { Star, Clock, Phone, Mail, User } from "lucide-react";
 import Esewa from "./Esewa";
+import Khalti from "./KhaltiPayment";
+import Payments from "./Payments";
 
 interface TravelBooking {
   id: string;
@@ -260,11 +262,7 @@ const TravelBooking = () => {
             </div>
 
             {pay && (
-              <Esewa
-                id={book.id}
-                amounts={parseInt(book.price)}
-              type="travel"
-              />
+              <Khalti id={book.id} amount={parseInt(book.price)} type="travel"/>
             )}
           </div>
         ))}

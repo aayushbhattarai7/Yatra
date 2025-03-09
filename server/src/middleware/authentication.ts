@@ -5,7 +5,6 @@ import HttpException from "../utils/HttpException.utils";
 export const authentication = () => {
   return (req: Request, res: Response, next: NextFunction) => {
     const tokens = req.headers.authorization?.split(" ");
-    console.log("🚀 ~ return ~ tokens:", tokens);
     try {
       if (!tokens) {
         throw new Error("You are not authorized");

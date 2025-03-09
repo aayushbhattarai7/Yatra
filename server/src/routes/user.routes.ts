@@ -15,5 +15,7 @@ router.post("/get-place", placeController.getTrekkingPlaceByMessage);
 router.get("/get-allPlaces", placeController.getPlaces);
 router.post("/travel-esewa", userController.paymentForTravelWithEsewa);
 router.post("/guide-esewa", userController.paymentForGuideWithEsewa);
+router.post("/travel-khalti", userController.paymentForTravelWithKhalti);
+router.post("/guide-khalti", userController.paymentForGuideWithEsewa);
 
 export default router;
