@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import axiosInstance from "../service/axiosInstance";
 
 interface KhaltiProps {
@@ -8,15 +8,7 @@ interface KhaltiProps {
 }
 
 const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const handlePaymentInitiation = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setErrorMessage("");
-
+  const handlePaymentInitiation = async () => {
     try {
       const payload = {
         purchase_order_id: id,
@@ -32,45 +24,19 @@ const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
         payload
       );
       const paymentUrl = response.data.paymentDetails.payment_url;
-      console.log("🚀 ~ handlePaymentInitiation ~ paymentUrl:", paymentUrl)
+      console.log("🚀 ~ handlePaymentInitiation ~ paymentUrl:", paymentUrl);
 
       window.location.href = paymentUrl;
     } catch (error) {
       console.error("Payment initiation error:", error);
-      setErrorMessage("Failed to initialize payment. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
+  useEffect(() => {
+    console.log("yess");
+    handlePaymentInitiation();
+  }, []);
 
-  return (
-    <div className="khalti-payment-container">
-      <form onSubmit={handlePaymentInitiation}>
-        <div className="payment-details">
-          <p>Amount: NPR {amount}</p>
-        </div>
-
-        <div className="form-group">
-          <input
-            type="hidden"
-            id="callbackUrl"
-            name="website_url"
-            value={"https://test-pay.khalti.com"}
-            onChange={(e) => setWebsiteUrl(e.target.value)}
-            pattern="https?://.*"
-            required
-            placeholder="https://test-pay.khalti.com"
-          />
-        </div>
-
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-
-        <button type="submit" disabled={isLoading} className="khalti-button">
-          {isLoading ? "Processing..." : "Pay with Khalti"}
-        </button>
-      </form>
-    </div>
-  );
+  return <div className="khalti-payment-container"></div>;
 };
 
 export default Khalti;
