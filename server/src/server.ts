@@ -1,5 +1,4 @@
 import { createServer } from "http";
-
 import app from "./config/app.config";
 import { DotenvConfig } from "./config/env.config";
 import { AppDataSource } from "./config/database.config";
@@ -20,6 +19,6 @@ AppDataSource.initialize()
     Print.info("🚀 ~ Database Connected Successfully");
     listen();
   })
-  .catch((err) => {
+  .catch((err:any) => {
     Print.error(`🚀 ~ Database Failed to connect: ${err?.message}`);
   });
