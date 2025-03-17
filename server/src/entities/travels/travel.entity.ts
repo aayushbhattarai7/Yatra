@@ -2,7 +2,6 @@ import { Field, ObjectType } from "type-graphql";
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -14,6 +13,8 @@ import TravelKyc from "./travelKyc.entity";
 import { TravelDetails } from "./travelDetails.entity";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { Notification } from "../../entities/notification/notification.entity";
+import { Chat } from "../../entities/chat/chat.entity";
+import { Room } from "../../entities/chat/room.entity";
 
 @ObjectType()
 @Entity("travel")
@@ -111,4 +112,13 @@ export class Travel extends Base {
     onDelete: "CASCADE",
   })
   notification: Notification[];
+
+    @OneToMany(() => Chat, (chat) => chat.senderTravel)
+    sendMessage: Chat[]
+    @OneToMany(() => Chat, (chat) => chat.receiverTravel)
+    receiveMessage: Chat[]
+
+          
+      @OneToMany(() => Room, (room) => room.travel)
+      travels: Room[]
 }

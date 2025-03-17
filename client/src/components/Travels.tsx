@@ -39,9 +39,11 @@ const Travels = () => {
   const { lang } = useLang();
   const [travelId, setTravelId] = useState<string>("");
 
-  const { data, loading } = useQuery(GET_TRAVELS);
+  const { data, loading, error } = useQuery(GET_TRAVELS);
+  console.log("🚀 ~ Travels ~ data:", data)
 
   useEffect(() => {
+    console.log(error,"hahah")
     if (data?.findTravel) {
       console.log("🚀 ~ useEffect ~ data:", data)
       setTravels(data.findTravel);

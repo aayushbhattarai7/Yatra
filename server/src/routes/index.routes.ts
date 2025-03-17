@@ -4,6 +4,7 @@ import user from "./user.routes";
 import khalti from "./khalti.routes";
 import esewa from "./esewa.routes";
 import travel from "./travel.routes";
+import guide from "./guide.routes";
 // import hotel from "./hotel.routes";
 export interface Route {
   path: string;
@@ -30,6 +31,10 @@ const routes: Route[] = [
   {
     path: "/travel",
     route: travel,
+  },
+  {
+    path: "/guide",
+    route: guide,
   },
   // {
   //   path: "/hotel",

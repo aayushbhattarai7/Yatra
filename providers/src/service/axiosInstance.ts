@@ -4,7 +4,8 @@ import { getCookie } from "../function/GetCookie";
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
-
+console.log(import.meta.env.VITE_CRYPTO_KEY
+  ,"hehehahahehaha")
 encryptDecrypt.decrypt(getCookie("accessToken"))
 const token = getCookie("accessToken") as string;
 console.log("🚀 ~ token:", token);

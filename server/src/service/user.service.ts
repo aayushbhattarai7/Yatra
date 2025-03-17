@@ -30,6 +30,8 @@ import esewaService from "./esewa.service";
 import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
 import khaltiService from "./khalti.service";
+import { RoomService } from "./room.service";
+const roomService = new RoomService()
 const emailService = new EmailService();
 interface UserInput {
   email: string;
@@ -183,7 +185,9 @@ class UserService {
       const fields = "id,first_name,middle_name,last_name,email";
       const url = `https://graph.facebook.com/me?fields=${fields}&access_token=${userAccessToken}`;
 
+      console.log("🚀 ~ UserService ~ debugFBToken ~ url:", url)
       const response = await axios.get(url);
+      console.log("🚀 ~ UserService ~ debugFBToken ~ response:", response)
       const data = response.data;
 
       if (data) {
@@ -197,10 +201,13 @@ class UserService {
 
   async facebookLogin(userInfo: string) {
     try {
+
       const decoded: any = await this.debugFBToken(userInfo);
+      console.log("🚀 ~ UserService ~ facebookLogin ~ decoded:", decoded)
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       });
+      console.log("🚀 ~ UserService ~ facebookLogin ~ user:", user)
       if (!user) {
         try {
           const saveUser = this.userRepo.create({
@@ -213,6 +220,7 @@ class UserService {
             phoneNumber: decoded.id,
             password: await bcryptService.hash(decoded?.id),
           });
+          console.log("🚀 ~ UserService ~ facebookLogin ~ saveUser:", saveUser)
           const save = await this.userRepo.save(saveUser);
           return save;
         } catch (error: any) {
@@ -263,10 +271,11 @@ class UserService {
 
   async getByid(id: string) {
     try {
-      const users = this.userRepo
-        .createQueryBuilder("user")
-        .where("user.id =:id", { id });
-      const user = await users.getOne();
+      const user = this.userRepo
+      .createQueryBuilder("user")
+      .where("user.id =:id", { id }).getOne()
+      
+      console.log("🚀 ~ UserService ~ getByid ~ users:", user)
       return user;
     } catch (error) {
       throw HttpException.notFound("User not found");
@@ -325,6 +334,7 @@ class UserService {
         },
         relations: ["details", "location", "kyc"],
       });
+      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -962,6 +972,8 @@ class UserService {
           { id: request.id },
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
+
+        await roomService.checkRoomWithTravel(request.travel.id, request.user.id)
         const notification = this.notificationRepo.create({
           message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
           senderUser: user,
@@ -1096,6 +1108,8 @@ class UserService {
           { id: request.id },
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
+        await roomService.checkRoomWithGuide(request.guide.id, request.users.id)
+
         return booked("Guide");
       } else {
         throw HttpException.badRequest("Payment unsuccessful")

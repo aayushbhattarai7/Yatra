@@ -34,7 +34,7 @@ const middleware = async (app: Application) => {
   );
   console.log(
     "🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:",
-    DotenvConfig.CORS_ORIGIN,
+    DotenvConfig.CORS_ORIGIN, DotenvConfig.MAIL_HOST
   );
 
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -73,7 +73,7 @@ const middleware = async (app: Application) => {
       }),
     }),
   );
-
+console.log(DotenvConfig.DATABASE_USERNAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_NAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_USERNAME)
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));
 

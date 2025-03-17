@@ -11,7 +11,7 @@
     "format": "npx prettier --write ."
   },
   "dependencies": {
-    "@apollo/client": "^3.11.10",
+    "@apollo/client": "^3.13.1",
     "@chakra-ui/react": "^3.5.1",
     "@emotion/react": "^11.14.0",
     "@react-oauth/google": "^0.12.1",

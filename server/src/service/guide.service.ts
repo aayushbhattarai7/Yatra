@@ -34,6 +34,7 @@ class GuideService {
   ) {}
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
+    console.log("🚀 ~ GuideService ~ create ~ data:", data)
     return await AppDataSource.transaction(
       async (transactionalEntityManager) => {
         try {
@@ -225,6 +226,7 @@ class GuideService {
   }
 
   async loginGuide(data: LoginDTO) {
+    console.log("uuaauau")
     try {
       const guide = await this.guideRepo.findOne({
         where: [{ email: data.email }],

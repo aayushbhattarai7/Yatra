@@ -7,6 +7,8 @@ import { RequestTravel } from "./RequestTravels.entity";
 import { RequestGuide } from "./RequestGuide.entities";
 import { BookHotel } from "../../entities/hotels/bookHotel.entity";
 import { Notification } from "../../entities/notification/notification.entity";
+import { Chat } from "../../entities/chat/chat.entity";
+import { Room } from "../../entities/chat/room.entity";
 
 @ObjectType()
 @Entity("user")
@@ -80,4 +82,14 @@ export class User extends Base {
     onDelete: "CASCADE",
   })
   notifications: Notification[];
+
+  @OneToMany(() => Chat, (chat) => chat.senderUser)
+  sendMessage: Chat[]
+
+  @OneToMany(() => Chat, (chat) => chat.receiverUser)
+  receiveMessage: Chat[]
+
+  @OneToMany(() => Room, (room) => room.user)
+  users: Room[]
+
 }

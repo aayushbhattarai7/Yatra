@@ -14,6 +14,8 @@ import GuideKYC from "./guideKyc.entity";
 import { GuideDetails } from "./guideDetails.entity";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { Notification } from "../../entities/notification/notification.entity";
+import { Chat } from "../../entities/chat/chat.entity";
+import { Room } from "../../entities/chat/room.entity";
 
 @ObjectType()
 @Entity("guide")
@@ -110,4 +112,13 @@ export class Guide extends Base {
     onDelete: "CASCADE",
   })
   notifications: Notification[];
+
+    @OneToMany(() => Chat, (chat) => chat.senderGuide)
+      sendMessage: Chat[]
+      @OneToMany(() => Chat, (chat) => chat.receiverGuide)
+      receiveMessage: Chat[]
+
+      
+  @OneToMany(() => Room, (room) => room.guide)
+  guides: Room[]
 }

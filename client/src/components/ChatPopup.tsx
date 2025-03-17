@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useSocket } from "@/contexts/SocketContext";
+import { useEffect, useState } from "react";
 interface Chat{
   id:string;
   message: string;
@@ -20,6 +21,14 @@ interface Profile {
 }
 const ChatPopup = () => {
 const [chats, setChats] = useState<Chat[]>([])
+const {socket} = useSocket();
+
+useEffect(()=>{
+  socket.on("message",(messages) =>{
+setChats(messages)
+  })
+})
+
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">

@@ -6,8 +6,12 @@ import HttpException from "../utils/HttpException.utils";
 import Print from "../utils/print";
 import travelService from "../service/travel.service";
 import GuideService from "../service/guide.service";
-const guideService = new GuideService()
+import { ChatService } from '../service/chat.service'
+import { RoomService } from "../service/room.service";
+const chatService = new ChatService()
 
+const guideService = new GuideService()
+const roomService = new RoomService()
 let io: Server;
 
 function initializeSocket(server: any) {
@@ -77,6 +81,12 @@ await guideService.addLocation(id, data)
     } catch (error: any) {
       throw HttpException.badRequest(error?.message);
     }
+
+
+    socket.on('message', async ({ message, receiverId }) => {
+   const userId = socket.data.user.id
+       await chatService.chatWithGuide(userId, receiverId, message)
+    })
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", userId);

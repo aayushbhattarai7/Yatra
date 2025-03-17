@@ -9,6 +9,7 @@ import { KycType } from "../constant/enum";
 const guideService = new GuideService();
 export class GuideController {
   async create(req: Request, res: Response) {
+    console.log("huiahjjhajbf")
     try {
       const { kycType } = req.body;
       const uploadedPhotos: any = {

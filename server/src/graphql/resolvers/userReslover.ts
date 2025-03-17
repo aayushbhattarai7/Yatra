@@ -122,12 +122,16 @@ export class UserResolver {
   }
   @Mutation(() => LoginResponse)
   async facebookLogin(@Arg("facebookId") facebookId: string) {
+    console.log("🚀 ~ UserResolver ~ facebookLogin ~ facebookId:", facebookId)
     try {
+      console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
       const user = await userService.facebookLogin(facebookId);
+      console.log(user?.id, user?.role,"hhhhhhhhhhhhhhh")
       const tokens = webTokenService.generateTokens(
         { id: user?.id! },
         user?.role!,
       );
+      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens)
 
       return {
         id: user?.id!,
@@ -177,8 +181,10 @@ export class UserResolver {
   @Query(() => [Travel, TravelKyc, TravelDetails])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async findTravel(@Ctx() ctx: Context): Promise<Travel[] | null> {
+    console.log("hahahha")
     try {
       const id = ctx.req.user?.id;
+      console.log("🚀 ~ UserResolver ~ findTravel ~ id:", id)
       const data = await userService.findTravel(id!);
       return data;
     } catch (error) {
