@@ -262,7 +262,7 @@ const TravelBooking = () => {
             </div>
 
             {pay && (
-              <Khalti id={book.id} amount={parseInt(book.price)} type="travel"/>
+              <Esewa id={book.id} amount={parseInt(book.price)} type="travel"/>
             )}
           </div>
         ))}

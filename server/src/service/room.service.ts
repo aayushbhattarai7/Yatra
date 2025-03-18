@@ -16,14 +16,19 @@ export class RoomService {
       const receiver = await this.userRepo.findOneBy({ id: receiverId })
       if (!receiver) return null
 
-      const findRoom = await this.roomrepo.find({
+      const findRoom = await this.roomrepo.findOne({
         where: [
           { user: { id: userId }, travel: { id: receiverId } },
           { travel: { id: receiverId }, user: { id: userId } },
         ],
       })
       if (!findRoom) {
-        return null
+      const createRoom = this.roomrepo.create({
+user:user,
+travel:receiver
+      })
+      await this.roomrepo.save(createRoom)
+      return createRoom
       }
       return findRoom
     } catch (error) {

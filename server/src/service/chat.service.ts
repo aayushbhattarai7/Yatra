@@ -53,6 +53,38 @@ io.to(guideId).emit("message", getChats)
       }
     }
   }
+  async chatWithTravel(userId:string, travelId:string, data:ChatDTO){
+
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+      if (!user) throw HttpException.unauthorized("You are not authorized")
+
+      const receiver = await this.travelRepo.findOneBy({ id: travelId })
+      if (!receiver) throw HttpException.notFound("Guide not found")
+const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
+      if(!getRoom) throw HttpException.notFound("Room not found")
+      const room = await this.roomRepo.findOneBy({ id: getRoom.id })
+      if (!room) throw HttpException.notFound('room not found')   
+        
+        const chat = this.chatRepo.create({
+          message:data.message,
+          room:room,
+          receiverTravel:receiver,
+          senderUser:user
+
+        })
+       const saveChat =  await this.chatRepo.save(chat)
+const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
+io.to(travelId).emit("message", getChats)
+       return saveChat
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
 
   async displayChat(userId: string, receiverId: string) {
