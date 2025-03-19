@@ -882,7 +882,7 @@ class UserService {
       }
       const guide = await this.guideRepo.findOne({
         where: {
-          id: guide_id,
+          id: guide_id, 
         },
         relations: ["details", "kyc"],
       });
@@ -959,26 +959,28 @@ class UserService {
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-
-      const request = await this.travelRequestRepo.findOneBy({ id: requestId });
+      const request = await this.travelRequestRepo.findOne({where:{ id: requestId},  relations:["travel"]});
       if (!request) {
         throw HttpException.notFound("Request not found");
       }
+
       const payment = await esewaService.verifyPayment(token)
+
       console.log(payment?.verifiedData)
       if (payment) {
-        
+
         await this.travelRequestRepo.update(
           { id: request.id },
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
 
-        await roomService.checkRoomWithTravel(request.travel.id, request.user.id)
+        const room = await roomService.checkRoomWithTravel(userId, request.travel.id)
         const notification = this.notificationRepo.create({
           message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
           senderUser: user,
           receiverTravel:request.travel
         })
+      
          await this.notificationRepo.save(notification)
         io.to(notification.receiverTravel.id).emit("notification", notification)
         return booked("Travel");

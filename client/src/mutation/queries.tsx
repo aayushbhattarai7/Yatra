@@ -221,3 +221,20 @@ export const GET_USER_NOTIFICATIONS = gql`
     }
   }
 `;
+
+export const GET_ROOM_CHATS = gql`
+query GetConnectedUsers {
+  getConnectedUsers {
+    id
+    travel {
+      id
+      firstName
+      middleName
+      lastName
+      gender
+      
+    }
+   
+  }
+}
+`;

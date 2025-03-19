@@ -5,7 +5,6 @@ import {
   Arg,
   Ctx,
   UseMiddleware,
-  Args,
 } from "type-graphql";
 import { User } from "../../entities/user/user.entity";
 import userService from "../../service/user.service";
@@ -24,10 +23,13 @@ import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import GuideKYC from "../../entities/guide/guideKyc.entity";
 import TravelKyc from "../../entities/travels/travelKyc.entity";
 import { TravelDetails } from "../../entities/travels/travelDetails.entity";
-import { PaymentDetails } from "../../interface/esewa.interface";
-import { GuideDetails } from "../../entities/guide/guideDetails.entity";
 import { Notification } from "../../entities/notification/notification.entity";
-
+import { RoomService } from "../../service/room.service";
+import { Room } from "../../entities/chat/room.entity";
+import { Chat } from "../../entities/chat/chat.entity";
+import {ChatService} from "../../service/chat.service";
+const roomService = new RoomService()
+const chatService = new ChatService()
 @Resolver((of) => User)
 export class UserResolver {
 
@@ -229,6 +231,25 @@ export class UserResolver {
       }
     }
   }
+  @Mutation(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async chatWithTravel(
+    @Ctx() ctx: Context,
+    @Arg("travelId") travelId: string,
+    @Arg("message") message: string,
+  ) {
+    try {
+      const data = { message };
+      const userId = ctx.req.user?.id!;
+      return await chatService.chatWithTravel(userId, travelId, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.internalServerError(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
@@ -256,10 +277,39 @@ export class UserResolver {
 
   @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getOwnTravelRequest(@Ctx() ctx: Context) {
+  async getOwnTravelRequest(   
+  @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getOwnTravelRequests(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Room])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getConnectedUsers(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await roomService.getConnectedUsers(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getChatOfTravel(@Ctx() ctx: Context, @Arg("travelId") travelId: string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await chatService.getChatByUserOfTravel(userId, travelId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

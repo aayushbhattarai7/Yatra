@@ -11,7 +11,7 @@ import { io } from '../socket/socket'
 
 const roomService = new RoomService()
 
-export class ChatService {
+ export class ChatService {
   constructor(
     private readonly chatRepo = AppDataSource.getRepository(Chat),
     private readonly userRepo = AppDataSource.getRepository(User),
@@ -73,10 +73,12 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
           senderUser:user
 
         })
+        console.log("🚀 ~ ChatService ~ chatWithTravel ~ chat:", chat)
        const saveChat =  await this.chatRepo.save(chat)
-const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
-io.to(travelId).emit("message", getChats)
-       return saveChat
+// const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
+// io.to(travelId).emit("message", getChats)
+//        console.log("🚀 ~ ChatService ~ chatWithTravel ~ getChats:", getChats)
+       return chat
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -107,4 +109,27 @@ io.to(travelId).emit("message", getChats)
       console.log('🚀 ~ ChatService ~ displayChat ~ error:', error)
       throw error
     }
-  }}
+  }
+
+  async getChatByUserOfTravel(user_id:string, travel_id:string) {
+    try {
+      const user = await this.userRepo.findOneBy({id:user_id})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+  
+        const chats = await this.chatRepo.find({
+          where: [
+            { senderTravel: { id: user_id }, receiverUser: { id: travel_id } },
+            { senderUser: { id: user_id }, receiverTravel: { id: travel_id } },
+          ],
+          relations: ['receiverTravel', 'receiverUser', 'senderUser', 'senderTravel'],
+          order: { createdAt: 'ASC' },
+        })
+        console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
+        if (!chats) throw HttpException.notFound
+        return chats
+    } catch (error:unknown) {
+      if(error instanceof Error)
+      throw HttpException.badRequest(error.message)
+    }
+    }
+}

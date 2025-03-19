@@ -1,70 +1,105 @@
-import { useSocket } from "@/contexts/SocketContext";
-import { useEffect, useState } from "react";
-interface Chat{
-  id:string;
-  message: string;
-  createdAt:string;
-travel: Travel
-}
-interface Travel {
-  id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  vehicleType: string;
-  gender: string;
-  kyc:Profile[]
-}
-interface Profile {
-  id:string;
-  path:string;
-}
+import { useState } from "react";
+import { useQuery, gql } from "@apollo/client";
+import { GET_ROOM_CHATS } from "@/mutation/queries";
+
+const GET_CHAT_OF_TRAVEL = gql`
+  query GetChatOfTravel($travelId: String!) {
+    getChatOfTravel(travelId: $travelId) {
+      id
+      message
+      read
+    }
+  }
+`;
+
 const ChatPopup = () => {
-const [chats, setChats] = useState<Chat[]>([])
-const {socket} = useSocket();
+  const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
+  const { data, loading, error } = useQuery(GET_ROOM_CHATS);
 
-useEffect(()=>{
-  socket.on("message",(messages) =>{
-setChats(messages)
-  })
-})
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading chats.</p>;
 
+  const usersInRoom = data?.getConnectedUsers || [];
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold">Messages</h3>
-      </div>
-      <div className="max-h-96 overflow-y-auto">
-        {chats.map((chat) => (
-          <div
-            key={chat.id}
-            className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-start space-x-3"
-          >
-            <img
-              src={chat.travel.kyc[0].path}
-              alt={chat.travel.firstName}
-              className="w-10 h-10 rounded-full"
-            />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold truncate">{chat.travel.firstName}</h4>
-                <span className="text-xs text-gray-500">{chat.createdAt}</span>
-              </div>
-              <p className="text-sm text-gray-600 truncate">{chat.message}</p>
-            </div>
-            {/* {chat.unread > 0 && (
-              <span className="bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {chat.unread}
-              </span>
-            )} */}
+      {selectedTravelId ? (
+        <ChatMessages travelId={selectedTravelId} onBack={() => setSelectedTravelId(null)} />
+      ) : (
+        <div>
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold">People in Room</h3>
           </div>
-        ))}
-      </div>
-      <div className="p-3 text-center border-t border-gray-200">
-        <button className="text-sm text-blue-600 hover:text-blue-800">
-          View All Messages
+          <div className="max-h-96 overflow-y-auto">
+            {usersInRoom.length === 0 ? (
+              <p className="p-4 text-gray-500">No users in the room</p>
+            ) : (
+              usersInRoom.map((user: any) => (
+                <div
+                  key={user.id}
+                  onClick={() => setSelectedTravelId(user.travel?.id)}
+                  className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-start space-x-3"
+                >
+                  {user.travel?.kyc?.[0]?.path ? (
+                    <img
+                      src={user.travel.kyc[0].path}
+                      alt={user.travel.firstName}
+                      className="w-10 h-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-300" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold truncate">
+                      {user.travel
+                        ? `${user.travel.firstName} ${user.travel.lastName}`
+                        : "Unknown User"}
+                    </h4>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="p-3 text-center border-t border-gray-200">
+            <button className="text-sm text-blue-600 hover:text-blue-800">
+              View All Users
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => void }) => {
+  const { data, loading, error } = useQuery(GET_CHAT_OF_TRAVEL, {
+    variables: { travelId },
+  });
+  console.log("🚀 ~ data:", data)
+
+  if (loading) return <p>Loading messages...</p>;
+  if (error) return <p>{error.message}</p>;
+
+  const messages = data?.getChatOfTravel || [];
+
+  return (
+    <div>
+      <div className="p-4 border-b border-gray-200 flex items-center">
+        <button onClick={onBack} className="text-blue-600 hover:text-blue-800 mr-4">
+          ← Back
         </button>
+        <h3 className="text-lg font-semibold">Chat Messages</h3>
+      </div>
+      <div className="max-h-96 overflow-y-auto p-4">
+        {messages.length === 0 ? (
+          <p className="text-gray-500">No messages</p>
+        ) : (
+          messages.map((chat: any) => (
+            <div key={chat.id} className="p-2 border-b border-gray-100">
+              <p className="text-sm">{chat.message}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

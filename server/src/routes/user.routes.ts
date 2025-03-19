@@ -17,5 +17,6 @@ router.post("/travel-esewa", userController.paymentForTravelWithEsewa);
 router.post("/guide-esewa", userController.paymentForGuideWithEsewa);
 router.post("/travel-khalti", userController.paymentForTravelWithKhalti);
 router.post("/guide-khalti", userController.paymentForGuideWithEsewa);
+router.post("/chat-travel", userController.chatWithTravel);
 
 export default router;

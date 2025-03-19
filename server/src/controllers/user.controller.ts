@@ -1,7 +1,9 @@
 import userService from "../service/user.service";
 import { StatusCodes } from "../constant/StatusCodes";
 import { type Request, type Response } from "express";
-
+import { ChatService } from "../service/chat.service";
+import { ChatDTO } from "../dto/chat.dto";
+const chatService = new ChatService()
 export class UserController {
   async paymentForTravelWithEsewa(req: Request, res: Response) {
     try {
@@ -9,6 +11,20 @@ export class UserController {
               const { token, requestId } = req.body;
 
       const data = await userService.advancePaymentForTravelWithEsewa(userId as string,requestId, token);
+      res.status(StatusCodes.CREATED).json({ data });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        res.status(StatusCodes.BAD_REQUEST).send({ message: error.message });
+      } else {
+        res.status(500).send("Failed to fetch trekking place");
+      }
+    }
+  }
+  async chatWithTravel(req: Request, res: Response) {
+    try {
+      const userId = req.user?.id
+      const travelId = req.params.id;
+      const data = await chatService.chatWithTravel(userId as string,travelId, req.body as ChatDTO);
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {
