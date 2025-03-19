@@ -256,3 +256,26 @@ export const GET_TRAVEL_NOTIFICATIONS = gql`
     }
   }
 `;
+
+export const GET_USER_FOR_CHAT = gql`
+query GetChatUserByTravel {
+  getChatUserByTravel {
+  id
+  user {
+    id
+    firstName
+    middleName
+    lastName
+    gender
+  }  
+  travel {
+    id
+    firstName
+    middleName
+    lastName
+    gender
+  
+  }
+  }
+}
+`;

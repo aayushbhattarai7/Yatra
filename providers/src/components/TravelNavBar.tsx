@@ -61,10 +61,10 @@ const TravelNavBar = () => {
   };
 
   const handleClickOutside = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest(".popup-container")) {
-      closeAllPopups();
-    }
+    // const target = e.target as HTMLElement;
+    // if (!target.closest(".popup-container")) {
+    //   closeAllPopups();
+    // }
   };
 
   useEffect(() => {

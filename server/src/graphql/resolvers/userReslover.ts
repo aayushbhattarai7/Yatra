@@ -32,7 +32,7 @@ const roomService = new RoomService()
 const chatService = new ChatService()
 @Resolver((of) => User)
 export class UserResolver {
-
+ 
   @Mutation(() => String)
   async signup(
     @Arg("firstName") firstName: string,
@@ -239,9 +239,9 @@ export class UserResolver {
     @Arg("message") message: string,
   ) {
     try {
-      const data = { message };
+     
       const userId = ctx.req.user?.id!;
-      return await chatService.chatWithTravel(userId, travelId, data);
+      return await chatService.chatWithTravel(userId, travelId, message);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.internalServerError(error.message);
@@ -318,6 +318,7 @@ export class UserResolver {
       }
     }
   }
+ 
   @Query(() => Guide)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getGuideProfile(@Ctx() ctx: Context, @Arg("guideId") guideId: string) {

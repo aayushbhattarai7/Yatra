@@ -16,7 +16,12 @@ import { TravelDTO } from "../../dto/travel.dto";
 import travelService from "../../service/travel.service";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { Notification } from "../../entities/notification/notification.entity";
-
+import { Chat } from "../../entities/chat/chat.entity";
+import { ChatService } from "../../service/chat.service";
+import { Room } from "../../entities/chat/room.entity";
+import { RoomService } from "../../service/room.service";
+const chatService = new ChatService()
+const roomService = new RoomService()
 export class TravelResolver {
   @Mutation(() => String)
   async travelSignup(
@@ -271,6 +276,38 @@ export class TravelResolver {
       console.log(x, "xxxxx");
       return x;
     } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getChatOfUserByTravel(@Ctx() ctx: Context, @Arg("userId") userId: string) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ travelId:", travelId)
+      return await chatService.getChatByTravelOfUser(travelId, userId);
+    } catch (error) {
+      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:", error)
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Room])
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getChatUserByTravel(@Ctx() ctx: Context) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await roomService.getUserOfChatByTravel(travelId);
+    } catch (error) {
+      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:", error)
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {

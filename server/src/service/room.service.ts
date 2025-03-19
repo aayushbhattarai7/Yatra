@@ -76,22 +76,14 @@ throw HttpException.internalServerError(error.message)    }
     throw HttpException.badRequest(error.message)
   }
   }
-  async getChatByUserOfTravel(user_id:string, travel_id:string) {
+  async getUserOfChatByTravel( travel_id:string) {
   try {
-    const user = await this.userRepo.findOneBy({id:user_id})
-    if(!user) throw HttpException.unauthorized("You are not authorized")
+
     const travel = await this.travelRepo.findOneBy({id:travel_id})
     if(!travel) throw HttpException.unauthorized("You are not authorized")
 
-      const chats = await this.chatRepo.find({
-        where: [
-          { senderTravel: { id: user_id }, receiverUser: { id: travel_id } },
-          { senderUser: { id: user_id }, receiverTravel: { id: travel_id } },
-        ],
-        relations: ['sender', 'receiver', 'sender.details', 'senderTravel'],
-        order: { createdAt: 'ASC' },
-      })
-      if (!chats) throw HttpException.notFound
+      const getConnectUsers = await this.roomrepo.find({where:{travel:{id:travel_id}}, relations:["user","travel"]})
+return getConnectUsers
   } catch (error:unknown) {
     if(error instanceof Error)
     throw HttpException.badRequest(error.message)

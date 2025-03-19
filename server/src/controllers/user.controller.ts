@@ -24,7 +24,8 @@ export class UserController {
     try {
       const userId = req.user?.id
       const travelId = req.params.id;
-      const data = await chatService.chatWithTravel(userId as string,travelId, req.body as ChatDTO);
+      const {message} = req.body
+      const data = await chatService.chatWithTravel(userId as string,travelId,message );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {

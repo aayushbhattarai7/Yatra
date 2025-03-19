@@ -1,21 +1,12 @@
 import { useState } from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { GET_ROOM_CHATS } from "@/mutation/queries";
+import ChatMessages from "./ui/ChatMessage";
 
-const GET_CHAT_OF_TRAVEL = gql`
-  query GetChatOfTravel($travelId: String!) {
-    getChatOfTravel(travelId: $travelId) {
-      id
-      message
-      read
-    }
-  }
-`;
 
 const ChatPopup = () => {
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   const { data, loading, error } = useQuery(GET_ROOM_CHATS);
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading chats.</p>;
 
@@ -71,38 +62,6 @@ const ChatPopup = () => {
   );
 };
 
-const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => void }) => {
-  const { data, loading, error } = useQuery(GET_CHAT_OF_TRAVEL, {
-    variables: { travelId },
-  });
-  console.log("🚀 ~ data:", data)
 
-  if (loading) return <p>Loading messages...</p>;
-  if (error) return <p>{error.message}</p>;
-
-  const messages = data?.getChatOfTravel || [];
-
-  return (
-    <div>
-      <div className="p-4 border-b border-gray-200 flex items-center">
-        <button onClick={onBack} className="text-blue-600 hover:text-blue-800 mr-4">
-          ← Back
-        </button>
-        <h3 className="text-lg font-semibold">Chat Messages</h3>
-      </div>
-      <div className="max-h-96 overflow-y-auto p-4">
-        {messages.length === 0 ? (
-          <p className="text-gray-500">No messages</p>
-        ) : (
-          messages.map((chat: any) => (
-            <div key={chat.id} className="p-2 border-b border-gray-100">
-              <p className="text-sm">{chat.message}</p>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-};
 
 export default ChatPopup;

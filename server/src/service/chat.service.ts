@@ -53,7 +53,7 @@ io.to(guideId).emit("message", getChats)
       }
     }
   }
-  async chatWithTravel(userId:string, travelId:string, data:ChatDTO){
+  async chatWithTravel(userId:string, travelId:string, message:string){
 
     try {
       const user = await this.userRepo.findOneBy({ id: userId })
@@ -67,7 +67,7 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
       if (!room) throw HttpException.notFound('room not found')   
         
         const chat = this.chatRepo.create({
-          message:data.message,
+          message:message,
           room:room,
           receiverTravel:receiver,
           senderUser:user
@@ -78,6 +78,7 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
 // const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
 // io.to(travelId).emit("message", getChats)
 //        console.log("🚀 ~ ChatService ~ chatWithTravel ~ getChats:", getChats)
+io.to(travelId).emit("travel-message",chat)
        return chat
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -115,6 +116,7 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
     try {
       const user = await this.userRepo.findOneBy({id:user_id})
       if(!user) throw HttpException.unauthorized("You are not authorized")
+      console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ user:", user)
   
         const chats = await this.chatRepo.find({
           where: [
@@ -125,6 +127,29 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
           order: { createdAt: 'ASC' },
         })
         console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
+        if (!chats) throw HttpException.notFound
+        return chats
+    } catch (error:unknown) {
+      if(error instanceof Error)
+      throw HttpException.badRequest(error.message)
+    }
+    }
+  async getChatByTravelOfUser(travelId:string, userId:string) {
+    try {
+      console.log("-----------")
+      const user = await this.travelRepo.findOneBy({id:travelId})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+  
+        const chats = await this.chatRepo.find({
+          where: [
+            { senderTravel: { id: travelId }, receiverUser: { id: userId } }, // Travel sent a message to User
+            { receiverTravel: { id: travelId }, senderUser: { id: userId } }, // Travel received a message from User
+          ],
+          relations: ['receiverTravel', 'receiverUser', 'senderUser', 'senderTravel'],
+          order: { createdAt: 'ASC' }, 
+        });
+        
+        console.log("🚀 ~ ChatService ~ getChatByTravelOfUser ~ chats:", chats)
         if (!chats) throw HttpException.notFound
         return chats
     } catch (error:unknown) {
