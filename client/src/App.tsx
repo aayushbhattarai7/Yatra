@@ -23,6 +23,7 @@ import Failure from "./components/EsewaFailure";
 import PaymentForm from "./components/EsewaPaymentForm";
 import { SocketProvider } from "./contexts/SocketContext";
 import KhaltiSuccess from "./components/KhaltiSuccess";
+import Chat from "./components/ui/Chat";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
           { path: "khaltiSuccess/:type/:id", element: <KhaltiSuccess /> },
           { path: "paymentfailure", element: <Failure /> },
           { path: "home", element: <UserHome /> },
+          { path: "chat", element: <Chat /> },
           { path: "travel", element: <Travels /> },
           { path: "guide", element: <Guides /> },
           { path: "user-profile", element: <UserProfile /> },

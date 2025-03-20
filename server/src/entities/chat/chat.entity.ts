@@ -17,13 +17,13 @@ export class Chat extends Base {
   @Column({ default: false })
   read: boolean;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (user) => user.sendMessage, { onDelete: 'CASCADE' })
+  @Field(() => User,{nullable:true})
+  @ManyToOne(() => User, (user) => user.sendMessage, { onDelete: 'CASCADE', nullable:true })
   @JoinColumn({ name: 'sender_user_id' })
   senderUser: User;
 
-  @Field(() => User)
-  @ManyToOne(() => User, (user) => user.sendMessage, { onDelete: 'CASCADE' })
+  @Field(() => User, {nullable:true})
+  @ManyToOne(() => User, (user) => user.sendMessage, { onDelete: 'CASCADE', nullable:true })
   @JoinColumn({ name: 'receiver_user_id' })
   receiverUser: User;
 

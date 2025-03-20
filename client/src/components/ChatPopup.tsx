@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ROOM_CHATS } from "@/mutation/queries";
 import ChatMessages from "./ui/ChatMessage";
+import { useNavigate } from "react-router-dom";
 
 
 const ChatPopup = () => {
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   const { data, loading, error } = useQuery(GET_ROOM_CHATS);
+  const navigate = useNavigate()
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading chats.</p>;
 
@@ -52,7 +54,7 @@ const ChatPopup = () => {
             )}
           </div>
           <div className="p-3 text-center border-t border-gray-200">
-            <button className="text-sm text-blue-600 hover:text-blue-800">
+            <button className="text-sm text-blue-600 hover:text-blue-800" onClick={()=>navigate('/chat')}>
               View All Users
             </button>
           </div>

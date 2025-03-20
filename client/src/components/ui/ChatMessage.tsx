@@ -9,81 +9,151 @@ const GET_CHAT_OF_TRAVEL = gql`
       id
       message
       read
+      senderTravel {
+        id
+        firstName
+        middleName
+        lastName
+      }
+      receiverTravel {
+        id
+        firstName
+        middleName
+        lastName
+      }
     }
   }
 `;
 
+interface Travel {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+}
+
+interface Chat {
+  id: string;
+  message: string;
+  read: boolean;
+  senderTravel?: Travel;
+  receiverTravel?: Travel;
+}
+
 const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => void }) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<Chat[]>([]);
   const { socket } = useSocket();
 
-  const { data, loading, error, refetch } = useQuery(GET_CHAT_OF_TRAVEL, {
+  const { data, loading, error } = useQuery(GET_CHAT_OF_TRAVEL, {
     variables: { travelId },
-    onCompleted: (data) => setMessages(data?.getChatOfTravel || []),
   });
 
   useEffect(() => {
-    socket.on("travel-message", (newMessage: any) => {
-      setMessages((prev) => [...prev, newMessage]); 
-    });
+    if (data?.getChatOfTravel) {
+      setMessages(data.getChatOfTravel);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const handleNewMessage = (newMessage: Chat) => {
+      setMessages((prev) => [...prev, newMessage]);
+    };
+
+    socket.on("travel-message-to-user", handleNewMessage);
 
     return () => {
-      socket.off("travel-message");
+      socket.off("travel-message-to-user", handleNewMessage);
     };
   }, [socket]);
 
-  const chat = async (e: any) => {
+  const sendMessage = async (e: any) => {
     e.preventDefault();
-    const newMessage = { id: Date.now(), message, read: false };
-    setMessages((prev) => [...prev, newMessage]);
+    if (!message.trim()) return;
+
+    const newMessage: Chat = {
+      id: Date.now().toString(),
+      message,
+      read: false,
+      senderTravel: { id: travelId, firstName: "You", lastName: "" },
+    };
+
+    setMessages((prev) => [...prev, newMessage]); 
     socket.emit("travel-message", { travelId, message });
     setMessage("");
-    refetch(); 
   };
 
-  if (loading) return <p>Loading messages...</p>;
-  if (error) return <p>{error.message}</p>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-96">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="flex items-center justify-center h-96">
+      <p className="text-red-500">{error.message}</p>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col h-96">
-      <div className="p-4 border-b border-gray-200 flex items-center">
-        <button onClick={onBack} className="text-blue-600 flex hover:text-blue-800 mr-4">
-          <span className="flex pt-1">
-            <IoArrowBack />
-          </span>
-          Back
+    <div className="flex flex-col h-[100vh] md:h-96 w-full max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-200 flex items-center sticky top-0 bg-white z-10">
+        <button 
+          onClick={onBack} 
+          className="text-blue-600 flex items-center hover:text-blue-800 mr-4 transition-colors duration-200"
+        >
+          <IoArrowBack className="mr-1" />
+          <span className="hidden sm:inline">Back</span>
         </button>
         <h3 className="text-lg font-semibold">Chat Messages</h3>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.length === 0 ? (
-          <p className="text-gray-500">No messages</p>
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">No messages yet</p>
+          </div>
         ) : (
-          messages.map((chat) => (
-            <div key={chat.id} className="p-2 border-b border-gray-100 last:border-0">
-              <p className="text-sm text-gray-800">{chat.message}</p>
-              <div className="flex items-center mt-1">
-                <span className="text-xs text-gray-500">{chat.read ? "Read" : "Delivered"}</span>
+          messages.map((chat) => {
+            const isReceived = chat.receiverTravel || (!chat.senderTravel && !chat.receiverTravel);
+            return (
+              <div
+                key={chat.id}
+                className={`flex ${isReceived ? "justify-start" : "justify-end"}`}
+              >
+                <div
+                  className={`max-w-[80%] sm:max-w-[70%] md:max-w-[60%] p-3 rounded-lg ${
+                    isReceived
+                      ? "bg-white text-left rounded-tl-none shadow-sm"
+                      : "bg-blue-500 text-white text-right rounded-tr-none shadow-sm"
+                  }`}
+                >
+                  <p className="text-sm break-words">{chat.message}</p>
+                  <span className={`text-xs mt-1 block ${isReceived ? "text-gray-500" : "text-blue-100"}`}>
+                    {chat.read ? "Read" : "Delivered"}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-200">
-        <form onSubmit={chat} className="flex gap-2">
+      {/* Message Input */}
+      <div className="p-4 border-t border-gray-200 sticky bottom-0 bg-white">
+        <form onSubmit={sendMessage} className="flex gap-2">
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+            className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200 whitespace-nowrap"
           >
             Send
           </button>
