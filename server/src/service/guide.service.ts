@@ -34,139 +34,128 @@ class GuideService {
   ) {}
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
-    console.log("🚀 ~ GuideService ~ create ~ data:", data)
-    return await AppDataSource.transaction(
-      async (transactionalEntityManager) => {
-        try {
-          const emailExist = await transactionalEntityManager.findOne(
-            this.guideRepo.target,
-            {
-              where: { email: data.email },
-            },
+    console.log("🚀 ~ GuideService ~ create ~ data:", data);
+    return await AppDataSource.transaction(async (transactionalEntityManager) => {
+      try {
+        const emailExist = await transactionalEntityManager.findOne(
+          this.guideRepo.target,
+          { where: { email: data.email } }
+        );
+        if (emailExist)
+          throw HttpException.badRequest("Entered email is already registered");
+  
+        if (!data.email || !data.firstName || !data.lastName)
+          throw HttpException.badRequest("Please fill all the required fields");
+  
+        if (!emailRegex.test(data.email))
+          throw HttpException.badRequest("Please enter a valid email");
+  
+        if (!passwordRegex.test(data.password)) {
+          throw HttpException.badRequest(
+            "Password requires an uppercase, digit, and special char."
           );
-          if (emailExist)
-            throw HttpException.badRequest(
-              "Entered email is already registered",
-            );
-          if (!data.email || !data.firstName || !data.lastName)
-            throw HttpException.badRequest(
-              "Please fill all the required fields",
-            );
-
-          if (!emailRegex.test(data.email)) {
-            throw HttpException.badRequest("Please enter a valid email");
+        }
+  
+        const otp = await otpService.generateOTP();
+        const expires = Date.now() + 5 * 60 * 1000;
+        const payload = `${data.email}.${otp}.${expires}`;
+        const hashedOtp = hashService.hashOtp(payload);
+        const newOtp = `${hashedOtp}.${expires}`;
+  
+        const guide = transactionalEntityManager.create(this.guideRepo.target, {
+          email: data.email,
+          password: await bcryptService.hash(data.password),
+          firstName: data.firstName,
+          middleName: data?.middleName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          gender: Gender[data.gender as keyof typeof Gender],
+          otp: newOtp,
+        });
+  
+        const saves = await transactionalEntityManager.save(this.guideRepo.target, guide);
+  
+        const guidedetails = transactionalEntityManager.create(
+          this.guideDetailsrepo.target,
+          {
+            DOB: data.DOB,
+            nationality: data.nationality,
+            province: data.province,
+            district: data.district,
+            municipality: data.municipality,
+            licenseNumber: data.licenseNumber,
+            licenseValidityFrom: data.licenseValidityFrom,
+            licenseValidityTo: data.licenseValidityTo,
+            citizenshipId: data?.citizenshipId,
+            citizenshipIssueDate: data?.citizenshipIssueDate,
+            citizenshipIssueFrom: data?.citizenshipIssueFrom,
+            passportId: data?.passportId,
+            passportIssueDate: data?.passportIssueDate,
+            passportExpiryDate: data?.passportExpiryDate,
+            passportIssueFrom: data?.passportIssueFrom,
+            voterId: data?.voterId,
+            voterAddress: data?.voterAddress,
+            guide: saves,
           }
-          if (!passwordRegex.test(data.password)) {
-            throw HttpException.badRequest(
-              "Password requires an uppercase, digit, and special char.",
-            );
-          }
-          const otp = await otpService.generateOTP();
-          const expires = Date.now() + 5 * 60 * 1000;
-          const payload = `${data.email}.${otp}.${expires}`;
-          const hashedOtp = hashService.hashOtp(payload);
-          const newOtp = `${hashedOtp}.${expires}`;
-          const guide = transactionalEntityManager.create(
-            this.guideRepo.target,
-            {
-              email: data.email,
-              password: await bcryptService.hash(data.password),
-              firstName: data.firstName,
-              middleName: data?.middleName,
-              lastName: data.lastName,
-              phoneNumber: data.phoneNumber,
-              gender: Gender[data.gender as keyof typeof Gender],
-              otp: newOtp,
-            },
-          );
-          const saves = await transactionalEntityManager.save(
-            this.guideRepo.target,
-            guide,
-          );
-          const guidedetails = transactionalEntityManager.create(
-            this.guideDetailsrepo.target,
-            {
-              DOB: data.DOB,
-              nationality: data.nationality,
-              province: data.province,
-              district: data.district,
-              municipality: data.municipality,
-              licenseNumber: data.licenseNumber,
-              licenseValidityFrom: data.licenseValidityFrom,
-              licenseValidityTo: data.licenseValidityTo,
-              citizenshipId: data?.citizenshipId,
-              citizenshipIssueDate: data?.citizenshipIssueDate,
-              citizenshipIssueFrom: data?.citizenshipIssueFrom,
-              passportId: data?.passportId,
-              passportIssueDate: data?.passportIssueDate,
-              passportExpiryDate: data?.passportExpiryDate,
-              passportIssueFrom: data?.passportIssueFrom,
-              voterId: data?.voterId,
-              voterAddress: data?.voterAddress,
-              guide: guide,
-            },
-          );
-          await transactionalEntityManager.save(
-            this.guideDetailsrepo.target,
-            guidedetails,
-          );
-          if (!guide) {
-            throw HttpException.badRequest("Error Occured");
-          } else {
-            if (image) {
-              const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-              for (const key in image) {
-                const file = image[key];
-                if (!allowedMimeTypes.includes(file.mimetype)) {
-                  throw new Error(
-                    "Invalid image type. Only jpg, jpeg, and png are accepted.",
-                  );
-                }
-                const kyc = transactionalEntityManager.create(
-                  this.guideKycRepo.target,
-                  {
-                    name: file.name,
-                    mimetype: file.mimetype,
-                    type: file.type,
-                    fileType: file.fileType,
-                    guide: saves,
-                  },
-                );
-                const savedImage = await transactionalEntityManager.save(
-                  this.guideKycRepo.target,
-                  kyc,
-                );
-                console.log("Saved Image:", savedImage);
-
-                savedImage.transferKycToUpload(saves.id, savedImage.type);
-              }
-
-              const location = this.locationRepo.create({
-                latitude: parseFloat(data.latitude),
-                longitude: parseFloat(data.longitude),
-                guide: guide,
-              });
-              await this.locationRepo.save(location);
-
-              await otpService.sendOtp(guide.email, otp, expires);
-            } else {
-              throw HttpException.badRequest(
-                "Pleas provide all necessary items.",
+        );
+  
+        await transactionalEntityManager.save(this.guideDetailsrepo.target, guidedetails);
+  
+        if (!saves) throw HttpException.badRequest("Error Occurred");
+  
+        if (image) {
+          const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+          for (const key in image) {
+            const file = image[key];
+            console.log(file, "-----------------------------");
+            console.log(file.mimetype);
+            if (!allowedMimeTypes.includes(file.mimetype)) {
+              throw new Error(
+                "Invalid image type. Only jpg, jpeg, and png are accepted."
               );
             }
+            const kyc = transactionalEntityManager.create(this.guideKycRepo.target, {
+              name: file.name,
+              mimetype: file.mimetype,
+              type: file.type,
+              fileType: file.fileType,
+              guide: saves,
+            });
+  
+            const savedImage = await transactionalEntityManager.save(
+              this.guideKycRepo.target,
+              kyc
+            );
+  
+            console.log("Saved Image:", savedImage);
+            savedImage.transferKycToUpload(saves.id, savedImage.type);
           }
-
-          return guide;
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            throw HttpException.badRequest(error?.message);
-          } else {
-            throw HttpException.internalServerError;
-          }
+  
+          const location = transactionalEntityManager.create(this.locationRepo.target, {
+            latitude: parseFloat(data.latitude),
+            longitude: parseFloat(data.longitude),
+            guide: saves,
+          });
+  
+          await transactionalEntityManager.save(this.locationRepo.target, location);
+  
+          await otpService.sendOtp(saves.email, otp, expires);
+        } else {
+          throw HttpException.badRequest("Please provide all necessary items.");
         }
-      },
-    );
+  
+        return saves;
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.log(error);
+          throw HttpException.badRequest(error?.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    });
   }
+   
 
   async reSendOtp(email: string): Promise<string> {
     try {

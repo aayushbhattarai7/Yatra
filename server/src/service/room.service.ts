@@ -4,13 +4,15 @@ import HttpException from '../utils/HttpException.utils'
 import { User } from '../entities/user/user.entity'
 import { Travel } from '../entities/travels/travel.entity'
 import { Chat } from '../entities/chat/chat.entity'
+import { Guide } from '../entities/guide/guide.entity'
 
 export class RoomService {
   constructor(
     private readonly roomrepo = AppDataSource.getRepository(Room),
     private readonly userRepo = AppDataSource.getRepository(User),
     private readonly chatRepo = AppDataSource.getRepository(Chat),
-    private readonly travelRepo = AppDataSource.getRepository(Travel)
+    private readonly travelRepo = AppDataSource.getRepository(Travel),
+    private readonly guideRepo = AppDataSource.getRepository(Guide)
   ) {}
   async checkRoomWithTravel(userId: string, receiverId: string) {
     try {
@@ -40,20 +42,24 @@ throw HttpException.internalServerError(error.message)    }
   async checkRoomWithGuide(userId: string, receiverId: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId })
-      if (!user) return null
+      if (!user) throw HttpException.badRequest("User not found")
 
-      const receiver = await this.userRepo.findOneBy({ id: receiverId })
-      if (!receiver) return null
+      const receiver = await this.guideRepo.findOneBy({ id: receiverId })
+      if (!receiver) throw HttpException.badRequest("Travel not found")
 
       const findRoom = await this.roomrepo.findOne({
         where: [
-          { user: { id: userId }, travel: { id: receiverId } },
-          { travel: { id: receiverId }, user: { id: userId } },
+          { user: { id: userId }, guide: { id: receiverId } },
+          { guide: { id: receiverId }, user: { id: userId } },
         ],
       })
       if (!findRoom) {
-        return null
-      }
+        const createRoom = this.roomrepo.create({
+          user:user,
+          guide:receiver
+                })    
+                await this.roomrepo.save(createRoom)
+      return createRoom  }
       return findRoom
     } catch (error) {
       console.log('🚀 ~ RoomService ~ checkRoom ~ error:', error)

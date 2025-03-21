@@ -69,12 +69,25 @@ const Navbar = () => {
   };
 
   const handleNotificationClick = () => {
-    setShowNotifications(!showNotifications);
-    const decode = jwtDecode<{ id: string }>(token);
+    setShowChat(false)
+    setShowNotifications(!showNotifications)
+    setShowProfile(false)
+        const decode = jwtDecode<{ id: string }>(token);
     console.log(decode.id, "ieeddd");
     socket.emit("read-user-notification", decode.id);
   };
 
+  const openChat = () => {
+    setShowChat(!isOpen)
+    setShowNotifications(false)
+    setShowProfile(false)
+  }
+
+  const openProfile = () => {
+    setShowChat(false)
+    setShowNotifications(false)
+    setShowProfile(!showProfile)
+  }
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -105,7 +118,7 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-6">
               <div className="flex items-center space-x-4">
                 <PopupButton
-                  onClick={() => setShowChat(!showChat)}
+                  onClick={openChat}
                   show={showChat}
                   popup={<ChatPopup />}
                   icon={MessageSquare}
@@ -120,7 +133,7 @@ const Navbar = () => {
                 />
               </div>
               <PopupButton
-                onClick={() => setShowProfile(!showProfile)}
+                onClick={openProfile}
                 show={showProfile}
                 popup={<ProfilePopup />}
                 profileImage

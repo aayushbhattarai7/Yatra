@@ -75,7 +75,7 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
       id: Date.now().toString(),
       message,
       read: false,
-      senderTravel: { id: travelId, firstName: "You", lastName: "" },
+      receiverTravel: { id: travelId, firstName: "You", lastName: "" }, // Mark it as sent
     };
 
     setMessages((prev) => [...prev, newMessage]); 
@@ -88,7 +88,7 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
     </div>
   );
-  
+
   if (error) return (
     <div className="flex items-center justify-center h-96">
       <p className="text-red-500">{error.message}</p>
@@ -97,7 +97,6 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
 
   return (
     <div className="flex flex-col h-[100vh] md:h-96 w-full max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
-      {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center sticky top-0 bg-white z-10">
         <button 
           onClick={onBack} 
@@ -109,7 +108,6 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
         <h3 className="text-lg font-semibold">Chat Messages</h3>
       </div>
 
-      {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
@@ -117,21 +115,21 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
           </div>
         ) : (
           messages.map((chat) => {
-            const isReceived = chat.receiverTravel || (!chat.senderTravel && !chat.receiverTravel);
+            const isSent =
+              (chat.receiverTravel && chat.receiverTravel.id === travelId) || 
+              (!chat.senderTravel && !chat.receiverTravel); 
+
             return (
-              <div
-                key={chat.id}
-                className={`flex ${isReceived ? "justify-start" : "justify-end"}`}
-              >
+              <div key={chat.id} className={`flex ${isSent ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[80%] sm:max-w-[70%] md:max-w-[60%] p-3 rounded-lg ${
-                    isReceived
-                      ? "bg-white text-left rounded-tl-none shadow-sm"
-                      : "bg-blue-500 text-white text-right rounded-tr-none shadow-sm"
+                    isSent
+                      ? "bg-blue-500 text-white text-right rounded-tr-none shadow-sm"
+                      : "bg-white text-left rounded-tl-none shadow-sm"
                   }`}
                 >
                   <p className="text-sm break-words">{chat.message}</p>
-                  <span className={`text-xs mt-1 block ${isReceived ? "text-gray-500" : "text-blue-100"}`}>
+                  <span className={`text-xs mt-1 block ${isSent ? "text-blue-100" : "text-gray-500"}`}>
                     {chat.read ? "Read" : "Delivered"}
                   </span>
                 </div>

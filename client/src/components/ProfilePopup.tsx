@@ -38,7 +38,7 @@ const ProfilePopup = () => {
     <>
       {logout && <LogoutPopup onClose={() => setLogout(false)} />}
 
-      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <img className="h-10 w-10 rounded-full" alt="Profile" />
@@ -47,7 +47,6 @@ const ProfilePopup = () => {
                 {user?.firstName} {user?.middleName} {user?.lastName}
               </h4>
               <p className="text-xs text-gray-600">{user?.email}</p>
-              <p className="text-xs text-gray-600">{user?.phoneNumber}</p>
             </div>
           </div>
         </div>

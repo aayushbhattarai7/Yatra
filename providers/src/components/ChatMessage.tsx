@@ -36,8 +36,8 @@ interface Chat {
   id: string;
   message: string;
   read: boolean;
-  senderUser: User;
-  receiverUser: User;
+  senderUser?: User;
+  receiverUser?: User;
 }
 
 const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }) => {
@@ -72,8 +72,7 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
       id: Date.now().toString(),
       message,
       read: false,
-      senderUser: { id: userId, firstName: "", lastName: "" }, 
-      receiverUser: { id: "", firstName: "", lastName: "" }, 
+      receiverUser: { id: userId, firstName: "", lastName: "" }, 
     };
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -89,9 +88,7 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
     <div className="flex flex-col h-96">
       <div className="p-4 border-b border-gray-200 flex items-center">
         <button onClick={onBack} className="text-blue-600 flex hover:text-blue-800 mr-4">
-          <span className="flex pt-1">
-            <IoArrowBack />
-          </span>
+          <IoArrowBack className="mr-2" />
           Back
         </button>
         <h3 className="text-lg font-semibold">Chat Messages</h3>
@@ -102,18 +99,13 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
           <p className="text-gray-500">No messages</p>
         ) : (
           messages.map((chat) => {
-            const isSender = chat.senderUser?.id === userId;
+            const isSent = chat.receiverUser && chat.receiverUser.id === userId;
             return (
-              <div
-                key={chat.id}
-                className={`flex ${!isSender ? "justify-end" : "justify-start"}`}
-              >
+              <div key={chat.id} className={`flex ${isSent ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`p-3 rounded-lg ${
-                    !isSender
-                      ? "bg-blue-500 text-white self-end"
-                      : "bg-gray-200 text-black self-start"
-                  } max-w-xs`}
+                    isSent ? "bg-blue-500 text-white self-end" : "bg-gray-200 text-black self-start"
+                  } max-w-xs shadow-md`}
                 >
                   <p className="text-sm">{chat.message}</p>
                   <span className="text-xs text-gray-500">{chat.read ? "Read" : "Delivered"}</span>
@@ -121,7 +113,6 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
               </div>
             );
           })
-          
         )}
       </div>
 

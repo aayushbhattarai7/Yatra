@@ -938,6 +938,8 @@ class UserService {
           },
         );
       }
+      const room = await roomService.checkRoomWithTravel(userId, request.travel.id)
+
       return paymentIntent.client_secret;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1024,6 +1026,8 @@ class UserService {
           senderUser: user,
           receiverTravel:request.travel
         })
+        const room = await roomService.checkRoomWithTravel(userId, request.travel.id)
+
         const saveNotification = await this.notificationRepo.save(notification)
         console.log(saveNotification)
         const notifications = await this.notificationRepo.find({

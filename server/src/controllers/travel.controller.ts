@@ -12,7 +12,6 @@ export class TravelController {
     try {
       
       const { kycType } = req.body;
-      console.log("🚀 ~ TravelController ~ create ~ kycType:", kycType)
 
       const uploadedPhotos: any = {
         passPhoto: req.files?.passPhoto?.[0]
