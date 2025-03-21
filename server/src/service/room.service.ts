@@ -41,6 +41,7 @@ throw HttpException.internalServerError(error.message)    }
   }
   async checkRoomWithGuide(userId: string, receiverId: string) {
     try {
+      console.log(userId,receiverId,"-----------------------------")
       const user = await this.userRepo.findOneBy({ id: userId })
       if (!user) throw HttpException.badRequest("User not found")
 
@@ -89,6 +90,19 @@ throw HttpException.internalServerError(error.message)    }
     if(!travel) throw HttpException.unauthorized("You are not authorized")
 
       const getConnectUsers = await this.roomrepo.find({where:{travel:{id:travel_id}}, relations:["user","travel"]})
+return getConnectUsers
+  } catch (error:unknown) {
+    if(error instanceof Error)
+    throw HttpException.badRequest(error.message)
+  }
+  }
+  async getUserOfChatByGuide( guide_id:string) {
+  try {
+
+    const guide = await this.guideRepo.findOneBy({id:guide_id})
+    if(!guide) throw HttpException.unauthorized("You are not authorized")
+
+      const getConnectUsers = await this.roomrepo.find({where:{guide:{id:guide_id}}, relations:["user","guide"]})
 return getConnectUsers
   } catch (error:unknown) {
     if(error instanceof Error)

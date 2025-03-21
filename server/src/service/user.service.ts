@@ -1102,19 +1102,23 @@ class UserService {
         throw HttpException.unauthorized("User not found");
       }
 
-      const request = await this.guideRequestRepo.findOneBy({ id: requestId });
+      const request = await this.guideRequestRepo.findOne({where:{ id: requestId },relations:["guide"]});
       if (!request) {
         throw HttpException.notFound("Request not found");
       }
+      console.log("🚀 ~ UserService ~ request:", request)
       const payment = await esewaService.verifyPayment(token)
       console.log(payment?.verifiedData)
       if (payment) {
-        
+        console.log("done 1")
         await this.guideRequestRepo.update(
           { id: request.id },
           { status: RequestStatus.ACCEPTED,paymentType:PaymentType.ESEWA },
         );
-        await roomService.checkRoomWithGuide(request.guide.id, request.users.id)
+        console.log("done 2")
+        
+        await roomService.checkRoomWithGuide(userId,request.guide.id)
+        console.log("done 3")
 
         return booked("Guide");
       } else {

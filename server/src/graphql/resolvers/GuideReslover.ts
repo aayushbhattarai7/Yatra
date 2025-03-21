@@ -5,14 +5,18 @@ import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
 import { FileType, KycType, Role } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-import { GuideResponse, LoginResponse } from "../../graphql/schema/schema";
+import {  LoginResponse } from "../../graphql/schema/schema";
 import webTokenService from "../../service/webToken.service";
 import { Message } from "../../constant/message";
 import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
-import { GuideDetails } from "../../entities/guide/guideDetails.entity";
-
+import { Chat } from "../../entities/chat/chat.entity";
+import { ChatService } from "../../service/chat.service";
+import { Room } from "../../entities/chat/room.entity";
+import { RoomService } from "../../service/room.service";
+const roomService = new RoomService()
+const chatService = new ChatService()
 export class GuideResolver {
   private guideService = new GuideService();
   @Mutation(() => Guide)
@@ -207,6 +211,36 @@ export class GuideResolver {
       const data = { latitude, longitude };
       const travelId = ctx.req.user?.id!;
       return await this.guideService.addLocation(travelId, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getChatOfUserByGuide(@Ctx() ctx: Context, @Arg("userId") userId: string) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await chatService.getChatByGuideOfUser(travelId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+      throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Room])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getChatUserByGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await roomService.getUserOfChatByGuide(guideId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

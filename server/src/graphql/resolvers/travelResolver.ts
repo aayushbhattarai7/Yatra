@@ -300,6 +300,7 @@ export class TravelResolver {
       }
     }
   }
+
   @Query(() => [Room])
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getChatUserByTravel(@Ctx() ctx: Context) {

@@ -2,6 +2,8 @@ import { useSocket } from "../contexts/SocketContext";
 import { gql, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { IoArrowBack } from "react-icons/io5";
+import { getCookie } from "../function/GetCookie";
+import { jwtDecode } from "jwt-decode";
 
 const GET_CHAT_OF_TRAVEL = gql`
   query GetChatOfUserByTravel($userId: String!) {
@@ -24,6 +26,27 @@ const GET_CHAT_OF_TRAVEL = gql`
     }
   }
 `;
+const GET_CHAT_OF_GUIDE = gql`
+  query GetChatOfUserByGuide($userId: String!) {
+  getChatOfUserByGuide(userId: $userId) {
+    id
+      message
+      read
+      senderUser {
+        id
+        firstName
+        middleName
+        lastName
+      }
+      receiverUser {
+        id
+        firstName
+        middleName
+        lastName
+      }  
+  }
+}
+`;
 
 interface User {
   id: string;
@@ -42,9 +65,12 @@ interface Chat {
 
 const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }) => {
   const [message, setMessage] = useState("");
+  const token = getCookie("accessToken")
+  const decodedToken:any = jwtDecode(token!)
+  const query = decodedToken.role==="TRAVEL"?GET_CHAT_OF_TRAVEL:GET_CHAT_OF_GUIDE
   const [messages, setMessages] = useState<Chat[]>([]);
   const { socket } = useSocket();
-  const { data, loading, error } = useQuery(GET_CHAT_OF_TRAVEL, { variables: { userId } });
+  const { data, loading, error } = useQuery(query, { variables: { userId } });
 
   useEffect(() => {
     if (data?.getChatOfUserByTravel) {

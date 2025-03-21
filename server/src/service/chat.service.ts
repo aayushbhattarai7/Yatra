@@ -151,6 +151,27 @@ io.to(travelId).emit("travel-message",chat)
       throw HttpException.badRequest(error.message)
     }
     }
+  async getChatByGuideOfUser(guideId:string, userId:string) {
+    try {
+      const user = await this.guideRepo.findOneBy({id:guideId})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+  
+        const chats = await this.chatRepo.find({
+          where: [
+            { senderGuide: { id: guideId }, receiverUser: { id: userId } }, 
+            { receiverGuide: { id: guideId }, senderUser: { id: userId } }, 
+          ],
+          relations: ['receiverGuide', 'receiverUser', 'senderUser','senderGuide'],
+          order: { createdAt: 'ASC' }, 
+        });
+        
+        if (!chats) throw HttpException.notFound
+        return chats
+    } catch (error:unknown) {
+      if(error instanceof Error)
+      throw HttpException.badRequest(error.message)
+    }
+    }
 
     async chatByTravel(travel_id:string, user_id:string, message:string){
 
@@ -174,6 +195,36 @@ io.to(travelId).emit("travel-message",chat)
           await this.chatRepo.save(chat)
   // const getChats = await this.chatRepo.find({where:{receiverTravel:{id:user_id}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
   // io.to(user_id).emit("message", getChats)
+  io.to(user_id).emit("travel-message-to-user",chat)
+         return chat
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+    async chatByGuide(guide_id:string, user_id:string, message:string){
+
+      try {
+        const guide = await this.guideRepo.findOneBy({ id: guide_id })
+        if (!guide) throw HttpException.unauthorized("You are not authorized")
+  
+        const user = await this.userRepo.findOneBy({ id: user_id })
+        if (!user) throw HttpException.notFound("User not found")
+  const getRoom = await roomService.checkRoomWithGuide(user_id, guide_id)
+        if(!getRoom) throw HttpException.notFound("Room not found")
+        const room = await this.roomRepo.findOneBy({ id: getRoom.id })
+        if (!room) throw HttpException.notFound('room not found')   
+          
+          const chat = this.chatRepo.create({
+            message:message,
+            room:room,
+            receiverUser:user,
+            senderGuide:guide
+          })
+          await this.chatRepo.save(chat)
   io.to(user_id).emit("travel-message-to-user",chat)
          return chat
       } catch (error: unknown) {

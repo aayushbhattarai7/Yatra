@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import ChatMessages from "./ChatMessage";
-import { GET_USER_FOR_CHAT } from "../mutation/queries";
+import { GET_USER_FOR_CHAT, GET_USER_FOR_CHAT_BY_GUIDE } from "../mutation/queries";
+import { getCookie } from "../function/GetCookie";
+import { jwtDecode } from "jwt-decode";
 interface Room{
 id:string;
 user:{
@@ -21,17 +23,20 @@ travel:{
 }
 
 const ChatPopup = () => {
+  const token = getCookie("accessToken")
+  const decodedToken:any = jwtDecode(token!)
+  const query = decodedToken.role==="TRAVEL"?GET_USER_FOR_CHAT:GET_USER_FOR_CHAT_BY_GUIDE
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const { data, loading, error } = useQuery(GET_USER_FOR_CHAT);
+  const { data, loading, error } = useQuery(query);
   console.log("🚀 ~ ChatPopup ~ data:", data)
   const [userInRoom, setUserInRoom] = useState<Room[]>([])
-  // if (!data || loading) return <p>Loading...</p>;
-  // if (error || !data?.getChatUserByTravel) return <p>Error loading chats.</p>;
 
   useEffect(()=>{
     if(data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel)
-    
   },[data?.getChatUserByTravel])
+  useEffect(()=>{
+    if(data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide)
+  },[data?.getChatUserByGuide])
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">

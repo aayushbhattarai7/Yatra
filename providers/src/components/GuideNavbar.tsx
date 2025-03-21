@@ -51,7 +51,7 @@ const GuideNavBar = () => {
   const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     if (!target.closest(".popup-container")) {
-      closeAllPopups();
+      // closeAllPopups();
     }
   };
 

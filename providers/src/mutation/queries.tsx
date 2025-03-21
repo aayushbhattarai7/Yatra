@@ -279,3 +279,25 @@ query GetChatUserByTravel {
   }
 }
 `;
+export const GET_USER_FOR_CHAT_BY_GUIDE = gql`
+query GetChatUserByGuide {
+  getChatUserByGuide {
+   id
+  user {
+    id
+    firstName
+    middleName
+    lastName
+    gender
+  }  
+  guide {
+    id
+    firstName
+    middleName
+    lastName
+    gender
+  
+  }  
+  }
+}
+`;

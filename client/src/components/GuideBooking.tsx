@@ -256,7 +256,7 @@ const GuideBooking = () => {
             {pay && (
               <Esewa
                 id={book.id}
-                amounts={parseInt(book.price)}
+                amount={parseInt(book.price)}
                 type="guide"
               />
             )}
