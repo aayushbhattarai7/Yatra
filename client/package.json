@@ -13,6 +13,8 @@
   "dependencies": {
     "@apollo/client": "^3.13.1",
     "@chakra-ui/react": "^3.5.1",
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@emotion/react": "^11.14.0",
     "@react-oauth/google": "^0.12.1",
     "@stripe/react-stripe-js": "^3.0.0",
@@ -24,6 +26,7 @@
     "axios": "^1.8.3",
     "button": "link:components/ui/button",
     "crypto-js": "^4.2.0",
+    "emoji-picker-react": "^4.12.2",
     "framer-motion": "^12.0.6",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",

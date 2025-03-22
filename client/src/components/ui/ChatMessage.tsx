@@ -1,9 +1,15 @@
+import React from 'react';
 import { useSocket } from "@/contexts/SocketContext";
 import { GET_CHAT_OF_GUIDE } from "@/mutation/queries";
 import { gql, useQuery } from "@apollo/client";
-import { useState, useEffect } from "react";
-import { IoArrowBack } from "react-icons/io5";
+import { useState, useEffect, useMemo } from "react";
+import { IoArrowBack, IoSend } from "react-icons/io5";
+import { BsEmojiSmile } from "react-icons/bs";
+import { X } from 'lucide-react';
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
+const emoji = data;
 const GET_CHAT_OF_TRAVEL = gql`
   query GetChatOfTravel($id: String!) {
     getChatOfTravel(id: $id) {
@@ -32,6 +38,7 @@ interface Travel {
   middleName?: string;
   lastName: string;
 }
+
 interface Guide {
   id: string;
   firstName: string;
@@ -48,30 +55,38 @@ interface Chat {
   receiverTravel?: Travel;
   receiverGuide?: Guide;
 }
+
 interface Details {
-  id:string;
-  firstName:string;
-  middleName:string;
-  lastName:string;
-  role:string
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  role: string;
 }
 
-const ChatMessages = ({ details, onBack,  }: { details: Details; onBack: () => void }) => {
-  console.log("🚀 ~ details:", details)
+const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => void }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Chat[]>([]);
+  const [showPicker, setShowPicker] = useState(false);
   const { socket } = useSocket();
-  const query  = details.role==="TRAVEL"?GET_CHAT_OF_TRAVEL:GET_CHAT_OF_GUIDE
+  const emojiData: any = useMemo(() => emoji, []);
+  const query = details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
 
   const { data, loading, error } = useQuery(query, {
-    variables: { id:details.id },
+    variables: { id: details.id },
   });
-const datas = details.role==="TRAVEL"?data?.getChatOfTravel:data?.getChatOfGuide
+
+  const datas = details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
+
   useEffect(() => {
     if (datas) {
       setMessages(datas);
     }
   }, [data]);
+
+  const addEmoji = (emoji: any) => {
+    setMessage((prev) => prev + emoji.native);
+  };
 
   useEffect(() => {
     const handleNewMessage = (newMessage: Chat) => {
@@ -93,67 +108,83 @@ const datas = details.role==="TRAVEL"?data?.getChatOfTravel:data?.getChatOfGuide
       id: Date.now().toString(),
       message,
       read: false,
-      receiverTravel: { id: details.id, firstName: "You", lastName: "" }, 
+      receiverTravel: { id: details.id, firstName: "You", lastName: "" },
     };
-const emitMessage = details.role === "GUIDE"?"guide-message":"travel-message"
-    console.log("🚀 ~ sendMessage ~ emitMessage:", emitMessage)
-    setMessages((prev) => [...prev, newMessage]); 
-    socket.emit(`${emitMessage}`, { id:details.id, message });
+
+    const emitMessage = details.role === "GUIDE" ? "guide-message" : "travel-message";
+    setMessages((prev) => [...prev, newMessage]);
+    socket.emit(`${emitMessage}`, { id: details.id, message });
     setMessage("");
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center h-96">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
     </div>
   );
 
   if (error) return (
-    <div className="flex items-center justify-center h-96">
-      <p className="text-red-500">{error.message}</p>
+    <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+      <div className="bg-red-50 p-4 rounded-lg shadow-sm">
+        <p className="text-red-600 font-medium">{error.message}</p>
+      </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col h-[100vh] md:h-96 w-full max-w-2xl mx-auto bg-white shadow-lg rounded-lg">
-      <div className="p-4 border-b border-gray-200 flex items-center sticky top-0 bg-white z-10">
+    <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden border border-gray-100">
+      <div className="p-3 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onBack} 
+            className="text-gray-500 hover:text-blue-600 transition-colors duration-200"
+          >
+            <IoArrowBack className="text-xl" />
+          </button>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-800">
+              {`${details.firstName} ${details.middleName ? details.middleName + ' ' : ''}${details.lastName}`}
+            </h3>
+            <p className="text-xs text-gray-500">{details.role.toLowerCase()}</p>
+          </div>
+        </div>
         <button 
-          onClick={onBack} 
-          className="text-blue-600 flex items-center hover:text-blue-800 mr-4 transition-colors duration-200"
+          onClick={onBack}
+          className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
         >
-          <IoArrowBack className="mr-1" />
-          <span className="hidden sm:inline">Back</span>
+          <X size={18} />
         </button>
-        <h3 className="text-lg font-semibold">{`${details.firstName} ${ details.middleName},${details.lastName}`}</h3>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">No messages yet</p>
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="text-4xl mb-2">💬</div>
+            <p className="text-sm">No messages yet</p>
+            <p className="text-xs">Start the conversation!</p>
           </div>
         ) : (
           messages.map((chat) => {
-            console.log(chat?.receiverGuide?.id === details.id,'0o')
-            const isSentTravel =
-              (chat.receiverTravel && chat.receiverTravel.id === details.id) ||
-              (!chat.senderTravel && !chat.receiverTravel); 
-
-              const isSentGuide = (chat.receiverGuide && chat.receiverGuide.id === details.id) ||
-              (!chat.senderGuide && !chat.receiverGuide); 
-            const providers = details.role === "TRAVEL"?isSentTravel:isSentGuide
+            const isSentTravel = (chat.receiverTravel && chat.receiverTravel.id === details.id) ||
+              (!chat.senderTravel && !chat.receiverTravel);
+            const isSentGuide = (chat.receiverGuide && chat.receiverGuide.id === details.id) ||
+              (!chat.senderGuide && !chat.receiverGuide);
+            const providers = details.role === "TRAVEL" ? isSentTravel : isSentGuide;
 
             return (
-              <div key={chat.id} className={`flex ${providers ? "justify-end" : "justify-start"}`}>
+              <div key={chat.id} className={`flex ${providers ? "justify-end" : "justify-start"} animate-fade-in`}>
                 <div
-                  className={`max-w-[80%] sm:max-w-[70%] md:max-w-[60%] p-3 rounded-lg ${
-                    providers
-                      ? "bg-blue-500 text-white text-right rounded-tr-none shadow-sm"
-                      : "bg-white text-left rounded-tl-none shadow-sm"
-                  }`}
+                  className={`max-w-[75%] p-2.5 rounded-2xl text-sm
+                    ${providers
+                      ? "bg-blue-600 text-white rounded-br-none"
+                      : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
+                    } shadow-sm`}
                 >
-                  <p className="text-sm break-words">{chat.message}</p>
-                  <span className={`text-xs mt-1 block ${providers ? "text-blue-100" : "text-gray-500"}`}>
+                  <p className="leading-relaxed break-words">{chat.message}</p>
+                  <span 
+                    className={`text-[10px] mt-1 block 
+                      ${providers ? "text-blue-200" : "text-gray-400"}`}
+                  >
                     {chat.read ? "Read" : "Delivered"}
                   </span>
                 </div>
@@ -163,20 +194,39 @@ const emitMessage = details.role === "GUIDE"?"guide-message":"travel-message"
         )}
       </div>
 
-      <div className="p-4 border-t border-gray-200 sticky bottom-0 bg-white">
-        <form onSubmit={sendMessage} className="flex gap-2">
+      <div className="p-3 bg-white border-t border-gray-100 sticky bottom-0">
+        <form onSubmit={sendMessage} className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowPicker(!showPicker)}
+              className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-colors duration-200"
+            >
+              <BsEmojiSmile className="text-lg" />
+            </button>
+            {showPicker && (
+              <div className="absolute bottom-12 left-0 z-50 shadow-xl rounded-lg">
+                <Picker data={emojiData} set="native" onEmojiSelect={addEmoji} />
+              </div>
+            )}
+          </div>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-3 py-2 bg-gray-50 border border-gray-200 rounded-full 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+              placeholder-gray-400 text-gray-600 text-sm"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200 whitespace-nowrap"
+            disabled={!message.trim()}
+            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 
+              transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+              flex items-center justify-center"
           >
-            Send
+            <IoSend className="text-lg" />
           </button>
         </form>
       </div>

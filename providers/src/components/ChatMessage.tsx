@@ -82,6 +82,7 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
     const handleNewMessage = (chat: Chat) => {
       setMessages((prevMessages) => [...prevMessages, chat]);
     };
+    console.log("gettttt")
     socket.on("travel-message", handleNewMessage);
     socket.on("guide-message", handleNewMessage);
     
