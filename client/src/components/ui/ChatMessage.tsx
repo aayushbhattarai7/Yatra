@@ -1,11 +1,12 @@
 import { useSocket } from "@/contexts/SocketContext";
+import { GET_CHAT_OF_GUIDE } from "@/mutation/queries";
 import { gql, useQuery } from "@apollo/client";
 import { useState, useEffect } from "react";
 import { IoArrowBack } from "react-icons/io5";
 
 const GET_CHAT_OF_TRAVEL = gql`
-  query GetChatOfTravel($travelId: String!) {
-    getChatOfTravel(travelId: $travelId) {
+  query GetChatOfTravel($id: String!) {
+    getChatOfTravel(id: $id) {
       id
       message
       read
@@ -31,27 +32,44 @@ interface Travel {
   middleName?: string;
   lastName: string;
 }
+interface Guide {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+}
 
 interface Chat {
   id: string;
   message: string;
   read: boolean;
   senderTravel?: Travel;
+  senderGuide?: Guide;
   receiverTravel?: Travel;
+  receiverGuide?: Guide;
+}
+interface Details {
+  id:string;
+  firstName:string;
+  middleName:string;
+  lastName:string;
+  role:string
 }
 
-const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => void }) => {
+const ChatMessages = ({ details, onBack,  }: { details: Details; onBack: () => void }) => {
+  console.log("🚀 ~ details:", details)
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Chat[]>([]);
   const { socket } = useSocket();
+  const query  = details.role==="TRAVEL"?GET_CHAT_OF_TRAVEL:GET_CHAT_OF_GUIDE
 
-  const { data, loading, error } = useQuery(GET_CHAT_OF_TRAVEL, {
-    variables: { travelId },
+  const { data, loading, error } = useQuery(query, {
+    variables: { id:details.id },
   });
-
+const datas = details.role==="TRAVEL"?data?.getChatOfTravel:data?.getChatOfGuide
   useEffect(() => {
-    if (data?.getChatOfTravel) {
-      setMessages(data.getChatOfTravel);
+    if (datas) {
+      setMessages(datas);
     }
   }, [data]);
 
@@ -75,11 +93,12 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
       id: Date.now().toString(),
       message,
       read: false,
-      receiverTravel: { id: travelId, firstName: "You", lastName: "" }, // Mark it as sent
+      receiverTravel: { id: details.id, firstName: "You", lastName: "" }, 
     };
-
+const emitMessage = details.role === "GUIDE"?"guide-message":"travel-message"
+    console.log("🚀 ~ sendMessage ~ emitMessage:", emitMessage)
     setMessages((prev) => [...prev, newMessage]); 
-    socket.emit("travel-message", { travelId, message });
+    socket.emit(`${emitMessage}`, { id:details.id, message });
     setMessage("");
   };
 
@@ -105,7 +124,7 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
           <IoArrowBack className="mr-1" />
           <span className="hidden sm:inline">Back</span>
         </button>
-        <h3 className="text-lg font-semibold">Chat Messages</h3>
+        <h3 className="text-lg font-semibold">{`${details.firstName} ${ details.middleName},${details.lastName}`}</h3>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -115,21 +134,26 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
           </div>
         ) : (
           messages.map((chat) => {
-            const isSent =
-              (chat.receiverTravel && chat.receiverTravel.id === travelId) || 
+            console.log(chat?.receiverGuide?.id === details.id,'0o')
+            const isSentTravel =
+              (chat.receiverTravel && chat.receiverTravel.id === details.id) ||
               (!chat.senderTravel && !chat.receiverTravel); 
 
+              const isSentGuide = (chat.receiverGuide && chat.receiverGuide.id === details.id) ||
+              (!chat.senderGuide && !chat.receiverGuide); 
+            const providers = details.role === "TRAVEL"?isSentTravel:isSentGuide
+
             return (
-              <div key={chat.id} className={`flex ${isSent ? "justify-end" : "justify-start"}`}>
+              <div key={chat.id} className={`flex ${providers ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[80%] sm:max-w-[70%] md:max-w-[60%] p-3 rounded-lg ${
-                    isSent
+                    providers
                       ? "bg-blue-500 text-white text-right rounded-tr-none shadow-sm"
                       : "bg-white text-left rounded-tl-none shadow-sm"
                   }`}
                 >
                   <p className="text-sm break-words">{chat.message}</p>
-                  <span className={`text-xs mt-1 block ${isSent ? "text-blue-100" : "text-gray-500"}`}>
+                  <span className={`text-xs mt-1 block ${providers ? "text-blue-100" : "text-gray-500"}`}>
                     {chat.read ? "Read" : "Delivered"}
                   </span>
                 </div>
@@ -139,7 +163,6 @@ const ChatMessages = ({ travelId, onBack }: { travelId: string; onBack: () => vo
         )}
       </div>
 
-      {/* Message Input */}
       <div className="p-4 border-t border-gray-200 sticky bottom-0 bg-white">
         <form onSubmit={sendMessage} className="flex gap-2">
           <input

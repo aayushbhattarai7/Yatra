@@ -237,9 +237,11 @@ export class GuideResolver {
 
   @Query(() => [Room])
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
+
   async getChatUserByGuide(@Ctx() ctx: Context) {
     try {
       const guideId = ctx.req.user?.id!;
+      console.log(guideId,"idd0----")
       return await roomService.getUserOfChatByGuide(guideId);
     } catch (error) {
       if (error instanceof Error) {

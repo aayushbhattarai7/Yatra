@@ -306,10 +306,24 @@ export class UserResolver {
   }
   @Query(() => [Chat])
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getChatOfTravel(@Ctx() ctx: Context, @Arg("travelId") travelId: string) {
+  async getChatOfTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
-      return await chatService.getChatByUserOfTravel(userId, travelId);
+      return await chatService.getChatByUserOfTravel(userId, id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getChatOfGuide(@Ctx() ctx: Context, @Arg("id") id: string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await chatService.getChatByUserOfGuide(userId, id);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

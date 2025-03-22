@@ -32,11 +32,15 @@ const ChatPopup = () => {
   const [userInRoom, setUserInRoom] = useState<Room[]>([])
 
   useEffect(()=>{
-    if(data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel)
-  },[data?.getChatUserByTravel])
-  useEffect(()=>{
-    if(data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide)
-  },[data?.getChatUserByGuide])
+    if(decodedToken.role === "TRAVEL"){
+console.log("yess")
+      if(data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel)
+    }else{
+  console.log("no")
+  if(data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide)
+  }
+  },[data?.getChatUserByTravel, data?.getChatUserByGuide])
+
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">

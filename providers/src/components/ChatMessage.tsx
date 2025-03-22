@@ -67,42 +67,45 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
   const [message, setMessage] = useState("");
   const token = getCookie("accessToken")
   const decodedToken:any = jwtDecode(token!)
-  const query = decodedToken.role==="TRAVEL"?GET_CHAT_OF_TRAVEL:GET_CHAT_OF_GUIDE
   const [messages, setMessages] = useState<Chat[]>([]);
   const { socket } = useSocket();
+  const query  = decodedToken.role==="TRAVEL"?GET_CHAT_OF_TRAVEL:GET_CHAT_OF_GUIDE
   const { data, loading, error } = useQuery(query, { variables: { userId } });
-
+  const datas  = decodedToken.role==="TRAVEL"?data?.getChatOfUserByTravel:data?.getChatOfUserByGuide
   useEffect(() => {
-    if (data?.getChatOfUserByTravel) {
-      setMessages(data.getChatOfUserByTravel);
+    if (datas) {
+      setMessages(datas);
     }
   }, [data]);
-
+  
   useEffect(() => {
     const handleNewMessage = (chat: Chat) => {
       setMessages((prevMessages) => [...prevMessages, chat]);
     };
-
     socket.on("travel-message", handleNewMessage);
-
+    socket.on("guide-message", handleNewMessage);
+    
     return () => {
       socket.off("travel-message", handleNewMessage);
+      socket.off("guide-message", handleNewMessage);
     };
   }, [socket]);
-
+  
   const sendMessage = async (e: any) => {
     e.preventDefault();
     if (!message.trim()) return;
-
+    
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
       read: false,
       receiverUser: { id: userId, firstName: "", lastName: "" }, 
     };
+    const emitMessage = decodedToken.role === "TRAVEL"?"travel-message-user":"guide-message-user"
+    console.log("🚀 ~ emitMessage:", emitMessage, decodedToken.role)
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-    socket.emit("travel-message-user", { user_id: userId, message });
+    socket.emit(`${emitMessage}`, { user_id: userId, message });
 
     setMessage("");
   };

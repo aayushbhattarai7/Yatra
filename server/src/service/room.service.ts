@@ -83,6 +83,7 @@ throw HttpException.internalServerError(error.message)    }
     throw HttpException.badRequest(error.message)
   }
   }
+
   async getUserOfChatByTravel( travel_id:string) {
   try {
 

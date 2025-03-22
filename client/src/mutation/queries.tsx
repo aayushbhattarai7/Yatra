@@ -232,9 +232,39 @@ query GetConnectedUsers {
       middleName
       lastName
       gender
-      
+      role
     }
+      guide{
+        id
+      firstName
+      middleName
+      lastName
+      gender
+      role
+      }
    
   }
 }
 `;
+
+
+export const GET_CHAT_OF_GUIDE = gql`
+query GetChatOfGuide($id: String!) {
+  getChatOfGuide(id: $id) {
+  id
+      message
+      read
+      senderGuide {
+        id
+        firstName
+        middleName
+        lastName
+      }
+      receiverGuide {
+        id
+        firstName
+        middleName
+        lastName
+      }  }
+}
+`

@@ -72,9 +72,10 @@ await userService.readNotification(id)
 await travelService.addLocation(id, data)
        
       });
-      socket.on("guide-location", async ({ id, latitude, longitude }) => {
+      socket.on("guide-location", async ({ guideId, latitude, longitude }) => {
+        console.log("🚀 ~ socket.on ~ id:", guideId)
         const data = { latitude, longitude }
-await guideService.addLocation(id, data)
+await guideService.addLocation(guideId, data)
        
       });
     } catch (error: any) {
@@ -82,9 +83,15 @@ await guideService.addLocation(id, data)
     }
 
 
-    socket.on('travel-message', async ({ travelId,message,  }) => {
+    socket.on('travel-message', async ({ id,message,  }) => {
    const userId = socket.data.user.id
-       await chatService.chatWithTravel(userId, travelId, message)
+       console.log("🚀 ~ sockettravel:", userId)
+       await chatService.chatWithTravel(userId, id, message)
+    })
+    socket.on('guide-message', async ({ id,message }) => {
+    console.log("🚀 ~ socket.guide ~ message:", message)
+   const userId = socket.data.user.id
+       await chatService.chatWithGuide(userId, id, message)
     })
     socket.on('travel-message-user', async ({ user_id,message,  }) => {
    const userId = socket.data.user.id

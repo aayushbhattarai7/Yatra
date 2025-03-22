@@ -14,12 +14,12 @@ export class Room extends Base {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Field(() => Guide)
+  @Field(() => Guide,{nullable:true})
   @ManyToOne(() => Guide, (guide) => guide.guides, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'guide_id' })
   guide: Guide;
 
-  @Field(() => Travel)
+  @Field(() => Travel, {nullable:true})
   @ManyToOne(() => Travel, (travel) => travel.travels, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'travel_id' })
   travel: Travel;

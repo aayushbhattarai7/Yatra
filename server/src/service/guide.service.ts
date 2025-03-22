@@ -265,6 +265,8 @@ class GuideService {
   }
 
   async addLocation(guide_id: string, data: LocationDTO) {
+    console.log("🚀 ~ GuideService ~ addLocation ~ guide_id:", guide_id)
+    console.log("🚀 ~ GuideService ~ addLocation ~ data:", data)
     try {
       const guide = await this.guideRepo.findOneBy({ id: guide_id });
       if (!guide) throw HttpException.unauthorized("you are not authorized");

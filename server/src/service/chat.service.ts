@@ -21,7 +21,7 @@ const roomService = new RoomService()
   ) {}
 
 
-  async chatWithGuide(userId:string, guideId:string, data:ChatDTO){
+  async chatWithGuide(userId:string, guideId:string, message:string){
 
     try {
       const user = await this.userRepo.findOneBy({ id: userId })
@@ -35,15 +35,14 @@ const getRoom = await roomService.checkRoomWithGuide(userId, guideId)
       if (!room) throw HttpException.notFound('room not found')   
         
         const chat = this.chatRepo.create({
-          message:data.message,
+          message:message,
           room:room,
           receiverGuide:receiver,
           senderUser:user
 
         })
        const saveChat =  await this.chatRepo.save(chat)
-const getChats = await this.chatRepo.findBy({receiverGuide:{id:guideId}})
-io.to(guideId).emit("message", getChats)
+io.to(guideId).emit("guide-message", chat)
        return saveChat
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -120,6 +119,27 @@ io.to(travelId).emit("travel-message",chat)
             { receiverTravel: { id: travelId }, senderUser: { id: userId } }, // Travel received a message from User
           ],
           relations: ['receiverTravel', 'receiverUser', 'senderUser', 'senderTravel'],
+          order: { createdAt: 'ASC' }, 
+        });
+        console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
+        if (!chats) throw HttpException.notFound
+        return chats
+  } catch (error:unknown) {
+      if(error instanceof Error)
+      throw HttpException.badRequest(error.message)
+    }
+    }
+  async getChatByUserOfGuide(userId:string, guideId:string) {
+    try {
+      const user = await this.userRepo.findOneBy({id:userId})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+  
+        const chats = await this.chatRepo.find({
+          where: [
+            { senderGuide: { id: guideId }, receiverUser: { id: userId } }, 
+            { receiverGuide: { id: guideId }, senderUser: { id: userId } }, 
+          ],
+          relations: ['receiverGuide', 'receiverUser', 'senderUser', 'senderGuide'],
           order: { createdAt: 'ASC' }, 
         });
         console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
