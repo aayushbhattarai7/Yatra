@@ -51,7 +51,6 @@ function initializeSocket(server: any) {
 
     try {
       socket.on("notification", async ({ data, user }) => {
-        const admin_id = socket.data.user.id;
 
         if (user) {
           socket.join(user);
@@ -93,15 +92,33 @@ await guideService.addLocation(guideId, data)
    const userId = socket.data.user.id
        await chatService.chatWithGuide(userId, id, message)
     })
-    socket.on('travel-message-user', async ({ user_id,message,  }) => {
+    socket.on('travel-message-user', async ({ user_id,message }) => {
    const userId = socket.data.user.id
        await chatService.chatByTravel(userId, user_id, message)
     })
-    socket.on('guide-message-user', async ({ user_id,message,  }) => {
+    socket.on('guide-message-user', async ({ user_id,message  }) => {
     console.log("🚀 ~ socket.on ~ user_id:", user_id)
     console.log("🚀 ~ socket.on ~ message:", message)
    const userId = socket.data.user.id
        await chatService.chatByGuide(userId, user_id, message)
+    })
+    socket.on('mark-as-read', async ({ senderId,role,  }) => {
+
+   const userId = socket.data.user.id
+   console.log(role,"role")
+       await chatService.readChatOfTravel(userId, senderId)
+    })
+
+    socket.on('mark-read-by-travel', async ({ senderId  }) => {
+
+   const userId = socket.data.user.id
+       console.log("🚀 ~ sssssssssss.on ~ userId:", userId)
+       await chatService.readChatByTravel(senderId, userId)
+    })
+    socket.on('mark-read-by-guide', async ({ senderId  }) => {
+
+   const userId = socket.data.user.id
+       await chatService.readChatByTravel(senderId, userId)
     })
 
     socket.on("disconnect", () => {

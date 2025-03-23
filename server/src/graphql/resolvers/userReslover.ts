@@ -251,6 +251,7 @@ export class UserResolver {
     }
   }
 
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async requestTravel(
@@ -532,6 +533,20 @@ export class UserResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getAllNotifications(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async readChatOfTravelByUser(@Ctx() ctx: Context, @Arg("id") id:string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await chatService.readChatOfTravel(userId, id);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

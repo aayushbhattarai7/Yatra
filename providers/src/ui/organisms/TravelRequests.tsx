@@ -11,15 +11,14 @@ import {
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
 import {
-  Star,
   MapPin,
   Calendar,
   Users,
   User,
   Clock,
-  Mail,
   MapPinned,
 } from "lucide-react";
+import { useSocket } from "../../contexts/SocketContext";
 
 interface FormData {
   id: string;
@@ -48,9 +47,10 @@ interface Price {
 }
 
 const TravelRequests = () => {
-  const [travels, setTravels] = useState<FormData[] | null>(null);
+  const [travels, setTravels] = useState<FormData[] | []>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
+  const {socket} = useSocket()
   const { data, loading, error, refetch } = useQuery(TRAVEL_REQUESTS);
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
@@ -84,7 +84,17 @@ const TravelRequests = () => {
       setTravels(data.getRequestByTravel);
     }
   }, [data]);
+  useEffect(()=>{
+    const handleNewRequests = (newBooking:FormData) => {
+      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking)
+      setTravels((prev) => [...prev, newBooking]);
+    };
 
+    socket.on("request-travel",handleNewRequests)
+    return () => {
+      socket.off("request-travel", handleNewRequests);
+    };
+  },[socket])
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">

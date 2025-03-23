@@ -18,6 +18,7 @@ import { Star, Clock, Phone, Mail, User } from "lucide-react";
 import Esewa from "./Esewa";
 import Khalti from "./KhaltiPayment";
 import Payments from "./Payments";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface TravelBooking {
   id: string;
@@ -51,9 +52,10 @@ interface Price {
 const TravelBooking = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
-  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
-    null
+  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | []>(
+    []
   );
+  const {socket} = useSocket()
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
@@ -81,6 +83,7 @@ const TravelBooking = () => {
     const diffInYears = Math.floor(diffInDays / 365);
     return `${diffInYears} years ago`;
   };
+
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {

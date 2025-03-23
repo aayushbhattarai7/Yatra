@@ -334,7 +334,6 @@ class UserService {
         },
         relations: ["details", "location", "kyc"],
       });
-      console.log("🚀 ~ UserService ~ findTravel ~ travel:", travel)
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -471,6 +470,10 @@ class UserService {
         travel: travel,
       });
       await this.travelRequestRepo.save(request);
+      if(request){
+
+        io.to(travel_id).emit("request-travel",request)
+      }
     const notification = this.notificationRepo.create({
           message: `${user.firstName} sent you a travel booking request `,
           senderUser: user,
@@ -1103,7 +1106,7 @@ class UserService {
       }
 
       const request = await this.guideRequestRepo.findOne({where:{ id: requestId },relations:["guide"]});
-      if (!request) {
+      if (!request) { 
         throw HttpException.notFound("Request not found");
       }
       console.log("🚀 ~ UserService ~ request:", request)

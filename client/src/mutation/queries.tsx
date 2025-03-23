@@ -268,3 +268,11 @@ query GetChatOfGuide($id: String!) {
       }  }
 }
 `
+
+export const READ_CHAT_OF_TRAVEL = gql`
+query ReadChatOfTravelByUser($readChatOfTravelByUserId: String!) {
+  readChatOfTravelByUser(id: $readChatOfTravelByUserId) {
+  id  
+  }
+}
+`

@@ -1,20 +1,21 @@
-import React from 'react';
 import { useSocket } from "@/contexts/SocketContext";
 import { GET_CHAT_OF_GUIDE } from "@/mutation/queries";
 import { gql, useQuery } from "@apollo/client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 import { BsEmojiSmile } from "react-icons/bs";
 import { X } from 'lucide-react';
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-
+import { formatTimeDifference } from "@/function/TimeDifference";
+import { useApolloClient } from "@apollo/client";
 const emoji = data;
 const GET_CHAT_OF_TRAVEL = gql`
   query GetChatOfTravel($id: String!) {
     getChatOfTravel(id: $id) {
       id
       message
+      createdAt
       read
       senderTravel {
         id
@@ -48,6 +49,7 @@ interface Guide {
 
 interface Chat {
   id: string;
+  createdAt:string;
   message: string;
   read: boolean;
   senderTravel?: Travel;
@@ -68,30 +70,74 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Chat[]>([]);
   const [showPicker, setShowPicker] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const { socket } = useSocket();
+  const apolloClient = useApolloClient();
   const emojiData: any = useMemo(() => emoji, []);
   const query = details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
 
   const { data, loading, error } = useQuery(query, {
     variables: { id: details.id },
   });
+  console.log("🚀 ~ data:", data)
 
   const datas = details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
-
   useEffect(() => {
-    if (datas) {
+    if (datas) { 
       setMessages(datas);
     }
   }, [data]);
+  const scrollToBottom = () => {
+    const unreadMessages = messages.filter(msg => !msg.read);
+    console.log("🚀 ~ scrollToBottom ~ unreadMessages:", unreadMessages)
+
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    socket.emit("mark-as-read",({senderId:details.id,role:details.role}))
+  };
+
+  // useEffect(() => {
+  //   if (messages.length > 0) {
+  //     const unreadMessages = messages.filter(msg => !msg.read);
+  
+  //     if (unreadMessages.length > 0) {
+  //       socket.emit("mark-as-read", {
+  //         senderId: details.id,role:details.role
+  //       });
+  //     }
+  //   }
+  // }, [messages, details.id, socket]);
 
   const addEmoji = (emoji: any) => {
     setMessage((prev) => prev + emoji.native);
   };
 
   useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
     const handleNewMessage = (newMessage: Chat) => {
       setMessages((prev) => [...prev, newMessage]);
+      apolloClient.cache.modify({
+        fields: {
+          getChatOfTravel(existingMessages = []) {
+            return [...existingMessages, newMessage]; 
+          }
+        }
+      });
+      
     };
+    const handleReadStatus = ( senderId: string ) => {
+      setMessages(prev =>
+        prev.map(msg =>
+          (details.role === "TRAVEL" ? msg.senderTravel?.id : msg.senderGuide?.id) === senderId
+            ? { ...msg, read: true }
+            : msg
+        )
+      );
+    };
+    const messageOn = details.role === "TRAVEL"?"message-read-by-travel":"message-read-by-guide" 
+    socket.on(`${messageOn}`,handleReadStatus );
 
     socket.on("travel-message-to-user", handleNewMessage);
 
@@ -100,6 +146,10 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     };
   }, [socket]);
 
+
+  const closePopUp = () => {
+  window.location.href="/"
+  }
   const sendMessage = async (e: any) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -107,6 +157,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
+      createdAt:Date.now.toString(),
       read: false,
       receiverTravel: { id: details.id, firstName: "You", lastName: "" },
     };
@@ -149,8 +200,8 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
           </div>
         </div>
         <button 
-          onClick={onBack}
-          className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            onClick={closePopUp} 
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
         >
           <X size={18} />
         </button>
@@ -185,13 +236,21 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
                     className={`text-[10px] mt-1 block 
                       ${providers ? "text-blue-200" : "text-gray-400"}`}
                   >
-                    {chat.read ? "Read" : "Delivered"}
+                    {chat?.receiverTravel?.id === details.id && (
+<p>
+
+  {chat.read ? "Seen" : "Delivered"}
+</p>
+                    )}
                   </span>
+                  <p>{formatTimeDifference(chat.createdAt)}</p>
                 </div>
               </div>
             );
           })
         )}
+                <div ref={messagesEndRef} />
+
       </div>
 
       <div className="p-3 bg-white border-t border-gray-100 sticky bottom-0">

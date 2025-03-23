@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@apollo/client";
+import {  useQuery } from "@apollo/client";
 import { GET_ROOM_CHATS } from "@/mutation/queries";
 import ChatMessages from "./ui/ChatMessage";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,6 @@ interface Details {
 }
 const ChatPopup = () => {
   const [selectedTravelId, setSelectedTravelId] = useState<Details | null>(null);
-
   const { data, loading, error } = useQuery(GET_ROOM_CHATS);
   console.log("🚀 ~ ChatPopup ~ data:", data)
   const navigate = useNavigate()

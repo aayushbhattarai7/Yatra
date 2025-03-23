@@ -75,8 +75,6 @@ throw HttpException.internalServerError(error.message)    }
 
       const getConnectUsers = await this.roomrepo.find({where:{user:{id:user_id}}, relations:["user","travel","guide"]})
       if(!getConnectUsers) throw HttpException.badRequest("No users are connected")
-      console.log("🚀 ~ RoomService ~ getConnectedUsers ~ getConnectUsers:", getConnectUsers)
-
         return getConnectUsers
   } catch (error:unknown) {
     if(error instanceof Error)

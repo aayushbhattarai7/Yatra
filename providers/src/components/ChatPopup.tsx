@@ -27,16 +27,13 @@ const ChatPopup = () => {
   const decodedToken:any = jwtDecode(token!)
   const query = decodedToken.role==="TRAVEL"?GET_USER_FOR_CHAT:GET_USER_FOR_CHAT_BY_GUIDE
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const { data, loading, error } = useQuery(query);
-  console.log("🚀 ~ ChatPopup ~ data:", data)
+  const { data } = useQuery(query);
   const [userInRoom, setUserInRoom] = useState<Room[]>([])
 
   useEffect(()=>{
     if(decodedToken.role === "TRAVEL"){
-console.log("yess")
       if(data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel)
     }else{
-  console.log("no")
   if(data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide)
   }
   },[data?.getChatUserByTravel, data?.getChatUserByGuide])
