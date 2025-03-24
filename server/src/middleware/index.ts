@@ -14,7 +14,6 @@ import bodyParser from "body-parser";
 import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
 import { GuideResolver } from "../graphql/resolvers/GuideReslover";
-import fileUpload from "express-fileupload";
 import { TravelResolver } from "../graphql/resolvers/travelResolver";
 
 interface GraphQlContext {
@@ -32,10 +31,7 @@ const middleware = async (app: Application) => {
       credentials: true,
     }),
   );
-  console.log(
-    "🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:",
-    DotenvConfig.CORS_ORIGIN, DotenvConfig.MAIL_HOST
-  );
+ 
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];

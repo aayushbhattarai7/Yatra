@@ -53,7 +53,6 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (token) {
       try {
         const decodedToken: any = jwtDecode(token);
-        console.log("🚀 ~ emitLocation ~ decodedToken:", decodedToken)
         const userRole = decodedToken.role;
 
         if (socket) {
@@ -63,14 +62,12 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
               latitude: updatedLocation.latitude,
               longitude: updatedLocation.longitude,
             });
-            console.log("TRAVEL location emitted:", updatedLocation);
           } else if (userRole === "GUIDE") {
             socket.emit("guide-location", {
               guideId: decodedToken.id,
               latitude: updatedLocation.latitude,
               longitude: updatedLocation.longitude,
             });
-            console.log("GUIDE location emitted:", updatedLocation);
           }
         } else {
           console.error("Socket is not initialized!");

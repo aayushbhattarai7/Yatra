@@ -72,7 +72,6 @@ await travelService.addLocation(id, data)
        
       });
       socket.on("guide-location", async ({ guideId, latitude, longitude }) => {
-        console.log("🚀 ~ socket.on ~ id:", guideId)
         const data = { latitude, longitude }
 await guideService.addLocation(guideId, data)
        
@@ -84,11 +83,9 @@ await guideService.addLocation(guideId, data)
 
     socket.on('travel-message', async ({ id,message,  }) => {
    const userId = socket.data.user.id
-       console.log("🚀 ~ sockettravel:", userId)
        await chatService.chatWithTravel(userId, id, message)
     })
     socket.on('guide-message', async ({ id,message }) => {
-    console.log("🚀 ~ socket.guide ~ message:", message)
    const userId = socket.data.user.id
        await chatService.chatWithGuide(userId, id, message)
     })
@@ -97,22 +94,18 @@ await guideService.addLocation(guideId, data)
        await chatService.chatByTravel(userId, user_id, message)
     })
     socket.on('guide-message-user', async ({ user_id,message  }) => {
-    console.log("🚀 ~ socket.on ~ user_id:", user_id)
-    console.log("🚀 ~ socket.on ~ message:", message)
    const userId = socket.data.user.id
        await chatService.chatByGuide(userId, user_id, message)
     })
     socket.on('mark-as-read', async ({ senderId,role,  }) => {
 
    const userId = socket.data.user.id
-   console.log(role,"role")
        await chatService.readChatOfTravel(userId, senderId)
     })
 
     socket.on('mark-read-by-travel', async ({ senderId  }) => {
 
    const userId = socket.data.user.id
-       console.log("🚀 ~ sssssssssss.on ~ userId:", userId)
        await chatService.readChatByTravel(senderId, userId)
     })
     socket.on('mark-read-by-guide', async ({ senderId  }) => {

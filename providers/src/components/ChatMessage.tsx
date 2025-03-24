@@ -8,6 +8,7 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
+import { formatTimeDifference } from "../function/TimeDifference";
 
 const emoji = data;
 
@@ -17,6 +18,7 @@ const GET_CHAT_OF_TRAVEL = gql`
       id
       message
       read
+      createdAt
       senderUser {
         id
         firstName
@@ -39,6 +41,7 @@ const GET_CHAT_OF_GUIDE = gql`
       id
       message
       read
+      createdAt
       senderUser {
         id
         firstName
@@ -66,6 +69,7 @@ const GET_CHAT_OF_GUIDE = gql`
         id: string;
         message: string;
   read: boolean;
+  createdAt:string;
   senderUser?: User;
   receiverUser?: User;
 }
@@ -78,7 +82,7 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
   const [showPicker, setShowPicker] = useState(false);
   const { socket } = useSocket();
   const query = decodedToken.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
-  const { data, loading, error } = useQuery(query, { variables: { userId } });
+  const { data, loading, error, refetch } = useQuery(query, { variables: { userId } });
   const datas = decodedToken.role === "TRAVEL" ? data?.getChatOfUserByTravel : data?.getChatOfUserByGuide;
   const emojiData: any = useMemo(() => emoji, []);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -88,22 +92,35 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
       setMessages(datas);
     }
   }, [data]);
+  const unreadMessages = useMemo(() => messages.filter(msg => !msg.read), [messages]);
+
+  useEffect(() => {
+    if (unreadMessages.length > 0) {
+      const emitTo = decodedToken.role === "TRAVEL" 
+        ? "mark-read-by-travel" 
+        : "mark-read-by-guide";
+      console.log("🚀 ~ useEffect ~ emitTo:", emitTo)
+      socket.emit(emitTo, { senderId: userId });
+      refetch();
+    }
+  }, [unreadMessages, socket, userId, decodedToken.role]);
+
   const scrollToBottom = () => {
-    const unreadMessages = messages.filter(msg => !msg.read);
-    console.log("🚀 ~ scrollToBottom ~ unreadMessages:", unreadMessages)
+    refetch();
+    if (unreadMessages.length > 0) {
+      const emitTo = decodedToken.role === "TRAVEL" 
+        ? "mark-read-by-travel" 
+        : "mark-read-by-guide";
+      console.log("🚀 ~ useEffect ~ emitTo:", emitTo)
+      socket.emit(emitTo, { senderId: userId });
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-   const emitTo =  decodedToken.role === "TRAVEL"?"mark-read-by-travel":"mark-read-by-guide"
-  //  if(unreadMessages.length >0){
-  //    socket.emit(`${emitTo}`,({senderId:userId}))
-  //  }
   };
-
-
- 
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
 
   const addEmoji = (emoji: any) => {
     setMessage((prev) => prev + emoji.native);
@@ -142,9 +159,12 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
       id: Date.now().toString(),
       message,
       read: false,
+      createdAt:Date.now().toLocaleString(),
       receiverUser: { id: userId, firstName: "", lastName: "" },
     };
+    console.log("sentby", decodedToken.role)
     const emitMessage = decodedToken.role === "TRAVEL" ? "travel-message-user" : "guide-message-user";
+    console.log("🚀 ~ sendMessage ~ emitMessage:", emitMessage)
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     socket.emit(`${emitMessage}`, { user_id: userId, message });
@@ -218,6 +238,8 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
   {chat.read ? "Seen" : "Delivered"}
 </p>
                     )}                  </span>
+                                      <p>{formatTimeDifference(chat.createdAt)}</p>
+
                 </div>
               </div>
             );

@@ -72,6 +72,7 @@ const getRoom = await roomService.checkRoomWithTravel(userId, travelId)
           senderUser:user
 
         })
+        console.log("🚀 ~ ChatService ~ chatWithTravel ~ chat:", chat)
        const saveChat =  await this.chatRepo.save(chat)
 // const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
 // io.to(travelId).emit("message", getChats)
@@ -99,11 +100,9 @@ io.to(travelId).emit("travel-message",chat)
           relations: ['receiverTravel', 'receiverUser', 'senderUser', 'senderTravel'],
           order: { createdAt: 'ASC' }, 
         });
-        console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
         if (!chats) throw HttpException.notFound
         return chats
   } catch (error:unknown) {
-      console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ error:", error)
       if(error instanceof Error)
       throw HttpException.badRequest(error.message)
     }
@@ -121,7 +120,6 @@ io.to(travelId).emit("travel-message",chat)
           relations: ['receiverGuide', 'receiverUser', 'senderUser', 'senderGuide'],
           order: { createdAt: 'ASC' }, 
         });
-        console.log("🚀 ~ ChatService ~ getChatByUserOfTravel ~ chats:", chats)
         if (!chats) throw HttpException.notFound
         return chats
   } catch (error:unknown) {
@@ -235,8 +233,6 @@ io.to(travelId).emit("travel-message",chat)
     }
 
     async readChatOfTravel(userId:string, travelId:string) {
-    console.log("🚀 ~ ChatService ~ readChatOfTravel ~ travelId:", travelId)
-    console.log("🚀 ~ ChatService ~ readChatOfTravel ~ userId:", userId)
 try {
   const user = await this.userRepo.findOneBy({id:userId})
   if(!user) throw HttpException.unauthorized("You are not authorized")
@@ -251,7 +247,6 @@ try {
     { userId, travelId }
   )
   .execute();
-  console.log("🚀 ~ ChatService ~ readChatOfTravel ~ updateChat:", updateChat)
   
   io.to(travelId).emit("message-read", { travelId, userId });
   return updateChat
@@ -279,7 +274,6 @@ try {
     { userId, travelId }
   )
   .execute();
-  console.log("🚀 ~ ChatService ~ readChatOfTravel ~ updateChat:", updateChat)
   
   io.to(userId).emit("message-read-by-travel", { id:travelId, userId });
   return updateChat
@@ -307,7 +301,6 @@ try {
     { userId, guideId }
   )
   .execute();
-  console.log("🚀 ~ ChatService ~ readChatOfTravel ~ updateChat:", updateChat)
   
   io.to(userId).emit("message-read", { guideId, userId });
   return updateChat

@@ -14,7 +14,6 @@ interface Details {
 const ChatPopup = () => {
   const [selectedTravelId, setSelectedTravelId] = useState<Details | null>(null);
   const { data, loading, error } = useQuery(GET_ROOM_CHATS);
-  console.log("🚀 ~ ChatPopup ~ data:", data)
   const navigate = useNavigate()
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error loading chats.</p>;

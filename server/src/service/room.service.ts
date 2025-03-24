@@ -41,7 +41,6 @@ throw HttpException.internalServerError(error.message)    }
   }
   async checkRoomWithGuide(userId: string, receiverId: string) {
     try {
-      console.log(userId,receiverId,"-----------------------------")
       const user = await this.userRepo.findOneBy({ id: userId })
       if (!user) throw HttpException.badRequest("User not found")
 
@@ -63,7 +62,6 @@ throw HttpException.internalServerError(error.message)    }
       return createRoom  }
       return findRoom
     } catch (error) {
-      console.log('🚀 ~ RoomService ~ checkRoom ~ error:', error)
       return null
     }
   }

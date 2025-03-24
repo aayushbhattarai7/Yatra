@@ -76,7 +76,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const emojiData: any = useMemo(() => emoji, []);
   const query = details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
 
-  const { data, loading, error } = useQuery(query, {
+  const { data, loading, error, refetch } = useQuery(query, {
     variables: { id: details.id },
   });
   console.log("🚀 ~ data:", data)
@@ -87,25 +87,24 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
       setMessages(datas);
     }
   }, [data]);
+  const unreadMessages = messages.filter(msg => !msg.read);
   const scrollToBottom = () => {
-    const unreadMessages = messages.filter(msg => !msg.read);
-    console.log("🚀 ~ scrollToBottom ~ unreadMessages:", unreadMessages)
 
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     socket.emit("mark-as-read",({senderId:details.id,role:details.role}))
+    refetch()
   };
 
-  // useEffect(() => {
-  //   if (messages.length > 0) {
-  //     const unreadMessages = messages.filter(msg => !msg.read);
+  useEffect(() => {
+    if (messages.length > 0) {
   
-  //     if (unreadMessages.length > 0) {
-  //       socket.emit("mark-as-read", {
-  //         senderId: details.id,role:details.role
-  //       });
-  //     }
-  //   }
-  // }, [messages, details.id, socket]);
+      if (unreadMessages.length > 0) {
+        socket.emit("mark-as-read", {
+          senderId: details.id,role:details.role
+        });
+      }
+    }
+  }, [messages, details.id, socket, unreadMessages]);
 
   const addEmoji = (emoji: any) => {
     setMessage((prev) => prev + emoji.native);
@@ -157,7 +156,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
-      createdAt:Date.now.toString(),
+      createdAt:new Date().toLocaleTimeString(),
       read: false,
       receiverTravel: { id: details.id, firstName: "You", lastName: "" },
     };
@@ -243,6 +242,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
 </p>
                     )}
                   </span>
+                  <p>{new Date().toISOString()}</p>
                   <p>{formatTimeDifference(chat.createdAt)}</p>
                 </div>
               </div>
