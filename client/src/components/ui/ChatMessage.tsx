@@ -7,7 +7,6 @@ import { BsEmojiSmile } from "react-icons/bs";
 import { X } from 'lucide-react';
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { formatTimeDifference } from "@/function/TimeDifference";
 import { useApolloClient } from "@apollo/client";
 const emoji = data;
 const GET_CHAT_OF_TRAVEL = gql`
@@ -71,6 +70,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const [messages, setMessages] = useState<Chat[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [isActive, setIsActive] = useState(false);
   const { socket } = useSocket();
   const apolloClient = useApolloClient();
   const emojiData: any = useMemo(() => emoji, []);
@@ -79,7 +79,6 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const { data, loading, error, refetch } = useQuery(query, {
     variables: { id: details.id },
   });
-  console.log("🚀 ~ data:", data)
 
   const datas = details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
   useEffect(() => {
@@ -110,6 +109,12 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     setMessage((prev) => prev + emoji.native);
   };
 
+  const handleActiveStatus = ({ userId, active }: { userId: string; active: boolean }) => {
+    if (userId === details.id) {
+      setIsActive(active);
+    }
+  };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -134,14 +139,31 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
             : msg
         )
       );
+
     };
+
+    // const handleActiveTravel = (activeUsers: { id: string }[]) => {
+    //   const isUserActive = activeUsers.some(user => user.id === details.id);
+    //   setIsActive(isUserActive);
+    // };
+  
+    socket.emit("get-active-travels");
     const messageOn = details.role === "TRAVEL"?"message-read-by-travel":"message-read-by-guide" 
     socket.on(`${messageOn}`,handleReadStatus );
-
+const whoIsActive = details.role === "TRAVEL"?"travel-active":"guide-active"
     socket.on("travel-message-to-user", handleNewMessage);
+      // socket.on(whoIsActive, handleActiveStatus);
+   
+      socket.on("active-travel", (activeUsers: { id: string }[]) => {
+        const isUserActive = activeUsers?.some(user => user.id === details.id);
+        console.log("🚀 ~ socket.on ~ isUserActive:", isUserActive)
+        setIsActive(isUserActive);
+      });    
 
     return () => {
       socket.off("travel-message-to-user", handleNewMessage);
+      socket.off("active-travel");
+
     };
   }, [socket]);
 
@@ -195,7 +217,11 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
             <h3 className="text-sm font-semibold text-gray-800">
               {`${details.firstName} ${details.middleName ? details.middleName + ' ' : ''}${details.lastName}`}
             </h3>
+<div className="flex gap-3 items-center">
+
+            <div className={`w-2 h-2  rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
             <p className="text-xs text-gray-500">{details.role.toLowerCase()}</p>
+</div>
           </div>
         </div>
         <button 
@@ -242,8 +268,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
 </p>
                     )}
                   </span>
-                  <p>{new Date().toISOString()}</p>
-                  <p>{formatTimeDifference(chat.createdAt)}</p>
+                  <p>{new Date(chat.createdAt).toLocaleTimeString()}</p>
                 </div>
               </div>
             );

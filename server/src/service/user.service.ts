@@ -1182,6 +1182,44 @@ class UserService {
       }
     }
   }
+
+  async activeUser(userId:string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.userRepo.update({ id:  userId  }, { available: true })
+      
+
+      io.to(userId).emit("user-active", {userId,active:true})
+      return 
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async offlineUser(userId:string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.userRepo.update({ id:  userId  }, { available: false })
+      
+      io.to(userId).emit("user-active", {userId,active:false})
+      return 
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
  
 }
 

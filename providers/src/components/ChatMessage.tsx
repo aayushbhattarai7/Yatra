@@ -8,7 +8,6 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { formatTimeDifference } from "../function/TimeDifference";
 
 const emoji = data;
 
@@ -99,7 +98,6 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
       const emitTo = decodedToken.role === "TRAVEL" 
         ? "mark-read-by-travel" 
         : "mark-read-by-guide";
-      console.log("🚀 ~ useEffect ~ emitTo:", emitTo)
       socket.emit(emitTo, { senderId: userId });
       refetch();
     }
@@ -111,7 +109,6 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
       const emitTo = decodedToken.role === "TRAVEL" 
         ? "mark-read-by-travel" 
         : "mark-read-by-guide";
-      console.log("🚀 ~ useEffect ~ emitTo:", emitTo)
       socket.emit(emitTo, { senderId: userId });
     }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -164,8 +161,6 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
     };
     console.log("sentby", decodedToken.role)
     const emitMessage = decodedToken.role === "TRAVEL" ? "travel-message-user" : "guide-message-user";
-    console.log("🚀 ~ sendMessage ~ emitMessage:", emitMessage)
-
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     socket.emit(`${emitMessage}`, { user_id: userId, message });
     setMessage("");
@@ -238,7 +233,7 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
   {chat.read ? "Seen" : "Delivered"}
 </p>
                     )}                  </span>
-                                      <p>{formatTimeDifference(chat.createdAt)}</p>
+                  <p>{new Date(chat.createdAt).toLocaleTimeString()}</p>
 
                 </div>
               </div>

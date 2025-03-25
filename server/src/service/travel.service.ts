@@ -541,5 +541,53 @@ class TravelService {
       }
     }
   }
+
+  async activeUser(userId:string) {
+    try {
+      const user = await this.travelrepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.travelrepo.update({ id:   userId  }, { available: true })
+      
+      const activeTravel = await this.getAllActiveUsers()
+      console.log("yeeee", userId)
+      io.emit("active-travel", activeTravel)
+      return 
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async offlineUser(userId:string) {
+    try {
+      const user = await this.travelrepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.travelrepo.update({ id:  userId  }, { available: false })
+      
+      const activeTravel = await this.getAllActiveUsers();
+      io.emit("active-travel", activeTravel);
+    return user
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getAllActiveUsers(){
+    const activeTravel = await this.travelrepo.findBy({available:true})
+
+    if(!activeTravel) return null
+
+    return activeTravel
+  }
 }
 export default new TravelService();

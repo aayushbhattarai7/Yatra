@@ -21,7 +21,6 @@ const FACEBOOK_MUTATION = gql`
 `;
 const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
   const { setMessage } = useMessage();
-  const navigate = useNavigate();
   const [facebookLogin, { error, loading }] = useMutation(FACEBOOK_MUTATION);
   useEffect(() => {
     const initializeFacebookSDK = () => {
@@ -110,8 +109,7 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-        navigate("/");
-      }
+        window.location.href="/"      }
     } catch (error) {
       console.error("Error during Facebook login mutation:", error);
     }

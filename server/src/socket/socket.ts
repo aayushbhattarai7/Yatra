@@ -8,6 +8,9 @@ import travelService from "../service/travel.service";
 import GuideService from "../service/guide.service";
 import { ChatService } from '../service/chat.service'
 import { RoomService } from "../service/room.service";
+import { User } from "../entities/user/user.entity";
+import { Guide } from "../entities/guide/guide.entity";
+import { Travel } from "../entities/travels/travel.entity";
 const chatService = new ChatService()
 
 const guideService = new GuideService()
@@ -48,6 +51,29 @@ function initializeSocket(server: any) {
     console.log("User connected:", userId);
 
     socket.join(userId);
+
+    const user = await User.findOneBy({id:userId})
+  const activeTravel =  await travelService.getAllActiveUsers()
+
+  socket.on("get-active-travels", async () => {
+    const activeTravel = await travelService.getAllActiveUsers();
+    socket.emit("active-travel", activeTravel);
+  });
+  
+  console.log("🚀 ~ io.on ~ activeTravel:", activeTravel)
+  socket.emit("active-travel", activeTravel)
+    if(user){
+      await userService.activeUser(userId)
+    }
+    const guide = await Guide.findOneBy({id:userId})
+    if(guide){
+      await guideService.activeUser(userId)
+    }
+    const travel = await Travel.findOneBy({id:userId})
+    if(travel){
+      await travelService.activeUser(userId)
+    }
+
 
     try {
       socket.on("notification", async ({ data, user }) => {
@@ -114,8 +140,20 @@ await guideService.addLocation(guideId, data)
        await chatService.readChatByTravel(senderId, userId)
     })
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async() => {
       console.log("User disconnected:", userId);
+      const user = await User.findOneBy({id:userId})
+      if(user){
+        await userService.offlineUser(userId)
+      }
+      const guide = await Guide.findOneBy({id:userId})
+      if(guide){
+        await guideService.offlineUser(userId)
+      }
+      const travel = await Travel.findOneBy({id:userId})
+      if(travel){
+        await travelService.offlineUser(userId)
+      }
     });
   });
 }

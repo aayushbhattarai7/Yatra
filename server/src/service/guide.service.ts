@@ -265,8 +265,6 @@ class GuideService {
   }
 
   async addLocation(guide_id: string, data: LocationDTO) {
-    console.log("🚀 ~ GuideService ~ addLocation ~ guide_id:", guide_id)
-    console.log("🚀 ~ GuideService ~ addLocation ~ data:", data)
     try {
       const guide = await this.guideRepo.findOneBy({ id: guide_id });
       if (!guide) throw HttpException.unauthorized("you are not authorized");
@@ -478,6 +476,44 @@ class GuideService {
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+
+  async activeUser(userId:string) {
+    try {
+      const user = await this.guideRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.guideRepo.update({ id:  userId  }, { available: true })
+      
+      
+      io.to(userId).emit("guide-active", {userId,active:true})
+      return 
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async offlineUser(userId:string) {
+    try {
+      const user = await this.guideRepo.findOneBy({ id: userId })
+        if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+        }
+      await this.guideRepo.update({ id:  userId  }, { available: false })
+      
+      io.to(userId).emit("guide-active", {userId,active:false})
+      return 
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
       }
     }
   }

@@ -50,6 +50,9 @@ export class User extends Base {
   @Field()
   @Column({ name: "tokens", nullable: true })
   tokens: string;
+  @Field()
+  @Column({ name: "available", default:false })
+  available: boolean;
 
   @Field(() => Location)
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
