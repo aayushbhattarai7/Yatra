@@ -83,6 +83,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const datas = details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
   useEffect(() => {
     if (datas) { 
+      
       setMessages(datas);
     }
   }, [data]);
@@ -109,17 +110,15 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     setMessage((prev) => prev + emoji.native);
   };
 
-  const handleActiveStatus = ({ userId, active }: { userId: string; active: boolean }) => {
-    if (userId === details.id) {
-      setIsActive(active);
-    }
-  };
+
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
+    socket.emit("get-active-travels");
+
     const handleNewMessage = (newMessage: Chat) => {
       setMessages((prev) => [...prev, newMessage]);
       apolloClient.cache.modify({
@@ -141,22 +140,13 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
       );
 
     };
-
-    // const handleActiveTravel = (activeUsers: { id: string }[]) => {
-    //   const isUserActive = activeUsers.some(user => user.id === details.id);
-    //   setIsActive(isUserActive);
-    // };
   
-    socket.emit("get-active-travels");
     const messageOn = details.role === "TRAVEL"?"message-read-by-travel":"message-read-by-guide" 
     socket.on(`${messageOn}`,handleReadStatus );
-const whoIsActive = details.role === "TRAVEL"?"travel-active":"guide-active"
     socket.on("travel-message-to-user", handleNewMessage);
-      // socket.on(whoIsActive, handleActiveStatus);
    
       socket.on("active-travel", (activeUsers: { id: string }[]) => {
         const isUserActive = activeUsers?.some(user => user.id === details.id);
-        console.log("🚀 ~ socket.on ~ isUserActive:", isUserActive)
         setIsActive(isUserActive);
       });    
 

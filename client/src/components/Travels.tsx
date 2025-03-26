@@ -6,6 +6,7 @@ import RequestTravelBooking from "./RequestTravelBooking";
 import Button from "@/ui/common/atoms/Button";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
+import { useSocket } from "@/contexts/SocketContext";
 
 interface FormData {
   id: string;
@@ -35,6 +36,7 @@ const Travels = () => {
   const [userLocation, setUserLocation] = useState<[number, number] | null>(
     null
   );
+  const {socket} = useSocket()
   const [showMobileList, setShowMobileList] = useState(true);
   const { lang } = useLang();
   const [travelId, setTravelId] = useState<string>("");
@@ -49,6 +51,26 @@ const Travels = () => {
       setTravels(data.findTravel);
     }
   }, [data]);
+
+  useEffect(()=>{
+  socket.on("travels", (addLocation: { id: string; location: { latitude: string; longitude: string } }) => {
+console.log("Location updated")
+    setTravels((prevTravels) =>
+      prevTravels?.map((travel) =>
+        travel.id === addLocation.id
+          ? {
+              ...travel,
+              location: {
+                latitude: addLocation.location.latitude,
+                longitude: addLocation.location.longitude,
+              },
+            }
+          : travel
+      ) || null
+    );
+  });
+
+  },[socket])
 
   useEffect(() => {
     if (navigator.geolocation) {

@@ -6,6 +6,9 @@ import path from "path";
 export default defineConfig({
   server: {
     port: 3002,
+      host: true,
+      strictPort: true,
+      allowedHosts: ["sms-licking-arising-carefully.trycloudflare.com"]  
   },
   plugins: [react()],
   resolve: {

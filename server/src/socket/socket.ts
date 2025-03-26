@@ -60,7 +60,6 @@ function initializeSocket(server: any) {
     socket.emit("active-travel", activeTravel);
   });
   
-  console.log("🚀 ~ io.on ~ activeTravel:", activeTravel)
   socket.emit("active-travel", activeTravel)
     if(user){
       await userService.activeUser(userId)
@@ -95,6 +94,7 @@ await userService.readNotification(id)
       socket.on("travel-location", async ({ id, latitude, longitude }) => {
         const data = { latitude, longitude }
 await travelService.addLocation(id, data)
+        console.log("🚀 ~ socket.on ~ data:", data)
        
       });
       socket.on("guide-location", async ({ guideId, latitude, longitude }) => {

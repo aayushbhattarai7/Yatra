@@ -501,6 +501,7 @@ class TravelService {
           travel: travel,
         });
         await this.locationRepo.save(addLocation);
+        io.emit("travels",addLocation)
         return Message.locationSent;
       }
     } catch (error: unknown) {
@@ -551,7 +552,6 @@ class TravelService {
       await this.travelrepo.update({ id:   userId  }, { available: true })
       
       const activeTravel = await this.getAllActiveUsers()
-      console.log("yeeee", userId)
       io.emit("active-travel", activeTravel)
       return 
     } catch (error: unknown) {
