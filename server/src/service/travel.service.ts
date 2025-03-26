@@ -34,9 +34,9 @@ class TravelService {
     ),
     private readonly travelKycRepo = AppDataSource.getRepository(TravelKyc),
     private readonly userRepo = AppDataSource.getRepository(User),
-        private readonly notificationRepo = AppDataSource.getRepository(Notification)
+    private readonly notificationRepo = AppDataSource.getRepository(Notification)
 
-  ) {}
+  ) { }
 
   async create(image: any[], data: TravelDTO): Promise<string> {
     return await AppDataSource.transaction(
@@ -350,7 +350,7 @@ class TravelService {
           travel: { id: travel_id },
           id: requestId,
         },
-        relations:["user"]
+        relations: ["user"]
       });
       if (!requests) {
         throw HttpException.notFound("no request found");
@@ -368,7 +368,7 @@ class TravelService {
       );
 
       if (data) {
-        const notification =  this.notificationRepo.create({
+        const notification = this.notificationRepo.create({
           message: `Travel ${requests.user.firstName} sent you a price for the trip that you requested recently`,
           receiverUser: requests.user,
           senderTravel: requests.travel
@@ -378,7 +378,7 @@ class TravelService {
         if (!notifications) {
           throw HttpException.notFound("Notifications not found")
         }
-        io.to(requests.user.id).emit("notification",notifications)
+        io.to(requests.user.id).emit("notification", notifications)
       }
       return Message.priceSent;
     } catch (error: unknown) {
@@ -390,13 +390,13 @@ class TravelService {
     }
   }
 
-  async getAllNotifications(travelId:string) {
+  async getAllNotifications(travelId: string) {
     try {
       const travel = await this.travelrepo.findOneBy({ id: travelId })
-        if (!travel) {
+      if (!travel) {
         throw HttpException.badRequest("You are not authorized");
-        }
-      const notifications = await this.notificationRepo.findBy({ receiverTravel: {id:travelId} })
+      }
+      const notifications = await this.notificationRepo.findBy({ receiverTravel: { id: travelId } })
       if (!notifications) {
         throw HttpException.notFound("No notifications yet")
       }
@@ -478,13 +478,14 @@ class TravelService {
 
   async addLocation(travel_id: string, data: LocationDTO) {
     try {
+      console.log("yess")
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
       if (!travel) throw HttpException.unauthorized("you are not authorized");
       const isLocation = await this.locationRepo.findOneBy({
         travel: { id: travel_id },
       });
       if (isLocation) {
-        const location = this.locationRepo.update(
+        const location =await this.locationRepo.update(
           {
             travel: travel,
           },
@@ -493,15 +494,25 @@ class TravelService {
             longitude: data.longitude,
           },
         );
+        if(location){
+console.log("vamos")
+          const travelLocation = await this.travelrepo.findOne({where:{id:travel_id}, relations:["location"]})
+          io.emit("travels", {location:travelLocation?.location, id:travelLocation?.id})
+          console.log("🚀 ~ TravelService ~ addLocation ~ travelLocation:", travelLocation)
+        }
         return Message.locationSent;
       } else {
-        const addLocation = this.locationRepo.create({
+        console.log("sinco")
+        const location = this.locationRepo.create({
           latitude: data.latitude,
           longitude: data.longitude,
           travel: travel,
         });
-        await this.locationRepo.save(addLocation);
-        io.emit("travels",addLocation)
+        await this.locationRepo.save(location);
+        const travelLocation = await this.travelrepo.findOne({where:{id:travel_id}, relations:["location"]})
+
+        io.emit("travels", {location:travelLocation, id:travel_id})
+
         return Message.locationSent;
       }
     } catch (error: unknown) {
@@ -543,17 +554,17 @@ class TravelService {
     }
   }
 
-  async activeUser(userId:string) {
+  async activeUser(userId: string) {
     try {
       const user = await this.travelrepo.findOneBy({ id: userId })
-        if (!user) {
+      if (!user) {
         throw HttpException.badRequest("You are not authorized");
-        }
-      await this.travelrepo.update({ id:   userId  }, { available: true })
-      
+      }
+      await this.travelrepo.update({ id: userId }, { available: true })
+
       const activeTravel = await this.getAllActiveUsers()
       io.emit("active-travel", activeTravel)
-      return 
+      return
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -562,17 +573,17 @@ class TravelService {
       }
     }
   }
-  async offlineUser(userId:string) {
+  async offlineUser(userId: string) {
     try {
       const user = await this.travelrepo.findOneBy({ id: userId })
-        if (!user) {
+      if (!user) {
         throw HttpException.badRequest("You are not authorized");
-        }
-      await this.travelrepo.update({ id:  userId  }, { available: false })
-      
+      }
+      await this.travelrepo.update({ id: userId }, { available: false })
+
       const activeTravel = await this.getAllActiveUsers();
       io.emit("active-travel", activeTravel);
-    return user
+      return user
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -582,10 +593,10 @@ class TravelService {
     }
   }
 
-  async getAllActiveUsers(){
-    const activeTravel = await this.travelrepo.findBy({available:true})
+  async getAllActiveUsers() {
+    const activeTravel = await this.travelrepo.findBy({ available: true })
 
-    if(!activeTravel) return null
+    if (!activeTravel) return null
 
     return activeTravel
   }

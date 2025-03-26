@@ -14,7 +14,10 @@ interface Props {
 const TravelMap: React.FC<Props> = ({ props, zoom = 10 }) => {
   const [center, setCenter] = useState<[number, number] | null>(null);
   const [travelId, setTravelId] = useState<string>("");
-
+  useEffect(() => {
+    console.log("Updated travels:", props);
+  }, [props]);
+  
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
