@@ -6,7 +6,7 @@ import { authLabel } from "../../../localization/auth";
 import { useLang } from "../../../hooks/useLang";
 import { RxPerson } from "react-icons/rx";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { Navigate, NavLink } from "react-router-dom";
+import {  NavLink } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -64,6 +64,11 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           <div className="py-2">
             <NavLink to={""} className={"text-blue-500 underline"}>
               forgot password?
+            </NavLink>
+          </div>
+          <div className="py-2">
+            <NavLink to={"/user-register"} className={"text-blue-500 underline"}>
+              Don't have an account?
             </NavLink>
           </div>
         </div>

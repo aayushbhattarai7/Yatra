@@ -10,7 +10,6 @@ import {
   PaymentType,
   RequestStatus,
   Role,
-  Status,
 } from "../constant/enum";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
@@ -20,13 +19,11 @@ import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
-import crypto from "crypto";
-import { v4 as uuidv4 } from "uuid";
+
 import {
   booked,
   bookRequestMessage,
   cancelRequest,
-  createdMessage,
   Message,
   registeredMessage,
 } from "../constant/message";
@@ -37,12 +34,9 @@ import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
 import khaltiService from "./khalti.service";
 import { RoomService } from "./room.service";
+import { Chat } from "../entities/chat/chat.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
-interface UserInput {
-  email: string;
-  password: string;
-}
 
 interface RequestGuides {
   from: string;
@@ -82,7 +76,9 @@ class UserService {
     private readonly notificationRepo = AppDataSource.getRepository(
       Notification,
     ),
-  ) {}
+    private readonly chatRepo = AppDataSource.getRepository(Chat),
+
+  ) { }
 
   async signup(data: Signup) {
     try {
@@ -179,7 +175,7 @@ class UserService {
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) {}
+    } catch (error: any) { }
   }
 
   async debugFBToken(userAccessToken: string) {
@@ -236,7 +232,7 @@ class UserService {
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) {}
+    } catch (error: any) { }
   }
 
   async addLocation(user_id: string, data: LocationDTO) {
@@ -1250,6 +1246,26 @@ class UserService {
 
       io.to(userId).emit("user-active", { userId, active: false });
       return;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getUnreadChatCount(userId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+      if (!user) throw HttpException.badRequest("You are not authorized");
+      const chatCount = await this.chatRepo.findAndCount({where:{
+        receiverUser:user
+      }})
+      console.log("🚀 ~ UserService ~ getUnreadChatCount ~ chatCount:", chatCount)
+      io.to(userId).emit("chat-count", chatCount)
+      return
+
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

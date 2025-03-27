@@ -1,17 +1,9 @@
 import { gql } from "@apollo/client";
 
 export const SIGNUP_MUTATION = gql`
-  mutation signup($data: SignupInput!) {
-    signup(data: $data) {
-      id
-      email
-      firstName
-      password
-      phoneNumber
-      lastName
-      middleName
-    }
-  }
+mutation Signup($password: String!, $gender: String!, $phoneNumber: String!, $email: String!, $lastName: String!, $firstName: String!) {
+  signup(password: $password, gender: $gender, phoneNumber: $phoneNumber, email: $email, lastName: $lastName, firstName: $firstName)
+}
 `;
 
 export const TRAVEL_BOOKING_MUTATION = gql`

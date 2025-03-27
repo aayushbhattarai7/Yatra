@@ -35,13 +35,14 @@ export class UserResolver {
   @Mutation(() => String)
   async signup(
     @Arg("firstName") firstName: string,
-    @Arg("middleName", { nullable: true }) middleName: string,
+    @Arg("middleName", {nullable:true}) middleName: string,
     @Arg("lastName") lastName: string,
     @Arg("email") email: string,
     @Arg("phoneNumber") phoneNumber: string,
     @Arg("gender") gender: Gender,
     @Arg("password") password: string,
   ) {
+    console.log("yessss")
     try {
       const newUser = {
         firstName,
@@ -52,6 +53,7 @@ export class UserResolver {
         gender,
         password,
       };
+      if(!newUser) throw HttpException.badRequest("Fill all required fields")
 
       const createdUser = await userService.signup(newUser);
       return createdUser;

@@ -1,38 +1,61 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Mail, Lock } from "lucide-react";
+import { useMutation, gql } from "@apollo/client";
+import { RiLockPasswordLine } from "react-icons/ri";
 import Label from "../atoms/Label";
 import InputField from "../atoms/InputField";
 import Button from "../atoms/Button";
 import { authLabel } from "../../../localization/auth";
 import { useLang } from "../../../hooks/useLang";
-import { RiLockPasswordLine } from "react-icons/ri";
+import { showToast } from "@/components/ToastNotification";
+import { NavLink, useNavigate } from "react-router-dom";
 
 interface FormData {
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   email: string;
   phoneNumber: string;
   password: string;
+  gender: "MALE" | "FEMALE";
 }
 
-interface RegisterFormProps {
-  onSubmit: SubmitHandler<FormData>;
-  isSubmitting: boolean;
-}
+const SIGNUP_MUTATION = gql`
+  mutation Signup(
+    $password: String!
+    $gender: String!
+    $phoneNumber: String!
+    $email: String!
+    $lastName: String!
+    $firstName: String!
+  ) {
+    signup(
+      password: $password
+      gender: $gender
+      phoneNumber: $phoneNumber
+      email: $email
+      lastName: $lastName
+      firstName: $firstName
+    )
+  }
+`;
 
-const RegsiterForm = ({ onSubmit, isSubmitting }: RegisterFormProps) => {
+const RegisterForm = () => {
   const { lang } = useLang();
-  const { register, handleSubmit } = useForm<FormData>({
-    defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      email: "",
-      phoneNumber: "",
-      password: "",
-    },
-  });
+  const [signup, { loading }] = useMutation(SIGNUP_MUTATION);
+  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+const navigate = useNavigate()
+  const onSubmit: SubmitHandler<FormData> = async (formData) => {
+    try {
+      await signup({ variables: { ...formData } });
+navigate("/user-login")
+      showToast(`Signup successful! Welcome, ${formData.firstName}!`, "success");
+      reset();
+    } catch (err:unknown) {
+      console.error("Error signing up:", err);
+      if(err instanceof Error)
+      showToast(err.message, "error");
+    }
+  };
 
   return (
     <form
@@ -42,113 +65,102 @@ const RegsiterForm = ({ onSubmit, isSubmitting }: RegisterFormProps) => {
       <div className="space-y-4">
         <div className="flex gap-10">
           <div>
-            <Label name="First Name" className="pl-3" label={"First Name"} />
-            <div className="relative">
-              <InputField
-                placeholder={"First Name"}
-                type="text"
-                name="firstName"
-                register={register}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            <Label name="firstName" className="pl-3" label="First Name" />
+            <InputField
+              setValue={setValue}
+              placeholder="First Name"
+              type="text"
+              name="firstName"
+              register={register}
+              className="block w-[16rem] pl-11 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
           </div>
-
           <div>
-            <Label name="Middle Name" className="pl-3" label={"Middle Name"} />
-            <div className="relative">
-              <InputField
-                placeholder={"Middle Name"}
-                type="text"
-                name="middleName"
-                register={register}
-                className="block w-[16rem]  pl-11 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            <Label name="middleName" className="pl-3" label="Middle Name" />
+            <InputField
+              setValue={setValue}
+              placeholder="Middle Name"
+              type="text"
+              name="middleName"
+              register={register}
+              className="block w-[16rem] pl-11 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
           </div>
         </div>
         <div className="flex gap-10">
           <div>
-            <Label name="lastname" className="pl-3" label={"Last Name"} />
-            <div className="relative">
-              <InputField
-                placeholder={authLabel.lastName[lang]}
-                type="text"
-                name="lastName"
-                register={register}
-                className="block w-[16rem]  pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            <Label name="lastName" className="pl-3" label="Last Name" />
+            <InputField
+              setValue={setValue}
+              placeholder={authLabel.lastName[lang]}
+              type="text"
+              name="lastName"
+              register={register}
+              className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
           </div>
-
           <div>
-            <Label
+            <Label name="email" className="pl-3" label={authLabel.email[lang]} />
+            <InputField
+              setValue={setValue}
+              placeholder={authLabel.email[lang]}
+              type="text"
               name="email"
-              className="pl-3"
-              label={authLabel.email[lang]}
+              register={register}
+              className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             />
-            <div className="relative">
-              <InputField
-                placeholder={authLabel.email[lang]}
-                type="text"
-                name="email"
-                register={register}
-                className="block w-[16rem]  pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
           </div>
         </div>
+
         <div className="flex gap-10">
           <div>
-            <Label
-              name="phone number"
-              className="pl-3"
-              label={"phone number"}
+            <Label name="phoneNumber" className="pl-3" label="Phone Number" />
+            <InputField
+              setValue={setValue}
+              placeholder="Phone Number"
+              type="text"
+              name="phoneNumber"
+              register={register}
+              className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             />
-            <div className="relative">
-              <InputField
-                placeholder={"phone number"}
-                type="text"
-                name="phoneNumber"
-                register={register}
-                className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
           </div>
-
           <div>
-            <div className="relative">
-              <div>
-                <Label
-                  name="password"
-                  className="pl-3"
-                  label={authLabel.password[lang]}
-                />
-                <div className="relative">
-                  <InputField
-                    placeholder={authLabel.password[lang]}
-                    type="password"
-                    name="password"
-                    icon={<RiLockPasswordLine />}
-                    register={register}
-                    className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
+            <Label name="password" className="pl-3" label={authLabel.password[lang]} />
+            <InputField
+              setValue={setValue}
+              placeholder={authLabel.password[lang]}
+              type="password"
+              name="password"
+              icon={<RiLockPasswordLine />}
+              register={register}
+              className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-10">
+          <div>
+            <Label name="gender" className="pl-3" label="Gender" />
+            <select
+              {...register("gender", { required: true })}
+              className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            >
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
           </div>
         </div>
       </div>
+      <div className="py-2">
+            <NavLink to={"/user-login"} className={"text-blue-500 underline"}>
+              Already have an account?
+            </NavLink>
+          </div>
       <div className="w-[23rem] flex justify-center items-center">
-        <Button
-          buttonText={authLabel.signup[lang]}
-          name=""
-          type="submit"
-          disabled={isSubmitting}
-        />
+        <Button buttonText={authLabel.signup[lang]} type="submit" disabled={loading} />
       </div>
     </form>
   );
 };
 
-export default RegsiterForm;
+export default RegisterForm;

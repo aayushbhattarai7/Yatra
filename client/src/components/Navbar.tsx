@@ -19,6 +19,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [chatCount, setChatCount] = useState(0)
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
@@ -35,6 +36,12 @@ const Navbar = () => {
     socket.on("notification", (notification) => {
       console.log("yes", notification);
       setNotifications(notification);
+
+      socket.on("chat-count",(chatCount)=>{
+      console.log("🚀 ~ socket.on ~ chatCount:", chatCount)
+      setChatCount(chatCount)
+
+      })
     });
   }, [socket]);
   const unreadCount = notifications?.filter((n) => !n.isRead).length;
@@ -78,7 +85,7 @@ const Navbar = () => {
   };
 
   const openChat = () => {
-    setShowChat(!isOpen);
+    setShowChat(!showChat);
     setShowNotifications(false);
     setShowProfile(false);
   };
@@ -122,7 +129,7 @@ const Navbar = () => {
                   show={showChat}
                   popup={<ChatPopup />}
                   icon={MessageSquare}
-                  count={1}
+                  count={chatCount}
                 />
                 <PopupButton
                   onClick={handleNotificationClick}

@@ -22,12 +22,7 @@ const SocialLogin = () => {
           type="button"
           className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          <img
-            className="h-9 w-9 mr-2"
-            src="https://www.google.com/favicon.ico"
-            alt="Google logo"
-          />
-          Login with Google
+        
           <GoogleAuth />
         </button>
         <br />

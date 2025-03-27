@@ -159,6 +159,11 @@ const TravelRegister: React.FC = () => {
       console.log(response, "ka");
       setMessage(response.data.message, "success");
       setRegistered(true);
+      if(registered){
+        localStorage.removeItem("basicInfo")
+        localStorage.removeItem("latitude")
+        localStorage.removeItem("longitude")
+      } 
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(error, "------");
