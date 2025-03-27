@@ -495,14 +495,12 @@ class TravelService {
           },
         );
         if(location){
-console.log("vamos")
           const travelLocation = await this.travelrepo.findOne({where:{id:travel_id}, relations:["location"]})
           io.emit("travels", {location:travelLocation?.location, id:travelLocation?.id})
           console.log("🚀 ~ TravelService ~ addLocation ~ travelLocation:", travelLocation)
         }
         return Message.locationSent;
       } else {
-        console.log("sinco")
         const location = this.locationRepo.create({
           latitude: data.latitude,
           longitude: data.longitude,

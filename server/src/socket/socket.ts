@@ -94,12 +94,12 @@ await userService.readNotification(id)
       socket.on("travel-location", async ({ id, latitude, longitude }) => {
         const data = { latitude, longitude }
 await travelService.addLocation(id, data)
-        console.log("🚀 ~ socket.on ~ data:", data)
        
       });
       socket.on("guide-location", async ({ guideId, latitude, longitude }) => {
         const data = { latitude, longitude }
 await guideService.addLocation(guideId, data)
+        console.log("🚀 ~ socket.on ~ data:", data)
        
       });
     } catch (error: any) {

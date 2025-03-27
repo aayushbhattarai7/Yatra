@@ -272,7 +272,7 @@ class GuideService {
         guide: { id: guide_id },
       });
       if (isLocation) {
-        const updateLocation = this.locationRepo.update(
+        const updateLocation = await this.locationRepo.update(
           {
             id: isLocation.id,
             guide: { id: guide_id },
@@ -282,6 +282,10 @@ class GuideService {
             longitude: data.longitude,
           },
         );
+        if(updateLocation){
+          const guideLocation = await this.guideRepo.findOne({where:{id:guide_id}, relations:["location"]})
+          io.emit("guides", {location:guideLocation?.location, id:guideLocation?.id})
+        }
         return Message.locationSent;
       } else {
         const addLocation = this.locationRepo.create({

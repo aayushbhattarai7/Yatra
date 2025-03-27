@@ -6,6 +6,7 @@ import { authLabel } from "@/localization/auth";
 import Button from "@/ui/common/atoms/Button";
 import RequestGuideBooking from "@/components/RequestGuideBooking";
 import GuideProfileUserView from "@/components/GuideProfile";
+import { useSocket } from "@/contexts/SocketContext";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -56,7 +57,7 @@ const Guides = () => {
     null
   );
   const [guideId, setGuideId] = useState<string>("");
-
+const {socket} = useSocket()
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [showMobileList, setShowMobileList] = useState(true);
   const [guide, setGuide] = useState<string>("");
@@ -68,6 +69,27 @@ const Guides = () => {
       setGuides(data.findGuide);
     }
   }, [data]);
+
+  useEffect(() => {
+    socket.on("guides", (updatedGuide: { id: string; location: { latitude: string; longitude: string } }) => {
+      setGuides((prev) =>
+        prev?.map((guide) =>
+          guide.id === updatedGuide.id
+            ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+            : guide
+        ) || null
+      );
+    });
+    return () => {
+      socket.off("guides");
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -180,6 +202,7 @@ const Guides = () => {
             </div>
           ) : (
             <GuideMap
+            key={JSON.stringify(guides)}
               props={guides.map((guide) => ({
                 id: guide.id,
                 firstName: guide.firstName,
