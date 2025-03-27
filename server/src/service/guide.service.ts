@@ -515,6 +515,14 @@ class GuideService {
     }
   }
 
+  async getAllActiveUsers() {
+    const activeGuides = await this.guideRepo.findBy({ available: true });
+
+    if (!activeGuides) return null;
+
+    return activeGuides;
+  }
+
   async activeUser(userId: string) {
     try {
       const user = await this.guideRepo.findOneBy({ id: userId });
@@ -522,8 +530,8 @@ class GuideService {
         throw HttpException.badRequest("You are not authorized");
       }
       await this.guideRepo.update({ id: userId }, { available: true });
-
-      io.to(userId).emit("guide-active", { userId, active: true });
+const activeGuides = await this.getAllActiveUsers()
+      io.to(userId).emit("active-guide", activeGuides);
       return;
     } catch (error: unknown) {
       if (error instanceof Error) {

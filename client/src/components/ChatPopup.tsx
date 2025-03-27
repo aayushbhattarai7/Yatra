@@ -17,9 +17,20 @@ const ChatPopup = () => {
   );
   const { data, loading, error } = useQuery(GET_ROOM_CHATS);
   const navigate = useNavigate();
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading chats.</p>;
-
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+    if (error)
+      return (
+        <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+          <div className="bg-red-50 p-4 rounded-lg shadow-sm">
+            <p className="text-red-600 font-medium">{error.message}</p>
+          </div>
+        </div>
+      );
   const usersInRoom = data?.getConnectedUsers || [];
   const selectedDetails = (
     id: string,

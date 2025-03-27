@@ -54,18 +54,23 @@ function initializeSocket(server: any) {
 
     const user = await User.findOneBy({ id: userId });
     const activeTravel = await travelService.getAllActiveUsers();
+    socket.emit("active-travel", activeTravel);
 
     socket.on("get-active-travels", async () => {
       const activeTravel = await travelService.getAllActiveUsers();
       socket.emit("active-travel", activeTravel);
     });
+    socket.on("get-active-guides", async () => {
+      const activeGuide = await guideService.getAllActiveUsers();
+      socket.emit("active-guide", activeGuide);
+    });
 
-    socket.emit("active-travel", activeTravel);
     if (user) {
       await userService.activeUser(userId);
     }
     const guide = await Guide.findOneBy({ id: userId });
     if (guide) {
+      console.log("oukay")
       await guideService.activeUser(userId);
     }
     const travel = await Travel.findOneBy({ id: userId });
@@ -118,7 +123,12 @@ function initializeSocket(server: any) {
     });
     socket.on("mark-as-read", async ({ senderId, role }) => {
       const userId = socket.data.user.id;
-      await chatService.readChatOfTravel(userId, senderId);
+      if(role === "TRAVEL"){
+
+        await chatService.readChatOfTravel(userId, senderId);
+      }else{
+        await chatService.readChatOfGuide(userId, senderId)
+      }
     });
 
     socket.on("mark-read-by-travel", async ({ senderId }) => {
@@ -127,7 +137,7 @@ function initializeSocket(server: any) {
     });
     socket.on("mark-read-by-guide", async ({ senderId }) => {
       const userId = socket.data.user.id;
-      await chatService.readChatByTravel(senderId, userId);
+      await chatService.readChatByGuide(senderId, userId);
     });
 
     socket.on("disconnect", async () => {

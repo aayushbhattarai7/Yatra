@@ -230,7 +230,7 @@ export class ChatService {
         senderGuide: guide,
       });
       await this.chatRepo.save(chat);
-      io.to(user_id).emit("travel-message-to-user", chat);
+      io.to(user_id).emit("guide-message-to-user", chat);
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -241,6 +241,32 @@ export class ChatService {
     }
   }
 
+  async readChatOfGuide(userId: string, guide_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+      const guide = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!guide) throw HttpException.notFound("guide not found");
+      const updateChat = await this.chatRepo
+        .createQueryBuilder()
+        .update()
+        .set({ read: true })
+        .where("(senderGuide.id = :guide_id AND receiverUser.id = :userId)", {
+          userId,
+          guide_id,
+        })
+        .execute();
+
+      io.to(guide_id).emit("message-read", { guide_id, userId });
+      return updateChat;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   async readChatOfTravel(userId: string, travelId: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
@@ -297,8 +323,8 @@ export class ChatService {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
-      const travel = await this.travelRepo.findOneBy({ id: guideId });
-      if (!travel) throw HttpException.notFound("Travel not found");
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.notFound("Guide not found");
       const updateChat = await this.chatRepo
         .createQueryBuilder()
         .update()

@@ -251,6 +251,7 @@ export const GET_CHAT_OF_GUIDE = gql`
     getChatOfGuide(id: $id) {
       id
       message
+      createdAt
       read
       senderGuide {
         id

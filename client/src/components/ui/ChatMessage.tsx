@@ -119,9 +119,9 @@ const ChatMessages = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+const socketMessage = details.role === "TRAVEL"?"get-active-travels":"get-active-guides"
   useEffect(() => {
-    socket.emit("get-active-travels");
+    socket.emit(socketMessage);
 
     const handleNewMessage = (newMessage: Chat) => {
       setMessages((prev) => [...prev, newMessage]);
@@ -150,9 +150,17 @@ const ChatMessages = ({
         ? "message-read-by-travel"
         : "message-read-by-guide";
     socket.on(`${messageOn}`, handleReadStatus);
-    socket.on("travel-message-to-user", handleNewMessage);
+    const getMessages =
+    details.role === "TRAVEL"
+      ? "travel-message-to-user"
+      : "guide-message-to-user";  
+    socket.on(getMessages, handleNewMessage);
 
     socket.on("active-travel", (activeUsers: { id: string }[]) => {
+      const isUserActive = activeUsers?.some((user) => user.id === details.id);
+      setIsActive(isUserActive);
+    });
+    socket.on("active-guide", (activeUsers: { id: string }[]) => {
       const isUserActive = activeUsers?.some((user) => user.id === details.id);
       setIsActive(isUserActive);
     });
@@ -270,6 +278,9 @@ const ChatMessages = ({
                       ${providers ? "text-blue-200" : "text-gray-400"}`}
                   >
                     {chat?.receiverTravel?.id === details.id && (
+                      <p>{chat.read ? "Seen" : "Delivered"}</p>
+                    )}
+                    {chat?.receiverGuide?.id === details.id && (
                       <p>{chat.read ? "Seen" : "Delivered"}</p>
                     )}
                   </span>
