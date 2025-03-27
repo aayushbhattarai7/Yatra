@@ -60,10 +60,10 @@ function App() {
 
   return (
     <SocketProvider>
-    <LocationProvider>
-      <ToastNotification />
-      <RouterProvider router={router} />
-    </LocationProvider>
+      <LocationProvider>
+        <ToastNotification />
+        <RouterProvider router={router} />
+      </LocationProvider>
     </SocketProvider>
   );
 }

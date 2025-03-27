@@ -1,48 +1,56 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import ChatMessages from "./ChatMessage";
-import { GET_USER_FOR_CHAT, GET_USER_FOR_CHAT_BY_GUIDE } from "../mutation/queries";
+import {
+  GET_USER_FOR_CHAT,
+  GET_USER_FOR_CHAT_BY_GUIDE,
+} from "../mutation/queries";
 import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
-interface Room{
-id:string;
-user:{
-  id:string;
-  firstName:string;
-  middleName:string;
-  lastName:string;
-  gender:string;
-}
-travel:{
-  id:string;
-  firstName:string;
-  middleName:string;
-  lastName:string;
-  gender:string;
-}
+interface Room {
+  id: string;
+  user: {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    gender: string;
+  };
+  travel: {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    gender: string;
+  };
 }
 
 const ChatPopup = () => {
-  const token = getCookie("accessToken")
-  const decodedToken:any = jwtDecode(token!)
-  const query = decodedToken.role==="TRAVEL"?GET_USER_FOR_CHAT:GET_USER_FOR_CHAT_BY_GUIDE
+  const token = getCookie("accessToken");
+  const decodedToken: any = jwtDecode(token!);
+  const query =
+    decodedToken.role === "TRAVEL"
+      ? GET_USER_FOR_CHAT
+      : GET_USER_FOR_CHAT_BY_GUIDE;
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { data } = useQuery(query);
-  const [userInRoom, setUserInRoom] = useState<Room[]>([])
+  const [userInRoom, setUserInRoom] = useState<Room[]>([]);
 
-  useEffect(()=>{
-    if(decodedToken.role === "TRAVEL"){
-      if(data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel)
-    }else{
-  if(data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide)
-  }
-  },[data?.getChatUserByTravel, data?.getChatUserByGuide])
-
+  useEffect(() => {
+    if (decodedToken.role === "TRAVEL") {
+      if (data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel);
+    } else {
+      if (data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide);
+    }
+  }, [data?.getChatUserByTravel, data?.getChatUserByGuide]);
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       {selectedUserId ? (
-        <ChatMessages userId={selectedUserId} onBack={() => setSelectedUserId(null)} />
+        <ChatMessages
+          userId={selectedUserId}
+          onBack={() => setSelectedUserId(null)}
+        />
       ) : (
         <div>
           <div className="p-4 border-b border-gray-200">
@@ -50,7 +58,6 @@ const ChatPopup = () => {
           </div>
           <div className="max-h-96 overflow-y-auto">
             {userInRoom?.length === 0 ? (
-
               <p className="p-4 text-gray-500">No users in the room</p>
             ) : (
               userInRoom?.map((room) => (
@@ -90,7 +97,5 @@ const ChatPopup = () => {
     </div>
   );
 };
-
-
 
 export default ChatPopup;

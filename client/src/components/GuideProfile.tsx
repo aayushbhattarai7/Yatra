@@ -224,7 +224,8 @@ const GuideProfileUserView = ({
                     About
                   </h2>
                   <p className="text-gray-700 leading-relaxed text-sm">
-                   Not implemented   </p>
+                    Not implemented{" "}
+                  </p>
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
@@ -238,7 +239,7 @@ const GuideProfileUserView = ({
                   <h2 className="text-lg font-bold mb-3 text-gray-900">
                     Languages
                   </h2>
-                 <p>Not implemented</p>
+                  <p>Not implemented</p>
                 </div>
               </motion.div>
 
@@ -272,7 +273,7 @@ const GuideProfileUserView = ({
                                 year: "numeric",
                                 month: "long",
                                 day: "numeric",
-                              }
+                              },
                             )}
                         </div>
                       </div>

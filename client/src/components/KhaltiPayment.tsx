@@ -21,7 +21,7 @@ const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
 
       const response = await axiosInstance.post(
         "/khalti/initialize-esewa",
-        payload
+        payload,
       );
       const paymentUrl = response.data.paymentDetails.payment_url;
       console.log("🚀 ~ handlePaymentInitiation ~ paymentUrl:", paymentUrl);

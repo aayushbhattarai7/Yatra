@@ -3,7 +3,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 import { BsEmojiSmile } from "react-icons/bs";
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import Picker from "@emoji-mart/react";
@@ -52,52 +52,68 @@ const GET_CHAT_OF_GUIDE = gql`
         firstName
         middleName
         lastName
-      }  
       }
-      }
-      `;
-      
-      interface User {
-        id: string;
-        firstName: string;
-        middleName?: string;
-        lastName: string;
-      }
-      
-      interface Chat {
-        id: string;
-        message: string;
+    }
+  }
+`;
+
+interface User {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+}
+
+interface Chat {
+  id: string;
+  message: string;
   read: boolean;
-  createdAt:string;
+  createdAt: string;
   senderUser?: User;
   receiverUser?: User;
 }
 
-const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }) => {
+const ChatMessages = ({
+  userId,
+  onBack,
+}: {
+  userId: string;
+  onBack: () => void;
+}) => {
   const [message, setMessage] = useState("");
   const token = getCookie("accessToken");
   const decodedToken: any = jwtDecode(token!);
   const [messages, setMessages] = useState<Chat[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const { socket } = useSocket();
-  const query = decodedToken.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
-  const { data, loading, error, refetch } = useQuery(query, { variables: { userId } });
-  const datas = decodedToken.role === "TRAVEL" ? data?.getChatOfUserByTravel : data?.getChatOfUserByGuide;
+  const query =
+    decodedToken.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
+  const { data, loading, error, refetch } = useQuery(query, {
+    variables: { userId },
+  });
+  const datas =
+    decodedToken.role === "TRAVEL"
+      ? data?.getChatOfUserByTravel
+      : data?.getChatOfUserByGuide;
   const emojiData: any = useMemo(() => emoji, []);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  
+
   useEffect(() => {
     if (datas) {
       setMessages(datas);
     }
   }, [data]);
-  const unreadMessages = useMemo(() => messages.filter(msg => !msg.read), [messages]);
+  const unreadMessages = useMemo(
+    () => messages.filter((msg) => !msg.read),
+    [messages],
+  );
 
   useEffect(() => {
     if (unreadMessages.length > 0) {
-      const emitTo = decodedToken.role === "TRAVEL" 
-        ? "mark-read-by-travel" 
-        : "mark-read-by-guide";
+      const emitTo =
+        decodedToken.role === "TRAVEL"
+          ? "mark-read-by-travel"
+          : "mark-read-by-guide";
       socket.emit(emitTo, { senderId: userId });
       refetch();
     }
@@ -106,9 +122,10 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
   const scrollToBottom = () => {
     refetch();
     if (unreadMessages.length > 0) {
-      const emitTo = decodedToken.role === "TRAVEL" 
-        ? "mark-read-by-travel" 
-        : "mark-read-by-guide";
+      const emitTo =
+        decodedToken.role === "TRAVEL"
+          ? "mark-read-by-travel"
+          : "mark-read-by-guide";
       socket.emit(emitTo, { senderId: userId });
     }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -118,7 +135,6 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
     scrollToBottom();
   }, [messages]);
 
-
   const addEmoji = (emoji: any) => {
     setMessage((prev) => prev + emoji.native);
     setShowPicker(false);
@@ -127,75 +143,85 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
     const handleNewMessage = (chat: Chat) => {
       setMessages((prevMessages) => [...prevMessages, chat]);
     };
-    const unreadMessages = messages.filter(msg => !msg.read);
+    const unreadMessages = messages.filter((msg) => !msg.read);
     if (unreadMessages.length > 0) {
     }
     const handleReadStatus = (readMessages: { senderId: string }) => {
-      setMessages(prev =>
-        prev.map(msg =>
-          msg.senderUser?.id === readMessages.senderId ? { ...msg, read: true } : msg
-        )
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.senderUser?.id === readMessages.senderId
+            ? { ...msg, read: true }
+            : msg,
+        ),
       );
     };
     socket.on("message-read", handleReadStatus);
     socket.on("travel-message", handleNewMessage);
     socket.on("guide-message", handleNewMessage);
-    
+
     return () => {
       socket.off("travel-message", handleNewMessage);
       socket.off("guide-message", handleNewMessage);
       socket.off("message-read", handleReadStatus);
-
     };
   }, [socket]);
   const sendMessage = async (e: any) => {
     e.preventDefault();
     if (!message.trim()) return;
-    
+
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
       read: false,
-      createdAt:Date.now().toLocaleString(),
+      createdAt: Date.now().toLocaleString(),
       receiverUser: { id: userId, firstName: "", lastName: "" },
     };
-    console.log("sentby", decodedToken.role)
-    const emitMessage = decodedToken.role === "TRAVEL" ? "travel-message-user" : "guide-message-user";
+    console.log("sentby", decodedToken.role);
+    const emitMessage =
+      decodedToken.role === "TRAVEL"
+        ? "travel-message-user"
+        : "guide-message-user";
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     socket.emit(`${emitMessage}`, { user_id: userId, message });
     setMessage("");
   };
 
-  if (loading) return (
-    <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white/80 rounded-lg shadow-2xl flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-    </div>
-  );
-
-  if (error) return (
-    <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white/80 rounded-lg shadow-2xl flex items-center justify-center">
-      <div className="bg-red-50 p-4 rounded-lg">
-        <p className="text-red-600 font-medium">{error.message}</p>
+  if (loading)
+    return (
+      <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white/80 rounded-lg shadow-2xl flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
       </div>
-    </div>
-  );
+    );
+
+  if (error)
+    return (
+      <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white/80 rounded-lg shadow-2xl flex items-center justify-center">
+        <div className="bg-red-50 p-4 rounded-lg">
+          <p className="text-red-600 font-medium">{error.message}</p>
+        </div>
+      </div>
+    );
 
   return (
     <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden border border-gray-100">
       <div className="p-3 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <button 
-            onClick={onBack} 
+          <button
+            onClick={onBack}
             className="text-gray-500 hover:text-blue-600 transition-colors duration-200"
           >
             <IoArrowBack className="text-xl" />
           </button>
           <div>
-            <h3 className="text-sm font-semibold text-gray-800">Chat Messages</h3>
-            <p className="text-xs text-gray-500">{decodedToken.role.toLowerCase()}</p>
+            <h3 className="text-sm font-semibold text-gray-800">
+              Chat Messages
+            </h3>
+            <p className="text-xs text-gray-500">
+              {decodedToken.role.toLowerCase()}
+            </p>
           </div>
         </div>
-        <button 
+        <button
           onClick={onBack}
           className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
         >
@@ -214,33 +240,34 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
           messages.map((chat) => {
             const isSent = chat.receiverUser && chat.receiverUser.id === userId;
             return (
-              <div key={chat.id} className={`flex ${isSent ? "justify-end" : "justify-start"} animate-fade-in`}>
+              <div
+                key={chat.id}
+                className={`flex ${isSent ? "justify-end" : "justify-start"} animate-fade-in`}
+              >
                 <div
                   className={`max-w-[75%] p-2.5 rounded-2xl text-sm
-                    ${isSent
-                      ? "bg-blue-600 text-white rounded-br-none"
-                      : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
+                    ${
+                      isSent
+                        ? "bg-blue-600 text-white rounded-br-none"
+                        : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
                     } shadow-sm`}
                 >
                   <p className="leading-relaxed break-words">{chat.message}</p>
-                  <span 
+                  <span
                     className={`text-[10px] mt-1 block 
                       ${isSent ? "text-blue-200" : "text-gray-400"}`}
                   >
-  {chat?.receiverUser?.id === userId && (
-<p>
-
-  {chat.read ? "Seen" : "Delivered"}
-</p>
-                    )}                  </span>
+                    {chat?.receiverUser?.id === userId && (
+                      <p>{chat.read ? "Seen" : "Delivered"}</p>
+                    )}{" "}
+                  </span>
                   <p>{new Date(chat.createdAt).toLocaleTimeString()}</p>
-
                 </div>
               </div>
             );
           })
         )}
-<div ref={messagesEndRef} />
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="p-3 bg-white border-t border-gray-100 sticky bottom-0">
@@ -255,7 +282,11 @@ const ChatMessages = ({ userId, onBack }: { userId: string; onBack: () => void }
             </button>
             {showPicker && (
               <div className="absolute bottom-12 left-0 z-50 shadow-xl rounded-lg">
-                <Picker data={emojiData} set="native" onEmojiSelect={addEmoji} />
+                <Picker
+                  data={emojiData}
+                  set="native"
+                  onEmojiSelect={addEmoji}
+                />
               </div>
             )}
           </div>

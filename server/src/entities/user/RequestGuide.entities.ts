@@ -27,7 +27,7 @@ export class RequestGuide extends Base {
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
   status: RequestStatus;
-  @Column({ type: "enum", enum: PaymentType, nullable:true })
+  @Column({ type: "enum", enum: PaymentType, nullable: true })
   paymentType: PaymentType;
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })

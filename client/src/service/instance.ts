@@ -6,7 +6,6 @@ import { getCookie } from "@/function/GetCookie";
 const authLink = setContext((_, { headers }) => {
   const encryptedToken = getCookie("accessToken");
 
-
   return {
     headers: {
       ...headers,

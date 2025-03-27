@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
 import { useLang } from "../../hooks/useLang";
-import {  TRAVEL_BOOKING_HISTORY } from "../../mutation/queries";
+import { TRAVEL_BOOKING_HISTORY } from "../../mutation/queries";
 
 interface FormData {
   id: string;
@@ -34,7 +34,7 @@ const TravelHistory = () => {
   const { data, loading, error } = useQuery(TRAVEL_BOOKING_HISTORY);
 
   useEffect(() => {
-    console.log(data)
+    console.log(data);
     if (data) {
       setTravels(data.getRequestHistoryOfTravel);
     }

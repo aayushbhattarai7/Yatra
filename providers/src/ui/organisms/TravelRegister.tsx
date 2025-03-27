@@ -67,7 +67,7 @@ const TravelRegister: React.FC = () => {
   } = useForm<FormData>();
 
   const handleIdentityChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setIdentityType(event.target.value);
   };
@@ -164,7 +164,7 @@ const TravelRegister: React.FC = () => {
         console.log(error, "------");
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error"
+          "error",
         );
       } else {
         console.log(error);
@@ -215,7 +215,7 @@ const TravelRegister: React.FC = () => {
 
           <form
             onSubmit={handleSubmit(
-              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo,
             )}
             noValidate
             encType="multipart/form-data"

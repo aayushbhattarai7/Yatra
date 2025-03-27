@@ -28,7 +28,7 @@ interface GuideBooking {
   price: string;
   lastActionBy: string;
   createdAt: string;
-  userBargain:number
+  userBargain: number;
 }
 
 interface Guide {
@@ -37,7 +37,7 @@ interface Guide {
   middleName: string;
   lastName: string;
   gender: string;
-  email:string
+  email: string;
 }
 
 interface Price {
@@ -183,8 +183,8 @@ const GuideBooking = () => {
                       book.status === "COMPLETED"
                         ? "text-green-600"
                         : book.status === "CANCELLED"
-                        ? "text-red-600"
-                        : "text-blue-600"
+                          ? "text-red-600"
+                          : "text-blue-600"
                     }`}
                   >
                     {book.status}
@@ -254,11 +254,7 @@ const GuideBooking = () => {
             </div>
 
             {pay && (
-              <Esewa
-                id={book.id}
-                amount={parseInt(book.price)}
-                type="guide"
-              />
+              <Esewa id={book.id} amount={parseInt(book.price)} type="guide" />
             )}
           </div>
         ))}

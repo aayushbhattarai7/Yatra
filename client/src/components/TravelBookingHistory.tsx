@@ -28,7 +28,7 @@ interface Travel {
 
 const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
-    null
+    null,
   );
   const [travelId, setTravelId] = useState<string>("");
   const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
@@ -139,8 +139,8 @@ const TravelBookingHistory = () => {
                       book.status === "COMPLETED"
                         ? "text-green-600"
                         : book.status === "CANCELLED"
-                        ? "text-red-600"
-                        : "text-blue-600"
+                          ? "text-red-600"
+                          : "text-blue-600"
                     }`}
                   >
                     {book.status}

@@ -3,14 +3,18 @@ import { StatusCodes } from "../constant/StatusCodes";
 import { type Request, type Response } from "express";
 import { ChatService } from "../service/chat.service";
 import { ChatDTO } from "../dto/chat.dto";
-const chatService = new ChatService()
+const chatService = new ChatService();
 export class UserController {
   async paymentForTravelWithEsewa(req: Request, res: Response) {
     try {
-      const userId = req.user?.id
-              const { token, requestId } = req.body;
+      const userId = req.user?.id;
+      const { token, requestId } = req.body;
 
-      const data = await userService.advancePaymentForTravelWithEsewa(userId as string,requestId, token);
+      const data = await userService.advancePaymentForTravelWithEsewa(
+        userId as string,
+        requestId,
+        token,
+      );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -22,10 +26,14 @@ export class UserController {
   }
   async chatWithTravel(req: Request, res: Response) {
     try {
-      const userId = req.user?.id
+      const userId = req.user?.id;
       const travelId = req.params.id;
-      const {message} = req.body
-      const data = await chatService.chatWithTravel(userId as string,travelId,message );
+      const { message } = req.body;
+      const data = await chatService.chatWithTravel(
+        userId as string,
+        travelId,
+        message,
+      );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -37,11 +45,18 @@ export class UserController {
   }
   async paymentForGuideWithEsewa(req: Request, res: Response) {
     try {
-      const userId = req.user?.id
-              const { token, requestId } = req.body;
-              console.log("🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:", requestId)
+      const userId = req.user?.id;
+      const { token, requestId } = req.body;
+      console.log(
+        "🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:",
+        requestId,
+      );
 
-      const data = await userService.advancePaymentForGuideWithEsewa(userId as string,requestId, token);
+      const data = await userService.advancePaymentForGuideWithEsewa(
+        userId as string,
+        requestId,
+        token,
+      );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -53,11 +68,18 @@ export class UserController {
   }
   async paymentForTravelWithKhalti(req: Request, res: Response) {
     try {
-      const userId = req.user?.id
-              const { pidx, requestId } = req.body;
-              console.log("🚀 ~ UserController ~ paymentForTravelWithKhalti ~ requestId:", requestId)
+      const userId = req.user?.id;
+      const { pidx, requestId } = req.body;
+      console.log(
+        "🚀 ~ UserController ~ paymentForTravelWithKhalti ~ requestId:",
+        requestId,
+      );
 
-      const data = await userService.advancePaymentForTravelWithKhalti(userId as string,requestId, pidx);
+      const data = await userService.advancePaymentForTravelWithKhalti(
+        userId as string,
+        requestId,
+        pidx,
+      );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -69,11 +91,18 @@ export class UserController {
   }
   async paymentForGuideWithKhalti(req: Request, res: Response) {
     try {
-      const userId = req.user?.id
-              const { token, requestId } = req.body;
-              console.log("🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:", requestId)
+      const userId = req.user?.id;
+      const { token, requestId } = req.body;
+      console.log(
+        "🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:",
+        requestId,
+      );
 
-      const data = await userService.advancePaymentForGuideWithEsewa(userId as string,requestId, token);
+      const data = await userService.advancePaymentForGuideWithEsewa(
+        userId as string,
+        requestId,
+        token,
+      );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error) {

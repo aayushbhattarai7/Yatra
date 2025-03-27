@@ -34,9 +34,10 @@ class TravelService {
     ),
     private readonly travelKycRepo = AppDataSource.getRepository(TravelKyc),
     private readonly userRepo = AppDataSource.getRepository(User),
-    private readonly notificationRepo = AppDataSource.getRepository(Notification)
-
-  ) { }
+    private readonly notificationRepo = AppDataSource.getRepository(
+      Notification,
+    ),
+  ) {}
 
   async create(image: any[], data: TravelDTO): Promise<string> {
     return await AppDataSource.transaction(
@@ -350,7 +351,7 @@ class TravelService {
           travel: { id: travel_id },
           id: requestId,
         },
-        relations: ["user"]
+        relations: ["user"],
       });
       if (!requests) {
         throw HttpException.notFound("no request found");
@@ -371,14 +372,16 @@ class TravelService {
         const notification = this.notificationRepo.create({
           message: `Travel ${requests.user.firstName} sent you a price for the trip that you requested recently`,
           receiverUser: requests.user,
-          senderTravel: requests.travel
-        })
-        await this.notificationRepo.save(notification)
-        const notifications = await this.notificationRepo.findBy({ receiverUser: { id: requests.user.id } })
+          senderTravel: requests.travel,
+        });
+        await this.notificationRepo.save(notification);
+        const notifications = await this.notificationRepo.findBy({
+          receiverUser: { id: requests.user.id },
+        });
         if (!notifications) {
-          throw HttpException.notFound("Notifications not found")
+          throw HttpException.notFound("Notifications not found");
         }
-        io.to(requests.user.id).emit("notification", notifications)
+        io.to(requests.user.id).emit("notification", notifications);
       }
       return Message.priceSent;
     } catch (error: unknown) {
@@ -392,15 +395,17 @@ class TravelService {
 
   async getAllNotifications(travelId: string) {
     try {
-      const travel = await this.travelrepo.findOneBy({ id: travelId })
+      const travel = await this.travelrepo.findOneBy({ id: travelId });
       if (!travel) {
         throw HttpException.badRequest("You are not authorized");
       }
-      const notifications = await this.notificationRepo.findBy({ receiverTravel: { id: travelId } })
+      const notifications = await this.notificationRepo.findBy({
+        receiverTravel: { id: travelId },
+      });
       if (!notifications) {
-        throw HttpException.notFound("No notifications yet")
+        throw HttpException.notFound("No notifications yet");
       }
-      return notifications
+      return notifications;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -478,14 +483,14 @@ class TravelService {
 
   async addLocation(travel_id: string, data: LocationDTO) {
     try {
-      console.log("yess")
+      console.log("yess");
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
       if (!travel) throw HttpException.unauthorized("you are not authorized");
       const isLocation = await this.locationRepo.findOneBy({
         travel: { id: travel_id },
       });
       if (isLocation) {
-        const location =await this.locationRepo.update(
+        const location = await this.locationRepo.update(
           {
             travel: travel,
           },
@@ -494,10 +499,19 @@ class TravelService {
             longitude: data.longitude,
           },
         );
-        if(location){
-          const travelLocation = await this.travelrepo.findOne({where:{id:travel_id}, relations:["location"]})
-          io.emit("travels", {location:travelLocation?.location, id:travelLocation?.id})
-          console.log("🚀 ~ TravelService ~ addLocation ~ travelLocation:", travelLocation)
+        if (location) {
+          const travelLocation = await this.travelrepo.findOne({
+            where: { id: travel_id },
+            relations: ["location"],
+          });
+          io.emit("travels", {
+            location: travelLocation?.location,
+            id: travelLocation?.id,
+          });
+          console.log(
+            "🚀 ~ TravelService ~ addLocation ~ travelLocation:",
+            travelLocation,
+          );
         }
         return Message.locationSent;
       } else {
@@ -507,9 +521,12 @@ class TravelService {
           travel: travel,
         });
         await this.locationRepo.save(location);
-        const travelLocation = await this.travelrepo.findOne({where:{id:travel_id}, relations:["location"]})
+        const travelLocation = await this.travelrepo.findOne({
+          where: { id: travel_id },
+          relations: ["location"],
+        });
 
-        io.emit("travels", {location:travelLocation, id:travel_id})
+        io.emit("travels", { location: travelLocation, id: travel_id });
 
         return Message.locationSent;
       }
@@ -554,15 +571,15 @@ class TravelService {
 
   async activeUser(userId: string) {
     try {
-      const user = await this.travelrepo.findOneBy({ id: userId })
+      const user = await this.travelrepo.findOneBy({ id: userId });
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
-      await this.travelrepo.update({ id: userId }, { available: true })
+      await this.travelrepo.update({ id: userId }, { available: true });
 
-      const activeTravel = await this.getAllActiveUsers()
-      io.emit("active-travel", activeTravel)
-      return
+      const activeTravel = await this.getAllActiveUsers();
+      io.emit("active-travel", activeTravel);
+      return;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -573,15 +590,15 @@ class TravelService {
   }
   async offlineUser(userId: string) {
     try {
-      const user = await this.travelrepo.findOneBy({ id: userId })
+      const user = await this.travelrepo.findOneBy({ id: userId });
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
-      await this.travelrepo.update({ id: userId }, { available: false })
+      await this.travelrepo.update({ id: userId }, { available: false });
 
       const activeTravel = await this.getAllActiveUsers();
       io.emit("active-travel", activeTravel);
-      return user
+      return user;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -592,11 +609,11 @@ class TravelService {
   }
 
   async getAllActiveUsers() {
-    const activeTravel = await this.travelrepo.findBy({ available: true })
+    const activeTravel = await this.travelrepo.findBy({ available: true });
 
-    if (!activeTravel) return null
+    if (!activeTravel) return null;
 
-    return activeTravel
+    return activeTravel;
   }
 }
 export default new TravelService();

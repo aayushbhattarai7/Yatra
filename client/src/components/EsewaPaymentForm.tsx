@@ -16,7 +16,7 @@ const PaymentForm: React.FC<PaymentProps> = ({ id, amounts }) => {
       const formData = { amount, productId: generateUniqueId() };
       const response = await axiosInstance.post(
         "/esewa/initialize-esewa",
-        formData
+        formData,
       );
 
       setSignature(response.data.paymentDetails.signature);
@@ -27,7 +27,7 @@ const PaymentForm: React.FC<PaymentProps> = ({ id, amounts }) => {
 
   // eSewa form details
   const productCode = "EPAYTEST";
-//   const successUrl = "http://localhost:3000/api/esewa/complete-payment";
+  //   const successUrl = "http://localhost:3000/api/esewa/complete-payment";
   const failureUrl = "http://localhost:3001/failure";
   const successUrl = "http://localhost:3001/success";
 

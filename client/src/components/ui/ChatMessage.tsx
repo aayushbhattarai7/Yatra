@@ -4,7 +4,7 @@ import { gql, useQuery } from "@apollo/client";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { IoArrowBack, IoSend } from "react-icons/io5";
 import { BsEmojiSmile } from "react-icons/bs";
-import { X } from 'lucide-react';
+import { X } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useApolloClient } from "@apollo/client";
@@ -48,7 +48,7 @@ interface Guide {
 
 interface Chat {
   id: string;
-  createdAt:string;
+  createdAt: string;
   message: string;
   read: boolean;
   senderTravel?: Travel;
@@ -65,7 +65,13 @@ interface Details {
   role: string;
 }
 
-const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => void }) => {
+const ChatMessages = ({
+  details,
+  onBack,
+}: {
+  details: Details;
+  onBack: () => void;
+}) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Chat[]>([]);
   const [showPicker, setShowPicker] = useState(false);
@@ -74,33 +80,33 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const { socket } = useSocket();
   const apolloClient = useApolloClient();
   const emojiData: any = useMemo(() => emoji, []);
-  const query = details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
+  const query =
+    details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
 
   const { data, loading, error, refetch } = useQuery(query, {
     variables: { id: details.id },
   });
 
-  const datas = details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
+  const datas =
+    details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;
   useEffect(() => {
-    if (datas) { 
-      
+    if (datas) {
       setMessages(datas);
     }
   }, [data]);
-  const unreadMessages = messages.filter(msg => !msg.read);
+  const unreadMessages = messages.filter((msg) => !msg.read);
   const scrollToBottom = () => {
-
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    socket.emit("mark-as-read",({senderId:details.id,role:details.role}))
-    refetch()
+    socket.emit("mark-as-read", { senderId: details.id, role: details.role });
+    refetch();
   };
 
   useEffect(() => {
     if (messages.length > 0) {
-  
       if (unreadMessages.length > 0) {
         socket.emit("mark-as-read", {
-          senderId: details.id,role:details.role
+          senderId: details.id,
+          role: details.role,
         });
       }
     }
@@ -109,8 +115,6 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
   const addEmoji = (emoji: any) => {
     setMessage((prev) => prev + emoji.native);
   };
-
-
 
   useEffect(() => {
     scrollToBottom();
@@ -124,43 +128,44 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
       apolloClient.cache.modify({
         fields: {
           getChatOfTravel(existingMessages = []) {
-            return [...existingMessages, newMessage]; 
-          }
-        }
+            return [...existingMessages, newMessage];
+          },
+        },
       });
-      
     };
-    const handleReadStatus = ( senderId: string ) => {
-      setMessages(prev =>
-        prev.map(msg =>
-          (details.role === "TRAVEL" ? msg.senderTravel?.id : msg.senderGuide?.id) === senderId
+    const handleReadStatus = (senderId: string) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          (details.role === "TRAVEL"
+            ? msg.senderTravel?.id
+            : msg.senderGuide?.id) === senderId
             ? { ...msg, read: true }
-            : msg
-        )
+            : msg,
+        ),
       );
-
     };
-  
-    const messageOn = details.role === "TRAVEL"?"message-read-by-travel":"message-read-by-guide" 
-    socket.on(`${messageOn}`,handleReadStatus );
+
+    const messageOn =
+      details.role === "TRAVEL"
+        ? "message-read-by-travel"
+        : "message-read-by-guide";
+    socket.on(`${messageOn}`, handleReadStatus);
     socket.on("travel-message-to-user", handleNewMessage);
-   
-      socket.on("active-travel", (activeUsers: { id: string }[]) => {
-        const isUserActive = activeUsers?.some(user => user.id === details.id);
-        setIsActive(isUserActive);
-      });    
+
+    socket.on("active-travel", (activeUsers: { id: string }[]) => {
+      const isUserActive = activeUsers?.some((user) => user.id === details.id);
+      setIsActive(isUserActive);
+    });
 
     return () => {
       socket.off("travel-message-to-user", handleNewMessage);
       socket.off("active-travel");
-
     };
   }, [socket]);
 
-
   const closePopUp = () => {
-  window.location.href="/"
-  }
+    window.location.href = "/";
+  };
   const sendMessage = async (e: any) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -168,55 +173,61 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
-      createdAt:new Date().toLocaleTimeString(),
+      createdAt: new Date().toLocaleTimeString(),
       read: false,
       receiverTravel: { id: details.id, firstName: "You", lastName: "" },
     };
 
-    const emitMessage = details.role === "GUIDE" ? "guide-message" : "travel-message";
+    const emitMessage =
+      details.role === "GUIDE" ? "guide-message" : "travel-message";
     setMessages((prev) => [...prev, newMessage]);
     socket.emit(`${emitMessage}`, { id: details.id, message });
     setMessage("");
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-    </div>
-  );
-
-  if (error) return (
-    <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
-      <div className="bg-red-50 p-4 rounded-lg shadow-sm">
-        <p className="text-red-600 font-medium">{error.message}</p>
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
       </div>
-    </div>
-  );
+    );
+
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-full bg-white/80 rounded-lg">
+        <div className="bg-red-50 p-4 rounded-lg shadow-sm">
+          <p className="text-red-600 font-medium">{error.message}</p>
+        </div>
+      </div>
+    );
 
   return (
     <div className="fixed bottom-4 right-4 w-[380px] h-[500px] bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden border border-gray-100">
       <div className="p-3 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <button 
-            onClick={onBack} 
+          <button
+            onClick={onBack}
             className="text-gray-500 hover:text-blue-600 transition-colors duration-200"
           >
             <IoArrowBack className="text-xl" />
           </button>
           <div>
             <h3 className="text-sm font-semibold text-gray-800">
-              {`${details.firstName} ${details.middleName ? details.middleName + ' ' : ''}${details.lastName}`}
+              {`${details.firstName} ${details.middleName ? details.middleName + " " : ""}${details.lastName}`}
             </h3>
-<div className="flex gap-3 items-center">
-
-            <div className={`w-2 h-2  rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}`} />
-            <p className="text-xs text-gray-500">{details.role.toLowerCase()}</p>
-</div>
+            <div className="flex gap-3 items-center">
+              <div
+                className={`w-2 h-2  rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`}
+              />
+              <p className="text-xs text-gray-500">
+                {details.role.toLowerCase()}
+              </p>
+            </div>
           </div>
         </div>
-        <button 
-            onClick={closePopUp} 
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+        <button
+          onClick={closePopUp}
+          className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
         >
           <X size={18} />
         </button>
@@ -231,31 +242,35 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
           </div>
         ) : (
           messages.map((chat) => {
-            const isSentTravel = (chat.receiverTravel && chat.receiverTravel.id === details.id) ||
+            const isSentTravel =
+              (chat.receiverTravel && chat.receiverTravel.id === details.id) ||
               (!chat.senderTravel && !chat.receiverTravel);
-            const isSentGuide = (chat.receiverGuide && chat.receiverGuide.id === details.id) ||
+            const isSentGuide =
+              (chat.receiverGuide && chat.receiverGuide.id === details.id) ||
               (!chat.senderGuide && !chat.receiverGuide);
-            const providers = details.role === "TRAVEL" ? isSentTravel : isSentGuide;
+            const providers =
+              details.role === "TRAVEL" ? isSentTravel : isSentGuide;
 
             return (
-              <div key={chat.id} className={`flex ${providers ? "justify-end" : "justify-start"} animate-fade-in`}>
+              <div
+                key={chat.id}
+                className={`flex ${providers ? "justify-end" : "justify-start"} animate-fade-in`}
+              >
                 <div
                   className={`max-w-[75%] p-2.5 rounded-2xl text-sm
-                    ${providers
-                      ? "bg-blue-600 text-white rounded-br-none"
-                      : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
+                    ${
+                      providers
+                        ? "bg-blue-600 text-white rounded-br-none"
+                        : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
                     } shadow-sm`}
                 >
                   <p className="leading-relaxed break-words">{chat.message}</p>
-                  <span 
+                  <span
                     className={`text-[10px] mt-1 block 
                       ${providers ? "text-blue-200" : "text-gray-400"}`}
                   >
                     {chat?.receiverTravel?.id === details.id && (
-<p>
-
-  {chat.read ? "Seen" : "Delivered"}
-</p>
+                      <p>{chat.read ? "Seen" : "Delivered"}</p>
                     )}
                   </span>
                   <p>{new Date(chat.createdAt).toLocaleTimeString()}</p>
@@ -264,8 +279,7 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
             );
           })
         )}
-                <div ref={messagesEndRef} />
-
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="p-3 bg-white border-t border-gray-100 sticky bottom-0">
@@ -280,7 +294,11 @@ const ChatMessages = ({ details, onBack }: { details: Details; onBack: () => voi
             </button>
             {showPicker && (
               <div className="absolute bottom-12 left-0 z-50 shadow-xl rounded-lg">
-                <Picker data={emojiData} set="native" onEmojiSelect={addEmoji} />
+                <Picker
+                  data={emojiData}
+                  set="native"
+                  onEmojiSelect={addEmoji}
+                />
               </div>
             )}
           </div>

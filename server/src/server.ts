@@ -6,10 +6,9 @@ import { AppDataSource } from "./config/database.config";
 import Print from "./utils/print";
 import { initializeSocket } from "./socket/socket";
 function listen() {
-
   const PORT = DotenvConfig.PORT;
   const httpServer = createServer(app);
-initializeSocket(httpServer)
+  initializeSocket(httpServer);
   httpServer.listen(PORT);
   Print.info(`Server is Listening in port: ${DotenvConfig.PORT}`);
 }
@@ -19,6 +18,6 @@ AppDataSource.initialize()
     Print.info("🚀 ~ Database Connected Successfully");
     listen();
   })
-  .catch((err:any) => {
+  .catch((err: any) => {
     Print.error(`🚀 ~ Database Failed to connect: ${err?.message}`);
   });

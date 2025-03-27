@@ -59,7 +59,7 @@ export enum RoomType {
 }
 
 export enum PaymentType {
-  ESEWA = "ESEWA", 
+  ESEWA = "ESEWA",
   KHALTI = "KHALTI",
-  CARD = "CARD"
+  CARD = "CARD",
 }

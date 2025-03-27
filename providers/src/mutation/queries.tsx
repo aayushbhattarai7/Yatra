@@ -258,46 +258,44 @@ export const GET_TRAVEL_NOTIFICATIONS = gql`
 `;
 
 export const GET_USER_FOR_CHAT = gql`
-query GetChatUserByTravel {
-  getChatUserByTravel {
-  id
-  user {
-    id
-    firstName
-    middleName
-    lastName
-    gender
-  }  
-  travel {
-    id
-    firstName
-    middleName
-    lastName
-    gender
-  
+  query GetChatUserByTravel {
+    getChatUserByTravel {
+      id
+      user {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+      travel {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+    }
   }
-  }
-}
 `;
 export const GET_USER_FOR_CHAT_BY_GUIDE = gql`
-query GetChatUserByGuide {
-  getChatUserByGuide {
-   id
-  user {
-    id
-    firstName
-    middleName
-    lastName
-    gender
-  }  
-  guide {
-    id
-    firstName
-    middleName
-    lastName
-    gender
-  
-  }  
+  query GetChatUserByGuide {
+    getChatUserByGuide {
+      id
+      user {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+      guide {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+    }
   }
-}
 `;

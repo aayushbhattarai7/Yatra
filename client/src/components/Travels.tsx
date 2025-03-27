@@ -33,7 +33,9 @@ interface Kyc {
 const Travels = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
   const [travels, setTravels] = useState<FormData[] | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(
+    null,
+  );
   const { socket } = useSocket();
   const [showMobileList, setShowMobileList] = useState(true);
   const { lang } = useLang();
@@ -47,21 +49,28 @@ const Travels = () => {
   }, [data]);
 
   useEffect(() => {
-    socket.on("travels", (updatedTravel: { id: string; location: { latitude: string; longitude: string } }) => {
-      setTravels((prevTravels) =>
-        prevTravels?.map((travel) =>
-          travel.id === updatedTravel.id
-            ? {
-                ...travel,
-                location: {
-                  latitude: updatedTravel.location.latitude,
-                  longitude: updatedTravel.location.longitude,
-                },
-              }
-            : travel
-        ) || null
-      );
-    });
+    socket.on(
+      "travels",
+      (updatedTravel: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setTravels(
+          (prevTravels) =>
+            prevTravels?.map((travel) =>
+              travel.id === updatedTravel.id
+                ? {
+                    ...travel,
+                    location: {
+                      latitude: updatedTravel.location.latitude,
+                      longitude: updatedTravel.location.longitude,
+                    },
+                  }
+                : travel,
+            ) || null,
+        );
+      },
+    );
     return () => {
       socket.off("travels");
     };
@@ -71,11 +80,14 @@ const Travels = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([position.coords.latitude, position.coords.longitude]);
+          setUserLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
         },
         (error) => {
           console.error("Error getting location:", error);
-        }
+        },
       );
     }
   }, []);
@@ -92,7 +104,9 @@ const Travels = () => {
     <div className="relative h-screen bg-gray-50">
       <div className="hidden md:flex h-full">
         <div className="w-1/3 p-6 overflow-y-auto border-r border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Available Travels</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Available Travels
+          </h2>
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
@@ -109,19 +123,30 @@ const Travels = () => {
           </div>
           <div className="space-y-4">
             {travels?.map((travel) => (
-              <div key={travel.id} className="bg-white rounded-lg p-4 shadow-sm flex items-center gap-4">
+              <div
+                key={travel.id}
+                className="bg-white rounded-lg p-4 shadow-sm flex items-center gap-4"
+              >
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100">
-                  <img src={travel.kyc?.[0]?.path || "/default-avatar.png"} alt={`${travel.firstName} ${travel.lastName}`} className="w-full h-full object-cover" />
+                  <img
+                    src={travel.kyc?.[0]?.path || "/default-avatar.png"}
+                    alt={`${travel.firstName} ${travel.lastName}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-grow">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-semibold text-gray-800">{travel.firstName} {travel.middleName} {travel.lastName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {travel.firstName} {travel.middleName} {travel.lastName}
+                    </h3>
                     <div className="flex items-center">
                       <span className="text-yellow-400">★</span>
                       <span className="text-sm text-gray-600 ml-1">4.8</span>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-sm mb-3">vehicle: {travel.vehicleType} • {travel.gender}</p>
+                  <p className="text-gray-600 text-sm mb-3">
+                    vehicle: {travel.vehicleType} • {travel.gender}
+                  </p>
                   <div className="flex gap-3">
                     <Button
                       buttonText={authLabel.booknow[lang]}
@@ -195,11 +220,26 @@ const Travels = () => {
           onClick={() => setShowMobileList(!showMobileList)}
           className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
             {showMobileList ? (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
+              />
             )}
           </svg>
         </button>
@@ -211,7 +251,9 @@ const Travels = () => {
         >
           <div className="p-4">
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Available Travels</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Available Travels
+            </h2>
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
@@ -226,21 +268,35 @@ const Travels = () => {
                 All Travels
               </button>
             </div>
-            <div className="space-y-3 overflow-y-auto" style={{ maxHeight: "60vh" }}>
+            <div
+              className="space-y-3 overflow-y-auto"
+              style={{ maxHeight: "60vh" }}
+            >
               {travels?.map((travel) => (
-                <div key={travel.id} className="bg-white rounded-lg p-3 shadow-sm flex items-center gap-3 border border-gray-100">
+                <div
+                  key={travel.id}
+                  className="bg-white rounded-lg p-3 shadow-sm flex items-center gap-3 border border-gray-100"
+                >
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                    <img src={travel.kyc?.[0]?.path || "/default-avatar.png"} alt={`${travel.firstName} ${travel.lastName}`} className="w-full h-full object-cover" />
+                    <img
+                      src={travel.kyc?.[0]?.path || "/default-avatar.png"}
+                      alt={`${travel.firstName} ${travel.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-base font-semibold text-gray-800 truncate">{travel.firstName} {travel.middleName} {travel.lastName}</h3>
+                      <h3 className="text-base font-semibold text-gray-800 truncate">
+                        {travel.firstName} {travel.middleName} {travel.lastName}
+                      </h3>
                       <div className="flex items-center flex-shrink-0">
                         <span className="text-yellow-400">★</span>
                         <span className="text-sm text-gray-600 ml-1">4.8</span>
                       </div>
                     </div>
-                    <p className="text-gray-600 text-sm mb-2 truncate">vehicle: {travel.vehicleType} • {travel.gender}</p>
+                    <p className="text-gray-600 text-sm mb-2 truncate">
+                      vehicle: {travel.vehicleType} • {travel.gender}
+                    </p>
                     <div className="flex gap-2">
                       <Button
                         buttonText={authLabel.booknow[lang]}
@@ -261,7 +317,9 @@ const Travels = () => {
           </div>
         </div>
       </div>
-      {travelId && <RequestTravelBooking id={travelId} onClose={() => setTravelId("")} />}
+      {travelId && (
+        <RequestTravelBooking id={travelId} onClose={() => setTravelId("")} />
+      )}
     </div>
   );
 };

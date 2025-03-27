@@ -8,7 +8,7 @@ interface CheckoutProps {
   travelId: string;
   refresh: (travelId: string) => void;
   onClose: () => void;
-  type:"travel" | "guide"
+  type: "travel" | "guide";
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
@@ -16,7 +16,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   travelId,
   refresh,
   onClose,
-  type
+  type,
 }) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -32,8 +32,8 @@ const Checkout: React.FC<CheckoutProps> = ({
       const response = await AdvancePaymentForTravel({
         variables: { travelId, amount: amount },
       });
-      const client_secret  = response.data.AdvancePaymentForTravel;
-      console.log("🚀 ~ handleSubmit ~ client_secret:", client_secret)
+      const client_secret = response.data.AdvancePaymentForTravel;
+      console.log("🚀 ~ handleSubmit ~ client_secret:", client_secret);
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(
         client_secret,
@@ -41,7 +41,7 @@ const Checkout: React.FC<CheckoutProps> = ({
           payment_method: {
             card: cardElement!,
           },
-        }
+        },
       );
 
       if (error) {

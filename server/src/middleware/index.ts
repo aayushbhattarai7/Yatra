@@ -31,7 +31,6 @@ const middleware = async (app: Application) => {
       credentials: true,
     }),
   );
- 
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];
@@ -69,7 +68,13 @@ const middleware = async (app: Application) => {
       }),
     }),
   );
-console.log(DotenvConfig.DATABASE_USERNAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_NAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_USERNAME)
+  console.log(
+    DotenvConfig.DATABASE_USERNAME,
+    DotenvConfig.DATABASE_PASSWORD,
+    DotenvConfig.DATABASE_NAME,
+    DotenvConfig.DATABASE_PASSWORD,
+    DotenvConfig.DATABASE_USERNAME,
+  );
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));
 

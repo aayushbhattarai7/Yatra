@@ -27,12 +27,11 @@ import { Notification } from "../../entities/notification/notification.entity";
 import { RoomService } from "../../service/room.service";
 import { Room } from "../../entities/chat/room.entity";
 import { Chat } from "../../entities/chat/chat.entity";
-import {ChatService} from "../../service/chat.service";
-const roomService = new RoomService()
-const chatService = new ChatService()
+import { ChatService } from "../../service/chat.service";
+const roomService = new RoomService();
+const chatService = new ChatService();
 @Resolver((of) => User)
 export class UserResolver {
- 
   @Mutation(() => String)
   async signup(
     @Arg("firstName") firstName: string,
@@ -124,16 +123,16 @@ export class UserResolver {
   }
   @Mutation(() => LoginResponse)
   async facebookLogin(@Arg("facebookId") facebookId: string) {
-    console.log("🚀 ~ UserResolver ~ facebookLogin ~ facebookId:", facebookId)
+    console.log("🚀 ~ UserResolver ~ facebookLogin ~ facebookId:", facebookId);
     try {
-      console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr")
+      console.log("errrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
       const user = await userService.facebookLogin(facebookId);
-      console.log(user?.id, user?.role,"hhhhhhhhhhhhhhh")
+      console.log(user?.id, user?.role, "hhhhhhhhhhhhhhh");
       const tokens = webTokenService.generateTokens(
         { id: user?.id! },
         user?.role!,
       );
-      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens)
+      console.log("🚀 ~ UserResolver ~ facebookLogin ~ tokens:", tokens);
 
       return {
         id: user?.id!,
@@ -183,10 +182,10 @@ export class UserResolver {
   @Query(() => [Travel, TravelKyc, TravelDetails])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async findTravel(@Ctx() ctx: Context): Promise<Travel[] | null> {
-    console.log("hahahha")
+    console.log("hahahha");
     try {
       const id = ctx.req.user?.id;
-      console.log("🚀 ~ UserResolver ~ findTravel ~ id:", id)
+      console.log("🚀 ~ UserResolver ~ findTravel ~ id:", id);
       const data = await userService.findTravel(id!);
       return data;
     } catch (error) {
@@ -239,7 +238,6 @@ export class UserResolver {
     @Arg("message") message: string,
   ) {
     try {
-     
       const userId = ctx.req.user?.id!;
       return await chatService.chatWithTravel(userId, travelId, message);
     } catch (error) {
@@ -250,7 +248,6 @@ export class UserResolver {
       }
     }
   }
-
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
@@ -278,8 +275,7 @@ export class UserResolver {
 
   @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getOwnTravelRequest(   
-  @Ctx() ctx: Context) {
+  async getOwnTravelRequest(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getOwnTravelRequests(userId);
@@ -333,7 +329,7 @@ export class UserResolver {
       }
     }
   }
- 
+
   @Query(() => Guide)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getGuideProfile(@Ctx() ctx: Context, @Arg("guideId") guideId: string) {
@@ -543,7 +539,7 @@ export class UserResolver {
   }
   @Query(() => [Chat])
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async readChatOfTravelByUser(@Ctx() ctx: Context, @Arg("id") id:string) {
+  async readChatOfTravelByUser(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.readChatOfTravel(userId, id);
@@ -564,11 +560,7 @@ export class UserResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await userService.advancePaymentForGuide(
-        userId,
-        guideId,
-        amount,
-      );
+      return await userService.advancePaymentForGuide(userId, guideId, amount);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -577,6 +569,4 @@ export class UserResolver {
       }
     }
   }
-
- 
 }

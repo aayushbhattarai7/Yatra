@@ -54,10 +54,10 @@ interface Location {
 const Guides = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
   const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null
+    null,
   );
   const [guideId, setGuideId] = useState<string>("");
-const {socket} = useSocket()
+  const { socket } = useSocket();
   const [guides, setGuides] = useState<FormData[] | null>(null);
   const [showMobileList, setShowMobileList] = useState(true);
   const [guide, setGuide] = useState<string>("");
@@ -71,21 +71,28 @@ const {socket} = useSocket()
   }, [data]);
 
   useEffect(() => {
-    socket.on("guides", (updatedGuide: { id: string; location: { latitude: string; longitude: string } }) => {
-      setGuides((prev) =>
-        prev?.map((guide) =>
-          guide.id === updatedGuide.id
-            ? {
-                ...guide,
-                location: {
-                  latitude: updatedGuide.location.latitude,
-                  longitude: updatedGuide.location.longitude,
-                },
-              }
-            : guide
-        ) || null
-      );
-    });
+    socket.on(
+      "guides",
+      (updatedGuide: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setGuides(
+          (prev) =>
+            prev?.map((guide) =>
+              guide.id === updatedGuide.id
+                ? {
+                    ...guide,
+                    location: {
+                      latitude: updatedGuide.location.latitude,
+                      longitude: updatedGuide.location.longitude,
+                    },
+                  }
+                : guide,
+            ) || null,
+        );
+      },
+    );
     return () => {
       socket.off("guides");
     };
@@ -102,7 +109,7 @@ const {socket} = useSocket()
         },
         (error) => {
           console.error("Error getting location:", error);
-        }
+        },
       );
     }
   }, []);
@@ -202,7 +209,7 @@ const {socket} = useSocket()
             </div>
           ) : (
             <GuideMap
-            key={JSON.stringify(guides)}
+              key={JSON.stringify(guides)}
               props={guides.map((guide) => ({
                 id: guide.id,
                 firstName: guide.firstName,

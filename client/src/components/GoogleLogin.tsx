@@ -23,7 +23,7 @@ const GoogleAuth = () => {
   const [googleLogin] = useMutation(GoogleLoginMutation);
 
   const handleSuccess = async (
-    credentialResponse: CustomCredentialResponse
+    credentialResponse: CustomCredentialResponse,
   ) => {
     const id = credentialResponse.credential;
 
@@ -43,7 +43,8 @@ const GoogleAuth = () => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-window.location.href="/"      }
+        window.location.href = "/";
+      }
     } catch (error) {
       console.log("🚀 ~ handleSuccess ~ error:", error);
     }

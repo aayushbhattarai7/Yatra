@@ -17,7 +17,7 @@ const TravelMap: React.FC<Props> = ({ props, zoom = 10 }) => {
   useEffect(() => {
     console.log("Updated travels:", props);
   }, [props]);
-  
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -25,7 +25,7 @@ const TravelMap: React.FC<Props> = ({ props, zoom = 10 }) => {
       },
       () => {
         setCenter([40.7128, -74.006]);
-      }
+      },
     );
   }, []);
 

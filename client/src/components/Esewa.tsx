@@ -5,11 +5,11 @@ import CryptoJS from "crypto-js";
 interface PaymentProps {
   id: string;
   amount: number;
-  type:"travel"| "guide"
+  type: "travel" | "guide";
 }
 const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
   const hashedId = `${uuidv4()}_${id}`;
-  console.log("🚀 ~ hashedId:", hashedId)
+  console.log("🚀 ~ hashedId:", hashedId);
   const [formData, setformData] = useState({
     amount: amount.toString(),
     tax_amount: "0",
@@ -29,7 +29,7 @@ const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
     total_amount: string,
     transaction_uuid: string,
     product_code: string,
-    secret: string
+    secret: string,
   ) => {
     const hashString = `total_amount=${total_amount},transaction_uuid=${transaction_uuid},product_code=${product_code}`;
     const hash = CryptoJS.HmacSHA256(hashString, secret);
@@ -44,7 +44,7 @@ const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
       total_amount,
       transaction_uuid,
       product_code,
-      secret
+      secret,
     );
     setformData({ ...formData, signature: hashedSignature });
   }, [formData.amount]);

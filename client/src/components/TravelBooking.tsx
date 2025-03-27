@@ -52,10 +52,8 @@ interface Price {
 const TravelBooking = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
-  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | []>(
-    []
-  );
-  const {socket} = useSocket()
+  const [travelBooking, setTravelBooking] = useState<TravelBooking[] | []>([]);
+  const { socket } = useSocket();
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
@@ -83,7 +81,6 @@ const TravelBooking = () => {
     const diffInYears = Math.floor(diffInDays / 365);
     return `${diffInYears} years ago`;
   };
-
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -194,8 +191,8 @@ const TravelBooking = () => {
                       book.status === "COMPLETED"
                         ? "text-green-600"
                         : book.status === "CANCELLED"
-                        ? "text-red-600"
-                        : "text-blue-600"
+                          ? "text-red-600"
+                          : "text-blue-600"
                     }`}
                   >
                     {book.status}
@@ -265,7 +262,7 @@ const TravelBooking = () => {
             </div>
 
             {pay && (
-              <Esewa id={book.id} amount={parseInt(book.price)} type="travel"/>
+              <Esewa id={book.id} amount={parseInt(book.price)} type="travel" />
             )}
           </div>
         ))}

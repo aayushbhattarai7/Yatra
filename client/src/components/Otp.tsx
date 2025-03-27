@@ -46,7 +46,7 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
       if (axios.isAxiosError(error)) {
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error"
+          "error",
         );
       } else {
         setMessage("Required fields should not be empty", "error");

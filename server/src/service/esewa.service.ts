@@ -1,7 +1,7 @@
 import axios from "axios";
 import { EsewaUtil } from "../utils/generateHash";
 import { DotenvConfig } from "../config/env.config";
- class EsewaService {
+class EsewaService {
   async initializePayment(amount: number, transactionUuid: string) {
     const { signature, signedFields } = EsewaUtil.createSignature(
       amount,
@@ -17,13 +17,13 @@ import { DotenvConfig } from "../config/env.config";
         "utf-8",
       );
       const decodedData = JSON.parse(decodedString);
-   
-const total_amount = decodedData.total_amount.replace(/,/g, '');
+
+      const total_amount = decodedData.total_amount.replace(/,/g, "");
       let headersList = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
-     
+
       let reqOptions = {
         url: `${DotenvConfig.ESEWA_GATEWAY_URL}/api/epay/transaction/status/?product_code=${process.env.ESEWA_PRODUCT_CODE}&total_amount=${total_amount}&transaction_uuid=${decodedData.transaction_uuid}`,
         method: "GET",
@@ -40,9 +40,9 @@ const total_amount = decodedData.total_amount.replace(/,/g, '');
       }
 
       return { verifiedData: response.data, decodedData };
-    } catch (error:any) {
+    } catch (error: any) {
       console.log("🚀 ~ EsewaService ~ verifyPayment ~ error:", error.message);
     }
   }
- }
-export default new EsewaService()
+}
+export default new EsewaService();

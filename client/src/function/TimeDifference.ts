@@ -9,7 +9,7 @@ export const formatTimeDifference = (createdAt: string) => {
     createdAtTime.getDate(),
     createdAtTime.getHours(),
     createdAtTime.getMinutes(),
-    createdAtTime.getSeconds()
+    createdAtTime.getSeconds(),
   ).getTime();
 
   if (isNaN(localCreatedTime)) return "Invalid date";

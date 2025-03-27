@@ -20,8 +20,8 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Room } from "../../entities/chat/room.entity";
 import { RoomService } from "../../service/room.service";
-const chatService = new ChatService()
-const roomService = new RoomService()
+const chatService = new ChatService();
+const roomService = new RoomService();
 export class TravelResolver {
   @Mutation(() => String)
   async travelSignup(
@@ -286,13 +286,22 @@ export class TravelResolver {
 
   @Query(() => [Chat])
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
-  async getChatOfUserByTravel(@Ctx() ctx: Context, @Arg("userId") userId: string) {
+  async getChatOfUserByTravel(
+    @Ctx() ctx: Context,
+    @Arg("userId") userId: string,
+  ) {
     try {
       const travelId = ctx.req.user?.id!;
-      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ travelId:", travelId)
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ travelId:",
+        travelId,
+      );
       return await chatService.getChatByTravelOfUser(travelId, userId);
     } catch (error) {
-      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:", error)
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:",
+        error,
+      );
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {
@@ -308,7 +317,10 @@ export class TravelResolver {
       const travelId = ctx.req.user?.id!;
       return await roomService.getUserOfChatByTravel(travelId);
     } catch (error) {
-      console.log("🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:", error)
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:",
+        error,
+      );
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {

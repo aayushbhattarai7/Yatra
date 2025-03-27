@@ -9,7 +9,7 @@ interface InputFieldProps {
   readOnly?: boolean;
   error?: FieldError;
   register: UseFormRegister<any>;
-  setValue: UseFormSetValue<any>; 
+  setValue: UseFormSetValue<any>;
   multiple?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   className: string;
@@ -28,7 +28,7 @@ const InputField: React.FC<InputFieldProps> = ({
   readOnly,
   error,
   register,
-  setValue, 
+  setValue,
   multiple,
   onChange,
   className,
@@ -45,10 +45,10 @@ const InputField: React.FC<InputFieldProps> = ({
 
   useEffect(() => {
     const input = document.querySelector<HTMLInputElement>(
-      `input[name="${name}"]`
+      `input[name="${name}"]`,
     );
     if (input && input.value) {
-      setValue(name, input.value, { shouldValidate: true }); 
+      setValue(name, input.value, { shouldValidate: true });
     }
   }, [name, setValue]);
 

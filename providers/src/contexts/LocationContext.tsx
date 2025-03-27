@@ -12,7 +12,7 @@ interface LocationContextType {
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -38,7 +38,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
         (error) => {
           console.error("Error getting location:", error);
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true },
       );
 
       return () => {

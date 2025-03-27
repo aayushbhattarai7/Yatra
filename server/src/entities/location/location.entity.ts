@@ -17,7 +17,7 @@ export class Location extends Base {
   @Column({ name: "longitude", type: "float" })
   longitude: number;
 
-  @Field(() => User, {nullable:true})
+  @Field(() => User, { nullable: true })
   @OneToOne(() => User, (user) => user.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;

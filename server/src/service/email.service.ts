@@ -26,7 +26,6 @@ export class EmailService {
     });
   }
   async sendMail({ to, html, subject, text }: IMailOptions) {
-    
     const mailOptions = {
       from: this.from,
       text,

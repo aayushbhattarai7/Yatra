@@ -109,7 +109,8 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-        window.location.href="/"      }
+        window.location.href = "/";
+      }
     } catch (error) {
       console.error("Error during Facebook login mutation:", error);
     }

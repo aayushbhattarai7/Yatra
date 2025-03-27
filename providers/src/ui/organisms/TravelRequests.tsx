@@ -10,14 +10,7 @@ import {
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
-import {
-  MapPin,
-  Calendar,
-  Users,
-  User,
-  Clock,
-  MapPinned,
-} from "lucide-react";
+import { MapPin, Calendar, Users, User, Clock, MapPinned } from "lucide-react";
 import { useSocket } from "../../contexts/SocketContext";
 
 interface FormData {
@@ -50,7 +43,7 @@ const TravelRequests = () => {
   const [travels, setTravels] = useState<FormData[] | []>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
-  const {socket} = useSocket()
+  const { socket } = useSocket();
   const { data, loading, error, refetch } = useQuery(TRAVEL_REQUESTS);
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
@@ -84,17 +77,17 @@ const TravelRequests = () => {
       setTravels(data.getRequestByTravel);
     }
   }, [data]);
-  useEffect(()=>{
-    const handleNewRequests = (newBooking:FormData) => {
-      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking)
+  useEffect(() => {
+    const handleNewRequests = (newBooking: FormData) => {
+      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking);
       setTravels((prev) => [...prev, newBooking]);
     };
 
-    socket.on("request-travel",handleNewRequests)
+    socket.on("request-travel", handleNewRequests);
     return () => {
       socket.off("request-travel", handleNewRequests);
     };
-  },[socket])
+  }, [socket]);
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">

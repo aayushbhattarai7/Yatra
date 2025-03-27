@@ -1,11 +1,5 @@
 import { Field, ObjectType } from "type-graphql";
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-} from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import Base from "../base.entity";
 import { Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
@@ -102,23 +96,26 @@ export class Travel extends Base {
   })
   requestedTravel: RequestTravel;
 
-   @Field(() => [Notification])
-  @OneToMany(() => Notification, (notifications) => notifications.receiverTravel, {
-    onDelete: "CASCADE",
-  })
+  @Field(() => [Notification])
+  @OneToMany(
+    () => Notification,
+    (notifications) => notifications.receiverTravel,
+    {
+      onDelete: "CASCADE",
+    },
+  )
   notifications: Notification[];
-   @Field(() => [Notification])
+  @Field(() => [Notification])
   @OneToMany(() => Notification, (notification) => notification.senderTravel, {
     onDelete: "CASCADE",
   })
   notification: Notification[];
 
-    @OneToMany(() => Chat, (chat) => chat.senderTravel)
-    sendMessage: Chat[]
-    @OneToMany(() => Chat, (chat) => chat.receiverTravel)
-    receiveMessage: Chat[]
+  @OneToMany(() => Chat, (chat) => chat.senderTravel)
+  sendMessage: Chat[];
+  @OneToMany(() => Chat, (chat) => chat.receiverTravel)
+  receiveMessage: Chat[];
 
-          
-      @OneToMany(() => Room, (room) => room.travel)
-      travels: Room[]
+  @OneToMany(() => Room, (room) => room.travel)
+  travels: Room[];
 }

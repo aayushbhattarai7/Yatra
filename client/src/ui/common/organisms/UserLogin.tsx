@@ -46,7 +46,7 @@ const UserLogin = () => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-        window.location.href="/"
+        window.location.href = "/";
       } else {
         console.error("No response data:", response);
         setMessage("Unexpected error. Please try again.", "error");

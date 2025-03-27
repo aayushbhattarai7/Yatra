@@ -69,25 +69,25 @@ const Navbar = () => {
   };
 
   const handleNotificationClick = () => {
-    setShowChat(false)
-    setShowNotifications(!showNotifications)
-    setShowProfile(false)
-        const decode = jwtDecode<{ id: string }>(token);
+    setShowChat(false);
+    setShowNotifications(!showNotifications);
+    setShowProfile(false);
+    const decode = jwtDecode<{ id: string }>(token);
     console.log(decode.id, "ieeddd");
     socket.emit("read-user-notification", decode.id);
   };
 
   const openChat = () => {
-    setShowChat(!isOpen)
-    setShowNotifications(false)
-    setShowProfile(false)
-  }
+    setShowChat(!isOpen);
+    setShowNotifications(false);
+    setShowProfile(false);
+  };
 
   const openProfile = () => {
-    setShowChat(false)
-    setShowNotifications(false)
-    setShowProfile(!showProfile)
-  }
+    setShowChat(false);
+    setShowNotifications(false);
+    setShowProfile(!showProfile);
+  };
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);

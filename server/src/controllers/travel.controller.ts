@@ -10,7 +10,6 @@ import { LocationDTO } from "../dto/location.dto";
 export class TravelController {
   async create(req: Request, res: Response) {
     try {
-      
       const { kycType } = req.body;
 
       const uploadedPhotos: any = {
@@ -92,7 +91,7 @@ export class TravelController {
         details,
       });
     } catch (error: unknown) {
-console.log(error,"haha")
+      console.log(error, "haha");
       if (error instanceof Error) {
         res.status(StatusCodes.BAD_REQUEST).json({
           message: error?.message,

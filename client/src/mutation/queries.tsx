@@ -223,35 +223,33 @@ export const GET_USER_NOTIFICATIONS = gql`
 `;
 
 export const GET_ROOM_CHATS = gql`
-query GetConnectedUsers {
-  getConnectedUsers {
-    id
-    travel {
+  query GetConnectedUsers {
+    getConnectedUsers {
       id
-      firstName
-      middleName
-      lastName
-      gender
-      role
-    }
-      guide{
+      travel {
         id
-      firstName
-      middleName
-      lastName
-      gender
-      role
+        firstName
+        middleName
+        lastName
+        gender
+        role
       }
-   
+      guide {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+        role
+      }
+    }
   }
-}
 `;
 
-
 export const GET_CHAT_OF_GUIDE = gql`
-query GetChatOfGuide($id: String!) {
-  getChatOfGuide(id: $id) {
-  id
+  query GetChatOfGuide($id: String!) {
+    getChatOfGuide(id: $id) {
+      id
       message
       read
       senderGuide {
@@ -265,14 +263,15 @@ query GetChatOfGuide($id: String!) {
         firstName
         middleName
         lastName
-      }  }
-}
-`
+      }
+    }
+  }
+`;
 
 export const READ_CHAT_OF_TRAVEL = gql`
-query ReadChatOfTravelByUser($readChatOfTravelByUserId: String!) {
-  readChatOfTravelByUser(id: $readChatOfTravelByUserId) {
-  id  
+  query ReadChatOfTravelByUser($readChatOfTravelByUserId: String!) {
+    readChatOfTravelByUser(id: $readChatOfTravelByUserId) {
+      id
+    }
   }
-}
-`
+`;

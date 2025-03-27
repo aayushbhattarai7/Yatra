@@ -51,7 +51,7 @@ export class User extends Base {
   @Column({ name: "tokens", nullable: true })
   tokens: string;
   @Field()
-  @Column({ name: "available", default:false })
+  @Column({ name: "available", default: false })
   available: boolean;
 
   @Field(() => Location)
@@ -79,7 +79,7 @@ export class User extends Base {
     onDelete: "CASCADE",
   })
   notification: Notification[];
-  
+
   @Field(() => [Notification])
   @OneToMany(() => Notification, (notification) => notification.receiverUser, {
     onDelete: "CASCADE",
@@ -87,12 +87,11 @@ export class User extends Base {
   notifications: Notification[];
 
   @OneToMany(() => Chat, (chat) => chat.senderUser)
-  sendMessage: Chat[]
+  sendMessage: Chat[];
 
   @OneToMany(() => Chat, (chat) => chat.receiverUser)
-  receiveMessage: Chat[]
+  receiveMessage: Chat[];
 
   @OneToMany(() => Room, (room) => room.user)
-  users: Room[]
-
+  users: Room[];
 }

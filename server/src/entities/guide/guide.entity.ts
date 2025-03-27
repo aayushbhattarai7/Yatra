@@ -103,22 +103,25 @@ export class Guide extends Base {
   requestedGuide: RequestGuide;
 
   @Field(() => [Notification])
- @OneToMany(() => Notification, (notification) => notification.senderGuide, {
-   onDelete: "CASCADE",
- })
- notification: Notification[];
-   @Field(() => [Notification])
-  @OneToMany(() => Notification, (notifications) => notifications.receiverGuide, {
+  @OneToMany(() => Notification, (notification) => notification.senderGuide, {
     onDelete: "CASCADE",
   })
+  notification: Notification[];
+  @Field(() => [Notification])
+  @OneToMany(
+    () => Notification,
+    (notifications) => notifications.receiverGuide,
+    {
+      onDelete: "CASCADE",
+    },
+  )
   notifications: Notification[];
 
-    @OneToMany(() => Chat, (chat) => chat.senderGuide)
-      sendMessage: Chat[]
-      @OneToMany(() => Chat, (chat) => chat.receiverGuide)
-      receiveMessage: Chat[]
+  @OneToMany(() => Chat, (chat) => chat.senderGuide)
+  sendMessage: Chat[];
+  @OneToMany(() => Chat, (chat) => chat.receiverGuide)
+  receiveMessage: Chat[];
 
-      
   @OneToMany(() => Room, (room) => room.guide)
-  guides: Room[]
+  guides: Room[];
 }

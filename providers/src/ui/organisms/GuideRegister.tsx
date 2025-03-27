@@ -63,7 +63,7 @@ const GuideRegister: React.FC = () => {
   } = useForm<FormData>();
 
   const handleIdentityChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setIdentityType(event.target.value);
   };
@@ -123,7 +123,7 @@ const GuideRegister: React.FC = () => {
       formData.append("license", data.license[0]);
       formData.append("licenseValidityFrom", basicInfo.licenseValidityFrom);
       formData.append("licenseValidityTo", basicInfo.licenseValidityTo);
-            if (identityType === "citizenship") {
+      if (identityType === "citizenship") {
         formData.append("kycType", "CITIZENSHIP");
         formData.append("citizenshipId", data.citizenshipId);
         formData.append("citizenshipIssueDate", data.citizenshipIssueDate);
@@ -159,7 +159,7 @@ const GuideRegister: React.FC = () => {
         console.log(error, "------");
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error"
+          "error",
         );
       } else {
         console.log(error);
@@ -210,7 +210,7 @@ const GuideRegister: React.FC = () => {
 
           <form
             onSubmit={handleSubmit(
-              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo,
             )}
             noValidate
             encType="multipart/form-data"
@@ -471,22 +471,21 @@ const GuideRegister: React.FC = () => {
                         </p>
                       )}
                     </div>
-                 
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                    <Label
-                name="licenseValidityFrom"
-                label="licenseValidityFrom"
-                required
-              />
-              <InputField
-                type="date"
-                name="licenseValidityFrom"
-                register={register}
-                className={""}
-              />
+                      <Label
+                        name="licenseValidityFrom"
+                        label="licenseValidityFrom"
+                        required
+                      />
+                      <InputField
+                        type="date"
+                        name="licenseValidityFrom"
+                        register={register}
+                        className={""}
+                      />
                       {errors.licenseValidityFrom && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.licenseValidityFrom.message}
@@ -494,17 +493,17 @@ const GuideRegister: React.FC = () => {
                       )}
                     </div>
                     <div>
-                    <Label
-                name="licenseValidityTo"
-                label="licenseValidityTo"
-                required
-              />
-              <InputField
-                type="date"
-                name="licenseValidityTo"
-                register={register}
-                className={""}
-              />
+                      <Label
+                        name="licenseValidityTo"
+                        label="licenseValidityTo"
+                        required
+                      />
+                      <InputField
+                        type="date"
+                        name="licenseValidityTo"
+                        register={register}
+                        className={""}
+                      />
                       {errors.licenseValidityTo && (
                         <p className="text-red-500 text-sm mt-1">
                           {errors.licenseValidityTo.message}
@@ -851,11 +850,7 @@ const GuideRegister: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <Label
-                      name="License"
-                      label="License"
-                      required
-                    />
+                    <Label name="License" label="License" required />
                     <input
                       type="file"
                       {...register("license", {
