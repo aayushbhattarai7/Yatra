@@ -496,6 +496,7 @@ class TravelService {
           },
           {
             latitude: data.latitude,
+            
             longitude: data.longitude,
           },
         );

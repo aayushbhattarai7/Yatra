@@ -1259,12 +1259,12 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ id: userId })
       if (!user) throw HttpException.badRequest("You are not authorized");
-      const chatCount = await this.chatRepo.findAndCount({where:{
-        receiverUser:user
+      const chatCount = await this.chatRepo.find({where:{
+        receiverUser:{id:userId},
+        read:false
       }})
-      console.log("🚀 ~ UserService ~ getUnreadChatCount ~ chatCount:", chatCount)
-      io.to(userId).emit("chat-count", chatCount)
-      return
+      io.to(userId).emit("chat-count", chatCount.length)
+      return chatCount.length
 
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -213,6 +213,21 @@ export const GET_USER_NOTIFICATIONS = gql`
     }
   }
 `;
+export const GET_CHAT_COUNT_OF_GUIDE = gql`
+query Query($id: String!) {
+  getChatCountOfGuide(id: $id)
+}
+`;
+export const GET_CHAT_COUNT_OF_TRAVEL = gql`
+query Query($id: String!) {
+  getChatCountOfTravel(id: $id)
+}
+`;
+export const GET_USER_CHAT_COUNT = gql`
+  query Query {
+  getChatCount
+}
+`;
 
 export const GET_ROOM_CHATS = gql`
   query GetConnectedUsers {

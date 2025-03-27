@@ -3,6 +3,7 @@ import { useQuery } from "@apollo/client";
 import { GET_ROOM_CHATS } from "@/mutation/queries";
 import ChatMessages from "./ui/ChatMessage";
 import { useNavigate } from "react-router-dom";
+import UnreadChatBadge from "./UnreadChatBadge";
 
 interface Details {
   id: string;
@@ -108,7 +109,10 @@ const ChatPopup = () => {
                         : user.guide
                           ? `${user.guide.firstName} ${user.guide.lastName} (${user.guide.role})`
                           : "Unknown User"}
-                    </h4>
+                                  {user.guide ? <UnreadChatBadge id={user.guide.id} role={user.guide.role}/>: <UnreadChatBadge id={user.travel.id} role={user.travel.role}/>}
+
+                    </h4> 
+
                   </div>
                 </div>
               ))

@@ -18,7 +18,7 @@ export class ChatService {
     private readonly roomRepo = AppDataSource.getRepository(Room),
     private readonly travelRepo = AppDataSource.getRepository(Travel),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
-  ) {}
+  ) { }
 
   async chatWithGuide(userId: string, guideId: string, message: string) {
     try {
@@ -202,6 +202,13 @@ export class ChatService {
       });
       await this.chatRepo.save(chat);
       io.to(user_id).emit("travel-message-to-user", chat);
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: user_id },
+          read: false
+        }
+      })
+      io.to(user_id).emit("chat-count", chatCount.length)
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -231,6 +238,14 @@ export class ChatService {
       });
       await this.chatRepo.save(chat);
       io.to(user_id).emit("guide-message-to-user", chat);
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: user_id },
+          read: false
+        }
+      })
+      console.log("🚀 ~ ChatService ~ chatByGuide ~ chatCount:", { chatCount: chatCount.length }, user_id)
+      io.to(user_id).emit("chat-count", { chatCount: chatCount.length })
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -241,6 +256,37 @@ export class ChatService {
     }
   }
 
+
+  async readAllChatByUser(userId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+
+      const updateChat = await this.chatRepo
+        .createQueryBuilder()
+        .update()
+        .set({ read: true })
+        .where("( receiverUser.id = :userId)", {
+          userId,
+        })
+        .execute();
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      io.to(userId).emit("chat-count", { chatCount: chatCount.length })
+      return updateChat;
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   async readChatOfGuide(userId: string, guide_id: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
@@ -258,6 +304,14 @@ export class ChatService {
         .execute();
 
       io.to(guide_id).emit("message-read", { guide_id, userId });
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      io.to(userId).emit("chat-count", { chatCount: chatCount.length })
+      return updateChat;
       return updateChat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -284,6 +338,13 @@ export class ChatService {
         .execute();
 
       io.to(travelId).emit("message-read", { travelId, userId });
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      io.to(userId).emit("chat-count", { chatCount: chatCount.length })
       return updateChat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -344,5 +405,62 @@ export class ChatService {
         throw HttpException.internalServerError;
       }
     }
+  }
+
+  async getUnreadChatOFGuide(userId: string, guideId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.unauthorized("You are not authorized");
+
+      const getUnreadChatsOFGuide = await this.chatRepo.find({
+        where: {
+          senderGuide: { id: guideId },
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      console.log("🚀 ~ ChatService ~ getUnreadChatOFGuide ~ getUnreadChatsOFGuide:", getUnreadChatsOFGuide.length)
+      const unreadChatCount = getUnreadChatsOFGuide.length
+
+      io.to(userId).emit("chat-count", { chatCount: unreadChatCount })
+      return unreadChatCount;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+
+  }
+  async getUnreadChatOFTravel(userId: string, travelId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+      const travel = await this.travelRepo.findOneBy({ id: travelId });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+
+      const getUnreadChatsOFTravel = await this.chatRepo.find({
+        where: {
+          senderTravel: { id: travelId },
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      console.log("🚀 ~ ChatService ~ getUnreadChatOFTravel ~ getUnreadChatsOFTravel:", getUnreadChatsOFTravel)
+      const unreadChatCount = getUnreadChatsOFTravel.length
+
+      io.to(userId).emit("chat-count", { chatCount: unreadChatCount })
+      return unreadChatCount;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+
   }
 }

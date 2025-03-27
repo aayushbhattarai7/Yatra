@@ -571,4 +571,47 @@ export class UserResolver {
       }
     }
   }
+
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getChatCount(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.getUnreadChatCount(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getChatCountOfGuide(@Ctx() ctx: Context, @Arg("id") id:string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await chatService.getUnreadChatOFGuide(userId, id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getChatCountOfTravel(@Ctx() ctx: Context, @Arg("id") id:string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await chatService.getUnreadChatOFTravel(userId, id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

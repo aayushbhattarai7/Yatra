@@ -135,6 +135,10 @@ function initializeSocket(server: any) {
       const userId = socket.data.user.id;
       await chatService.readChatByTravel(senderId, userId);
     });
+    socket.on("mark-all-read", async () => {
+      const userId = socket.data.user.id;
+      await chatService.readAllChatByUser(userId);
+    });
     socket.on("mark-read-by-guide", async ({ senderId }) => {
       const userId = socket.data.user.id;
       await chatService.readChatByGuide(senderId, userId);

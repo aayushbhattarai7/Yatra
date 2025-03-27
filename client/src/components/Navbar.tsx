@@ -7,7 +7,7 @@ import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "@/function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import { useQuery } from "@apollo/client";
-import { GET_USER_NOTIFICATIONS } from "@/mutation/queries";
+import { GET_USER_CHAT_COUNT, GET_USER_NOTIFICATIONS } from "@/mutation/queries";
 import { useSocket } from "@/contexts/SocketContext";
 interface Notifications {
   id: string;
@@ -19,31 +19,54 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [chatCount, setChatCount] = useState(0)
+  const [chatCount, setChatCount] = useState<number>(0)
+  
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
 
-  const { data } = useQuery(GET_USER_NOTIFICATIONS);
-
+  const { data:notificationData } = useQuery(GET_USER_NOTIFICATIONS);
+  
+  const {data:chatData} = useQuery(GET_USER_CHAT_COUNT)
+ 
   useEffect(() => {
-    if (data) {
-      setNotifications(data.getAllNotificationsOfUser);
+    if (notificationData) {
+      setNotifications(notificationData.getAllNotificationsOfUser);
     }
-  }, [data]);
+  }, [notificationData]);
+ 
+  useEffect(() => {
+    if(chatData){
+      console.log(chatData,"chatdatatkajsksajattaa")
+      setChatCount(chatData.getChatCount)
+    }
+  }, [chatData]);
 
   useEffect(() => {
+    const chatCountListener = (chatCount:any) => {
+      console.log("🚀 ~ socket.on ~ chatCount:", chatCount);
+      setChatCount(chatCount.chatCount);
+    };
     socket.on("notification", (notification) => {
       console.log("yes", notification);
-      setNotifications(notification);
-
-      socket.on("chat-count",(chatCount)=>{
-      console.log("🚀 ~ socket.on ~ chatCount:", chatCount)
-      setChatCount(chatCount)
-
-      })
+      setNotifications((prev)=>[...prev, notification]);
     });
+    socket.on("chat-count", chatCountListener);
+  
+    return () => {
+      socket.off("chat-count", chatCountListener);
+    };
   }, [socket]);
+  
+
+  // useEffect(() => {
+  // 
+  //   socket.on("chat-count", (chatCount) => {
+  //     console.log("🚀 ~ socket.on ~ chatCount:", chatCount)
+  //     setChatCount(chatCount);
+  //   });
+
+  // }, [socket]);
   const unreadCount = notifications?.filter((n) => !n.isRead).length;
 
   const token = getCookie("accessToken")!;
@@ -85,6 +108,7 @@ const Navbar = () => {
   };
 
   const openChat = () => {
+    // socket.emit("mark-all-read");
     setShowChat(!showChat);
     setShowNotifications(false);
     setShowProfile(false);
@@ -125,6 +149,7 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-6">
               <div className="flex items-center space-x-4">
                 <PopupButton
+                key={JSON.stringify(chatCount)}
                   onClick={openChat}
                   show={showChat}
                   popup={<ChatPopup />}
