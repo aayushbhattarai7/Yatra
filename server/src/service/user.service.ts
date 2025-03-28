@@ -394,11 +394,11 @@ class UserService {
           guide: { id: guide_id },
         },
       });
-      if (findRequest.length > 0) {
-        throw HttpException.badRequest(
-          "Request already sent to this guide, Please wait a while for the guide response",
-        );
-      }
+      // if (findRequest.length > 0) {
+      //   throw HttpException.badRequest(
+      //     "Request already sent to this guide, Please wait a while for the guide response",
+      //   );
+      // }
 
       const request = this.guideRequestRepo.create({
         from: data.from,
@@ -409,6 +409,26 @@ class UserService {
         guide: guide,
       });
       await this.guideRequestRepo.save(request);
+      if (request) {
+        io.to(guide_id).emit("request-guide", request);
+      }
+      const notification = this.notificationRepo.create({
+        message: `${user.firstName} sent you a travel booking request `,
+        senderUser: user,
+        receiverGuide: request.guide,
+      });
+      await this.notificationRepo.save(notification);
+      if (notification) {
+        io.to(guide_id).emit(
+          "notification",
+          notification,
+        );
+      }
+      const unreadNotificationCount = await this.notificationRepo.count({
+        where: { receiverTravel: { id: guide_id }, isRead: false },
+      });
+
+      io.to(guide_id).emit("notification-count", unreadNotificationCount)
       await emailService.sendMail({
         to: guide.email,
         text: "Request Incomming",
@@ -484,14 +504,16 @@ class UserService {
       });
       await this.notificationRepo.save(notification);
       if (notification) {
-        const notifications = await this.notificationRepo.findBy({
-          receiverTravel: { id: request.travel.id },
-        });
-        io.to(notification.receiverTravel.id).emit(
+        io.to(travel_id).emit(
           "notification",
-          notifications,
+          notification,
         );
       }
+      const unreadNotificationCount = await this.notificationRepo.count({
+        where: { receiverTravel: { id: travel_id }, isRead: false },
+      });
+
+      io.to(travel_id).emit("notification-count", unreadNotificationCount)
       await emailService.sendMail({
         to: travel.email,
         text: "Request Incomming",

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+ import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
 import { gql, useQuery } from "@apollo/client";
+import { profileImage } from "@/config/constant/image";
 interface FormData {
   id: string;
   firstName: string;
@@ -41,8 +42,8 @@ const ProfilePopup = () => {
       <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <img className="h-10 w-10 rounded-full" alt="Profile" />
-            <div>
+          <img className="h-10 w-10 rounded-full" src={profileImage} alt="Profile Image" />
+          <div>
               <h4 className="text-sm font-semibold">
                 {user?.firstName} {user?.middleName} {user?.lastName}
               </h4>

@@ -1,29 +1,45 @@
 import { useSocket } from "@/contexts/SocketContext";
-import { formatTimeDifference } from "@/function/TimeDifference";
 import { GET_USER_NOTIFICATIONS } from "@/mutation/queries";
 import { useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+
 interface Notifications {
   id: string;
   isRead: boolean;
   message: string;
-  createdAt: string;
+  createdAt?: string; 
 }
+
 const NotificationsPopup = () => {
   const [notifications, setNotifications] = useState<Notifications[]>([]);
   const { socket } = useSocket();
 
   const { data } = useQuery(GET_USER_NOTIFICATIONS);
+
   useEffect(() => {
-    if (data?.getAllNotificationsOfUser) {
+    if (data?.getAllNotificationsOfUser && Array.isArray(data.getAllNotificationsOfUser)) {
       setNotifications(data.getAllNotificationsOfUser);
     }
   }, [data]);
+
   useEffect(() => {
-    socket.on("notification", (notification) => {
-      setNotifications(notification);
+    socket.on("notification", (notification: Notifications) => {
+      if (notification && notification.id) {
+        setNotifications((prev) => [...prev, notification]);
+      }
     });
+
+    socket.on("notification-updated", ({ isRead }) => {
+      setNotifications((prev) =>
+        prev.map((n) => ({ ...n, isRead: true }))
+      );
+    })
+
+    return () => {
+      socket.off("notification");
+    };
   }, [socket]);
+
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       <div className="p-4 border-b border-gray-200">
@@ -42,20 +58,24 @@ const NotificationsPopup = () => {
                 <p className="text-sm text-gray-600 mt-1">
                   {notification.message}
                 </p>
-                <span className="text-xs text-gray-500 mt-2 block">
-                  {formatTimeDifference(notification.createdAt)}
-                </span>
-                <div className="p-3 text-center border-t border-gray-200"></div>
+                {notification.createdAt ? (
+                  <span className="text-xs text-gray-500 mt-2 block">
+                    {new Date(notification.createdAt).toLocaleTimeString()}
+                  </span>
+                ) : null}
               </div>
             ))}
-            <button className="text-sm text-blue-600 hover:text-blue-800">
-              View All Notifications
-            </button>
+            <div className="p-3 text-center border-t border-gray-200">
+              <button className="text-sm text-blue-600 hover:text-blue-800">
+                View All Notifications
+              </button>
+            </div>
           </div>
         ) : (
-          <p className="flex justify-center items-center font-poppins p-5">
-            No notifications yet
-          </p>
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 pb-5">
+          <p className="text-sm">No notifications yet</p>
+          <p className="text-xs">We will notify you if we get one!</p>
+        </div>
         )}
       </div>
     </div>

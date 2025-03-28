@@ -170,6 +170,20 @@ export class TravelResolver {
       }
     }
   }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getUnreadNotificationsOfTravel(@Ctx() ctx: Context) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await travelService.getUnreadNotificationsCount(travelId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Mutation(() => String)
   async travelVerifyOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
     try {

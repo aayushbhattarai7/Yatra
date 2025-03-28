@@ -93,6 +93,10 @@ function initializeSocket(server: any) {
       socket.on("read-user-notification", async (id) => {
         await userService.readNotification(id);
       });
+      socket.on("read-travel-notification", async () => {
+        const id = socket.data.user.id
+        await travelService.readNotification(id);
+      });
       socket.on("travel-location", async ({ id, latitude, longitude }) => {
         const data = { latitude, longitude };
         await travelService.addLocation(id, data);

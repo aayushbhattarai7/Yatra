@@ -17,6 +17,7 @@ import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
 import { Message, rejectRequest } from "../constant/message";
 import { In, Not } from "typeorm";
+import { Notification } from "../entities/notification/notification.entity";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
@@ -29,6 +30,9 @@ class GuideService {
     private readonly guideRequestRepo = AppDataSource.getRepository(
       RequestGuide,
     ),
+      private readonly notificationRepo = AppDataSource.getRepository(
+          Notification,
+        ),
 
     private readonly guideKycRepo = AppDataSource.getRepository(GuideKYC),
   ) {}
@@ -442,6 +446,78 @@ class GuideService {
       }
     }
   }
+
+  async getAllNotifications(guideId: string) {
+    try {
+      const travel = await this.guideRepo.findOneBy({ id: guideId });
+      if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const notifications = await this.notificationRepo.findBy({
+        receiverGuide: { id: guideId },
+      });
+      if (!notifications) {
+        throw HttpException.notFound("No notifications yet");
+      }
+      return notifications;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async getUnreadNotificationsCount(guide_id: string) {
+    try {
+      const travel = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const notifications = await this.notificationRepo.findBy({
+        receiverGuide: { id: guide_id },
+        isRead:false
+      });
+      if (!notifications) {
+        throw HttpException.notFound("No notifications yet");
+      }
+      const notificationCount = notifications.length
+io.to(guide_id).emit("notification-count", notificationCount)
+      return notificationCount;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async readNotification(guide_id: string) {
+    try {
+      const user = await this.guideRepo.findOneBy({ id: guide_id });
+      if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+    const updateResult =  await this.notificationRepo.update(
+        { receiverGuide: { id: guide_id } },
+        { isRead: true },
+      );
+
+      if (updateResult.affected && updateResult.affected > 0) {
+        io.to(guide_id).emit("notification-updated", { unreadCount: 0 });
+      }
+  
+      return updateResult;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
 
   async acceptRequest(guide_id: string, requestId: string) {
     try {

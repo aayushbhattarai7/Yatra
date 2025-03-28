@@ -1,4 +1,3 @@
-///import { Bell, MessageSquare, Menu, X } from "lucide-react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotificationsPopup from "./NotificationPopup";
@@ -8,12 +7,8 @@ import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import TravelProfilePopup from "./TravelProfilePopup";
 import { useQuery } from "@apollo/client";
-import { GET_TRAVEL_NOTIFICATIONS } from "../mutation/queries";
+import { GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
-interface Notifications {
-  id: string;
-  isRead: boolean;
-}
 
 const TravelNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,21 +16,29 @@ const TravelNavBar = () => {
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [notifications, setNotifications] = useState<Notifications[]>([]);
+  const [notifications, setNotifications] = useState<number>(0);
   const { socket } = useSocket();
 
-  const { data } = useQuery(GET_TRAVEL_NOTIFICATIONS);
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const { data } = useQuery(GET_TRAVEL_UNREAD_NOTIFICATIONS);
 
   useEffect(() => {
-    if (data?.getAllNotificationsOfTravel) {
-      setNotifications(data.getAllNotificationsOfTravel);
+    if (data?.getUnreadNotificationsOfTravel) {
+      setNotifications(data.getUnreadNotificationsOfTravel);
     }
   }, [data]);
   useEffect(() => {
-    socket.on("notification", (notification) => {
-      setNotifications(notification);
+    socket.on("notification-count", (notificationCount) => {
+      console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)
+      setNotifications(notificationCount);
     });
+
+    socket.on("notification-updated", ({ isRead }) => {
+     setNotifications(isRead)
+    })
+
+    return()=>{
+      socket.off("notification-count")
+    }
   }, [socket]);
 
   useEffect(() => {
@@ -67,6 +70,10 @@ const TravelNavBar = () => {
     // }
   };
 
+const handleNotifications = () => {
+  setShowNotifications(!showNotifications)
+  socket.emit("read-travel-notification")
+}
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
@@ -101,11 +108,11 @@ const TravelNavBar = () => {
                   count={1}
                 />
                 <PopupButton
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => handleNotifications()}
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={unreadCount}
+                  count={notifications}
                 />
               </div>
               <PopupButton
@@ -243,9 +250,12 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
     <Icon className="h-[22px] w-[22px] text-gray-600" />
+    {count>0 && (
+
     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
       {count}
     </span>
+    )}
   </div>
 );
 

@@ -15,6 +15,7 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Room } from "../../entities/chat/room.entity";
 import { RoomService } from "../../service/room.service";
+import { Notification } from "../../entities/notification/notification.entity";
 const roomService = new RoomService();
 const chatService = new ChatService();
 export class GuideResolver {
@@ -209,8 +210,38 @@ export class GuideResolver {
   ) {
     try {
       const data = { latitude, longitude };
-      const travelId = ctx.req.user?.id!;
-      return await this.guideService.addLocation(travelId, data);
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.addLocation(guideId, data);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+
+  @Query(() => [Notification])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getAllNotificationsOfGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.getAllNotifications(guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getUnreadNotificationsOfGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.getUnreadNotificationsCount(guideId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -227,8 +258,8 @@ export class GuideResolver {
     @Arg("userId") userId: string,
   ) {
     try {
-      const travelId = ctx.req.user?.id!;
-      return await chatService.getChatByGuideOfUser(travelId, userId);
+      const guideId = ctx.req.user?.id!;
+      return await chatService.getChatByGuideOfUser(guideId, userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

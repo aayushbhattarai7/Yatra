@@ -25,7 +25,7 @@ const GuideNavBar = () => {
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [notifications, setNotifications] = useState<number>(0);
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {
@@ -231,9 +231,11 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
     <Icon className="h-[22px] w-[22px] text-gray-600" />
-    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-      {count}
-    </span>
+    {count>0 && (
+<span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+  {count}
+</span>
+)}
   </div>
 );
 

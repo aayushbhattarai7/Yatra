@@ -205,11 +205,14 @@ export class ChatService {
       const chatCount = await this.chatRepo.find({
         where: {
           receiverUser: { id: user_id },
+          senderTravel:{id:travel_id},
           read: false
         }
       })
-      io.to(user_id).emit("chat-count", chatCount.length)
-      return chat;
+      const chatCounts= chatCount.length 
+      const id = travel_id
+      io.to(user_id).emit("chat-count-of-travel", {id,chatCounts })
+                 return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -241,11 +244,13 @@ export class ChatService {
       const chatCount = await this.chatRepo.find({
         where: {
           receiverUser: { id: user_id },
+          senderGuide:{id:guide_id},
           read: false
         }
       })
-      console.log("🚀 ~ ChatService ~ chatByGuide ~ chatCount:", { chatCount: chatCount.length }, user_id)
-      io.to(user_id).emit("chat-count", { chatCount: chatCount.length })
+ const chatCounts= chatCount.length 
+ const id = guide_id
+      io.to(user_id).emit("chat-count-of-guide", {id,chatCounts })
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {

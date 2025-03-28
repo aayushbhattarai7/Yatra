@@ -9,6 +9,8 @@ import { jwtDecode } from "jwt-decode";
 import { useQuery } from "@apollo/client";
 import { GET_USER_CHAT_COUNT, GET_USER_NOTIFICATIONS } from "@/mutation/queries";
 import { useSocket } from "@/contexts/SocketContext";
+import { profileImage } from "@/config/constant/image";
+
 interface Notifications {
   id: string;
   isRead: boolean;
@@ -19,15 +21,14 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [chatCount, setChatCount] = useState<number>(0)
+  const [chatCount, setChatCount] = useState<number>(0);
   
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
 
-  const { data:notificationData } = useQuery(GET_USER_NOTIFICATIONS);
-  
-  const {data:chatData} = useQuery(GET_USER_CHAT_COUNT)
+  const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
+  const { data: chatData, refetch } = useQuery(GET_USER_CHAT_COUNT);
  
   useEffect(() => {
     if (notificationData) {
@@ -36,20 +37,19 @@ const Navbar = () => {
   }, [notificationData]);
  
   useEffect(() => {
-    if(chatData){
-      console.log(chatData,"chatdatatkajsksajattaa")
-      setChatCount(chatData.getChatCount)
+    if (chatData?.getChatCount !== undefined) {
+      setChatCount(chatData.getChatCount);
     }
   }, [chatData]);
-
+  
   useEffect(() => {
-    const chatCountListener = (chatCount:any) => {
-      console.log("🚀 ~ socket.on ~ chatCount:", chatCount);
+    const chatCountListener = (chatCount: any) => {
       setChatCount(chatCount.chatCount);
+      if (refetch) refetch();
     };
+    
     socket.on("notification", (notification) => {
-      console.log("yes", notification);
-      setNotifications((prev)=>[...prev, notification]);
+      setNotifications((prev) => [...prev, notification]);
     });
     socket.on("chat-count", chatCountListener);
   
@@ -59,56 +59,29 @@ const Navbar = () => {
   }, [socket]);
   
 
-  // useEffect(() => {
-  // 
-  //   socket.on("chat-count", (chatCount) => {
-  //     console.log("🚀 ~ socket.on ~ chatCount:", chatCount)
-  //     setChatCount(chatCount);
-  //   });
-
-  // }, [socket]);
-  const unreadCount = notifications?.filter((n) => !n.isRead).length;
-
   const token = getCookie("accessToken")!;
   useEffect(() => {
     if (token) {
       try {
         const decoded = jwtDecode<{ id: string; email: string }>(token);
-        if (decoded) {
-          setIsLoggedIn(true);
-        }
-      } catch {
+        setIsLoggedIn(!!decoded);
+      } catch (error) {
         setIsLoggedIn(false);
       }
     } else {
       setIsLoggedIn(false);
     }
   }, []);
-
-  const closeAllPopups = () => {
-    setShowNotifications(false);
-    setShowChat(false);
-    setShowProfile(false);
-  };
-
-  const handleClickOutside = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest(".popup-container")) {
-      // closeAllPopups();
-    }
-  };
-
+  
   const handleNotificationClick = () => {
     setShowChat(false);
     setShowNotifications(!showNotifications);
     setShowProfile(false);
     const decode = jwtDecode<{ id: string }>(token);
-    console.log(decode.id, "ieeddd");
     socket.emit("read-user-notification", decode.id);
   };
 
   const openChat = () => {
-    // socket.emit("mark-all-read");
     setShowChat(!showChat);
     setShowNotifications(false);
     setShowProfile(false);
@@ -119,11 +92,7 @@ const Navbar = () => {
     setShowNotifications(false);
     setShowProfile(!showProfile);
   };
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
+  
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-[1920px] mx-auto px-6">
@@ -137,119 +106,50 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink to="/" label="Home" />
-            <NavLink to="/places" label="Places" />
-            <NavLink to="/travel" label="Travel" />
-            <NavLink to="/guide" label="Guide" />
-            <NavLink to="/booking" label="Booking" />
-            <NavLink to="/history" label="History" />
+            <RouterNavLink to="/" className="text-sm font-medium hover:text-gray-600">Home</RouterNavLink>
+            <RouterNavLink to="/places" className="text-sm font-medium hover:text-gray-600">Places</RouterNavLink>
+            <RouterNavLink to="/travel" className="text-sm font-medium hover:text-gray-600">Travel</RouterNavLink>
+            <RouterNavLink to="/guide" className="text-sm font-medium hover:text-gray-600">Guide</RouterNavLink>
+            <RouterNavLink to="/booking" className="text-sm font-medium hover:text-gray-600">Booking</RouterNavLink>
+            <RouterNavLink to="/history" className="text-sm font-medium hover:text-gray-600">History</RouterNavLink>
           </div>
 
           {isLoggedIn ? (
             <div className="hidden md:flex items-center space-x-6">
-              <div className="flex items-center space-x-4">
-                <PopupButton
-                key={JSON.stringify(chatCount)}
-                  onClick={openChat}
-                  show={showChat}
-                  popup={<ChatPopup />}
-                  icon={MessageSquare}
-                  count={chatCount}
-                />
-                <PopupButton
-                  onClick={handleNotificationClick}
-                  show={showNotifications}
-                  popup={<NotificationsPopup />}
-                  icon={Bell}
-                  count={unreadCount}
-                />
-              </div>
+              <PopupButton
+                onClick={openChat}
+                show={showChat}
+                popup={<ChatPopup />}
+                icon={MessageSquare}
+                count={chatCount}
+              />
+              <PopupButton
+                onClick={handleNotificationClick}
+                show={showNotifications}
+                popup={<NotificationsPopup />}
+                icon={Bell}
+                // count={unreadCount}
+              />
               <PopupButton
                 onClick={openProfile}
                 show={showProfile}
                 popup={<ProfilePopup />}
-                profileImage
+                profileImg
               />
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-6">
-              <NavLink to="/user-login" label="Login" />
-              <NavLink to="/user-register" label="Sign Up" />
+              <RouterNavLink to="/user-login" className="text-sm font-medium hover:text-gray-600">Login</RouterNavLink>
+              <RouterNavLink to="/user-register" className="text-sm font-medium hover:text-gray-600">Sign Up</RouterNavLink>
             </div>
           )}
         </div>
-
-        {isOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <MobileNavLink
-                to="/"
-                label="Home"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/places"
-                label="Places"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/travel"
-                label="Travel"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/guide"
-                label="Guide"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/booking"
-                label="Booking"
-                onClick={() => setIsOpen(false)}
-              />
-              <MobileNavLink
-                to="/history"
-                label="History"
-                onClick={() => setIsOpen(false)}
-              />
-            </div>
-            <div className="pt-4 pb-3 border-t border-gray-200">
-              {!isLoggedIn ? (
-                <div className="flex flex-col space-y-4 px-4">
-                  <RouterNavLink
-                    to="/login"
-                    className="block text-center text-sm font-medium text-white bg-green-600 py-2 rounded-md hover:bg-green-700 transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Login
-                  </RouterNavLink>
-                  <RouterNavLink
-                    to="/signup"
-                    className="block text-center text-sm font-medium text-green-600 border border-green-600 py-2 rounded-md hover:bg-green-600 hover:text-white transition"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign Up
-                  </RouterNavLink>
-                </div>
-              ) : (
-                <div className="flex items-center px-5">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src=""
-                    alt="Profile"
-                  />
-                  <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800"></div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );
 };
+
+
 
 const PopupButton = ({
   onClick,
@@ -257,14 +157,14 @@ const PopupButton = ({
   popup,
   icon: Icon,
   count,
-  profileImage,
+  profileImg,
 }: {
   onClick: () => void;
   show: boolean;
   popup: JSX.Element;
   icon?: React.ElementType;
   count?: number;
-  profileImage?: boolean;
+  profileImg?: boolean;
 }) => (
   <div className="popup-container relative">
     <button
@@ -274,8 +174,8 @@ const PopupButton = ({
       }}
       className="flex items-center space-x-2"
     >
-      {profileImage ? (
-        <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
+      {profileImg ? (
+        <img className="h-8 w-8 rounded-full" src={profileImage} alt="Profile" />
       ) : (
         Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}

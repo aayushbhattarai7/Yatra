@@ -251,10 +251,16 @@ export const GET_TRAVEL_NOTIFICATIONS = gql`
   query GetAllNotificationsOfTravel {
     getAllNotificationsOfTravel {
       id
+      createdAt
       message
       isRead
     }
   }
+`;
+export const GET_TRAVEL_UNREAD_NOTIFICATIONS = gql`
+query Query {
+  getUnreadNotificationsOfTravel
+}
 `;
 
 export const GET_USER_FOR_CHAT = gql`

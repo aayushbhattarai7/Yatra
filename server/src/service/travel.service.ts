@@ -414,6 +414,55 @@ class TravelService {
       }
     }
   }
+  async getUnreadNotificationsCount(travelId: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travelId });
+      if (!travel) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+      const notifications = await this.notificationRepo.findBy({
+        receiverTravel: { id: travelId },
+        isRead:false
+      });
+      if (!notifications) {
+        throw HttpException.notFound("No notifications yet");
+      }
+      const notificationCount = notifications.length
+io.to(travelId).emit("notification-count", notificationCount)
+      return notificationCount;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async readNotification(travel_id: string) {
+    try {
+      const user = await this.travelrepo.findOneBy({ id: travel_id });
+      if (!user) {
+        throw HttpException.badRequest("You are not authorized");
+      }
+    const updateResult =  await this.notificationRepo.update(
+        { receiverTravel: { id: travel_id } },
+        { isRead: true },
+      );
+
+      if (updateResult.affected && updateResult.affected > 0) {
+        io.to(travel_id).emit("notification-updated", { unreadCount: 0 });
+      }
+  
+      return updateResult;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   async acceptRequest(travel_id: string, requestId: string) {
     try {
