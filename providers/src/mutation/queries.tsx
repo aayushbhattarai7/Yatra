@@ -257,12 +257,27 @@ export const GET_TRAVEL_NOTIFICATIONS = gql`
     }
   }
 `;
+export const GET_GUIDE_NOTIFICATIONS = gql`
+query GetAllNotificationsOfGuide {
+  getAllNotificationsOfGuide {
+   id
+      createdAt
+      message
+      isRead  
+  }
+}
+`;
+
 export const GET_TRAVEL_UNREAD_NOTIFICATIONS = gql`
 query Query {
   getUnreadNotificationsOfTravel
 }
 `;
-
+export const GET_GUIDE_UNREAD_NOTIFICATIONS = gql`
+query Query {
+  getUnreadNotificationsOfGuide
+}
+`;
 export const GET_USER_FOR_CHAT = gql`
   query GetChatUserByTravel {
     getChatUserByTravel {

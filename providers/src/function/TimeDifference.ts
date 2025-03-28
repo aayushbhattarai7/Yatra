@@ -2,7 +2,6 @@ export const formatTimeDifference = (createdAt: string) => {
   if (!createdAt) return "Unknown time";
 
   const createdTime = new Date(createdAt).getTime();
-  console.log("🚀 ~ formatTimeDifference ~ createdAt:", createdAt, createdTime);
   if (isNaN(createdTime)) return "Invalid date";
 
   const diffInSeconds = Math.floor((Date.now() - createdTime) / 1000);

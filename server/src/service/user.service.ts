@@ -425,7 +425,7 @@ class UserService {
         );
       }
       const unreadNotificationCount = await this.notificationRepo.count({
-        where: { receiverTravel: { id: guide_id }, isRead: false },
+        where: { receiverGuide: { id: guide_id }, isRead: false },
       });
 
       io.to(guide_id).emit("notification-count", unreadNotificationCount)

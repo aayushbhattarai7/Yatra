@@ -8,6 +8,8 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import { gql, useQuery } from "@apollo/client";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
+import { GET_GUIDE_UNREAD_NOTIFICATIONS } from "../mutation/queries";
+import { useSocket } from "../contexts/SocketContext";
 interface FormData {
   id: string;
   firstName: string;
@@ -26,6 +28,30 @@ const GuideNavBar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<number>(0);
+  const {socket} = useSocket()
+    const { data } = useQuery(GET_GUIDE_UNREAD_NOTIFICATIONS);
+
+    useEffect(() => {
+      if (data?.getUnreadNotificationsOfGuide) {
+        setNotifications(data.getUnreadNotificationsOfGuide);
+      }
+    }, [data]);
+
+    useEffect(() => {
+      socket.on("notification-count", (notificationCount) => {
+        console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)
+        setNotifications(notificationCount);
+      });
+  
+      socket.on("notification-updated", ({ isRead }) => {
+       setNotifications(isRead)
+      })
+  
+      return()=>{
+        socket.off("notification-count")
+      }
+    }, [socket]);
+
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {
@@ -54,6 +80,11 @@ const GuideNavBar = () => {
       // closeAllPopups();
     }
   };
+
+  const handleNotifications = () => {
+    setShowNotifications(!showNotifications)
+    socket.emit("read-guide-notification")
+  }
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
@@ -89,11 +120,11 @@ const GuideNavBar = () => {
                   count={1}
                 />
                 <PopupButton
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => handleNotifications()}
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={2}
+                  count={notifications}
                 />
               </div>
               <PopupButton
