@@ -11,7 +11,10 @@ interface FormData {
   email: string;
   phoneNumber: string;
 }
-const ProfilePopup = () => {
+interface ProfileProps {
+  onClose: () => void
+}
+const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
   const [logout, setLogout] = useState<boolean>(false);
 
   const [user, setUser] = useState<FormData | null>(null);
@@ -35,6 +38,10 @@ const ProfilePopup = () => {
     }
   }, [data]);
 
+  const handleLogoutClick = () => {
+    setLogout(true);  
+  };
+  
   return (
     <>
       {logout && <LogoutPopup onClose={() => setLogout(false)} />}
@@ -69,7 +76,7 @@ const ProfilePopup = () => {
           ))}
           <div className="border-t border-gray-200 mt-2">
             <button
-              onClick={() => setLogout(true)}
+              onClick={handleLogoutClick}
               className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
             >
               Log out

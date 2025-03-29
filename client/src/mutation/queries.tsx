@@ -213,6 +213,21 @@ export const GET_USER_NOTIFICATIONS = gql`
     }
   }
 `;
+export const SEND_OTP_TO_USER = gql`
+mutation SenOtpToUser($email: String!) {
+  senOtpToUser(email: $email)
+}
+`;
+export const CHANGE_PASSWORD_OF_USER = gql`
+mutation ChangePasswordOfUser($confirmPassword: String!, $password: String!, $email: String!) {
+  changePasswordOfUser(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const VERIFY_USER_OTP = gql`
+mutation VerifyUserOTP($otp: String!, $email: String!) {
+  VerifyUserOTP(otp: $otp, email: $email)
+}
+`;
 export const GET_CHAT_COUNT_OF_GUIDE = gql`
 query Query($id: String!) {
   getChatCountOfGuide(id: $id)

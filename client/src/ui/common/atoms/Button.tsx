@@ -21,7 +21,7 @@ const Button: React.FC<ButtonProps> = ({
         type={type}
         name={name}
         disabled={disabled}
-        className={` w-32 mb-4 bg-[#1366D9] text-white hover:bg-blue-700 p-3 rounded-xl font-poppins shadow-xl ${className} ${
+        className={` w-32 mb-4 bg-blue-600 text-white hover:bg-blue-700 p-3 rounded-xl font-poppins shadow-xl ${className} ${
           disabled && `opacity-50 cursor-not-allowed`
         }`}
         onClick={onClick}

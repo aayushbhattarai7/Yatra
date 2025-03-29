@@ -203,4 +203,8 @@ export const authLabel: LabelTypes = {
     en: "Loading",
     ne: "प्रतीक्षा गर्नुहोस्",
   },
+  submit: {
+    en: "Submit",
+    ne: "प्रतीक्षा गर्नुहोस्",
+  },
 };

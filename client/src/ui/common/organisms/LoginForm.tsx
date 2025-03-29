@@ -62,7 +62,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
             />
           </div>
           <div className="py-2">
-            <NavLink to={""} className={"text-blue-500 underline"}>
+            <NavLink to={"/reset-password"} className={"text-blue-500 underline"}>
               forgot password?
             </NavLink>
           </div>

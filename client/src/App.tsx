@@ -24,6 +24,8 @@ import PaymentForm from "./components/EsewaPaymentForm";
 import { SocketProvider } from "./contexts/SocketContext";
 import KhaltiSuccess from "./components/KhaltiSuccess";
 import Chat from "./components/ui/Chat";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import ForgotPassword from "./components/ForgotPassword";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -37,6 +39,7 @@ const router = createBrowserRouter([
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
       { path: "adminLogin", element: <AdminLogin /> },
+      { path: "reset-password", element: <ForgotPassword /> },
       {
         path: "/",
         element: <ProtectedRoute />,
@@ -64,10 +67,12 @@ function App() {
   return (
     <>
       <SocketProvider>
+        <NotificationProvider>
         <StripeProvider>
           <ToastNotification />
           <RouterProvider router={router} />
         </StripeProvider>
+        </NotificationProvider>
       </SocketProvider>
     </>
   );

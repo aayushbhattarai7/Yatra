@@ -133,7 +133,7 @@ const Navbar = () => {
               <PopupButton
                 onClick={openProfile}
                 show={showProfile}
-                popup={<ProfilePopup />}
+                popup={<ProfilePopup onClose={()=>setShowProfile(false)} />}
                 profileImg
               />
             </div>

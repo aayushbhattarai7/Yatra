@@ -95,6 +95,44 @@ export class UserResolver {
     }
   }
 
+
+  @Mutation(() => String)
+  async senOtpToUser(@Arg("email") email: string) {
+    try {
+      return await userService.reSendOtp(email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  async VerifyUserOTP(@Arg("email") email: string, @Arg("otp") otp:string) {
+    try {
+      return await userService.verifyUser(email, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  async changePasswordOfUser(@Arg("email") email: string, @Arg("password") password:string, @Arg("confirmPassword") confirmPassword:string) {
+    try {
+      return await userService.changePassword(password, confirmPassword, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Mutation(() => LoginResponse)
   async googleLogin(@Arg("googleId") googleId: string) {
     try {
@@ -274,6 +312,7 @@ export class UserResolver {
       }
     }
   }
+
 
   @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.USER]))

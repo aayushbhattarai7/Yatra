@@ -8,6 +8,7 @@ import { Guide } from "../entities/guide/guide.entity";
 import { ChatDTO } from "../dto/chat.dto";
 import { RoomService } from "../service/room.service";
 import { io } from "../socket/socket";
+import { Notification } from "../entities/notification/notification.entity";
 
 const roomService = new RoomService();
 
@@ -18,6 +19,7 @@ export class ChatService {
     private readonly roomRepo = AppDataSource.getRepository(Room),
     private readonly travelRepo = AppDataSource.getRepository(Travel),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
+    private readonly notificationRepo = AppDataSource.getRepository(Notification),
   ) { }
 
   async chatWithGuide(userId: string, guideId: string, message: string) {
@@ -39,6 +41,17 @@ export class ChatService {
         senderUser: user,
       });
       const saveChat = await this.chatRepo.save(chat);
+      const notification = this.notificationRepo.create({
+        message: `${user.firstName} ${user?.middleName} ${user.lastName} sent you a message`,
+        receiverGuide: receiver,
+      });
+      await this.notificationRepo.save(notification);
+      if (notification) {
+        io.to(guideId).emit(
+          "notification",
+          notification,
+        );
+      }
       io.to(guideId).emit("guide-message", chat);
       return saveChat;
     } catch (error: unknown) {
@@ -69,8 +82,17 @@ export class ChatService {
       });
       console.log("🚀 ~ ChatService ~ chatWithTravel ~ chat:", chat);
       const saveChat = await this.chatRepo.save(chat);
-      // const getChats = await this.chatRepo.find({where:{receiverTravel:{id:travelId}}, relations:['receiverUser','receiverGuide','receiverTravel','senderTravel','senderGuide','senderUser']})
-      // io.to(travelId).emit("message", getChats)
+      const notification = this.notificationRepo.create({
+        message: `${user.firstName} ${user?.middleName} ${user.lastName} sent you a message`,
+        receiverTravel: receiver,
+      });
+      await this.notificationRepo.save(notification);
+      if (notification) {
+        io.to(travelId).emit(
+          "notification",
+          notification,
+        );
+      }
       io.to(travelId).emit("travel-message", chat);
       return chat;
     } catch (error: unknown) {
@@ -211,6 +233,17 @@ export class ChatService {
       })
       const chatCounts= chatCount.length 
       const id = travel_id
+      const notification = this.notificationRepo.create({
+        message: `${travel.firstName} ${travel?.middleName} ${travel.lastName} sent you a message`,
+        receiverUser: user,
+      });
+      await this.notificationRepo.save(notification);
+      if (notification) {
+        io.to(user_id).emit(
+          "notification",
+          notification,
+        );
+      }
       io.to(user_id).emit("chat-count-of-travel", {id,chatCounts })
                  return chat;
     } catch (error: unknown) {
@@ -250,6 +283,17 @@ export class ChatService {
       })
  const chatCounts= chatCount.length 
  const id = guide_id
+ const notification = this.notificationRepo.create({
+  message: `${guide.firstName} ${guide?.middleName} ${guide.lastName} sent you a message`,
+  receiverUser: user,
+});
+await this.notificationRepo.save(notification);
+if (notification) {
+  io.to(user_id).emit(
+    "notification",
+    notification,
+  );
+}
       io.to(user_id).emit("chat-count-of-guide", {id,chatCounts })
       return chat;
     } catch (error: unknown) {

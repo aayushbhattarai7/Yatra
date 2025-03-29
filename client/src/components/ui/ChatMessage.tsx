@@ -86,7 +86,6 @@ const ChatMessages = ({
   const { data, loading, error, refetch } = useQuery(query, {
     variables: { id: details.id },
   });
-  console.log("🚀 ~ data:", data)
 
   const datas =
     details.role === "TRAVEL" ? data?.getChatOfTravel : data?.getChatOfGuide;

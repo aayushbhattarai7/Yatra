@@ -19,6 +19,8 @@ import TravelRequests from "./ui/organisms/TravelRequests";
 import TravelHistory from "./ui/organisms/TravelHistory";
 import { LocationProvider } from "./contexts/LocationContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import NotificationsPopup from "./components/NotificationPopup";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -60,10 +62,13 @@ function App() {
 
   return (
     <SocketProvider>
-      <LocationProvider>
-        <ToastNotification />
-        <RouterProvider router={router} />
-      </LocationProvider>
+      <NotificationProvider>
+        <LocationProvider>
+          <ToastNotification />
+          <RouterProvider router={router} />
+          <NotificationsPopup /> 
+        </LocationProvider>
+      </NotificationProvider>
     </SocketProvider>
   );
 }

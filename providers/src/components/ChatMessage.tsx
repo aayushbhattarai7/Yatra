@@ -8,7 +8,7 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-
+import { logo } from "../constant/image";
 const emoji = data;
 
 const GET_CHAT_OF_TRAVEL = gql`
@@ -142,6 +142,20 @@ const ChatMessages = ({
   useEffect(() => {
     const handleNewMessage = (chat: Chat) => {
       setMessages((prevMessages) => [...prevMessages, chat]);
+      if (Notification.permission === "granted") {
+        console.log(" Sending system notification...");
+        try {
+          new Notification(`${chat.senderUser?.firstName} ${chat.senderUser?.lastName} sent a message`, {
+            body: chat.message,
+            icon: "../constant/image",
+          });
+          console.log(" Notification sent successfully!");
+        } catch (error) {
+          console.error(" Notification Error:", error);
+        }
+      } else {
+        console.warn(" Notification permission not granted");
+      }
     };
     const unreadMessages = messages.filter((msg) => !msg.read);
     if (unreadMessages.length > 0) {

@@ -8,6 +8,8 @@ export function LogoutPopup({ onClose }: { onClose: () => void }) {
 
   const handleLogout = () => {
     Cookies.remove("accessToken");
+    onClose()
+    window.location.href="/user-login"
     navigate("/user-login");
   };
 

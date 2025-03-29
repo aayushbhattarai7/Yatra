@@ -35,6 +35,8 @@ import { Notification } from "../entities/notification/notification.entity";
 import khaltiService from "./khalti.service";
 import { RoomService } from "./room.service";
 import { Chat } from "../entities/chat/chat.entity";
+import OtpService from "../utils/otp.utils";
+import { HashService } from "./hash.service";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -61,6 +63,8 @@ interface Signup {
   gender: string;
   password: string;
 }
+const otpService = new OtpService();
+const hashService = new HashService();
 class UserService {
   constructor(
     private readonly userRepo = AppDataSource.getRepository(User),
@@ -73,9 +77,7 @@ class UserService {
     private readonly travelRequestRepo = AppDataSource.getRepository(
       RequestTravel,
     ),
-    private readonly notificationRepo = AppDataSource.getRepository(
-      Notification,
-    ),
+    private readonly notificationRepo = AppDataSource.getRepository(Notification),
     private readonly chatRepo = AppDataSource.getRepository(Chat),
 
   ) { }
@@ -105,6 +107,8 @@ class UserService {
       }
     }
   }
+
+  
   async login(data: LoginDTO): Promise<User> {
     try {
       const user = await this.userRepo.findOne({
@@ -150,6 +154,30 @@ class UserService {
       }
     }
   }
+
+  async reSendOtp(email: string): Promise<string> {
+    try {
+      const user = await this.userRepo.findOneBy({ email });
+      if (!user) throw HttpException.notFound("Entered email is not registered yet");
+    
+      const otp = await otpService.generateOTP();
+      const expires = Date.now() + 5 * 60 * 1000;
+      const payload = `${email}.${otp}.${expires}`;
+      const hashedOtp = hashService.hashOtp(payload);
+      const newOtp = `${hashedOtp}.${expires}`;
+
+      await this.userRepo.update({ email }, { otp: newOtp });
+      await otpService.sendOtp(user.email, otp, expires);
+      return `Otp sent to ${email} successfully`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
 
   async googleLogin(googleId: string) {
     try {
@@ -351,6 +379,45 @@ class UserService {
     }
   }
 
+  async verifyUser(email: string, otp: string): Promise<string> {
+    try {
+      const user = await this.userRepo.findOneBy({ email });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+    
+      const [hashedOtp, expires] = user?.otp?.split(".");
+      if (Date.now() > +expires)
+        throw HttpException.badRequest("Otp is expired");
+      const payload = `${email}.${otp}.${expires}`;
+      const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+      await this.userRepo.update({ email }, { verified: true });
+      return `Your verification was successful!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async changePassword(password: string, confirmPassword: string, email:string): Promise<string> {
+    try {
+      const user = await this.userRepo.findOneBy({ email });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+
+    if(password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
+      const hashPassword = await bcryptService.hash(password)
+      await this.userRepo.update({ email }, { password:hashPassword });
+      return `Your password updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async findHotel(user_id: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
@@ -433,7 +500,7 @@ class UserService {
         to: guide.email,
         text: "Request Incomming",
         subject: `${user.firstName} sent you a guide booking request`,
-        html: `Hey ${user.firstName} ${user.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
+        html: `Hey ${user.firstName} ${user?.middleName || ""} ${user.lastName}! You've received a new travel request. Please check it out.`,
       });
       return bookRequestMessage("Guide");
     } catch (error: unknown) {

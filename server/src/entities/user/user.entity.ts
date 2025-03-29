@@ -54,6 +54,11 @@ export class User extends Base {
   @Column({ name: "available", default: false })
   available: boolean;
 
+  @Field({ nullable: true })
+  @Column({ name: "otp", nullable: true })
+  otp: string;
+
+
   @Field(() => Location)
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
