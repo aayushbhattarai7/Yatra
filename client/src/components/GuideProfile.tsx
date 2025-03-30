@@ -205,7 +205,7 @@ const GuideProfileUserView = ({
 
                 <div className="md:ml-auto mt-4 md:mt-0">
                   <Button
-                    buttonText={authLabel.booknow[lang]}
+                    buttonText={authLabel.book[lang]}
                     type="button"
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-medium text-sm"
                   />

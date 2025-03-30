@@ -202,7 +202,7 @@ const PopupButton = ({
   count?: number;
   profileImage?: boolean;
 }) => (
-  <div className="popup-container relative">
+  <div className=" relative">
     <button
       onClick={(e) => {
         e.stopPropagation();

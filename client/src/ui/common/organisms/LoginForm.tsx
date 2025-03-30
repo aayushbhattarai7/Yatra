@@ -63,12 +63,12 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           </div>
           <div className="py-2">
             <NavLink to={"/reset-password"} className={"text-blue-500 underline"}>
-              forgot password?
+            {authLabel.forgotPassword[lang]}
             </NavLink>
           </div>
           <div className="py-2">
             <NavLink to={"/user-register"} className={"text-blue-500 underline"}>
-              Don't have an account?
+            {authLabel.dontHaveAnAccount[lang]}
             </NavLink>
           </div>
         </div>

@@ -10,6 +10,8 @@ import { useQuery } from "@apollo/client";
 import { GET_USER_CHAT_COUNT, GET_USER_NOTIFICATIONS } from "@/mutation/queries";
 import { useSocket } from "@/contexts/SocketContext";
 import { profileImage } from "@/config/constant/image";
+import { useLang } from "@/hooks/useLang";
+import { authLabel } from "@/localization/auth";
 
 interface Notifications {
   id: string;
@@ -26,7 +28,7 @@ const Navbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
-
+  const { lang } = useLang();
   const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
   const { data: chatData, refetch } = useQuery(GET_USER_CHAT_COUNT);
  
@@ -98,7 +100,7 @@ const Navbar = () => {
       <div className="max-w-[1920px] mx-auto px-6">
         <div className="flex items-center justify-between h-[60px]">
           <RouterNavLink to="/" className="text-xl font-bold">
-            Yatra
+            {authLabel.Yatra[lang]}
           </RouterNavLink>
 
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
@@ -106,12 +108,12 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center space-x-8">
-            <RouterNavLink to="/" className="text-sm font-medium hover:text-gray-600">Home</RouterNavLink>
-            <RouterNavLink to="/places" className="text-sm font-medium hover:text-gray-600">Places</RouterNavLink>
-            <RouterNavLink to="/travel" className="text-sm font-medium hover:text-gray-600">Travel</RouterNavLink>
-            <RouterNavLink to="/guide" className="text-sm font-medium hover:text-gray-600">Guide</RouterNavLink>
-            <RouterNavLink to="/booking" className="text-sm font-medium hover:text-gray-600">Booking</RouterNavLink>
-            <RouterNavLink to="/history" className="text-sm font-medium hover:text-gray-600">History</RouterNavLink>
+            <RouterNavLink to="/" className="text-sm font-medium hover:text-gray-600">{authLabel.home[lang]}</RouterNavLink>
+            <RouterNavLink to="/places" className="text-sm font-medium hover:text-gray-600">{authLabel.place[lang]}</RouterNavLink>
+            <RouterNavLink to="/travel" className="text-sm font-medium hover:text-gray-600">{authLabel.travel[lang]}</RouterNavLink>
+            <RouterNavLink to="/guide" className="text-sm font-medium hover:text-gray-600">{authLabel.guide[lang]}</RouterNavLink>
+            <RouterNavLink to="/booking" className="text-sm font-medium hover:text-gray-600">{authLabel.booking[lang]}</RouterNavLink>
+            <RouterNavLink to="/history" className="text-sm font-medium hover:text-gray-600">{authLabel.history[lang]}</RouterNavLink>
           </div>
 
           {isLoggedIn ? (
@@ -139,8 +141,8 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-6">
-              <RouterNavLink to="/user-login" className="text-sm font-medium hover:text-gray-600">Login</RouterNavLink>
-              <RouterNavLink to="/user-register" className="text-sm font-medium hover:text-gray-600">Sign Up</RouterNavLink>
+              <RouterNavLink to="/user-login" className="text-sm font-medium hover:text-gray-600">{authLabel.login[lang]}</RouterNavLink>
+              <RouterNavLink to="/user-register" className="text-sm font-medium hover:text-gray-600">{authLabel.signup[lang]}</RouterNavLink>
             </div>
           )}
         </div>

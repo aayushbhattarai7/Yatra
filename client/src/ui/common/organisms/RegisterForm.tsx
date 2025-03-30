@@ -65,10 +65,10 @@ navigate("/user-login")
       <div className="space-y-4">
         <div className="flex gap-10">
           <div>
-            <Label name="firstName" className="pl-3" label="First Name" />
+            <Label name="firstName" className="pl-3" label={authLabel.firstName[lang]} />
             <InputField
               setValue={setValue}
-              placeholder="First Name"
+              placeholder={authLabel.firstName[lang]}
               type="text"
               name="firstName"
               register={register}
@@ -76,10 +76,10 @@ navigate("/user-login")
             />
           </div>
           <div>
-            <Label name="middleName" className="pl-3" label="Middle Name" />
+            <Label name="middleName" className="pl-3" label={authLabel.middleName[lang]} />
             <InputField
               setValue={setValue}
-              placeholder="Middle Name"
+              placeholder={authLabel.middleName[lang]}
               type="text"
               name="middleName"
               register={register}
@@ -89,7 +89,7 @@ navigate("/user-login")
         </div>
         <div className="flex gap-10">
           <div>
-            <Label name="lastName" className="pl-3" label="Last Name" />
+            <Label name="lastName" className="pl-3" label={authLabel.lastName[lang]} />
             <InputField
               setValue={setValue}
               placeholder={authLabel.lastName[lang]}
@@ -114,10 +114,10 @@ navigate("/user-login")
 
         <div className="flex gap-10">
           <div>
-            <Label name="phoneNumber" className="pl-3" label="Phone Number" />
+            <Label name="phoneNumber" className="pl-3" label={authLabel.phoneNumber[lang]} />
             <InputField
               setValue={setValue}
-              placeholder="Phone Number"
+              placeholder={authLabel.phoneNumber[lang]}
               type="text"
               name="phoneNumber"
               register={register}
@@ -140,20 +140,20 @@ navigate("/user-login")
 
         <div className="flex gap-10">
           <div>
-            <Label name="gender" className="pl-3" label="Gender" />
+            <Label name="gender" className="pl-3" label={authLabel.gender[lang]} />
             <select
               {...register("gender", { required: true })}
               className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             >
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
+              <option value="MALE">{authLabel.male[lang]}</option>
+              <option value="FEMALE">{authLabel.female[lang]}</option>
             </select>
           </div>
         </div>
       </div>
       <div className="py-2">
             <NavLink to={"/user-login"} className={"text-blue-500 underline"}>
-              Already have an account?
+            {authLabel.alreadyHaveAnAccount[lang]}
             </NavLink>
           </div>
       <div className="w-[23rem] flex justify-center items-center">

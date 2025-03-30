@@ -6,7 +6,8 @@ import Cookies from "js-cookie";
 import LoginForm from "./LoginForm";
 import SocialLogin from "./SocialLogin";
 import LoginHero from "./LoginHero";
-
+import { useLang } from "@/hooks/useLang";
+import { authLabel  } from "@/localization/auth";
 const LOGIN_MUTATION = gql`
   mutation Login($password: String!, $email: String!) {
     login(password: $password, email: $email) {
@@ -25,6 +26,8 @@ interface FormData {
 const UserLogin = () => {
   const { setMessage } = useMessage();
   const navigate = useNavigate();
+    const {lang} = useLang()
+
   const [login, { error, loading }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
@@ -70,10 +73,10 @@ const UserLogin = () => {
         <div className="w-full max-w-md space-y-8 font-poppins">
           <div className="text-center w-[29rem]">
             <h1 className="text-4xl font-bold text-gray-900 font-poppins">
-              Login
+            {authLabel.login[lang]}
             </h1>
             <p className="mt-2 text-sm text-gray-600 animate-bounce font-poppins">
-              Continue Your Journey with us
+            {authLabel.continueJourney[lang]}
             </p>
           </div>
 
@@ -83,8 +86,10 @@ const UserLogin = () => {
       </div>
 
       <LoginHero
-        title="Yatra"
-        description="Travel is the only purchase that enriches you in ways beyond material wealth."
+        title={authLabel.Yatra[lang]}
+
+        description={authLabel.desc[lang]}
+
       />
 
       <div className="hidden md-grid grid-cols-12"></div>

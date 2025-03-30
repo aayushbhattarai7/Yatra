@@ -61,9 +61,9 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
           <KeyRound className="w-8 h-8 text-blue-600" />
         </div>
         
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Verify OTP</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.verifyOTP[lang]}</h2>
         <p className="text-gray-600 text-center mb-8">
-          We've sent a verification code to<br />
+         {authLabel.weSentNotificationTo[lang]}<br />
           <span className="font-medium text-gray-800">{email}</span>
         </p>
 
@@ -71,12 +71,12 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
           <div className="space-y-2">
             <Label 
               name="otp" 
-              label="Enter Verification Code" 
+              label={authLabel.EnterOTP[lang]}
               className="text-sm font-medium text-gray-700"
             />
             <InputField
               setValue={setValue}
-              placeholder="Enter 6-digit code"
+              placeholder={authLabel.EnterOTP[lang]}
               type="text"
               name="otp"
               register={register}
@@ -86,7 +86,7 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
 
           <div className="space-y-4">
             <Button
-              buttonText="Verify Code"
+              buttonText={authLabel.verifyOTP[lang]}
               name="verify"
               type="submit"
               className="w-full"
@@ -102,14 +102,13 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
                 disabled={resendLoading}
                 className="text-gray-600 hover:text-gray-800 flex"
               /> */}
-              <p className="" onClick={resendOTP} >Resend Code</p>
+              <p className="" onClick={resendOTP} >{authLabel.resendCode[lang]}</p>
             </div>
           </div>
         </form>
 
         <p className="mt-6 text-sm text-gray-500 text-center">
-          Didn't receive the code? Check your spam folder or try resending the code.
-        </p>
+{authLabel.didnotReceiveCode[lang]}        </p>
       </div>
     </div>
   );

@@ -145,11 +145,11 @@ const Travels = () => {
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3">
-                    vehicle: {travel.vehicleType} • {travel.gender}
+                    {authLabel.vehicle[lang]}: {travel.vehicleType} • {travel.gender === "MALE"?`${authLabel.male[lang]}`:`${authLabel.female[lang]}`}
                   </p>
                   <div className="flex gap-3">
                     <Button
-                      buttonText={authLabel.booknow[lang]}
+                      buttonText={authLabel.book[lang]}
                       className="bg-blue-600 text-white px-4 py-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       type="button"
                       onClick={() => setTravelId(travel.id)}

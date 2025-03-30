@@ -42,7 +42,7 @@ export class ChatService {
       });
       const saveChat = await this.chatRepo.save(chat);
       const notification = this.notificationRepo.create({
-        message: `${user.firstName} ${user?.middleName} ${user.lastName} sent you a message`,
+        message: `${user.firstName} ${user.middleName ? user.middleName + " " : ""}${user.lastName} sent you a message`,
         receiverGuide: receiver,
       });
       await this.notificationRepo.save(notification);
@@ -83,7 +83,7 @@ export class ChatService {
       console.log("🚀 ~ ChatService ~ chatWithTravel ~ chat:", chat);
       const saveChat = await this.chatRepo.save(chat);
       const notification = this.notificationRepo.create({
-        message: `${user.firstName} ${user?.middleName} ${user.lastName} sent you a message`,
+        message: `${user.firstName} ${user.middleName ? user.middleName + " " : ""} ${user.lastName} sent you a message`,
         receiverTravel: receiver,
       });
       await this.notificationRepo.save(notification);
@@ -234,7 +234,7 @@ export class ChatService {
       const chatCounts= chatCount.length 
       const id = travel_id
       const notification = this.notificationRepo.create({
-        message: `${travel.firstName} ${travel?.middleName} ${travel.lastName} sent you a message`,
+        message: `${travel.firstName} ${user.middleName ? user.middleName + " " : ""} ${travel.lastName} sent you a message`,
         receiverUser: user,
       });
       await this.notificationRepo.save(notification);
@@ -284,7 +284,7 @@ export class ChatService {
  const chatCounts= chatCount.length 
  const id = guide_id
  const notification = this.notificationRepo.create({
-  message: `${guide.firstName} ${guide?.middleName} ${guide.lastName} sent you a message`,
+  message: `${guide.firstName} ${user.middleName ? user.middleName + " " : ""} ${guide.lastName} sent you a message`,
   receiverUser: user,
 });
 await this.notificationRepo.save(notification);

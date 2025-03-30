@@ -66,7 +66,7 @@ function App() {
         <LocationProvider>
           <ToastNotification />
           <RouterProvider router={router} />
-          <NotificationsPopup /> 
+          {/* <NotificationsPopup />  */}
         </LocationProvider>
       </NotificationProvider>
     </SocketProvider>

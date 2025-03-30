@@ -184,7 +184,7 @@ const Guides = () => {
 
                   <div className="flex gap-3">
                     <Button
-                      buttonText={authLabel.booknow[lang]}
+                      buttonText={authLabel.book [lang]}
                       onClick={() => setGuideId(guide.id)}
                       className="bg-blue-600 text-white px-4 py-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       type="button"

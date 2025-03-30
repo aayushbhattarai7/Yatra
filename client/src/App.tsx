@@ -26,6 +26,8 @@ import KhaltiSuccess from "./components/KhaltiSuccess";
 import Chat from "./components/ui/Chat";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import ForgotPassword from "./components/ForgotPassword";
+import Settings from "./components/ui/Settings";
+import LanguageProvider from "./contexts/LanguageContext";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -52,6 +54,7 @@ const router = createBrowserRouter([
           { path: "travel", element: <Travels /> },
           { path: "guide", element: <Guides /> },
           { path: "user-profile", element: <UserProfile /> },
+          { path: "settings", element: <Settings /> },
           { path: "/booking", element: <Booking /> },
           { path: "/history", element: <TravelBookingHistory /> },
           { path: "travel-booking", element: <TravelBooking /> },
@@ -66,6 +69,8 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
+    <LanguageProvider>
+
       <SocketProvider>
         <NotificationProvider>
         <StripeProvider>
@@ -74,6 +79,7 @@ function App() {
         </StripeProvider>
         </NotificationProvider>
       </SocketProvider>
+    </LanguageProvider>
     </>
   );
 }

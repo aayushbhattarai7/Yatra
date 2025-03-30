@@ -8,7 +8,7 @@ import { CHANGE_PASSWORD_OF_USER } from "@/mutation/queries";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
 import { useNavigate } from "react-router-dom";
-import { KeyRound, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 interface FormData {
     password: string;
@@ -55,9 +55,9 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                     <Lock className="w-8 h-8 text-green-600" />
                 </div>
 
-                <h2 className="text-2xl font-semibold text-gray-800 mb-2">Create New Password</h2>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.newPass[lang]}</h2>
                 <p className="text-gray-600 text-center mb-8">
-                    Please set a strong password for your account<br />
+                {authLabel.newPass[lang]}<br />
                     <span className="font-medium text-gray-800">{email}</span>
                 </p>
 
@@ -70,12 +70,12 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                         <div className="space-y-2">
                             <Label 
                                 name="password" 
-                                label="New Password" 
+                                label={authLabel.newPassword[lang]}
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
                                 setValue={setValue}
-                                placeholder="Enter new password"
+                                placeholder={authLabel.enterNewPassword[lang]}
                                 type="password"
                                 name="password"
                                 register={register}
@@ -86,12 +86,12 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                         <div className="space-y-2">
                             <Label 
                                 name="confirmPassword" 
-                                label="Confirm Password" 
+                                label={authLabel.confirmPassword[lang]}
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
                                 setValue={setValue}
-                                placeholder="Confirm your password"
+                                placeholder={authLabel.confirmYourPassword[lang]}
                                 type="password"
                                 name="confirmPassword"
                                 register={register}
@@ -101,7 +101,7 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                     </div>
 
                     <Button
-                        buttonText={loading ? "Updating..." : "Update Password"}
+                        buttonText={loading ? `${authLabel.updating[lang]}` : `${authLabel.updatePassword[lang]}`}
                         name="update"
                         type="submit"
                         disabled={loading}
@@ -110,7 +110,7 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                 </form>
 
                 <p className="mt-6 text-sm text-gray-500 text-center">
-                    Make sure your password is at least 8 characters long and contains a mix of letters, numbers, and symbols.
+                    {authLabel.passwordDesc[lang]}
                 </p>
             </div>
         </div>

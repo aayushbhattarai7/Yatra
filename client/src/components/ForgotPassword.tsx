@@ -47,9 +47,9 @@ const ForgotPassword = () => {
           <Mail className="w-8 h-8 text-blue-600" />
         </div>
 
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Forgot Password?</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.forgotPassword[lang]}</h2>
         <p className="text-gray-600 text-center mb-8">
-          Enter your email address and we'll send you a verification code to reset your password.
+        {authLabel.forgotPasswordSlogan[lang]}
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
@@ -70,7 +70,7 @@ const ForgotPassword = () => {
           </div>
 
           <Button 
-            buttonText={loading ? 'Sending...' : authLabel.submit[lang]}
+            buttonText={loading ? `${authLabel.sending[lang]}` : authLabel.submit[lang]}
             type="submit"
             disabled={loading}
             className="w-full flex items-center justify-center gap-2"
@@ -79,7 +79,7 @@ const ForgotPassword = () => {
         </form>
 
         <p className="mt-6 text-sm text-gray-500 text-center">
-          Remember your password? <a href="/login" className="text-blue-600 hover:text-blue-800">Back to login</a>
+         {authLabel.rememberPassword[lang]} <a href="/login" className="text-blue-600 hover:text-blue-800">{authLabel.backToLogin[lang]}</a>
         </p>
       </div>
     </div>

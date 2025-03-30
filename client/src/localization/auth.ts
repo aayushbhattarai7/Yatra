@@ -5,6 +5,14 @@ export const authLabel: LabelTypes = {
     en: "Go Back",
     ne: "पछाडि जानुहोस्",
   },
+  Yatra: {
+    en: "Yatra",
+    ne: "यात्रा",
+  },
+  desc: {
+    en: "Travel is the only purchase that enriches you in ways beyond material wealth",
+    ne: "यात्रा मात्र यस्तो खरिद हो जसले तपाईंलाई भौतिक सम्पत्तिभन्दा बाहिरका तरिकामा समृद्ध बनाउँछ।",
+  },
   userLogin: {
     en: "User Login",
     ne: "प्रयोगकर्ता लगइन",
@@ -30,11 +38,39 @@ export const authLabel: LabelTypes = {
     en: "Password",
     ne: "पासवर्ड",
   },
+  forgotPassword: {
+    en: "Forgot Password?",
+    ne: "पासवर्ड बिर्सनुभयो?",
+  },
+  rememberPassword: {
+    en: "Remember your password?",
+    ne: "तपाईंलाई आफ्नो पासवर्ड याद छ?",
+  },
+  backToLogin: {
+    en: "Back to login",
+    ne: "लगइन पेजमा फर्कनुहोस्",
+  },
+  forgotPasswordSlogan: {
+    en: "Enter your email address and we'll send you a verification code to reset your password.",
+    ne: "तपाईंको इमेल ठेगाना प्रवेश गर्नुहोस् र हामी तपाईंलाई पासवर्ड रिसेट गर्नको लागि एक प्रमाणीकरण कोड पठाउनेछौं।",
+  },
+  male: {
+    en: "Male",
+    ne: "पुरुष",
+  },
+  female: {
+    en: "Female",
+    ne: "महिला",
+  },
   enterYourPassword: {
     en: "Enter your Password",
     ne: "तपाईंको पासवर्ड प्रविष्ट गर्नुहोस्",
   },
   enterNewPassword: {
+    en: "Enter New Password",
+    ne: "नयाँ पासवर्ड प्रविष्ट गर्नुहोस्",
+  },
+  newPassword: {
     en: "Enter New Password",
     ne: "नयाँ पासवर्ड प्रविष्ट गर्नुहोस्",
   },
@@ -50,6 +86,10 @@ export const authLabel: LabelTypes = {
     en: "Update Password",
     ne: "पासवर्ड अपडेट गर्नुहोस्",
   },
+  passwordDesc: {
+    en: "Make sure your password is at least 8 characters long and contains a mix of letters, numbers, and symbols.",
+    ne: "तपाईंको पासवर्ड कम्तिमा ८ वर्णको हुनुपर्छ र अक्षर, नम्बर, तथा विशेष चिन्हहरूको मिश्रण समावेश गर्नुपर्छ।",
+  },
   rememberMe: {
     en: "Remember Me",
     ne: "पासवर्ड सम्झनुहोस्",
@@ -58,9 +98,23 @@ export const authLabel: LabelTypes = {
     en: "Login",
     ne: "लगइन",
   },
+  
+  updating: {
+    en: "Updating",
+    ne: "अपडेट हुँदै",
+  },
+  sending: {
+    en: "Sending",
+    ne: "पठाउँदै",
+  },
+  
   dontHaveAnAccount: {
     en: "Don't have an account?",
     ne: "खाता छैन?",
+  },
+  loginOthers: {
+    en: "Login with Others",
+    ne: "अरूबाट लगइन गर्नुहोस्",
   },
   userSignup: {
     en: "User Signup",
@@ -69,6 +123,14 @@ export const authLabel: LabelTypes = {
   signup: {
     en: "SignUp",
     ne: "साइन अप",
+  },
+  startJourney: {
+    en: "Start Your Journey with us",
+    ne: "तपाईंको यात्रा हामीसँग सुरु राख्नुहोस्",
+  },
+  continueJourney: {
+    en: "Continue Your Journey with us",
+    ne: "तपाईंको यात्रा हामीसँग जारी राख्नुहोस्",
   },
 
   firstName: {
@@ -102,16 +164,40 @@ export const authLabel: LabelTypes = {
   },
 
   verify: {
+    en: "Verify OTP",
+    ne: "OTP प्रमाणित गर्नुहोस्",
+  },
+  verifyOTP: {
     en: "Verify",
     ne: "प्रमाणित गर्नुहोस्",
+  },
+  weSentNotificationTo: {
+    en: "  We've sent a verification code to",
+    ne: "हामीले प्रमाणीकरण कोड पठाएका छौं",
   },
   sendOTP: {
     en: "Send OTP",
     ne: "ओटीपी पठाउनुहोस्",
   },
   EnterOTP: {
-    en: "Enter 5 digits otp",
-    ne: "ओटीपी हाल्नुस्",
+    en: "Enter Verification Code",
+    ne: "ओटीपी कोड हाल्नुहोस्",
+  },
+  resendCode: {
+    en: "Resend Code",
+    ne: "कोड पुन: पठाउनुहोस्",
+  },
+  didnotReceiveCode: {
+    en: "Didn't receive the code? Check your spam folder or try resending the code.",
+    ne: "कोड प्राप्त गर्नुभयो छैन? कृपया तपाईंको स्प्याम फोल्डर जाँच गर्नुहोस् वा कोड पुन: पठाउने प्रयास गर्नुहोस्।",
+  },
+  newPass: {
+    en: "Create new Password",
+    ne: "नयाँ पासवर्ड सिर्जना गर्नुहोस्",
+  },
+  passwordMessage: {
+    en: "Please set a strong password for your account",
+    ne: "कृपया आफ्नो खाताका लागि बलियो पासवर्ड सेट गर्नुहोस्",
   },
 
   connection: {
@@ -157,7 +243,7 @@ export const authLabel: LabelTypes = {
   },
   book: {
     en: "Book",
-    Ne: "बुक",
+    ne: "बुक",
   },
   from: {
     en: "from",
@@ -197,14 +283,42 @@ export const authLabel: LabelTypes = {
   },
   viewProfile: {
     en: "View Profile",
-    ne: "प्रतीक्षा गर्नुहोस्",
+    ne: "प्रोफाइल हेर्नुहोस्",
   },
   loading: {
     en: "Loading",
     ne: "प्रतीक्षा गर्नुहोस्",
   },
+  vehicle: {
+    en: "Vehicle",
+    ne: "सवारी साधन",
+  },
   submit: {
     en: "Submit",
-    ne: "प्रतीक्षा गर्नुहोस्",
+    ne: "पेश गर्नुहोस्",
+  },
+  home: {
+    en: "Home",
+    ne: "गृहपृष्ठ",
+  },
+  place: {
+    en: "Places",
+    ne: "स्थानहरू",
+  },
+  travel: {
+    en: "Travel",
+    ne: "यात्रा एजेन्सी",
+  },
+  guide: {
+    en: "Guide",
+    ne: "मार्गदर्शक",
+  },
+  booking: {
+    en: "Booking",
+    ne: "बुकिङ",
+  },
+  history: {
+    en: "History",
+    ne: "इतिहास",
   },
 };
