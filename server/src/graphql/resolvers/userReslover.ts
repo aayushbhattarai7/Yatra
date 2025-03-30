@@ -374,10 +374,23 @@ export class UserResolver {
   @Query(() => Guide)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getGuideProfile(@Ctx() ctx: Context, @Arg("guideId") guideId: string) {
-    console.log("🚀 ~ UserResolver ~ getGuideProfile ~ guideId:", guideId);
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getGuideProfile(userId, guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Travel)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getTravelProfile(@Ctx() ctx: Context, @Arg("travelId") travelId: string) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.getTravelProfile(userId, travelId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

@@ -1000,6 +1000,34 @@ class UserService {
       }
     }
   }
+  async getTravelProfile(user_id: string, travel_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({
+        id: user_id,
+      });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+      const travel = await this.travelrepo.findOne({
+        where: {
+          id: travel_id,
+        },
+        relations: ["details", "kyc"],
+      });
+      if (!travel) {
+        throw HttpException.notFound("Travel not found");
+      }
+
+      return travel;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log(error);
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
 
   async advancePaymentForTravel(
     userId: string,

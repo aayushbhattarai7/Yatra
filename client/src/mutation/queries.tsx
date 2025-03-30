@@ -128,6 +128,23 @@ export const GET_GUIDE_PROFILE = gql`
     }
   }
 `;
+export const GET_TRAVEL_PROFILE = gql`
+ query GetTravelProfile($travelId: String!) {
+  getTravelProfile(travelId: $travelId) {
+  id
+      firstName
+      middleName
+      lastName
+      createdAt
+      gender
+      vehicleType
+      kyc {
+        id
+        path
+      }  
+  }
+}
+`;
 export const USER_TRAVEL_BOOKING_HISTORY = gql`
   query GetTravelHistory {
     getTravelHistory {

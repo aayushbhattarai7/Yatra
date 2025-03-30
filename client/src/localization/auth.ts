@@ -200,9 +200,25 @@ export const authLabel: LabelTypes = {
     ne: "कृपया आफ्नो खाताका लागि बलियो पासवर्ड सेट गर्नुहोस्",
   },
 
-  connection: {
-    en: "connection",
-    ne: "कनेक्शन",
+  homeSlogan: {
+    en: "Find the Best Travel Agencies & Guides for Your Next Adventure!",
+    ne: "विश्‍वसनीय गाइड र ट्राभल एजेन्सीहरूसँग नयाँ गन्तव्य खोज्नुहोस्",
+  },
+  homeSmallSlogan: {
+    en: "Your Journey Begins Here – Explore with Trusted Guides & Agencies!",
+    ne: "तपाईंको यात्रा यहाँबाट सुरु हुन्छ – विश्वासिलो गाइड र ट्राभल एजेन्सीहरू संग!",
+  },
+  availableTravels: {
+    en: "Available Travels",
+    ne: "उपलब्ध यात्रा सेवाहरू",
+  },
+  onlineTravels: {
+    en: "Online Travels",
+    ne: "अनलाइन यात्रा सेवाहरू",
+  },
+  allTravels: {
+    en: "Available Travels",
+    ne: "सबै यात्रा सेवाहरू",
   },
   requests: {
     en: "Requests",

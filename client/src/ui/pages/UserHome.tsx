@@ -1,7 +1,10 @@
 import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { homeImage } from "@/config/constant/image";
+import { authLabel } from "@/localization/auth";
+import { useLang } from "@/hooks/useLang";
 
 function UserHome() {
+  const {lang} = useLang()
   return (
     <div className="relative">
       <div className="relative h-[600px]">
@@ -16,16 +19,10 @@ function UserHome() {
 
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4">
           <h1 className="text-5xl md:text-6xl font-bold text-center mb-6">
-            Discover the
-            <br />
-            most engaging
-            <br />
-            places
+          {authLabel.homeSlogan[lang]}
           </h1>
           <p className="text-xl text-center mb-8 max-w-2xl">
-            Find the perfect destination and create unforgettable memories with
-            our expert guides
-          </p>
+          {authLabel.homeSmallSlogan[lang]}          </p>
         </div>
       </div>
 
