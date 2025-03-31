@@ -122,6 +122,7 @@ export const TRAVEL_REQUESTS = gql`
       totalDays
       totalPeople
       price
+      status
       lastActionBy
       vehicleType
       user {
@@ -245,6 +246,11 @@ export const ADD_TRAVEL_LOCATION = gql`
   mutation AddLocationOfTravel($longitude: Float!, $latitude: Float!) {
     addLocationOfTravel(longitude: $longitude, latitude: $latitude)
   }
+`;
+export const REQUEST_FOR_COMPLETE_TRAVEL_SERVICE = gql`
+ mutation RequestForCompletedTravel($userId: String!) {
+  requestForCompletedTravel(userId: $userId)
+}
 `;
 
 export const GET_TRAVEL_NOTIFICATIONS = gql`

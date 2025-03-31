@@ -7,6 +7,7 @@ import {
   TRAVEL_REQUESTS,
   SEND_PRICE_BY_TRAEL,
   REJECT_REQUEST_BY_TRAVEL,
+  REQUEST_FOR_COMPLETE_TRAVEL_SERVICE,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
@@ -23,6 +24,7 @@ interface FormData {
   gender: string;
   user: User;
   lastActionBy: string;
+  status:string
 }
 
 interface User {
@@ -48,6 +50,7 @@ const TravelRequests = () => {
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
   const { register, handleSubmit, reset } = useForm<Price>();
+  const [requestForCompletedTravel] = useMutation(REQUEST_FOR_COMPLETE_TRAVEL_SERVICE)
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -69,6 +72,10 @@ const TravelRequests = () => {
 
   const rejectRequest = async (id: string) => {
     await rejectRequestByTravel({ variables: { requestId: id } });
+    refetch();
+  };
+  const requestForComplete = async (id: string) => {
+    await requestForCompletedTravel({ variables: { userId: id } });
     refetch();
   };
 
@@ -217,6 +224,7 @@ const TravelRequests = () => {
                   />
                 ) : (
                   <>
+                 
                     {request.price === null ? (
                       <Button
                         type="button"
@@ -226,11 +234,14 @@ const TravelRequests = () => {
                       />
                     ) : (
                       <>
+                       {request.status === "ACCEPTED" && (
                         <Button
                           type="button"
-                          buttonText={authLabel.accept[lang]}
+                          buttonText={authLabel.complete[lang]}
+                          onClick={()=>requestForComplete(request.user.id)}
                           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
                         />
+                  )}
                         <Button
                           type="button"
                           onClick={() => setSelectedId(request.id)}
@@ -252,6 +263,7 @@ const TravelRequests = () => {
                   buttonText={authLabel.details[lang]}
                   className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
                 />
+                
               </div>
             </div>
           </div>

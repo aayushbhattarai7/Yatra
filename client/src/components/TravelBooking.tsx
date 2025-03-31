@@ -3,6 +3,7 @@ import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
 import {
   CANCEL_TRAVEL_REQUEST,
+  COMPLETE_TRAVEL,
   SEND_PRICE_TO_TRAVEL,
   USER_REQUESTS_FOR_TRAVEL,
 } from "@/mutation/queries";
@@ -19,6 +20,7 @@ import Esewa from "./Esewa";
 import Khalti from "./KhaltiPayment";
 import Payments from "./Payments";
 import { useSocket } from "@/contexts/SocketContext";
+import Rating from "./ui/Rating";
 
 interface TravelBooking {
   id: string;
@@ -57,10 +59,11 @@ const TravelBooking = () => {
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
   const { lang } = useLang();
+  const [showCompletionPopup, setShowCompletionPopup] = useState(false);
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
-
+const [completeTravelServiceByUser] = useMutation(COMPLETE_TRAVEL)
   const formatTimeDifference = (createdAt: string) => {
     if (!createdAt) return "Unknown time";
     const createdTime = new Date(createdAt).getTime();
@@ -98,6 +101,12 @@ const TravelBooking = () => {
       }
     }
   };
+  
+  useEffect(()=>{
+    socket.on("request-travel",(booking)=>{
+      setTravelBooking((prev)=>[...prev,booking ])
+    })
+  }, [socket])
 
   const acceptRequest = async () => {
     setPay(true);
@@ -111,6 +120,16 @@ const TravelBooking = () => {
     setCancellationId(null);
     refetch();
     showToast(res.data.cancelTravelRequest, "success");
+  };
+  const completeTravel = async (id:string) => {
+    console.log("🚀 ~ completeTravel ~ id:", id)
+    const res = await completeTravelServiceByUser({
+      variables: { travelId: id },
+    });
+    reset();
+    setShowCompletionPopup(true);
+    refetch();
+    showToast(res.data.completeTravelServiceByUser, "success");
   };
 
   useEffect(() => {
@@ -145,8 +164,8 @@ const TravelBooking = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold">
-                    {book.travel.firstName} {book.travel.middleName}{" "}
-                    {book.travel.lastName}
+                    {book.travel?.firstName} {book.travel?.middleName}{" "}
+                    {book.travel?.lastName}
                   </h3>
                   <p className="text-sm text-gray-500">
                     Total People: {book.totalPeople}
@@ -159,7 +178,7 @@ const TravelBooking = () => {
                   <Mail className="w-4 h-4 text-gray-500" />
                   <span className="text-sm">
                     {book.status === "ACCEPTED"
-                      ? book.travel.email
+                      ? book.travel?.email
                       : " Display after booking is completed"}
                   </span>
                 </div>
@@ -217,7 +236,18 @@ const TravelBooking = () => {
                       <div className="space-y-2">
                         {book.lastActionBy === "TRAVEL" ? (
                           <>
-                            {book.status !== "ACCEPTED" && (
+                               {book.status === "CONFIRMATION_PENDING" && (
+                              <Button
+                              onClick={()=>completeTravel(book.travel.id)}
+                                buttonText={authLabel.complete[lang]}
+                                disabled={loading}
+                                type="submit"
+                                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                              />
+                            
+                             
+                            )}
+                            {book.status !== "ACCEPTED" && book.status !== "CONFIRMATION_PENDING" && (
                               <>
                                 <Button
                                   onClick={acceptRequest}
@@ -243,6 +273,7 @@ const TravelBooking = () => {
                             className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md"
                           />
                         )}
+                        
                         <Button
                           buttonText="Cancel"
                           type="submit"
@@ -340,6 +371,7 @@ const TravelBooking = () => {
           </motion.div>
         </div>
       )}
+       {showCompletionPopup && <Rating onClose={()=>setShowCompletionPopup(false)} />}
     </div>
   );
 };

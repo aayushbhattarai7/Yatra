@@ -301,6 +301,14 @@ export const authLabel: LabelTypes = {
     en: "View Profile",
     ne: "प्रोफाइल हेर्नुहोस्",
   },
+  failToLoadTP: {
+    en: " Failed to Load Travel Profile",
+    ne: "यात्रा प्रोफाइल लोड हुन असफल भयो",
+  },
+  professionalT: {
+    en: "Professional Travel",
+    ne: "व्यावसायिक यात्रा एजेन्सी",
+  },
   loading: {
     en: "Loading",
     ne: "प्रतीक्षा गर्नुहोस्",
@@ -311,6 +319,10 @@ export const authLabel: LabelTypes = {
   },
   submit: {
     en: "Submit",
+    ne: "पेश गर्नुहोस्",
+  },
+  complete: {
+    en: "Complete",
     ne: "पेश गर्नुहोस्",
   },
   home: {

@@ -399,6 +399,21 @@ export class UserResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+  async completeTravelServiceByUser(@Arg("travelId") travelId: string,  @Ctx() ctx: Context,) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.completeTravelService(userId, travelId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Query(() => [RequestTravel], { nullable: true })
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getTravelHistory(@Ctx() ctx: Context) {

@@ -78,6 +78,7 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
       userBargain
       lastActionBy
       travel {
+      id
         firstName
         middleName
         lastName
@@ -218,6 +219,11 @@ export const GET_PAYMENT_DETAILS = gql`
       failure_url
     }
   }
+`;
+export const COMPLETE_TRAVEL = gql`
+  mutation CompleteTravelServiceByUser($travelId: String!) {
+  completeTravelServiceByUser(travelId: $travelId)
+}
 `;
 
 export const GET_USER_NOTIFICATIONS = gql`

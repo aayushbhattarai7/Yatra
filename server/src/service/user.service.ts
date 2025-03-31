@@ -597,6 +597,51 @@ class UserService {
     }
   }
 
+  async completeTravelService(user_id:string,travel_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({id:user_id})
+      if(!user) throw HttpException.notFound("You are not authorized")
+      const travel = await this.travelrepo.findOne({
+        where: {
+          id: travel_id,
+        }
+      });
+      if (!travel) {
+        throw HttpException.unauthorized("Travel not found");
+      }
+
+        return await AppDataSource.transaction(
+          async (transactionEntityManager) => {
+            const findTravelService = await transactionEntityManager.findOne(
+              this.travelRequestRepo.target,{
+                where:{
+                  travel:{id:travel_id},
+                  user:{id:user_id}
+                }
+              }
+            )
+
+if(!findTravelService) throw HttpException.notFound("Request not found")
+  
+  await transactionEntityManager.update(
+    RequestTravel,
+    { id: findTravelService.id }, 
+    { status: RequestStatus.COMPLETED, lastActionBy:Role.USER } 
+  );
+  return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`
+  
+  }
+)
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async getOwnTravelRequests(user_id: string) {
     try {
       const user = await this.userRepo.findOneBy({
@@ -1106,7 +1151,7 @@ class UserService {
       if (payment) {
         await this.travelRequestRepo.update(
           { id: request.id },
-          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA },
+          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA, lastActionBy:Role.USER },
         );
 
         const room = await roomService.checkRoomWithTravel(

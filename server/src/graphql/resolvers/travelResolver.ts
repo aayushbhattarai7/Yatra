@@ -259,6 +259,21 @@ export class TravelResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+  async requestForCompletedTravel(@Arg("userId") userId: string,  @Ctx() ctx: Context,) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await travelService.completeTravelService(travelId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async addLocationOfTravel(

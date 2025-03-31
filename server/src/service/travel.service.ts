@@ -309,6 +309,7 @@ class TravelService {
         },
         relations: ["user", "travel"],
       });
+      console.log("🚀 ~ TravelService ~ getRequests ~ requests:", requests)
       return requests;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -331,6 +332,55 @@ class TravelService {
         throw HttpException.unauthorized("you are not authorized");
       }
       return travel;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async completeTravelService(travel_id: string, user_id:string) {
+    try {
+      const travel = await this.travelrepo.findOne({
+        where: {
+          id: travel_id,
+        }
+      });
+      if (!travel) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      const user = await this.userRepo.findOneBy({id:user_id})
+      if(!user) throw HttpException.notFound("User not found")
+
+        return await AppDataSource.transaction(
+          async (transactionEntityManager) => {
+            const findTravelService = await transactionEntityManager.findOne(
+              this.travelRequestRepo.target,{
+                where:{
+                  travel:{id:travel_id},
+                  user:{id:user_id},
+                  status:RequestStatus.ACCEPTED
+                }
+              }
+            )
+
+if(!findTravelService) throw HttpException.notFound("Request not found")
+
+  const update =await transactionEntityManager.update(
+    RequestTravel,
+    { id: findTravelService.id }, 
+    { status: RequestStatus.CONFIRMATION_PENDING, 
+      lastActionBy:Role.TRAVEL
+     } 
+  );
+if(update){
+
+  io.to(user_id).emit("request-travel", findTravelService)
+}
+return `Please wait for user to confirm it`
+  }
+)
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

@@ -101,7 +101,7 @@ const TravelProfileUserView = ({
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Failed to Load Travel Profile
+              {authLabel.failToLoadTP[lang]}
             </h2>
             <p className="text-gray-500 mb-6">
               {error.message ||
@@ -185,7 +185,7 @@ const TravelProfileUserView = ({
                       {user.firstName} {user.middleName} {user.lastName}
                     </h1>
                     <p className="text-blue-600 font-medium">
-                      Professional Tour Travel
+                     {authLabel.professionalT[lang]}
                     </p>
                   </div>
 
