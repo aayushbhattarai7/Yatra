@@ -9,6 +9,7 @@ import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
+import { Rating } from "../../entities/ratings/rating.entity";
 
 @ObjectType()
 @Entity("travel")
@@ -79,6 +80,11 @@ export class Travel extends Base {
   @Field(() => Location)
   @OneToOne(() => Location, (location) => location.travel, { cascade: true })
   location: Location;
+
+   @Field(() => Rating, { nullable: true })
+    @OneToMany(() => Rating, (rating) => rating.travel, { cascade: true })
+    ratings: Rating;
+
 
   @Field(() => [TravelKyc])
   @OneToMany(() => TravelKyc, (kyc) => kyc.travels, { cascade: true })

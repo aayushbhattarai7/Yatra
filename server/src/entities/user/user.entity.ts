@@ -9,6 +9,7 @@ import { BookHotel } from "../../entities/hotels/bookHotel.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
+import { Rating } from "../../entities/ratings/rating.entity";
 
 @ObjectType()
 @Entity("user")
@@ -62,6 +63,10 @@ export class User extends Base {
   @Field(() => Location)
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
+  
+  @Field(() => Rating)
+  @OneToOne(() => Rating, (rating) => rating.user, { cascade: true })
+  rating: Rating;
 
   @Field(() => BookHotel)
   @OneToOne(() => BookHotel, (bookHotel) => bookHotel.user, { cascade: true })

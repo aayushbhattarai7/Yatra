@@ -16,6 +16,7 @@ import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
+import { Rating } from "../../entities/ratings/rating.entity";
 
 @ObjectType()
 @Entity("guide")
@@ -87,6 +88,10 @@ export class Guide extends Base {
   @Field(() => Location, { nullable: true })
   @OneToOne(() => Location, (location) => location.guide, { cascade: true })
   location: Location;
+
+  @Field(() => Rating, { nullable: true })
+  @OneToMany(() => Rating, (ratings) => ratings.guide, { cascade: true })
+  ratings: Rating;
 
   @Field(() => GuideDetails)
   @OneToOne(() => GuideDetails, (details) => details.guide, { cascade: true })
