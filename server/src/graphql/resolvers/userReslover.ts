@@ -28,6 +28,7 @@ import { RoomService } from "../../service/room.service";
 import { Room } from "../../entities/chat/room.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
+import { Rating } from "../../entities/ratings/rating.entity";
 const roomService = new RoomService();
 const chatService = new ChatService();
 @Resolver((of) => User)
@@ -405,6 +406,32 @@ export class UserResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.completeTravelService(userId, travelId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => Rating)
+  async rateTravel(@Arg("travelId") travelId: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.rateTravel(userId, travelId, rating, message);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => Rating)
+  async rateGuide(@Arg("guideId") guideId: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.rateGuide(userId, guideId, rating, message);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

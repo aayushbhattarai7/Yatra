@@ -37,6 +37,7 @@ import { RoomService } from "./room.service";
 import { Chat } from "../entities/chat/chat.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
+import { Rating } from "../entities/ratings/rating.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -79,6 +80,7 @@ class UserService {
     ),
     private readonly notificationRepo = AppDataSource.getRepository(Notification),
     private readonly chatRepo = AppDataSource.getRepository(Chat),
+    private readonly ratingsRepo = AppDataSource.getRepository(Rating),
 
   ) { }
 
@@ -108,7 +110,7 @@ class UserService {
     }
   }
 
-  
+
   async login(data: LoginDTO): Promise<User> {
     try {
       const user = await this.userRepo.findOne({
@@ -159,7 +161,7 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ email });
       if (!user) throw HttpException.notFound("Entered email is not registered yet");
-    
+
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${email}.${otp}.${expires}`;
@@ -383,7 +385,7 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ email });
       if (!user) throw HttpException.unauthorized("You are not authorized");
-    
+
       const [hashedOtp, expires] = user?.otp?.split(".");
       if (Date.now() > +expires)
         throw HttpException.badRequest("Otp is expired");
@@ -400,14 +402,14 @@ class UserService {
       }
     }
   }
-  async changePassword(password: string, confirmPassword: string, email:string): Promise<string> {
+  async changePassword(password: string, confirmPassword: string, email: string): Promise<string> {
     try {
       const user = await this.userRepo.findOneBy({ email });
       if (!user) throw HttpException.unauthorized("You are not authorized");
 
-    if(password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
+      if (password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
       const hashPassword = await bcryptService.hash(password)
-      await this.userRepo.update({ email }, { password:hashPassword });
+      await this.userRepo.update({ email }, { password: hashPassword });
       return `Your password updated successfully!.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -597,10 +599,10 @@ class UserService {
     }
   }
 
-  async completeTravelService(user_id:string,travel_id: string) {
+  async completeTravelService(user_id: string, travel_id: string) {
     try {
-      const user = await this.userRepo.findOneBy({id:user_id})
-      if(!user) throw HttpException.notFound("You are not authorized")
+      const user = await this.userRepo.findOneBy({ id: user_id })
+      if (!user) throw HttpException.notFound("You are not authorized")
       const travel = await this.travelrepo.findOne({
         where: {
           id: travel_id,
@@ -610,28 +612,28 @@ class UserService {
         throw HttpException.unauthorized("Travel not found");
       }
 
-        return await AppDataSource.transaction(
-          async (transactionEntityManager) => {
-            const findTravelService = await transactionEntityManager.findOne(
-              this.travelRequestRepo.target,{
-                where:{
-                  travel:{id:travel_id},
-                  user:{id:user_id}
-                }
-              }
-            )
+      return await AppDataSource.transaction(
+        async (transactionEntityManager) => {
+          const findTravelService = await transactionEntityManager.findOne(
+            this.travelRequestRepo.target, {
+            where: {
+              travel: { id: travel_id },
+              user: { id: user_id }
+            }
+          }
+          )
 
-if(!findTravelService) throw HttpException.notFound("Request not found")
-  
-  await transactionEntityManager.update(
-    RequestTravel,
-    { id: findTravelService.id }, 
-    { status: RequestStatus.COMPLETED, lastActionBy:Role.USER } 
-  );
-  return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`
-  
-  }
-)
+          if (!findTravelService) throw HttpException.notFound("Request not found")
+
+          await transactionEntityManager.update(
+            RequestTravel,
+            { id: findTravelService.id },
+            { status: RequestStatus.COMPLETED, lastActionBy: Role.USER }
+          );
+          return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`
+
+        }
+      )
 
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -642,6 +644,67 @@ if(!findTravelService) throw HttpException.notFound("Request not found")
     }
   }
 
+
+  async rateTravel(user_id: string, travel_id: string, rating: number, message: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id })
+      if (!user) throw HttpException.notFound("You are not authorized")
+      const travel = await this.travelrepo.findOne({
+        where: {
+          id: travel_id,
+        }
+      });
+      if (!travel) {
+        throw HttpException.unauthorized("Travel not found");
+      }
+      const addRatings = this.ratingsRepo.create({
+        rating,
+        message,
+        user,
+        travel
+      })
+      await this.ratingsRepo.save(addRatings)
+      io.to(travel_id).emit("travel-ratings", addRatings)
+      return addRatings
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async rateGuide(user_id: string, guide_id: string, rating: number, message: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id })
+      if (!user) throw HttpException.notFound("You are not authorized")
+      const guide = await this.guideRepo.findOne({
+        where: {
+          id: guide_id,
+        }
+      });
+      if (!guide) {
+        throw HttpException.unauthorized("Guide not found");
+      }
+      const addRatings = this.ratingsRepo.create({
+        rating,
+        message,
+        user,
+        guide
+      })
+      await this.ratingsRepo.save(addRatings)
+      io.to(guide_id).emit("guide-ratings", addRatings)
+      return addRatings
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  
   async getOwnTravelRequests(user_id: string) {
     try {
       const user = await this.userRepo.findOneBy({
@@ -1151,7 +1214,7 @@ if(!findTravelService) throw HttpException.notFound("Request not found")
       if (payment) {
         await this.travelRequestRepo.update(
           { id: request.id },
-          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA, lastActionBy:Role.USER },
+          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA, lastActionBy: Role.USER },
         );
 
         const room = await roomService.checkRoomWithTravel(
@@ -1421,10 +1484,12 @@ if(!findTravelService) throw HttpException.notFound("Request not found")
     try {
       const user = await this.userRepo.findOneBy({ id: userId })
       if (!user) throw HttpException.badRequest("You are not authorized");
-      const chatCount = await this.chatRepo.find({where:{
-        receiverUser:{id:userId},
-        read:false
-      }})
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
       io.to(userId).emit("chat-count", chatCount.length)
       return chatCount.length
 
