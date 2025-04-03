@@ -1,9 +1,9 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import Label from "../atoms/Label";
-import InputField from "../atoms/InputField";
-import Button from "../atoms/Button";
-import { authLabel } from "../../../localization/auth";
-import { useLang } from "../../../hooks/useLang";
+import Label from "../ui/common/atoms/Label";
+import InputField from "../ui/common/atoms/InputField";
+import Button from "../ui/common/atoms/Button";
+import { authLabel } from "../localization/auth";
+import { useLang } from "../hooks/useLang";
 import { RxPerson } from "react-icons/rx";
 import { RiLockPasswordLine } from "react-icons/ri";
 import { Navigate, NavLink } from "react-router-dom";

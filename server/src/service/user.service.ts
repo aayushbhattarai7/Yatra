@@ -38,6 +38,7 @@ import { Chat } from "../entities/chat/chat.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Rating } from "../entities/ratings/rating.entity";
+import UserImage from "../entities/user/userImage.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -69,6 +70,7 @@ const hashService = new HashService();
 class UserService {
   constructor(
     private readonly userRepo = AppDataSource.getRepository(User),
+    private readonly userImage = AppDataSource.getRepository(UserImage),
     private readonly locationRepo = AppDataSource.getRepository(Location),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
     private readonly travelrepo = AppDataSource.getRepository(Travel),
@@ -84,7 +86,7 @@ class UserService {
 
   ) { }
 
-  async signup(data: Signup) {
+  async signup(data: Signup, images:any[]) {
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
@@ -100,6 +102,39 @@ class UserService {
         password: hashPassword,
       });
       await this.userRepo.save(addUser);
+      if (images) {
+        for(const file of images){
+          const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  
+            
+  
+            if (!allowedMimeTypes.includes(file.mimetype)) {
+              throw HttpException.badRequest(
+                "Invalid image type. Only jpg, jpeg, and png are accepted.",
+              );
+            }
+  
+            const image = this.userImage.create(
+             
+              {
+                name: file.name,
+                mimetype: file.mimetype,
+                type: file.type,
+                fileType: file.fileType,
+                user: addUser,
+              },
+            );
+  
+            const savedImage = await this.userImage.save(
+              image,
+            );
+            savedImage.transferKycToUpload(
+              addUser.id,
+              savedImage.type,
+            );
+        }
+        }
+
       return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -410,7 +445,26 @@ class UserService {
       if (password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
       const hashPassword = await bcryptService.hash(password)
       await this.userRepo.update({ email }, { password: hashPassword });
-      return `Your password updated successfully!.`;
+      return `Your password is updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async updatePassword(id:string,password: string, confirmPassword: string, currentPassword: string): Promise<string> {
+    try {
+      const user = await this.userRepo.findOne({where:{id}, select:["password"]});
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+
+      const passwordMatched = await bcryptService.compare(currentPassword,user.password)
+      if(!passwordMatched) throw HttpException.badRequest("Incorrect current password")
+      if (password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
+      const hashPassword = await bcryptService.hash(password)
+      await this.userRepo.update({ id }, { password: hashPassword });
+      return `Your password is updated successfully!.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);
@@ -618,7 +672,8 @@ class UserService {
             this.travelRequestRepo.target, {
             where: {
               travel: { id: travel_id },
-              user: { id: user_id }
+              user: { id: user_id },
+              status:RequestStatus.CONFIRMATION_PENDING
             }
           }
           )

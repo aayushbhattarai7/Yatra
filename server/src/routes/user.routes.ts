@@ -4,10 +4,12 @@ import { authentication } from "../middleware/authentication";
 import { authorization } from "../middleware/authorization";
 import { Role } from "../constant/enum";
 import { PlaceController } from "../controllers/place.controller";
+import upload from "../utils/fileUpload.utils";
 const placeController = new PlaceController();
 const userController = new UserController();
 const router: Router = Router();
 
+router.post("/signup", upload.single("image"), userController.create);
 router.use(authentication());
 router.use(authorization([Role.USER]));
 

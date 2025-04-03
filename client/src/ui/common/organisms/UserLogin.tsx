@@ -55,6 +55,7 @@ const UserLogin = () => {
         setMessage("Unexpected error. Please try again.", "error");
       }
     } catch (err) {
+      console.log("🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ err:", err)
       if (err instanceof Error) {
         console.log("ohno");
         const graphqlError = error?.graphQLErrors?.[0]?.message;

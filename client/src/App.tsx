@@ -28,6 +28,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import ForgotPassword from "./components/ForgotPassword";
 import Settings from "./components/ui/Settings";
 import LanguageProvider from "./contexts/LanguageContext";
+import UpdatePassword from "./components/UpdatePassword";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -60,6 +61,7 @@ const router = createBrowserRouter([
           { path: "travel-booking", element: <TravelBooking /> },
           { path: "guide-booking", element: <GuideBooking /> },
           { path: "guide-home", element: <GuideHome /> },
+          { path: "update-password", element: <UpdatePassword /> },
         ],
       },
     ],

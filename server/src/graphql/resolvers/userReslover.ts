@@ -34,38 +34,39 @@ const chatService = new ChatService();
 @Resolver((of) => User)
 export class UserResolver {
   @Mutation(() => String)
-  async signup(
-    @Arg("firstName") firstName: string,
-    @Arg("middleName", {nullable:true}) middleName: string,
-    @Arg("lastName") lastName: string,
-    @Arg("email") email: string,
-    @Arg("phoneNumber") phoneNumber: string,
-    @Arg("gender") gender: Gender,
-    @Arg("password") password: string,
-  ) {
-    console.log("yessss")
-    try {
-      const newUser = {
-        firstName,
-        middleName,
-        lastName,
-        email,
-        phoneNumber,
-        gender,
-        password,
-      };
-      if(!newUser) throw HttpException.badRequest("Fill all required fields")
+  // async signup(
+  //   @Arg("firstName") firstName: string,
+  //   @Arg("middleName", {nullable:true}) middleName: string,
+  //   @Arg("lastName") lastName: string,
+  //   @Arg("email") email: string,
+  //   @Arg("phoneNumber") phoneNumber: string,
+  //   @Arg("gender") gender: Gender,
+  //   @Arg("password") password: string,
+  // ) {
+  //   const image = "aaaaa"
+  //   console.log("yessss")
+  //   try {
+  //     const newUser = {
+  //       firstName,
+  //       middleName,
+  //       lastName,
+  //       email,
+  //       phoneNumber,
+  //       gender,
+  //       password,
+  //     };
+  //     if(!newUser) throw HttpException.badRequest("Fill all required fields")
 
-      const createdUser = await userService.signup(newUser);
-      return createdUser;
-    } catch (error) {
-      throw new Error(
-        error instanceof Error
-          ? error.message
-          : "An error occurred during signup",
-      );
-    }
-  }
+  //     const createdUser = await userService.signup(newUser, image as any);
+  //     return createdUser;
+  //   } catch (error) {
+  //     throw new Error(
+  //       error instanceof Error
+  //         ? error.message
+  //         : "An error occurred during signup",
+  //     );
+  //   }
+  // }
 
   @Mutation(() => LoginResponse)
   async login(@Arg("email") email: string, @Arg("password") password: string) {
@@ -125,6 +126,19 @@ export class UserResolver {
   async changePasswordOfUser(@Arg("email") email: string, @Arg("password") password:string, @Arg("confirmPassword") confirmPassword:string) {
     try {
       return await userService.changePassword(password, confirmPassword, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  async updatePasswordOfUser(@Arg("currentPassword") currentPassword: string, @Arg("password") password:string, @Arg("confirmPassword") confirmPassword:string, @Ctx() ctx:Context) {
+    try {
+      const id = ctx.req.user?.id as string
+      return await userService.updatePassword(id,password, confirmPassword, currentPassword);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -411,14 +425,15 @@ export class UserResolver {
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.internalServerError;
-      }
+      } 
     }
   }
   @Mutation(() => Rating)
-  async rateTravel(@Arg("travelId") travelId: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+  async rateTravel(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      return await userService.rateTravel(userId, travelId, rating, message);
+      console.log("🚀 ~ UserResolver ~ rateTravel ~ userId:", userId, message, rating)
+      return await userService.rateTravel(userId, id, rating, message);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -428,10 +443,10 @@ export class UserResolver {
     }
   }
   @Mutation(() => Rating)
-  async rateGuide(@Arg("guideId") guideId: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+  async rateGuide(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      return await userService.rateGuide(userId, guideId, rating, message);
+      return await userService.rateGuide(userId, id, rating, message);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

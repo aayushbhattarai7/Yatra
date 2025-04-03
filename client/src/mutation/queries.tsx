@@ -236,6 +236,25 @@ export const GET_USER_NOTIFICATIONS = gql`
     }
   }
 `;
+export const RATE_TRAVEL = gql`
+mutation RateTravel($message: String!, $rating: Float!, $id: String!) {
+  rateTravel(message: $message, rating: $rating, id: $id) {
+  id
+  message
+  rating  
+  }
+}
+`;
+export const RATE_GUIDE = gql`
+mutation RateGuide($message: String!, $rating: Float!, $id: String!) {
+  rateGuide(message: $message, rating: $rating, id: $id) {
+  id
+  rating
+  message  
+  
+}
+}
+`;
 export const SEND_OTP_TO_USER = gql`
 mutation SenOtpToUser($email: String!) {
   senOtpToUser(email: $email)
@@ -244,6 +263,11 @@ mutation SenOtpToUser($email: String!) {
 export const CHANGE_PASSWORD_OF_USER = gql`
 mutation ChangePasswordOfUser($confirmPassword: String!, $password: String!, $email: String!) {
   changePasswordOfUser(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const UPDATE_PASSWORD_OF_USER = gql`
+mutation UpdatePasswordOfUser($confirmPassword: String!, $password: String!, $currentPassword: String!) {
+  updatePasswordOfUser(confirmPassword: $confirmPassword, password: $password, currentPassword: $currentPassword)
 }
 `;
 export const VERIFY_USER_OTP = gql`

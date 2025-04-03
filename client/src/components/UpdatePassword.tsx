@@ -4,7 +4,7 @@ import Label from "../ui/common/atoms/Label";
 import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
 import { showToast } from "./ToastNotification";
-import { CHANGE_PASSWORD_OF_USER } from "@/mutation/queries";
+import { UPDATE_PASSWORD_OF_USER } from "@/mutation/queries";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
 import { useNavigate } from "react-router-dom";
@@ -13,30 +13,27 @@ import { Lock } from 'lucide-react';
 interface FormData {
     password: string;
     confirmPassword: string;
-    email: string;
+    currentPassword: string;
 }
 
-interface OTPProps {
-    email: string;
-}
 
-const ChangePassword: React.FC<OTPProps> = ({ email }) => {
+const UpdatePassword = () => {
     const { register, handleSubmit, setValue, reset } = useForm<FormData>();
     const { lang } = useLang();
     const navigate = useNavigate();
-    const [changePasswordOfUser, { loading }] = useMutation(CHANGE_PASSWORD_OF_USER);
+    const [updatePasswordOfUser, { loading }] = useMutation(UPDATE_PASSWORD_OF_USER);
 
     const onSubmit: SubmitHandler<FormData> = async (data) => {
         try {
-            const response = await changePasswordOfUser({ 
-                variables: { 
+            const response = await updatePasswordOfUser({ 
+                variables: {currentPassword:data.currentPassword,
                     password: data.password, 
                     confirmPassword: data.confirmPassword, 
-                    email 
+                    
                 } 
             });
 
-            showToast(response.data.changePasswordOfUser, "success");
+            showToast(response.data.updatePasswordOfUser, "success");
             reset();
             navigate("/");
         } catch (error: unknown) {
@@ -58,7 +55,6 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                 <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.newPass[lang]}</h2>
                 <p className="text-gray-600 text-center mb-8">
                 {authLabel.newPass[lang]}<br />
-                    <span className="font-medium text-gray-800">{email}</span>
                 </p>
 
                 <form
@@ -68,6 +64,20 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                 >
                     <div className="space-y-4">
                         <div className="space-y-2">
+                        <Label 
+                                name="password" 
+                                label={authLabel.newPassword[lang]}
+                                className="text-sm font-medium text-gray-700"
+                            />
+                            <InputField
+                                setValue={setValue}
+                                placeholder={authLabel.enterNewPassword[lang]}
+                                type="password"
+                                name="currentPassword"
+                                register={register}
+                                className="block w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            />
+
                             <Label 
                                 name="password" 
                                 label={authLabel.newPassword[lang]}
@@ -117,4 +127,4 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
     );
 };
 
-export default ChangePassword;
+export default UpdatePassword;

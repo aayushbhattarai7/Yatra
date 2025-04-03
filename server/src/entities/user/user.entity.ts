@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from "type-graphql";
-import { Column, Entity, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import Base from "../base.entity";
 import { Gender, Role } from "../../constant/enum";
 import { Location } from "../location/location.entity";
@@ -10,6 +10,7 @@ import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
+import UserImage from "./userImage.entity";
 
 @ObjectType()
 @Entity("user")
@@ -104,4 +105,7 @@ export class User extends Base {
 
   @OneToMany(() => Room, (room) => room.user)
   users: Room[];
+  @OneToMany(() => UserImage, (image) => image.user)
+  image: UserImage[];
+
 }
