@@ -41,8 +41,8 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="min-h-[400px] flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+    <div className="min-h-[55vh] flex items-center justify-center">
+      <div className="min-h-[40vh] flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
           <Mail className="w-8 h-8 text-blue-600" />
         </div>

@@ -34,6 +34,7 @@ export enum Environment {
 
 export enum MediaType {
   PROFILE = "PROFILE",
+  COVER = "COVER",
   PLACE = "PLACE",
 }
 

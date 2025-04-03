@@ -14,7 +14,7 @@ import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
 import CheckoutGuide from "./CheckoutOfGuide";
-import { Star, Clock, MapPin, Users, User, Mail, Phone, Calendar, CreditCard, AlertCircle } from "lucide-react";
+import {  Clock, MapPin,  User, Mail, Phone, Calendar, CreditCard, AlertCircle } from "lucide-react";
 import Esewa from "./Esewa";
 
 interface GuideBooking {
@@ -232,7 +232,7 @@ const GuideBooking = () => {
                                       buttonText={authLabel.bargain[lang]}
                                       disabled={book.userBargain > 2}
                                       type="submit"
-                                      className="w-full bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                      className="w-full bg-yellow-600 border text-emerald-600 hover:bg-yellow-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                     />
                                   </>
                                 )}
@@ -250,7 +250,7 @@ const GuideBooking = () => {
                               buttonText="Cancel Booking"
                               type="submit"
                               onClick={() => setCancellationId(book.id)}
-                              className="w-full border text-red-600 hover:bg-red-50 py-3 rounded-xl font-medium transition-colors"
+                              className="w-full border text-red-600 py-3 rounded-xl font-medium transition-colors"
                             />
                           </div>
                         )}

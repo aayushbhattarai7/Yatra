@@ -9,7 +9,10 @@ const placeController = new PlaceController();
 const userController = new UserController();
 const router: Router = Router();
 
-router.post("/signup", upload.single("image"), userController.create);
+router.post("/signup", upload.fields([
+    {name:"profile", maxCount:1},
+    {name:"cover", maxCount:1}
+]), userController.create);
 router.use(authentication());
 router.use(authorization([Role.USER]));
 

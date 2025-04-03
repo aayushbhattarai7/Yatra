@@ -7,6 +7,7 @@ import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
 import {
   Gender,
+  MediaType,
   PaymentType,
   RequestStatus,
   Role,
@@ -86,7 +87,7 @@ class UserService {
 
   ) { }
 
-  async signup(data: Signup, images:any[]) {
+  async signup(data: Signup, images: { profile?: any; cover?: any }) {
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
@@ -103,38 +104,46 @@ class UserService {
       });
       await this.userRepo.save(addUser);
       if (images) {
-        for(const file of images){
           const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
   
             
-  
-            if (!allowedMimeTypes.includes(file.mimetype)) {
-              throw HttpException.badRequest(
-                "Invalid image type. Only jpg, jpeg, and png are accepted.",
-              );
+          if (images.profile) {
+            const profileImage = images.profile;
+            if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+              throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
             }
-  
-            const image = this.userImage.create(
-             
-              {
-                name: file.name,
-                mimetype: file.mimetype,
-                type: file.type,
-                fileType: file.fileType,
-                user: addUser,
-              },
-            );
-  
-            const savedImage = await this.userImage.save(
-              image,
-            );
-            savedImage.transferKycToUpload(
-              addUser.id,
-              savedImage.type,
-            );
+      
+            const savedProfileImage = this.userImage.create({
+              name: profileImage.name,
+              mimetype: profileImage.mimetype,
+              path: profileImage.path,
+              type: MediaType.PROFILE,
+              user: addUser,
+            });
+      
+            await this.userImage.save(savedProfileImage);
+            savedProfileImage.transferKycToUpload(addUser.id, MediaType.PROFILE);
+          }
+      
+          // Handle cover image
+          if (images.cover) {
+            const coverImage = images.cover;
+            if (!allowedMimeTypes.includes(coverImage.mimetype)) {
+              throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
+            }
+      
+            const savedCoverImage = this.userImage.create({
+              name: coverImage.name,
+              mimetype: coverImage.mimetype,
+              path: coverImage.path,
+              type: MediaType.COVER,
+              user: addUser,
+            });
+      
+            await this.userImage.save(savedCoverImage);
+            savedCoverImage.transferKycToUpload(addUser.id, MediaType.COVER);
+          }
         }
-        }
-
       return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {

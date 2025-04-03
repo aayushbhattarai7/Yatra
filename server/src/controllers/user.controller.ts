@@ -7,14 +7,25 @@ const chatService = new ChatService();
 export class UserController {
   async create(req: Request, res: Response) {
     try {
-      const image = req.files?.map((file: any) => {
-        return {
-          name: file?.filename,
-          mimetype: file?.mimetype,
-          type: req.body?.type,
-        }
-      })
-      const data = await userService.signup(req.body as UserDTO, image);
+      const profileImage = req.files?.profile?.[0];
+      const coverImage = req.files?.cover?.[0]; 
+      const image = {
+        profile: profileImage
+          ? {
+              name: profileImage.filename,
+              mimetype: profileImage.mimetype,
+              path: profileImage.path,
+            }
+          : null,
+        cover: coverImage
+          ? {
+              name: coverImage.filename,
+              mimetype: coverImage.mimetype,
+              path: coverImage.path,
+            }
+          : null,
+      };
+      const data = await userService.signup(req.body as UserDTO, image as any);
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error)
