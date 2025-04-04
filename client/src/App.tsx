@@ -29,6 +29,7 @@ import ForgotPassword from "./components/ForgotPassword";
 import Settings from "./components/ui/Settings";
 import LanguageProvider from "./contexts/LanguageContext";
 import UpdatePassword from "./components/UpdatePassword";
+import AdminProtectedRoute from "./components/AdminProtectedroute";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -41,7 +42,14 @@ const router = createBrowserRouter([
       { path: "", element: home },
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
-      { path: "adminLogin", element: <AdminLogin /> },
+      {path:"/admin",
+        element:<AdminProtectedRoute/>,
+        children:[
+          {path:"login", element:<AdminLogin/>},
+          {path:"/admin", element:<ProtectedRoute/>, children:[
+          ]}
+        ]
+      },
       { path: "reset-password", element: <ForgotPassword /> },
       {
         path: "/",

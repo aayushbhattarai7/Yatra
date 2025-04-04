@@ -6,7 +6,7 @@ export function Route() {
   const noNavbarRoutes = [
     "/user-login",
     "/user-register",
-    "/adminLogin",
+    "/admin/login",
     "/travel-register",
   ];
 
