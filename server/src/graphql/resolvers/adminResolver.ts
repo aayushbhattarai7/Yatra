@@ -20,6 +20,8 @@ import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import adminService from "../../service/admin.service";
 import { Admin } from "../../entities/admin/admin.entity";
 import { Message } from "../../constant/message";
+import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
+import placeService from "../../service/place.service";
 
 @Resolver((of) => Admin)
 export class AdminResolver {
@@ -82,7 +84,7 @@ export class AdminResolver {
       );
     }
   }
-
+  
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async approveTravel(@Ctx() ctx: Context, @Arg("travel_id") travelId: string) {
@@ -108,7 +110,7 @@ export class AdminResolver {
       );
     }
   }
-
+  
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectTravel(
@@ -126,6 +128,21 @@ export class AdminResolver {
     }
   }
 
+  @Query(() => [TrekkingPlace])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getPlacesByAdmin(
+    @Ctx() ctx: Context,
+  ): Promise<TrekkingPlace[] | null> {
+    try {
+      const place = await placeService.getPlaces();
+      return place
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectGuide(
@@ -142,4 +159,5 @@ export class AdminResolver {
       );
     }
   }
+
 }

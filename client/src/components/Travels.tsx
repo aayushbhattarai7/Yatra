@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_TRAVELS } from "../mutation/queries";
-import TravelMap from "./PlaceLocation";
+import TravelMap from "./TravelMap";
 import RequestTravelBooking from "./RequestTravelBooking";
 import Button from "@/ui/common/atoms/Button";
 import { authLabel } from "@/localization/auth";

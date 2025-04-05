@@ -97,6 +97,7 @@ class PlaceService {
 
   async getPlaces() {
     try {
+      
       const places = await this.trekkingPlaceRepo.find({
         relations: ["images"],
       });

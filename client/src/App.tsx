@@ -33,6 +33,8 @@ import AdminProtectedRoute from "./components/AdminProtectedroute";
 import AdminHome from "./ui/pages/AdminHome";
 import TravelApproval from "./components/ui/TravelApproval";
 import GuideApproval from "./components/ui/GuideApproval";
+import AddPlaces from "./components/ui/AddPlaces";
+import Places from "./components/ui/AdminPlaces";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -52,6 +54,7 @@ const router = createBrowserRouter([
           {path:"", element:<ProtectedRoute/>, children:[
             {path:"", element:<AdminHome/>},
             {path:"travels", element:<TravelApproval/>},
+            {path:"places", element:<Places/>},
             {path:"guides", element:<GuideApproval/>}
           ]}
         ]

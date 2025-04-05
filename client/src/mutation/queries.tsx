@@ -444,3 +444,21 @@ mutation RejectGuide($message: String!, $guideId: String!) {
   rejectGuide(message: $message, guide_id: $guideId)
 }
 `;
+export const GET_PLACES_ADMIN = gql`
+query GetPlacesByAdmin {
+  getPlacesByAdmin {
+  id
+  name
+  description
+  duration
+  latitude
+  location
+  longitude
+  price
+  images {
+    id
+    path
+  }  
+  }
+}
+`;
