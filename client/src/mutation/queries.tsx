@@ -345,3 +345,102 @@ export const READ_CHAT_OF_TRAVEL = gql`
     }
   }
 `;
+
+
+// Admin
+
+export const GET_TRAVEL_REQUESTS = gql`
+query GetTravelApprovalRequestByAdmin {
+  getTravelApprovalRequestByAdmin {
+    id
+    firstName
+    middleName
+    lastName
+    email
+    phoneNumber
+    gender
+    details {
+      chasisNumber
+      citizenshipId
+      citizenshipIssueDate
+      citizenshipIssueFrom
+      district
+      DOB
+      engineNumber
+      id
+      municipality
+      nationality
+      passportExpiryDate
+      passportId
+      passportIssueDate
+      passportIssueFrom
+      province
+      vehicleNumber
+      voterAddress
+      voterId
+    }
+    kyc {
+      id
+      path
+      fileType
+    }
+  }
+}
+`;
+export const GET_GUIDE_REQUESTS = gql`
+query GetGuideApprovalRequestByAdmin {
+  getGuideApprovalRequestByAdmin {
+   id
+  firstName
+  middleName
+  lastName
+  email
+  phoneNumber
+  gender
+  details {
+    citizenshipId
+    citizenshipIssueDate
+    citizenshipIssueFrom
+    district
+    DOB
+    id
+    municipality
+    nationality
+    passportExpiryDate
+    passportId
+    passportIssueDate
+    passportIssueFrom
+    province
+    voterAddress
+    voterId
+  }
+  kyc {
+    id
+    path
+    fileType
+  }    
+  }
+}
+`;
+
+export const APPROVE_TRAVEL = gql`
+mutation ApproveTravel($travelId: String!) {
+  approveTravel(travel_id: $travelId)
+}
+`;
+export const APPROVE_GUIDE = gql`
+mutation ApproveGuide($guideId: String!) {
+  approveGuide(guide_id: $guideId)
+}
+`;
+
+export const REJECT_TRAVEL = gql`
+mutation RejectTravel($travelId: String!, $message: String!) {
+  rejectTravel(travel_id: $travelId, message: $message)
+}
+`;
+export const REJECT_GUIDE = gql`
+mutation RejectGuide($message: String!, $guideId: String!) {
+  rejectGuide(message: $message, guide_id: $guideId)
+}
+`;

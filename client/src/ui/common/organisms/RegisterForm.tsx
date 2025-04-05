@@ -27,11 +27,9 @@ const RegisterForm = () => {
   const { register, handleSubmit, setValue, reset } = useForm<FormData>();
   const navigate = useNavigate();
 
-  // State for image preview
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
-  // Handle File Change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: "profile" | "cover") => {
     const file = event.target.files?.[0];
     if (file) {

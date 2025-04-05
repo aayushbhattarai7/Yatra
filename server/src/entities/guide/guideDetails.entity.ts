@@ -38,39 +38,39 @@ export class GuideDetails extends Base {
   @Column({ name: "license_validity_to" })
   licenseValidityTo: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "citizenship_id", nullable: true })
   citizenshipId: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "citizenship_issue_date", nullable: true })
   citizenshipIssueDate: Date;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "citizenship_issue_from", nullable: true })
   citizenshipIssueFrom: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "passport_id", nullable: true })
   passportId: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "passport_issue_date", nullable: true })
   passportIssueDate: Date;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "passport_expiry_date", nullable: true })
   passportExpiryDate: Date;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "passport_issue_from", nullable: true })
   passportIssueFrom: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "voter_id", nullable: true })
   voterId: string;
 
-  @Field()
+  @Field({nullable:true})
   @Column({ name: "voter_address", nullable: true })
   voterAddress: string;
 

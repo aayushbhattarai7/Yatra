@@ -52,14 +52,21 @@ export class AdminResolver {
     }
   }
 
-  @Query(() => Guide, { nullable: true })
+  @Query(() => [Guide])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async getGuideApprovalRequestByAdmin(
-    @Arg("id") id: string,
+    @Ctx() ctx: Context,
   ): Promise<Guide[] | null> {
-    return await adminService.getGuideApprovalRequest(id);
+    try {
+      const id = ctx.req.user?.id;
+      const admin = await adminService.getGuideApprovalRequest(id!);
+      return admin
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
   }
-
   @Query(() => [Travel])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async getTravelApprovalRequestByAdmin(
@@ -67,7 +74,8 @@ export class AdminResolver {
   ): Promise<Travel[] | null> {
     try {
       const id = ctx.req.user?.id;
-      return adminService.getTravelApprovalRequest(id!);
+      const admin = await adminService.getTravelApprovalRequest(id!);
+      return admin
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -75,11 +83,12 @@ export class AdminResolver {
     }
   }
 
-  @Mutation(() => RequestTravel)
-  @UseMiddleware(authentication, authorization([Role.USER]))
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async approveTravel(@Ctx() ctx: Context, @Arg("travel_id") travelId: string) {
     try {
       const adminId = ctx.req.user?.id!;
+      console.log("🚀 ~ AdminResolver ~ approveTravel ~ adminId:", adminId)
       return await adminService.approveTravel(adminId, travelId);
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -87,8 +96,8 @@ export class AdminResolver {
       );
     }
   }
-  @Mutation(() => RequestGuide)
-  @UseMiddleware(authentication, authorization([Role.USER]))
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async approveGuide(@Ctx() ctx: Context, @Arg("guide_id") guideId: string) {
     try {
       const adminId = ctx.req.user?.id!;
@@ -100,8 +109,8 @@ export class AdminResolver {
     }
   }
 
-  @Mutation(() => RequestTravel)
-  @UseMiddleware(authentication, authorization([Role.USER]))
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectTravel(
     @Ctx() ctx: Context,
     @Arg("travel_id") travelId: string,
@@ -117,8 +126,8 @@ export class AdminResolver {
     }
   }
 
-  @Mutation(() => RequestGuide)
-  @UseMiddleware(authentication, authorization([Role.USER]))
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectGuide(
     @Ctx() ctx: Context,
     @Arg("guide_id") guideId: string,

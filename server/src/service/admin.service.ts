@@ -7,6 +7,7 @@ import { Travel } from "../entities/travels/travel.entity";
 import { Status } from "../constant/enum";
 import { LoginDTO } from "../dto/login.dto";
 import { Message } from "../constant/message";
+import Mail from "../utils/mail.utils";
 class AdminService {
   constructor(
     private readonly adminrepo = AppDataSource.getRepository(Admin),
@@ -47,8 +48,9 @@ class AdminService {
         where: {
           approved: false,
           verified: true,
+          approval:Status.PENDING
         },
-        relations: ["guideKyc"],
+        relations: ["kyc","details"],
       });
       if (!getUnapprovedGuide) throw HttpException.notFound("Guide not found");
       return getUnapprovedGuide;
@@ -69,9 +71,11 @@ class AdminService {
         where: {
           approved: false,
           verified: true,
+          approval:Status.PENDING
         },
-        relations: ["kyc"],
+        relations: ["kyc", "details"],
       });
+      console.log("🚀 ~ AdminService ~ getTravelApprovalRequest ~ getUnapprovedTravel:", getUnapprovedTravel)
       if (!getUnapprovedTravel)
         throw HttpException.notFound("Travel not found");
       return getUnapprovedTravel;
@@ -94,26 +98,30 @@ class AdminService {
         { id: travelId, approved: false },
         { approved: true, approval: Status.ACCEPTED },
       );
-      return "Approved successfully";
+      await Mail.sendMail(travel.email,'accepted')
+
+      return "Travel Approved successfully";
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
       );
     }
   }
-
+  
   async approveGuide(adminId: string, guideId: string) {
     try {
       const admin = await this.adminrepo.findOneBy({ id: adminId });
       if (!admin) throw HttpException.unauthorized("You are not authorized");
-
+      
       const guide = await this.guideRepo.findOneBy({ id: guideId });
       if (!guide) throw HttpException.notFound("Guide not found");
-
+      
       await this.guideRepo.update(
         { id: guideId, approved: false },
         { approved: true, approval: Status.ACCEPTED },
       );
+      await Mail.sendMail(guide.email,'accepted')
+      return "Guide Approved successfully";
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -129,10 +137,12 @@ class AdminService {
         approved: false,
       });
       if (!guide) throw HttpException.notFound("Guide not found");
-      await this.guideRepo.update(
+     const update=  await this.guideRepo.update(
         { id: guideId },
         { approveStatus: message, approval: Status.REJECTED },
       );
+        await Mail.sendMail(guide.email,'rejected', message)
+      return "Guide rejected successfully"
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -152,6 +162,9 @@ class AdminService {
         { id: travelId },
         { approveStatus: message, approval: Status.REJECTED },
       );
+      await Mail.sendMail(travel.email,'rejected', travel.approveStatus)
+
+      return "Travel rejected rejected"
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,

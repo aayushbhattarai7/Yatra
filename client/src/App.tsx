@@ -30,6 +30,9 @@ import Settings from "./components/ui/Settings";
 import LanguageProvider from "./contexts/LanguageContext";
 import UpdatePassword from "./components/UpdatePassword";
 import AdminProtectedRoute from "./components/AdminProtectedroute";
+import AdminHome from "./ui/pages/AdminHome";
+import TravelApproval from "./components/ui/TravelApproval";
+import GuideApproval from "./components/ui/GuideApproval";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -46,7 +49,10 @@ const router = createBrowserRouter([
         element:<AdminProtectedRoute/>,
         children:[
           {path:"login", element:<AdminLogin/>},
-          {path:"/admin", element:<ProtectedRoute/>, children:[
+          {path:"", element:<ProtectedRoute/>, children:[
+            {path:"", element:<AdminHome/>},
+            {path:"travels", element:<TravelApproval/>},
+            {path:"guides", element:<GuideApproval/>}
           ]}
         ]
       },

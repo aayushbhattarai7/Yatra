@@ -41,7 +41,7 @@ const AdminLogin = () => {
           sameSite: "Strict",
         });
         setMessage(response.data.message, "success");
-        navigate("/");
+        navigate("/admin");
       } else {
         console.error("No response data:", response);
         setMessage(response.data.message, "error");
