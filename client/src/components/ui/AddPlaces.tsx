@@ -14,10 +14,13 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Label from "@/ui/common/atoms/Label";
 import InputField from "@/ui/common/atoms/InputField";
 import Button from "@/ui/common/atoms/Button";
+import { motion } from "framer-motion";
+
 import { useMessage } from "../../contexts/MessageContext";
 import axios from "axios";
 import L from "leaflet";
-import { Clock, DollarSign, MapPin, FileImage } from "lucide-react";
+import { Clock, DollarSign, MapPin, FileImage, X } from "lucide-react";
+import { showToast } from "../ToastNotification";
 
 const tealIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-teal.png',
@@ -38,8 +41,12 @@ interface FormData {
   latitude: string;
   image: FileList;
 }
+interface FormProps {
+  onClose: () => void
+  reload:()=>void
+}
 
-const AddPlaces: React.FC = () => {
+const AddPlaces: React.FC<FormProps> = ({onClose, reload}) => {
   const { setMessage } = useMessage();
   const {
     register,
@@ -75,8 +82,13 @@ const AddPlaces: React.FC = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      console.log("🚀 ~ constonSubmit:SubmitHandler<FormData>= ~ response:", response)
+      
       console.log(formData, "------------")
-      setMessage(response.data.message, "success");
+      showToast(response.data.trekkingPlace, "success");
+      onClose()
+      reload()
+      
       setPreviewImages([]);
     } catch (error) {
       setMessage(
@@ -138,93 +150,122 @@ const AddPlaces: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-teal-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-          <h1 className="text-3xl font-bold text-blue-800 mb-8">Add New Destination</h1>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: 20, opacity: 0 }}
+        className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">Add New Place</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="h-6 w-6 text-gray-500" />
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label name="name" label="Place Name" required />
-                <InputField
-                  setValue={setValue}
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Place Name
+                </label>
+                <input
+                  {...register("name", { required: true })}
                   type="text"
-                  name="name"
-                  register={register}
-                  className="mt-1 block w-full rounded-lg border-teal-100 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter place name"
-                  error={errors.name}
                 />
+                {errors.name && (
+                  <span className="text-red-500 text-sm">Name is required</span>
+                )}
               </div>
 
               <div>
-                <Label name="location" label="Location" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Location
+                </label>
                 <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-teal-500" />
-                  <InputField
-                    setValue={setValue}
+                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    {...register("location", { required: true })}
                     type="text"
-                    name="location"
-                    register={register}
-                    className="pl-10 mt-1 block w-full rounded-lg border-teal-100 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter location"
-                    error={errors.location}
                   />
                 </div>
+                {errors.location && (
+                  <span className="text-red-500 text-sm">Location is required</span>
+                )}
               </div>
 
               <div>
-                <Label name="duration" label="Duration" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Duration
+                </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-3 h-5 w-5 text-teal-500" />
-                  <InputField
-                    setValue={setValue}
+                  <Clock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    {...register("duration", { required: true })}
                     type="text"
-                    name="duration"
-                    register={register}
-                    className="pl-10 mt-1 block w-full rounded-lg border-teal-100 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., 2 hours"
-                    error={errors.duration}
                   />
                 </div>
+                {errors.duration && (
+                  <span className="text-red-500 text-sm">Duration is required</span>
+                )}
               </div>
 
               <div>
-                <Label name="price" label="Price" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price
+                </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-teal-500" />
-                  <InputField
-                    setValue={setValue}
+                  <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    {...register("price", { required: true })}
                     type="text"
-                    name="price"
-                    register={register}
-                    className="pl-10 mt-1 block w-full rounded-lg border-teal-100 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                    className="w-full pl-10 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter price"
-                    error={errors.price}
                   />
                 </div>
+                {errors.price && (
+                  <span className="text-red-500 text-sm">Price is required</span>
+                )}
               </div>
             </div>
 
             <div>
-              <Label name="description" label="Description" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
               <textarea
                 {...register("description")}
                 rows={4}
-                className="mt-1 block w-full rounded-lg border-teal-100 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter place description"
               />
             </div>
 
             <div>
-              <Label name="map" label="Location on Map" required />
-              <div className="mt-2 rounded-lg overflow-hidden border-2 border-teal-100">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Location on Map
+              </label>
+              <div className="h-[300px] rounded-lg overflow-hidden border border-gray-300">
                 <MapContainer
                   center={[latitude, longitude]}
                   zoom={13}
-                  style={{ height: "400px", width: "100%" }}
-                  className="z-0"
+                  style={{ height: "100%", width: "100%" }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
@@ -234,56 +275,53 @@ const AddPlaces: React.FC = () => {
                   <LocationMarker />
                 </MapContainer>
               </div>
-              <p className="mt-2 text-sm text-blue-600">
+              <p className="mt-1 text-sm text-gray-500">
                 Click on the map to set location or use the search bar
               </p>
             </div>
 
             <div>
-              <Label name="images" label="Images" />
-              <div className="mt-2">
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-200 rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <FileImage className="w-10 h-10 mb-3 text-blue-500" />
-                      <p className="mb-2 text-sm text-blue-700">
-                        <span className="font-semibold">Click to upload</span> or
-                        drag and drop
-                      </p>
-                      <p className="text-xs text-blue-500">
-                        PNG, JPG or JPEG (MAX. 800x400px)
-                      </p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Images
+              </label>
+              <div className="mt-1">
+                <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                  <div className="space-y-1 text-center">
+                    <FileImage className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                      <label className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500">
+                        <span>Upload files</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={(e) => {
+                            handleImageChange(e);
+                            if (e.target.files) {
+                              setValue("image", e.target.files);
+                            }
+                          }}
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
                     </div>
-                  
-                    <input
-          id="image"
-          type="file"
-          name="image"
-          multiple
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            handleImageChange(e);
-            if (e.target.files) {
-              setValue("image", e.target.files);
-            }
-          }} 
-        />
-                  </label>
+                    <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                  </div>
                 </div>
               </div>
 
               {previewImages.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                   {previewImages.map((url, index) => (
                     <div
                       key={index}
-                      className="relative aspect-w-3 aspect-h-2 rounded-lg overflow-hidden bg-blue-50 border-2 border-blue-100"
+                      className="relative aspect-w-1 aspect-h-1 group rounded-lg overflow-hidden bg-gray-100"
                     >
                       <img
                         src={url}
                         alt={`Preview ${index + 1}`}
-                        className="object-cover w-full h-full"
+                        className="object-cover"
                       />
                     </div>
                   ))}
@@ -291,19 +329,26 @@ const AddPlaces: React.FC = () => {
               )}
             </div>
 
-            <div className="flex justify-end pt-6">
-              <Button
+            <div className="flex justify-end gap-4 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
                 type="submit"
                 disabled={isSubmitting}
-                name="submit"
-                buttonText={isSubmitting ? "Adding Place..." : "Add Destination"}
-                className="px-6 py-3 text-white rounded-lg focus:outline-none focus:ring-2 transition-colors disabled:opacity-50"
-              />
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {isSubmitting ? "Adding Place..." : "Add Place"}
+              </button>
             </div>
           </form>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

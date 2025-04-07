@@ -75,7 +75,6 @@ const RegisterForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6 flex justify-center items-center flex-col">
       <div className="space-y-4">
-        {/* Name Fields */}
         <div className="flex gap-10">
           <div>
             <Label name="firstName" className="pl-3" label={authLabel.firstName[lang]} />
@@ -133,6 +132,18 @@ const RegisterForm = () => {
               placeholder={authLabel.phoneNumber[lang]}
               type="text"
               name="phoneNumber"
+              register={register}
+              className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+            />
+          </div>
+          <div>
+
+            <Label name="password" className="pl-3" label={authLabel.password[lang]} />
+            <InputField
+              setValue={setValue}
+              placeholder={authLabel.password[lang]}
+              type="text"
+              name="password"
               register={register}
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             />

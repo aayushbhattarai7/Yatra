@@ -25,6 +25,7 @@ export class UserController {
             }
           : null,
       };
+      console.log(req.body,"-body")
       const data = await userService.signup(req.body as UserDTO, image as any);
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error: unknown) {

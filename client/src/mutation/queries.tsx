@@ -462,3 +462,13 @@ query GetPlacesByAdmin {
   }
 }
 `;
+export const CHANGE_EMAIL_OF_USER = gql`
+mutation ChangeEmailOfUser($email: String!) {
+  changeEmailOfUser(email: $email)
+}
+`
+export const VERIFY_EMAIL_OF_USER = gql`
+mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
+  verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
+}
+`

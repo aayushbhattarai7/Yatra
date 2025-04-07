@@ -47,8 +47,8 @@ export const getTempFolderPathForUser = (): string => {
 };
 export const getUploadFolderpathForUser = (): string => {
   if (process.env.NODE_ENV === Environment.PRODUCTION)
-    return path.resolve(process.cwd(), "public", "files");
-  return path.join(__dirname, "..", "..", "public", "files");
+    return path.resolve(process.cwd(), "public");
+  return path.join(__dirname, "..", "..", "public");
 };
 
 export const transferImageFromUploadToTemp = (

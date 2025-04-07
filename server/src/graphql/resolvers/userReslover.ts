@@ -29,6 +29,7 @@ import { Room } from "../../entities/chat/room.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Rating } from "../../entities/ratings/rating.entity";
+import UserImage from "../../entities/user/userImage.entity";
 const roomService = new RoomService();
 const chatService = new ChatService();
 @Resolver((of) => User)
@@ -102,6 +103,36 @@ export class UserResolver {
   async senOtpToUser(@Arg("email") email: string) {
     try {
       return await userService.reSendOtp(email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async changeEmailOfUser(@Arg("email") email: string, @Ctx() ctx:Context) {
+    try {
+      const userId = ctx.req.user?.id as string
+      
+      return await userService.sendOtpToChangeEmail(userId,email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async verifyEmailWhileChangeOfUser(@Arg("email") email: string, @Arg("otp") otp:string, @Ctx() ctx:Context) {
+    try {
+      const userId = ctx.req.user?.id as string
+      return await userService.verifyEmail(userId,email, otp);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

@@ -40,6 +40,7 @@ import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Rating } from "../entities/ratings/rating.entity";
 import UserImage from "../entities/user/userImage.entity";
+import { UserDTO } from "../dto/user.dto";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -57,15 +58,6 @@ interface RequestTravels {
   vehicleType: string;
 }
 
-interface Signup {
-  firstName: string;
-  middleName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  gender: string;
-  password: string;
-}
 const otpService = new OtpService();
 const hashService = new HashService();
 class UserService {
@@ -87,7 +79,8 @@ class UserService {
 
   ) { }
 
-  async signup(data: Signup, images: { profile?: any; cover?: any }) {
+  async signup(data: UserDTO, images: { profile?: any; cover?: any }) {
+    console.log("🚀 ~ UserService ~ signup ~ data:", data)
     try {
       const emailExist = await this.userRepo.findOneBy({ email: data.email });
       if (emailExist)
@@ -104,6 +97,7 @@ class UserService {
       });
       await this.userRepo.save(addUser);
       if (images) {
+          console.log("🚀 ~ UserService ~ signup ~ images:", images)
           const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
   
             
@@ -125,7 +119,6 @@ class UserService {
             savedProfileImage.transferKycToUpload(addUser.id, MediaType.PROFILE);
           }
       
-          // Handle cover image
           if (images.cover) {
             const coverImage = images.cover;
             if (!allowedMimeTypes.includes(coverImage.mimetype)) {
@@ -221,7 +214,53 @@ class UserService {
       } else {
         throw HttpException.internalServerError;
       }
-    }
+    } 
+  }
+
+
+  async sendOtpToChangeEmail(id:string, email:string){
+    try {
+      const user = await this.userRepo.findOneBy({id})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+      const otp = await otpService.generateOTP();
+      const expires = Date.now() + 5 * 60 * 1000;
+      const payload = `${id}.${otp}.${expires}`;
+      const hashedOtp = hashService.hashOtp(payload);
+      const newOtp = `${hashedOtp}.${expires}`;
+
+      await this.userRepo.update({ id }, { otp: newOtp });
+      await otpService.sendOtp(email, otp, expires);      
+return "Otp has been sent to your new email please verify your otp"
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    } 
+  }
+  
+  async verifyEmail(id:string, email:string, otp:string){
+    console.log("🚀 ~  ero ~ verifyEmail ~ id:", id)
+    try {
+      const user = await this.userRepo.findOneBy({id})
+      if(!user) throw HttpException.unauthorized("You are not authorized")
+
+        const [hashedOtp, expires] = user?.otp?.split(".");
+        if (Date.now() > +expires)
+          throw HttpException.badRequest("Otp is expired");
+        const payload = `${id}.${otp}.${expires}`;
+        const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+        if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+        await this.userRepo.update({ id }, { email });
+        return "Email changed successfully!.";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    } 
   }
 
 
@@ -348,8 +387,9 @@ class UserService {
 
   async getByid(id: string) {
     try {
-      const user = this.userRepo
+      const user = await this.userRepo
         .createQueryBuilder("user")
+        .leftJoinAndSelect("user.image","image")
         .where("user.id =:id", { id })
         .getOne();
 

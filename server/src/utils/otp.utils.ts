@@ -47,6 +47,7 @@ class OtpService {
   }
 
   verifyOtp(hashedOtp: string, data: any) {
+    console.log("🚀 ~ OtpService ~ verifyOtp ~ data:", data)
     const hash = hashService.hashOtp(data);
     return hash === hashedOtp;
   }

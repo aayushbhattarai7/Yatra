@@ -97,14 +97,19 @@ export class User extends Base {
   })
   notifications: Notification[];
 
+  @Field(() => [Chat])
   @OneToMany(() => Chat, (chat) => chat.senderUser)
   sendMessage: Chat[];
 
+  @Field(() => [Chat])
   @OneToMany(() => Chat, (chat) => chat.receiverUser)
   receiveMessage: Chat[];
 
+  @Field(() => [Room])
   @OneToMany(() => Room, (room) => room.user)
   users: Room[];
+
+  @Field(() => [UserImage])
   @OneToMany(() => UserImage, (image) => image.user)
   image: UserImage[];
 

@@ -1,19 +1,57 @@
 import { useEffect, useState } from "react";
-import { LogoutPopup } from "./LogoutPopup";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
 import { motion } from "framer-motion";
-import { 
-  LogOut, 
-  Mail, 
-  Phone, 
-  MapPin, 
+import {
+  LogOut,
+  Mail,
+  Phone,
+  MapPin,
   Calendar,
   Compass,
   Mountain,
   Settings,
-  Camera
+  Camera,
 } from "lucide-react";
-import { profileImage } from "@/config/constant/image";
+import { LogoutPopup } from "./LogoutPopup";
+import { showToast } from "./ToastNotification";
+
+const GET_USER_QUERY = gql`
+  query GetUser {
+    getUser {
+      id
+      firstName
+      middleName
+      lastName
+      gender
+      email
+      phoneNumber
+      createdAt
+      image {
+        id
+        type
+        path
+      }
+    }
+  }
+`;
+
+const CHANGE_EMAIL_OF_USER = gql`
+  mutation ChangeEmailOfUser($email: String!) {
+    changeEmailOfUser(email: $email)
+  }
+`;
+
+const VERIFY_EMAIL_OF_USER = gql`
+  mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
+    verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
+  }
+`;
+
+interface Image {
+  id: string;
+  type: string;
+  path: string;
+}
 
 interface UserData {
   id: string;
@@ -24,34 +62,51 @@ interface UserData {
   email: string;
   phoneNumber: string;
   createdAt: string;
+  image: Image[];
 }
 
 const UserProfile = () => {
   const [logout, setLogout] = useState(false);
   const [user, setUser] = useState<UserData | null>(null);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [otp, setOtp] = useState("");
 
-  const GET_USER_QUERY = gql`
-    query GetUser {
-      getUser {
-        id
-        firstName
-        middleName
-        lastName
-        gender
-        email
-        phoneNumber
-        createdAt
-      }
-    }
-  `;
-
-  const { data, loading, error } = useQuery(GET_USER_QUERY);
+  const { data, loading,refetch, error } = useQuery(GET_USER_QUERY);
+  const [changeEmailOfUser] = useMutation(CHANGE_EMAIL_OF_USER);
+  const [verifyEmailWhileChangeOfUser] = useMutation(VERIFY_EMAIL_OF_USER);
 
   useEffect(() => {
     if (data?.getUser) {
       setUser(data.getUser);
     }
   }, [data]);
+
+  const handleEmailChange = async () => {
+    try {
+      await changeEmailOfUser({ variables: { email: newEmail } });
+      setShowOtpPopup(true);
+    } catch (err:unknown) {
+      if(err instanceof Error) showToast(err.message,"error")
+      console.error("Failed to change email:", err);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    try {
+      console.log(newEmail,"yess",otp)
+      await verifyEmailWhileChangeOfUser({
+        variables: {  email: newEmail, otp },
+      });
+      refetch()
+      setIsEditingEmail(false);
+      setShowOtpPopup(false);
+    } catch (err:unknown) {
+      if(err instanceof Error) showToast(err.message,"error")
+      console.error("Failed to change email:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -76,7 +131,8 @@ const UserProfile = () => {
             Trail Not Found
           </h2>
           <p className="text-gray-600 mb-6">
-            We've lost the path to your profile data. Let's try finding it again.
+            We've lost the path to your profile data. Let's try finding it
+            again.
           </p>
           <button className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all">
             Retry Journey
@@ -96,22 +152,20 @@ const UserProfile = () => {
           animate={{ opacity: 1, y: 0 }}
           className="relative"
         >
-          {/* Hero Banner */}
           <div className="h-[300px] rounded-3xl overflow-hidden relative mb-8">
-            <img
-              src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80"
-              alt="Mountain landscape"
-              className="w-full h-full object-cover"
-            />
+            {user?.image && (
+              <img
+                src={user.image[1]?.path}
+                alt="Cover"
+                className="w-full h-full object-cover"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
             <div className="absolute bottom-8 left-8 right-8 text-white">
               <div className="flex items-end gap-6 flex-wrap">
-                <motion.div 
-                  whileHover={{ scale: 1.05 }}
-                  className="relative"
-                >
+                <motion.div whileHover={{ scale: 1.05 }} className="relative">
                   <img
-                    src={profileImage}
+                    src={user?.image[0]?.path}
                     alt="Profile"
                     className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white shadow-lg"
                   />
@@ -138,9 +192,7 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Content Grid */}
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Contact Info */}
             <div className="md:col-span-2 space-y-6">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -148,18 +200,50 @@ const UserProfile = () => {
                 className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
               >
                 <div className="p-6">
+                  <div className="flex justify-end">
+                    <button>Edit</button>
+                  </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                     <Mountain className="w-5 h-5 text-emerald-600" />
                     Explorer Details
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="text-sm text-gray-500">Email</div>
-                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-500">Email</div>
+                        {!isEditingEmail && (
+                          <button
+                            className="text-sm text-emerald-600 hover:underline"
+                            onClick={() => setIsEditingEmail(true)}
+                          >
+                            Change
+                          </button>
+                        )}
+                      </div>
+                      <div className="font-medium text-gray-900 flex items-center gap-2 mt-1">
                         <Mail className="w-4 h-4 text-emerald-600" />
-                        {user?.email}
+                        {!isEditingEmail ? (
+                          user?.email
+                        ) : (
+                          <div className="flex gap-2 w-full">
+                            <input
+                              type="email"
+                              value={newEmail}
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              placeholder="Enter new email"
+                              className="border border-gray-300 rounded-lg px-3 py-1 w-full text-sm"
+                            />
+                            <button
+                              onClick={handleEmailChange}
+                              className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-emerald-700 transition-all"
+                            >
+                              Submit
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
+
                     <div className="p-4 bg-gray-50 rounded-xl">
                       <div className="text-sm text-gray-500">Phone</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
@@ -167,6 +251,7 @@ const UserProfile = () => {
                         {user?.phoneNumber}
                       </div>
                     </div>
+
                     <div className="p-4 bg-gray-50 rounded-xl">
                       <div className="text-sm text-gray-500">Member Since</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
@@ -178,11 +263,14 @@ const UserProfile = () => {
                         })}
                       </div>
                     </div>
+
                     <div className="p-4 bg-gray-50 rounded-xl">
                       <div className="text-sm text-gray-500">Travel Style</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         <Compass className="w-4 h-4 text-emerald-600" />
-                        {user?.gender === 'male' ? 'Adventure Seeker' : 'Nature Explorer'}
+                        {user?.gender === "male"
+                          ? "Adventure Seeker"
+                          : "Nature Explorer"}
                       </div>
                     </div>
                   </div>
@@ -190,7 +278,6 @@ const UserProfile = () => {
               </motion.div>
             </div>
 
-            {/* Quick Actions */}
             <div className="space-y-6">
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="p-6">
@@ -207,19 +294,6 @@ const UserProfile = () => {
                         <Settings className="w-5 h-5 text-emerald-600" />
                         <span>Account Settings</span>
                       </div>
-                      <svg
-                        className="w-5 h-5 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
                     </motion.button>
 
                     <motion.button
@@ -237,6 +311,38 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
+
+          {showOtpPopup && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800">Verify OTP</h2>
+                <p className="text-sm text-gray-500">
+                  Enter the OTP sent to <span className="font-medium">{newEmail}</span>
+                </p>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter OTP"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-2"
+                />
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={() => setShowOtpPopup(false)}
+                    className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleVerifyOtp}
+                    className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                  >
+                    Verify
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
