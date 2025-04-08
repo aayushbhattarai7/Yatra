@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { gql, useQuery, useMutation } from "@apollo/client";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LogOut,
   Mail,
@@ -11,41 +11,19 @@ import {
   Mountain,
   Settings,
   Camera,
+  Upload,
+  X,
+  Image as ImageIcon,
 } from "lucide-react";
 import { LogoutPopup } from "./LogoutPopup";
 import { showToast } from "./ToastNotification";
-
-const GET_USER_QUERY = gql`
-  query GetUser {
-    getUser {
-      id
-      firstName
-      middleName
-      lastName
-      gender
-      email
-      phoneNumber
-      createdAt
-      image {
-        id
-        type
-        path
-      }
-    }
-  }
-`;
-
-const CHANGE_EMAIL_OF_USER = gql`
-  mutation ChangeEmailOfUser($email: String!) {
-    changeEmailOfUser(email: $email)
-  }
-`;
-
-const VERIFY_EMAIL_OF_USER = gql`
-  mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
-    verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
-  }
-`;
+import { 
+  CHANGE_EMAIL_OF_USER, 
+  GET_USER_QUERY, 
+  VERIFY_EMAIL_OF_USER,
+   
+} from "@/mutation/queries";
+import axiosInstance from "@/service/axiosInstance";
 
 interface Image {
   id: string;
@@ -72,10 +50,16 @@ const UserProfile = () => {
   const [newEmail, setNewEmail] = useState("");
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [otp, setOtp] = useState("");
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadType, setUploadType] = useState<"profile" | "cover">("profile");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { data, loading,refetch, error } = useQuery(GET_USER_QUERY);
+  const { data, loading, refetch, error } = useQuery(GET_USER_QUERY);
   const [changeEmailOfUser] = useMutation(CHANGE_EMAIL_OF_USER);
   const [verifyEmailWhileChangeOfUser] = useMutation(VERIFY_EMAIL_OF_USER);
+  // const [updateUserImage] = useMutation(UPDATE_USER_IMAGE);
 
   useEffect(() => {
     if (data?.getUser) {
@@ -87,24 +71,59 @@ const UserProfile = () => {
     try {
       await changeEmailOfUser({ variables: { email: newEmail } });
       setShowOtpPopup(true);
-    } catch (err:unknown) {
-      if(err instanceof Error) showToast(err.message,"error")
+    } catch (err: unknown) {
+      if (err instanceof Error) showToast(err.message, "error");
       console.error("Failed to change email:", err);
     }
   };
 
   const handleVerifyOtp = async () => {
     try {
-      console.log(newEmail,"yess",otp)
       await verifyEmailWhileChangeOfUser({
-        variables: {  email: newEmail, otp },
+        variables: { email: newEmail, otp },
       });
-      refetch()
+      refetch();
       setIsEditingEmail(false);
       setShowOtpPopup(false);
-    } catch (err:unknown) {
-      if(err instanceof Error) showToast(err.message,"error")
+    } catch (err: unknown) {
+      if (err instanceof Error) showToast(err.message, "error");
       console.error("Failed to change email:", err);
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImage) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("image", selectedImage);
+      formData.append("type", uploadType.toUpperCase());
+
+      const response = await axiosInstance.patch("/user/update-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("🚀 ~ handleImageUpload ~ response:", response)
+
+      await refetch();
+      setShowImageUpload(false);
+      setSelectedImage(null);
+      setPreviewUrl(null);
+      showToast("Image updated successfully", "success");
+    } catch (err: unknown) {
+      if (err instanceof Error) showToast(err.message, "error");
+      console.error("Failed to upload image:", err);
     }
   };
 
@@ -154,22 +173,55 @@ const UserProfile = () => {
         >
           <div className="h-[300px] rounded-3xl overflow-hidden relative mb-8">
             {user?.image && (
-              <img
-                src={user.image[1]?.path}
-                alt="Cover"
-                className="w-full h-full object-cover"
-              />
+              <div>
+{
+  user.image.map((image) =>(
+ <div>
+{image.type === "COVER" && (
+
+   <img
+     src={image.path}
+     alt="Cover"
+     className="w-full h-full object-cover"
+   />
+)}
+ </div>   
+  ))
+}
+              </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <button 
+              onClick={() => {
+                setUploadType("cover");
+                setShowImageUpload(true);
+              }}
+              className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg hover:bg-white transition-all"
+            >
+              <Camera className="w-5 h-5 text-gray-700" />
+            </button>
             <div className="absolute bottom-8 left-8 right-8 text-white">
               <div className="flex items-end gap-6 flex-wrap">
                 <motion.div whileHover={{ scale: 1.05 }} className="relative">
-                  <img
-                    src={user?.image[0]?.path}
-                    alt="Profile"
-                    className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white shadow-lg"
-                  />
-                  <button className="absolute bottom-2 right-2 bg-white rounded-full p-1.5 shadow-lg">
+                  {user?.image.map((image)=>(
+                    <div>
+                      {image.type ==="PROFILE" && (
+
+                      <img
+                        src={image.path}
+                        alt="Profile"
+                        className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-4 border-white shadow-lg"
+                      />
+                      )}
+                    </div>
+                  ))}
+                  <button 
+                    onClick={() => {
+                      setUploadType("profile");
+                      setShowImageUpload(true);
+                    }}
+                    className="absolute bottom-2 right-2 bg-white rounded-full p-1.5 shadow-lg hover:bg-gray-50 transition-all"
+                  >
                     <Camera className="w-4 h-4 text-gray-700" />
                   </button>
                 </motion.div>
@@ -311,6 +363,105 @@ const UserProfile = () => {
               </div>
             </div>
           </div>
+
+          <AnimatePresence>
+            {showImageUpload && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+                onClick={() => setShowImageUpload(false)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white rounded-2xl p-6 w-full max-w-lg"
+                >
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Update {uploadType === "profile" ? "Profile" : "Cover"} Photo
+                    </h3>
+                    <button
+                      onClick={() => setShowImageUpload(false)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-6">
+                    {previewUrl ? (
+                      <div className="relative">
+                        <img
+                          src={previewUrl}
+                          alt="Preview"
+                          className={`w-full rounded-xl ${
+                            uploadType === "profile" 
+                              ? "h-64 object-cover" 
+                              : "h-40 object-cover"
+                          }`}
+                        />
+                        <button
+                          onClick={() => {
+                            setSelectedImage(null);
+                            setPreviewUrl(null);
+                          }}
+                          className="absolute top-2 right-2 bg-white/90 rounded-full p-1 shadow-lg hover:bg-white"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-emerald-500 transition-colors"
+                      >
+                        <ImageIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <p className="text-sm text-gray-600 mb-2">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG up to 10MB
+                        </p>
+                      </div>
+                    )}
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowImageUpload(false)}
+                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleImageUpload}
+                        disabled={!selectedImage}
+                        className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors flex items-center justify-center gap-2 ${
+                          selectedImage
+                            ? "bg-emerald-600 hover:bg-emerald-700"
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                      >
+                        <Upload className="w-4 h-4" />
+                        Upload Photo
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {showOtpPopup && (
             <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

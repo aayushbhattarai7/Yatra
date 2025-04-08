@@ -462,13 +462,34 @@ query GetPlacesByAdmin {
   }
 }
 `;
+export const GET_USER_QUERY = gql`
+  query GetUser {
+    getUser {
+      id
+      firstName
+      middleName
+      lastName
+      gender
+      email
+      phoneNumber
+      createdAt
+      image {
+        id
+        type
+        path
+      }
+    }
+  }
+`;
+
 export const CHANGE_EMAIL_OF_USER = gql`
-mutation ChangeEmailOfUser($email: String!) {
-  changeEmailOfUser(email: $email)
-}
-`
+  mutation ChangeEmailOfUser($email: String!) {
+    changeEmailOfUser(email: $email)
+  }
+`;
+
 export const VERIFY_EMAIL_OF_USER = gql`
-mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
-  verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
-}
-`
+  mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
+    verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
+  }
+`;

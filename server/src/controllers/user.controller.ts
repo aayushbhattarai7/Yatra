@@ -35,6 +35,37 @@ export class UserController {
         });
     }
   }
+  async updateprofile(req: Request, res: Response) {
+    const id = req.user?.id as string
+    console.log("🚀 ~ UserController ~ updateprofile ~ id:", id)
+    try {
+      const profileImage = req.files?.profile?.[0];
+      const coverImage = req.files?.cover?.[0]; 
+      const image = {
+        profile: profileImage
+          ? {
+              name: profileImage.filename,
+              mimetype: profileImage.mimetype,
+              path: profileImage.path,
+            }
+          : null,
+        cover: coverImage
+          ? {
+              name: coverImage.filename,
+              mimetype: coverImage.mimetype,
+              path: coverImage.path,
+            }
+          : null,
+      };
+      const data = await userService.updateProfile(id,req.body as UserDTO, image as any);
+      res.status(StatusCodes.SUCCESS).json({ data });
+    } catch (error: unknown) {
+      if (error instanceof Error)
+        res.status(StatusCodes.BAD_REQUEST).json({
+          message: error?.message,
+        });
+    }
+  }
 
   async paymentForTravelWithEsewa(req: Request, res: Response) {
     try {

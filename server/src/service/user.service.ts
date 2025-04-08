@@ -146,6 +146,72 @@ class UserService {
       }
     }
   }
+  async updateProfile(id:string, data: UserDTO, images: { profile?: any; cover?: any }) {
+    console.log("🚀 ~ UserService ~ signup ~ data:", data)
+    try {
+      const user = await this.userRepo.findOne({where:{ id}, relations:["image"] });
+      if (!user)
+        throw HttpException.unauthorized("You are not authorized");
+      console.log("🚀 ~ UserService ~ updateProfile ~ user:", user)
+
+       await this.userRepo.update({id},{
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        gender: Gender[data.gender as keyof typeof Gender],
+      });
+      if (images) {
+          console.log("🚀 ~ UserService ~ signup ~ images:", images)
+          const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  
+            
+          if (images.profile) {
+            const profileImage = images.profile;
+            if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+              throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
+            }
+      
+            const savedProfileImage = this.userImage.create({
+              name:profileImage.name,
+              mimetype: profileImage.mimetype,
+              path: profileImage.path,
+              type: MediaType.PROFILE,
+              user: user,
+            });
+      
+            await this.userImage.save(savedProfileImage);
+            savedProfileImage.transferKycToUpload(user.id, MediaType.PROFILE);
+          }
+      
+          if (images.cover) {
+            const coverImage = images.cover;
+            if (!allowedMimeTypes.includes(coverImage.mimetype)) {
+              throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
+            }
+      
+            const savedCoverImage = this.userImage.create({
+              name: coverImage.name,
+              mimetype: coverImage.mimetype,
+              path: coverImage.path,
+              type: MediaType.COVER,
+              user: user,
+            });
+      
+            await this.userImage.save(savedCoverImage);
+            savedCoverImage.transferKycToUpload(user.id, MediaType.COVER);
+          }
+        }
+      return registeredMessage("User");
+    } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ updateProfile ~ error:", error)
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
 
   async login(data: LoginDTO): Promise<User> {
@@ -319,13 +385,13 @@ return "Otp has been sent to your new email please verify your otp"
   async facebookLogin(userInfo: string) {
     try {
       const decoded: any = await this.debugFBToken(userInfo);
-      console.log("🚀 ~ UserService ~ facebookLogin ~ decoded:", decoded);
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       });
       console.log("🚀 ~ UserService ~ facebookLogin ~ user:", user);
       if (!user) {
         try {
+          console.log('first')
           const saveUser = this.userRepo.create({
             email: decoded.email,
             firstName: decoded.first_name,
@@ -336,8 +402,8 @@ return "Otp has been sent to your new email please verify your otp"
             phoneNumber: decoded.id,
             password: await bcryptService.hash(decoded?.id),
           });
-          console.log("🚀 ~ UserService ~ facebookLogin ~ saveUser:", saveUser);
           const save = await this.userRepo.save(saveUser);
+          console.log("🚀 ~ UserService ~ facebookLogin ~ saveUser:", saveUser);
           return save;
         } catch (error: any) {
           throw HttpException.badRequest(error.message);
@@ -345,7 +411,13 @@ return "Otp has been sent to your new email please verify your otp"
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) { }
+    }  catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
   }
 
   async addLocation(user_id: string, data: LocationDTO) {
@@ -388,10 +460,12 @@ return "Otp has been sent to your new email please verify your otp"
   async getByid(id: string) {
     try {
       const user = await this.userRepo
-        .createQueryBuilder("user")
-        .leftJoinAndSelect("user.image","image")
-        .where("user.id =:id", { id })
-        .getOne();
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.image", "image")
+      .orderBy("image.createdAt", "DESC")
+      .where("user.id =:id",{id})
+      .andWhere("image.user_id =:id",{id})
+      .getOne();
 
       console.log("🚀 ~ UserService ~ getByid ~ users:", user);
       return user;

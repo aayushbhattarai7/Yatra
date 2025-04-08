@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { useMessage } from "@/contexts/MessageContext";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "./ToastNotification";
 const appId = import.meta.env.VITE_FACEBOOK_APP_ID;
 const apiVersion = import.meta.env.VITE_FACEBOOK_VERSION;
 
@@ -111,8 +112,10 @@ const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
         setMessage("Login successful", "success");
         window.location.href = "/";
       }
-    } catch (error) {
+    } catch (error:unknown) {
       console.error("Error during Facebook login mutation:", error);
+      if(error instanceof Error)
+      showToast(error.message,"error")
     }
   };
 
