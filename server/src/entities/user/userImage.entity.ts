@@ -45,7 +45,7 @@ class UserImage extends Base {
   @Field()
   public path: string;
 
-  transferKycToUpload(id: string, type: MediaType): void {
+  transferImageToUpload(id: string, type: MediaType): void {
     const TEMP_PATH = path.join(getTempFolderPathForUser(), this.name);
     const UPLOAD_PATH = path.join(
       getUploadFolderpathForUser(),

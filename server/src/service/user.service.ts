@@ -27,6 +27,7 @@ import {
   cancelRequest,
   Message,
   registeredMessage,
+  updatedMessage,
 } from "../constant/message";
 import axios from "axios";
 import { In, MoreThan, Not } from "typeorm";
@@ -41,6 +42,7 @@ import { HashService } from "./hash.service";
 import { Rating } from "../entities/ratings/rating.entity";
 import UserImage from "../entities/user/userImage.entity";
 import { UserDTO } from "../dto/user.dto";
+import { transferImageFromUploadToTemp } from "../utils/path.utils";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -97,46 +99,46 @@ class UserService {
       });
       await this.userRepo.save(addUser);
       if (images) {
-          console.log("🚀 ~ UserService ~ signup ~ images:", images)
-          const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-  
-            
-          if (images.profile) {
-            const profileImage = images.profile;
-            if (!allowedMimeTypes.includes(profileImage.mimetype)) {
-              throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
-            }
-      
-            const savedProfileImage = this.userImage.create({
-              name: profileImage.name,
-              mimetype: profileImage.mimetype,
-              path: profileImage.path,
-              type: MediaType.PROFILE,
-              user: addUser,
-            });
-      
-            await this.userImage.save(savedProfileImage);
-            savedProfileImage.transferKycToUpload(addUser.id, MediaType.PROFILE);
+        console.log("🚀 ~ UserService ~ signup ~ images:", images)
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+
+        if (images.profile) {
+          const profileImage = images.profile;
+          if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+            throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
           }
-      
-          if (images.cover) {
-            const coverImage = images.cover;
-            if (!allowedMimeTypes.includes(coverImage.mimetype)) {
-              throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
-            }
-      
-            const savedCoverImage = this.userImage.create({
-              name: coverImage.name,
-              mimetype: coverImage.mimetype,
-              path: coverImage.path,
-              type: MediaType.COVER,
-              user: addUser,
-            });
-      
-            await this.userImage.save(savedCoverImage);
-            savedCoverImage.transferKycToUpload(addUser.id, MediaType.COVER);
-          }
+
+          const savedProfileImage = this.userImage.create({
+            name: profileImage.name,
+            mimetype: profileImage.mimetype,
+            path: profileImage.path,
+            type: MediaType.PROFILE,
+            user: addUser,
+          });
+
+          await this.userImage.save(savedProfileImage);
+          savedProfileImage.transferImageToUpload(addUser.id, MediaType.PROFILE);
         }
+
+        if (images.cover) {
+          const coverImage = images.cover;
+          if (!allowedMimeTypes.includes(coverImage.mimetype)) {
+            throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
+          }
+
+          const savedCoverImage = this.userImage.create({
+            name: coverImage.name,
+            mimetype: coverImage.mimetype,
+            path: coverImage.path,
+            type: MediaType.COVER,
+            user: addUser,
+          });
+
+          await this.userImage.save(savedCoverImage);
+          savedCoverImage.transferImageToUpload(addUser.id, MediaType.COVER);
+        }
+      }
       return registeredMessage("User");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -146,15 +148,14 @@ class UserService {
       }
     }
   }
-  async updateProfile(id:string, data: UserDTO, images: { profile?: any; cover?: any }) {
-    console.log("🚀 ~ UserService ~ signup ~ data:", data)
+  async updateProfile(id: string, data: UserDTO, images: { profile?: any; cover?: any }) {
     try {
-      const user = await this.userRepo.findOne({where:{ id}, relations:["image"] });
+      const user = await this.userRepo.findOne({ where: { id }, relations: ["image"] });
       if (!user)
         throw HttpException.unauthorized("You are not authorized");
       console.log("🚀 ~ UserService ~ updateProfile ~ user:", user)
 
-       await this.userRepo.update({id},{
+      await this.userRepo.update({ id }, {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
@@ -162,34 +163,44 @@ class UserService {
         gender: Gender[data.gender as keyof typeof Gender],
       });
       if (images) {
-          console.log("🚀 ~ UserService ~ signup ~ images:", images)
-          const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
-  
-            
-          if (images.profile) {
-            const profileImage = images.profile;
-            if (!allowedMimeTypes.includes(profileImage.mimetype)) {
-              throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
-            }
-      
-            const savedProfileImage = this.userImage.create({
-              name:profileImage.name,
+        console.log("🚀 ~ UserService ~ signup ~ images:", images)
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+
+        if (images.profile) {
+          const profileImage = images.profile;
+          if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+            throw HttpException.badRequest("Invalid profile image type. Only jpg, jpeg, and png are accepted.");
+          }
+          const profileImages = await this.userImage.findOneBy({ user: { id }, type: MediaType.PROFILE })
+          if (!profileImages) {
+            const image = this.userImage.create({
+              name: profileImage.name,
               mimetype: profileImage.mimetype,
-              path: profileImage.path,
               type: MediaType.PROFILE,
               user: user,
             });
-      
-            await this.userImage.save(savedProfileImage);
-            savedProfileImage.transferKycToUpload(user.id, MediaType.PROFILE);
+            await this.userImage.save(image);
+            image.transferImageToUpload(user.id, MediaType.PROFILE);
+          } else {
+            transferImageFromUploadToTemp(profileImages.id, profileImages.name, profileImages.type);
+            profileImages.name = profileImage.name;
+            profileImages.mimetype = profileImage.mimetype;
+            await this.userImage.save(profileImages);
+            profileImages.transferImageToUpload(user.id, MediaType.PROFILE);
+
           }
-      
-          if (images.cover) {
-            const coverImage = images.cover;
-            if (!allowedMimeTypes.includes(coverImage.mimetype)) {
-              throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
-            }
-      
+        }
+
+        if (images.cover) {
+          const coverImage = images.cover;
+          if (!allowedMimeTypes.includes(coverImage.mimetype)) {
+            throw HttpException.badRequest("Invalid cover image type. Only jpg, jpeg, and png are accepted.");
+          }
+
+          const coverImages = await this.userImage.findOneBy({ user: { id }, type: MediaType.COVER })
+          if (!coverImages) {
+
             const savedCoverImage = this.userImage.create({
               name: coverImage.name,
               mimetype: coverImage.mimetype,
@@ -197,12 +208,22 @@ class UserService {
               type: MediaType.COVER,
               user: user,
             });
-      
+
             await this.userImage.save(savedCoverImage);
-            savedCoverImage.transferKycToUpload(user.id, MediaType.COVER);
+            savedCoverImage.transferImageToUpload(user.id, MediaType.COVER);
+          } else {
+            transferImageFromUploadToTemp(coverImages.id, coverImages.name, coverImages.type);
+
+            coverImages.name = coverImage.name;
+            coverImages.mimetype = coverImage.mimetype;
+            
+            await this.userImage.save(coverImages);
+            coverImages.transferImageToUpload(user.id, MediaType.COVER);
+
           }
         }
-      return registeredMessage("User");
+      }
+      return updatedMessage("Profile");
     } catch (error: unknown) {
       console.log("🚀 ~ UserService ~ updateProfile ~ error:", error)
       if (error instanceof Error) {
@@ -280,14 +301,14 @@ class UserService {
       } else {
         throw HttpException.internalServerError;
       }
-    } 
+    }
   }
 
 
-  async sendOtpToChangeEmail(id:string, email:string){
+  async sendOtpToChangeEmail(id: string, email: string) {
     try {
-      const user = await this.userRepo.findOneBy({id})
-      if(!user) throw HttpException.unauthorized("You are not authorized")
+      const user = await this.userRepo.findOneBy({ id })
+      if (!user) throw HttpException.unauthorized("You are not authorized")
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${id}.${otp}.${expires}`;
@@ -295,38 +316,38 @@ class UserService {
       const newOtp = `${hashedOtp}.${expires}`;
 
       await this.userRepo.update({ id }, { otp: newOtp });
-      await otpService.sendOtp(email, otp, expires);      
-return "Otp has been sent to your new email please verify your otp"
+      await otpService.sendOtp(email, otp, expires);
+      return "Otp has been sent to your new email please verify your otp"
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError;
       }
-    } 
+    }
   }
-  
-  async verifyEmail(id:string, email:string, otp:string){
+
+  async verifyEmail(id: string, email: string, otp: string) {
     console.log("🚀 ~  ero ~ verifyEmail ~ id:", id)
     try {
-      const user = await this.userRepo.findOneBy({id})
-      if(!user) throw HttpException.unauthorized("You are not authorized")
+      const user = await this.userRepo.findOneBy({ id })
+      if (!user) throw HttpException.unauthorized("You are not authorized")
 
-        const [hashedOtp, expires] = user?.otp?.split(".");
-        if (Date.now() > +expires)
-          throw HttpException.badRequest("Otp is expired");
-        const payload = `${id}.${otp}.${expires}`;
-        const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
-        if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
-        await this.userRepo.update({ id }, { email });
-        return "Email changed successfully!.";
+      const [hashedOtp, expires] = user?.otp?.split(".");
+      if (Date.now() > +expires)
+        throw HttpException.badRequest("Otp is expired");
+      const payload = `${id}.${otp}.${expires}`;
+      const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+      await this.userRepo.update({ id }, { email });
+      return "Email changed successfully!.";
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError;
       }
-    } 
+    }
   }
 
 
@@ -411,7 +432,7 @@ return "Otp has been sent to your new email please verify your otp"
       } else {
         return await this.getByid(user.id);
       }
-    }  catch (error: unknown) {
+    } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {
@@ -460,12 +481,11 @@ return "Otp has been sent to your new email please verify your otp"
   async getByid(id: string) {
     try {
       const user = await this.userRepo
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.image", "image")
-      .orderBy("image.createdAt", "DESC")
-      .where("user.id =:id",{id})
-      .andWhere("image.user_id =:id",{id})
-      .getOne();
+        .createQueryBuilder("user")
+        .leftJoinAndSelect("user.image", "image")
+        .where("user.id =:id", { id })
+        .andWhere("image.user_id =:id", { id })
+        .getOne();
 
       console.log("🚀 ~ UserService ~ getByid ~ users:", user);
       return user;
@@ -577,13 +597,13 @@ return "Otp has been sent to your new email please verify your otp"
       }
     }
   }
-  async updatePassword(id:string,password: string, confirmPassword: string, currentPassword: string): Promise<string> {
+  async updatePassword(id: string, password: string, confirmPassword: string, currentPassword: string): Promise<string> {
     try {
-      const user = await this.userRepo.findOne({where:{id}, select:["password"]});
+      const user = await this.userRepo.findOne({ where: { id }, select: ["password"] });
       if (!user) throw HttpException.unauthorized("You are not authorized");
 
-      const passwordMatched = await bcryptService.compare(currentPassword,user.password)
-      if(!passwordMatched) throw HttpException.badRequest("Incorrect current password")
+      const passwordMatched = await bcryptService.compare(currentPassword, user.password)
+      if (!passwordMatched) throw HttpException.badRequest("Incorrect current password")
       if (password !== confirmPassword) throw HttpException.badRequest("passowrd must be same in both field")
       const hashPassword = await bcryptService.hash(password)
       await this.userRepo.update({ id }, { password: hashPassword });
@@ -796,7 +816,7 @@ return "Otp has been sent to your new email please verify your otp"
             where: {
               travel: { id: travel_id },
               user: { id: user_id },
-              status:RequestStatus.CONFIRMATION_PENDING
+              status: RequestStatus.CONFIRMATION_PENDING
             }
           }
           )
@@ -882,7 +902,7 @@ return "Otp has been sent to your new email please verify your otp"
       }
     }
   }
-  
+
   async getOwnTravelRequests(user_id: string) {
     try {
       const user = await this.userRepo.findOneBy({

@@ -108,7 +108,7 @@ const UserProfile = () => {
 
     try {
       const formData = new FormData();
-      formData.append("image", selectedImage);
+      formData.append(uploadType, selectedImage);
       formData.append("type", uploadType.toUpperCase());
 
       const response = await axiosInstance.patch("/user/update-profile", formData, {

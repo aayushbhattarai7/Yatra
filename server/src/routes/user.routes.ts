@@ -16,7 +16,8 @@ router.post("/signup", upload.fields([
 router.use(authentication());
 router.use(authorization([Role.USER]));
 router.patch("/update-profile", upload.fields([
-    {name:"image", maxCount:1}
+    {name:"profile", maxCount:1},
+    {name:"cover", maxCount:1}
 ]), userController.updateprofile);
 router.post("/get-place", placeController.getTrekkingPlaceByMessage);
 router.get("/get-allPlaces", placeController.getPlaces);
