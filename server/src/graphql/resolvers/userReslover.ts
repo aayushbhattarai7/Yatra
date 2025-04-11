@@ -30,6 +30,8 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Rating } from "../../entities/ratings/rating.entity";
 import UserImage from "../../entities/user/userImage.entity";
+import placeService from "../../service/place.service";
+import { FavouritPlace } from "../../entities/place/placefavourite.entity";
 const roomService = new RoomService();
 const chatService = new ChatService();
 @Resolver((of) => User)
@@ -746,6 +748,50 @@ export class UserResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.getUnreadChatOFTravel(userId, id);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  async addToFavourite(@Arg("placeId") placeId: string, @Ctx() ctx:Context) {
+    try {
+      const userId = ctx.req.user?.id as string
+      return await placeService.addPlaceToFavourite(userId, placeId)
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  async removeFromFavourite(@Arg("placeId") placeId: string, @Ctx() ctx:Context) {
+    try {
+      const userId = ctx.req.user?.id as string
+      return await placeService.removePlaceToFavourite(userId, placeId)
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [FavouritPlace])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getFavouritePlace(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getFavouritePlace ~ userId:", userId)
+      return await placeService.getFavouritePlace(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

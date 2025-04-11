@@ -294,7 +294,7 @@ const AddPlaces: React.FC<FormProps> = ({onClose, reload}) => {
                         <input
                           type="file"
                           multiple
-                          accept="image/*"
+                          accept="image/*,video/*"
                           className="sr-only"
                           onChange={(e) => {
                             handleImageChange(e);

@@ -43,6 +43,7 @@ import { Rating } from "../entities/ratings/rating.entity";
 import UserImage from "../entities/user/userImage.entity";
 import { UserDTO } from "../dto/user.dto";
 import { transferImageFromUploadToTemp } from "../utils/path.utils";
+import { TrekkingPlace } from "../entities/place/trekkingplace.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -78,6 +79,7 @@ class UserService {
     private readonly notificationRepo = AppDataSource.getRepository(Notification),
     private readonly chatRepo = AppDataSource.getRepository(Chat),
     private readonly ratingsRepo = AppDataSource.getRepository(Rating),
+    private readonly placeRepo = AppDataSource.getRepository(TrekkingPlace),
 
   ) { }
 
@@ -487,13 +489,14 @@ class UserService {
         .andWhere("image.user_id =:id", { id })
         .getOne();
 
-      console.log("🚀 ~ UserService ~ getByid ~ users:", user);
       return user;
     } catch (error) {
       throw HttpException.notFound("User not found");
     }
   }
 
+
+  
   async getLocation(userId: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
@@ -502,9 +505,27 @@ class UserService {
         user: { id: userId },
       });
       if (!isLocation) {
-        throw HttpException.badRequest("Location not found");
+        throw HttpException.notFound("Location not found");
       }
       return isLocation;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getPlaces(userId: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) throw HttpException.unauthorized("you are not authorized");
+      const places = await this.placeRepo.find({relations:["image"]})
+      if (!places) {
+        throw HttpException.notFound("Places not found");
+      }
+      return places;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

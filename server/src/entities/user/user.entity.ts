@@ -11,6 +11,7 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
 import UserImage from "./userImage.entity";
+import { FavouritPlace } from "../../entities/place/placefavourite.entity";
 
 @ObjectType()
 @Entity("user")
@@ -112,5 +113,10 @@ export class User extends Base {
   @Field(() => [UserImage])
   @OneToMany(() => UserImage, (image) => image.user)
   image: UserImage[];
+
+
+  @Field(() => [FavouritPlace])
+  @OneToMany(() => FavouritPlace, (favourite) => favourite.user)
+  favourite: FavouritPlace[];
 
 }

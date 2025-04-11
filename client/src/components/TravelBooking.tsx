@@ -14,10 +14,7 @@ import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
-import Checkout from "./StripeCheckout";
-import { Star, Clock, Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle } from "lucide-react";
-import Esewa from "./Esewa";
-import Khalti from "./KhaltiPayment";
+import {  Clock, Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle } from "lucide-react";
 import Payments from "./Payments";
 import { useSocket } from "@/contexts/SocketContext";
 import Rating from "./ui/Rating";
@@ -297,7 +294,8 @@ const TravelBooking = () => {
                 </div>
 
                 {pay && (
-                  <Esewa id={book.id} amount={parseInt(book.price)} type="travel" />
+                  <Payments id={book.id} refresh={refetch} onClose={()=>setPay(false)} type="travel" amount={parseInt(book.price)}/>
+                  // <Esewa id={book.id} amount={parseInt(book.price)} type="travel" />
                 )}
               </motion.div>
             ))}

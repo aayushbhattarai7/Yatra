@@ -2,6 +2,7 @@ import { Entity, Column, OneToMany } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import Base from "../base.entity";
 import PlaceImage from "./PlaceImages.entity";
+import { FavouritPlace } from "./placefavourite.entity";
 
 @ObjectType() 
 @Entity("place")
@@ -35,9 +36,15 @@ export class TrekkingPlace extends Base {
   @Column({ name: "longitude" })
   longitude: string;
 
-  @Field(() => [PlaceImage]) // ✅ Array of images
+  @Field(() => [PlaceImage])
   @OneToMany(() => PlaceImage, (images) => images.TrekkingPlace, {
     cascade: true,
   })
   images: PlaceImage[];
+
+  @Field(() => [FavouritPlace])
+  @OneToMany(() => FavouritPlace, (favourite) => favourite.place, {
+    cascade: true,
+  })
+  favourite: FavouritPlace[];
 }

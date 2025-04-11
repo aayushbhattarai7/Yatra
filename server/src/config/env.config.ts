@@ -48,6 +48,6 @@ export class DotenvConfig {
   static ESEWAPAYMENT_STATUS_CHECK_URL =
     process.env.ESEWAPAYMENT_STATUS_CHECK_URL!;
 
-  static KHALTI_SECRET_KEY = process.env.KHALTI_SECRET;
-  static KHALTI_GATEWAY_URL = process.env.KHALTI_GATEWAY;
+  static KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY;
+  static KHALTI_GATEWAY_URL = process.env.KHALTI_GATEWAY_URL;
 }

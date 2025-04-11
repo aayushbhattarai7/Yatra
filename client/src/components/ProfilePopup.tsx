@@ -10,6 +10,12 @@ interface FormData {
   gender: string;
   email: string;
   phoneNumber: string;
+  image:Image[]
+}
+interface Image{
+  id:string;
+  path:string;
+  type:string;
 }
 interface ProfileProps {
   onClose: () => void
@@ -28,10 +34,16 @@ const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
         email
         phoneNumber
         gender
+        image{
+        id
+        path
+        type
+        }
       }
     }
   `;
   const { data } = useQuery(GET_USER_QUERY);
+  console.log("🚀 ~ data:", data)
   useEffect(() => {
     if (data) {
       setUser(data.getUser);
@@ -49,7 +61,14 @@ const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
       <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-          <img className="h-10 w-10 rounded-full" src={profileImage} alt="Profile Image" />
+            {user?.image.map((image)=>(
+              <div>
+{image.type === "PROFILE" && (
+
+                <img className="h-10 w-10 rounded-full" src={image.path} alt="Profile Image" />
+)}
+              </div>
+            ))}
           <div>
               <h4 className="text-sm font-semibold">
                 {user?.firstName} {user?.middleName} {user?.lastName}
@@ -62,9 +81,8 @@ const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
           {[
             { label: "Your Profile", href: "/user-profile" },
             { label: "Settings", href: "/settings" },
-            { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },
-            { label: "Help Center", href: "/help" },
+            { label: "Help Center", href: "/support" },
           ].map((item, index) => (
             <a
               key={index}

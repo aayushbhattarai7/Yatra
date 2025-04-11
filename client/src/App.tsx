@@ -33,8 +33,10 @@ import AdminProtectedRoute from "./components/AdminProtectedroute";
 import AdminHome from "./ui/pages/AdminHome";
 import TravelApproval from "./components/ui/TravelApproval";
 import GuideApproval from "./components/ui/GuideApproval";
-import AddPlaces from "./components/ui/AddPlaces";
+import Place from "./components/ui/Places";
 import Places from "./components/ui/AdminPlaces";
+import Support from "./components/ui/Support";
+import SavedPlace from "./components/ui/FavouritePlaces";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -79,6 +81,9 @@ const router = createBrowserRouter([
           { path: "guide-booking", element: <GuideBooking /> },
           { path: "guide-home", element: <GuideHome /> },
           { path: "update-password", element: <UpdatePassword /> },
+          { path: "support", element: <Support /> },
+          { path: "places", element: <Place /> },
+          { path: "saved", element: <SavedPlace /> },
         ],
       },
     ],

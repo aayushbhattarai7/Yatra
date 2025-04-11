@@ -4,11 +4,16 @@ import { PlaceDTO } from "../dto/place.dto";
 import HttpException from "../utils/HttpException.utils";
 import PlaceImage from "../entities/place/PlaceImages.entity";
 import { Admin } from "../entities/admin/admin.entity";
+import { deletedMessage } from "../constant/message";
+import { User } from "../entities/user/user.entity";
+import { FavouritPlace } from "../entities/place/placefavourite.entity";
 
 class PlaceService {
   constructor(
     private readonly placeImageRepo = AppDataSource.getRepository(PlaceImage),
     private readonly adminrepo = AppDataSource.getRepository(Admin),
+    private readonly userrepo = AppDataSource.getRepository(User),
+    private readonly favouritePlaceRepo = AppDataSource.getRepository(FavouritPlace),
     private readonly trekkingPlaceRepo = AppDataSource.getRepository(
       TrekkingPlace,
     ),
@@ -110,6 +115,23 @@ class PlaceService {
       }
     }
   }
+  async deletePlace(admin_id:string, placeId:string) {
+    try {
+      const admin = await this.adminrepo.findOneBy({id:admin_id})
+      if(!admin) throw HttpException.unauthorized("You are not authorized")
+
+        const place = await this.trekkingPlaceRepo.findOneBy({id:placeId})
+        if(!place) throw HttpException.notFound("Place not found")
+      await this.trekkingPlaceRepo.delete({id:placeId})
+    return deletedMessage("place")
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   async getTrekkingPlaceByMessage(message: string): Promise<TrekkingPlace> {
     try {
@@ -129,6 +151,79 @@ class PlaceService {
         throw HttpException.internalServerError;
       }
     }
+  }
+
+  async addPlaceToFavourite(userId:string, placeId:string){
+try {
+  const user = await this.userrepo.findOneBy({id:userId})
+  if(!user) throw HttpException.unauthorized("You are not authorized")
+    console.log("🚀 ~ PlaceService ~ addPlaceToFavourite ~ user:", user)
+    
+    const place  = await this.trekkingPlaceRepo.findOneBy({id:placeId})
+  if(!place) throw HttpException.notFound("Place not found")
+const isFavourite = await this.favouritePlaceRepo.findOne({where:{
+  user:{id:userId}, place:{id:placeId}
+}, relations:["place", "user"]})
+  console.log("🚀 ~ PlaceService ~ addPlaceToFavourite ~ isFavourite:", isFavourite)
+  if(isFavourite){
+    console.log("vamo")
+    await this.favouritePlaceRepo.delete({id:isFavourite.id})
+    return `Place removed from favourite`
+  }else{
+
+    const addToFavourite = this.favouritePlaceRepo.create({
+      user,
+      place
+    })
+    await this.favouritePlaceRepo.save(addToFavourite)
+    return `Place added to favourite`
+  }
+}catch (error: unknown) {
+  if (error instanceof Error) {
+    throw HttpException.badRequest(error.message);
+  } else {
+    throw HttpException.internalServerError;
+  }
+}
+  }
+  async removePlaceToFavourite(userId:string, placeId:string){
+  console.log("🚀 ~ PlaceService ~ removePlaceToFavourite ~ placeId:", placeId)
+try {
+  const user = await this.userrepo.findOneBy({id:userId})
+  if(!user) throw HttpException.unauthorized("You are not authorized")
+    
+    const place  = await this.trekkingPlaceRepo.findOneBy({id:placeId})
+  if(!place) throw HttpException.notFound("Place not found")
+const isFavourite = await this.favouritePlaceRepo.findOneBy({user:{id:userId}, place:{id:placeId}})
+  if(!isFavourite) throw HttpException.notFound("Favourite place not found")
+    await this.favouritePlaceRepo.delete({id:isFavourite.id})
+    return `Place removed from favourite`
+  
+   
+}catch (error: unknown) {
+  if (error instanceof Error) {
+    throw HttpException.badRequest(error.message);
+  } else {
+    throw HttpException.internalServerError;
+  }
+}
+  }
+  async getFavouritePlace(userId:string){
+  console.log("🚀 ~ PlaceService ~ getFavouritePlace ~ userId:", userId)
+try {
+  const user = await this.userrepo.findOneBy({id:userId})
+  if(!user) throw HttpException.unauthorized("You are not authorized")
+    
+    const getFavoutite = await this.favouritePlaceRepo.find({where:{user:{id:userId}}, relations:["user","place","place.images"]})
+    console.log("🚀 ~ PlaceService ~ getFavouritePlace ~ getFavoutite:", getFavoutite)
+    return getFavoutite
+}catch (error: unknown) {
+  if (error instanceof Error) {
+    throw HttpException.badRequest(error.message);
+  } else {
+    throw HttpException.internalServerError;
+  }
+}
   }
 }
 

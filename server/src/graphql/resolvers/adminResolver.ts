@@ -129,7 +129,6 @@ export class AdminResolver {
   }
 
   @Query(() => [TrekkingPlace])
-  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async getPlacesByAdmin(
     @Ctx() ctx: Context,
   ): Promise<TrekkingPlace[] | null> {
@@ -153,6 +152,21 @@ export class AdminResolver {
     try {
       const adminId = ctx.req.user?.id!;
       return await adminService.rejectGuide(adminId, guideId, message);
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async deletePlace(
+    @Ctx() ctx: Context,
+    @Arg("placeId") placeId: string,
+  ) {
+    try {
+      const adminId = ctx.req.user?.id!;
+      return await placeService.deletePlace(adminId, placeId);
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,

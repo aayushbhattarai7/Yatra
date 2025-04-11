@@ -31,7 +31,7 @@ const Support = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="max-w-lg mx-auto p-6 flex flex-col justify-center bg-white shadow-lg rounded-lg">
       <h2 className="text-2xl font-semibold text-travel-primary mb-4">
         Need Help? Contact Us!
       </h2>

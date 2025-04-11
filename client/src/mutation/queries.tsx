@@ -280,6 +280,39 @@ query Query($id: String!) {
   getChatCountOfGuide(id: $id)
 }
 `;
+export const ADD_TO_FAVOURITE = gql`
+mutation AddToFavourite($placeId: String!) {
+  addToFavourite(placeId: $placeId)
+}
+`;
+export const REMOVE_FROM_FAVOURITE = gql`
+mutation RemoveFromFavourite($placeId: String!) {
+  removeFromFavourite(placeId: $placeId)
+}
+`;
+export const GET_FAVOURITE = gql`
+query GetFavouritePlace {
+  getFavouritePlace {
+  id
+  user {
+    id
+  }  
+  place {
+    id
+    latitude
+    longitude
+    duration
+    location
+    name
+    price
+    images {
+      id
+      path
+    }
+  }
+  }
+}
+`;
 export const GET_CHAT_COUNT_OF_TRAVEL = gql`
 query Query($id: String!) {
   getChatCountOfTravel(id: $id)
@@ -492,4 +525,9 @@ export const VERIFY_EMAIL_OF_USER = gql`
   mutation VerifyEmailWhileChangeOfUser($otp: String!, $email: String!) {
     verifyEmailWhileChangeOfUser(otp: $otp, email: $email)
   }
+`;
+export const DELETE_PLACE = gql`
+mutation DeletePlace($placeId: String!) {
+  deletePlace(placeId: $placeId)
+}
 `;
