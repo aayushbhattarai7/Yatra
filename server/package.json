@@ -64,11 +64,11 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
-    "@types/dotenv": "^8.2.3",
     "@types/express-fileupload": "^1.5.1",
     "@types/node": "^22.9.3",
     "@types/sanitize-html": "^2.13.0",
     "typeorm": "^0.3.21",
+    "typeorm-uml": "^1.6.5",
     "typescript": "^5.7.2"
   }
 }

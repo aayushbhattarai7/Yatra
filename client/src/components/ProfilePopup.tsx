@@ -82,7 +82,6 @@ const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
             { label: "Your Profile", href: "/user-profile" },
             { label: "Settings", href: "/settings" },
             { label: "Saved Places", href: "/saved" },
-            { label: "Help Center", href: "/support" },
           ].map((item, index) => (
             <a
               key={index}

@@ -246,8 +246,9 @@ export class UserResolver {
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getUser(@Ctx() ctx: Context): Promise<User | null> {
     try {
-      const id = ctx.req.user?.id;
-      return userService.getByid(id!);
+      const id = ctx.req.user?.id as string;
+      console.log("🚀 ~ UserResolver ~ getUser ~ id:", id)
+      return userService.getByid(id);
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error
@@ -449,6 +450,7 @@ export class UserResolver {
   }
 
   @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async completeTravelServiceByUser(@Arg("travelId") travelId: string,  @Ctx() ctx: Context,) {
     try {
       const userId = ctx.req.user?.id!;
@@ -461,7 +463,24 @@ export class UserResolver {
       } 
     }
   }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async completeGuideServiceByUser(@Arg("guideId") guideId: string,  @Ctx() ctx: Context,) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.completeGuideService(userId, guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      } 
+    }
+  }
+
   @Mutation(() => Rating)
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async rateTravel(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
@@ -476,6 +495,7 @@ export class UserResolver {
     }
   }
   @Mutation(() => Rating)
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async rateGuide(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
@@ -495,6 +515,20 @@ export class UserResolver {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getTravelRequestsHistory(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [RequestGuide], { nullable: true })
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getGuideHistory(@Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await userService.getGuideRequestsHistory(userId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

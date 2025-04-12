@@ -8,7 +8,7 @@ interface CheckoutProps {
   travelId: string;
   refresh: (travelId: string) => void;
   onClose: () => void;
-  type: "travel" | "guide";
+  type: "travel" | "guide" | "travel-connect" | "guide-connect";
 }
 
 const Checkout: React.FC<CheckoutProps> = ({

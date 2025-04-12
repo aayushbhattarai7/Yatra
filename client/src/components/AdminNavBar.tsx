@@ -12,6 +12,7 @@ import { useSocket } from "@/contexts/SocketContext";
 import { profileImage } from "@/config/constant/image";
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
+import AdminProfilePopup from "./AdminProfilePopup";
 
 interface Notifications {
   id: string;
@@ -112,8 +113,7 @@ const Navbar = () => {
             <RouterNavLink to="/admin/places" className="text-sm font-medium hover:text-gray-600">{authLabel.place[lang]}</RouterNavLink>
             <RouterNavLink to="/admin/travels" className="text-sm font-medium hover:text-gray-600">{authLabel.travel[lang]}</RouterNavLink>
             <RouterNavLink to="/admin/guides" className="text-sm font-medium hover:text-gray-600">{authLabel.guide[lang]}</RouterNavLink>
-            <RouterNavLink to="/booking" className="text-sm font-medium hover:text-gray-600">{authLabel.booking[lang]}</RouterNavLink>
-            <RouterNavLink to="/history" className="text-sm font-medium hover:text-gray-600">{authLabel.history[lang]}</RouterNavLink>
+         
           </div>
  
           {isLoggedIn ? (
@@ -135,7 +135,7 @@ const Navbar = () => {
               <PopupButton
                 onClick={openProfile}
                 show={showProfile}
-                popup={<ProfilePopup onClose={()=>setShowProfile(false)} />}
+                popup={<AdminProfilePopup onClose={()=>setShowProfile(false)} />}
                 profileImg
               />
             </div>

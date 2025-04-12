@@ -29,6 +29,7 @@ interface TravelBooking {
   status: string;
   vehicleType: string;
   price: string;
+  advancePrice:number;
   lastActionBy: string;
   userBargain: number;
   createdAt: string;
@@ -113,6 +114,7 @@ const TravelBooking = () => {
 
   useEffect(() => {
     if (data) {
+      console.log("🚀 ~ useEffect ~ data:", data)
       setTravelBooking(data.getOwnTravelRequest);
     }
   }, [data]);
@@ -215,8 +217,15 @@ const TravelBooking = () => {
                       <div className="text-sm text-gray-500">Price</div>
                       <div className="font-semibold text-lg">
                         Rs. {book.price ? book.price : "Not set"}
-                      </div>
                     </div>
+                      </div>
+                      <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                      <div className="text-sm text-gray-500">Advance Payment</div>
+                      <div className="font-semibold text-lg">
+                        Rs. {book.advancePrice ? book.advancePrice : "Not set"}
+                      </div>
+
+                      </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">Status</span>
@@ -294,8 +303,7 @@ const TravelBooking = () => {
                 </div>
 
                 {pay && (
-                  <Payments id={book.id} refresh={refetch} onClose={()=>setPay(false)} type="travel" amount={parseInt(book.price)}/>
-                  // <Esewa id={book.id} amount={parseInt(book.price)} type="travel" />
+                  <Payments id={book.id} refresh={refetch} onClose={()=>setPay(false)} type="travel" amount={book.advancePrice}/>
                 )}
               </motion.div>
             ))}
@@ -325,7 +333,6 @@ const TravelBooking = () => {
         )}
       </div>
 
-      {/* Price Modal */}
       <AnimatePresence>
         {selectedId && (
           <motion.div
@@ -379,7 +386,6 @@ const TravelBooking = () => {
         )}
       </AnimatePresence>
 
-      {/* Cancellation Modal */}
       <AnimatePresence>
         {cancellationId && (
           <motion.div

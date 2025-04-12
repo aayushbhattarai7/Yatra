@@ -62,7 +62,7 @@ export class User extends Base {
   otp: string;
 
 
-  @Field(() => Location)
+  @Field(() => Location,{nullable:true})
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
   
@@ -110,12 +110,12 @@ export class User extends Base {
   @OneToMany(() => Room, (room) => room.user)
   users: Room[];
 
-  @Field(() => [UserImage])
-  @OneToMany(() => UserImage, (image) => image.user)
+  @Field(() => [UserImage],{nullable:true})
+  @OneToMany(() => UserImage, (image) => image.user, {nullable:true})
   image: UserImage[];
 
 
-  @Field(() => [FavouritPlace])
+  @Field(() => [FavouritPlace],{nullable:true})
   @OneToMany(() => FavouritPlace, (favourite) => favourite.user)
   favourite: FavouritPlace[];
 

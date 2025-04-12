@@ -75,6 +75,7 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
       createdAt
       price
       status
+      advancePrice
       userBargain
       lastActionBy
       travel {
@@ -83,6 +84,8 @@ export const USER_REQUESTS_FOR_TRAVEL = gql`
         middleName
         lastName
         gender
+        email
+        phoneNumber
         role
         vehicleType
       }
@@ -99,6 +102,7 @@ export const USER_REQUESTS_FOR_GUIDE = gql`
       createdAt
       totalPeople
       status
+      advancePrice
       lastActionBy
       price
       guide {
@@ -171,6 +175,31 @@ export const USER_TRAVEL_BOOKING_HISTORY = gql`
     }
   }
 `;
+export const USER_GUIDE_BOOKING_HISTORY = gql`
+query GetGuideHistory {
+  getGuideHistory {
+   id
+      from
+      to
+      totalDays
+      status
+      createdAt
+      price
+      totalPeople
+      guide {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+        kyc {
+          id
+          path
+        }
+      }  
+  }
+}
+`;
 export const SEND_PRICE_TO_GUIDE = gql`
   mutation SendPriceToGuide($price: String!, $requestId: String!) {
     sendPriceToGuide(price: $price, requestId: $requestId)
@@ -223,6 +252,11 @@ export const GET_PAYMENT_DETAILS = gql`
 export const COMPLETE_TRAVEL = gql`
   mutation CompleteTravelServiceByUser($travelId: String!) {
   completeTravelServiceByUser(travelId: $travelId)
+}
+`;
+export const COMPLETE_GUIDE = gql`
+mutation CompleteGuideServiceByUser($guideId: String!) {
+  completeGuideServiceByUser(guideId: $guideId)
 }
 `;
 
@@ -529,5 +563,114 @@ export const VERIFY_EMAIL_OF_USER = gql`
 export const DELETE_PLACE = gql`
 mutation DeletePlace($placeId: String!) {
   deletePlace(placeId: $placeId)
+}
+`;
+export const GET_HIGHEST_RATED_GUIDES = gql`
+query GetHighestRatedGuides {
+  getHighestRatedGuides {
+  id
+  email
+  firstName
+  middleName
+  lastName
+  phoneNumber
+  guiding_location
+  role  
+  ratings {
+    rating
+  }
+  }
+}
+`;
+export const GET_HIGHEST_RATED_TRAVELS = gql`
+query GetHighestratedTravels {
+  getHighestratedTravels {
+    id
+  email
+  firstName
+  middleName
+  lastName
+  phoneNumber
+  role  
+  ratings {
+    rating
+  }
+  }  
+}
+`;
+export const GET_ALL_GUIDES = gql`
+query GetAllGuides {
+  getAllGuides {
+   id
+  firstName
+  middleName
+  lastName
+  email
+  phoneNumber
+  gender
+  role
+   kyc {
+    id
+    path
+  }    
+  }
+}
+`;
+export const GET_ALL_TRAVELS = gql`
+query GetAllTravels {
+  getAllTravels {
+  id
+  firstName
+  middleName
+  lastName
+  email
+  kyc {
+    id
+    path
+  }  
+  }
+}
+`;
+export const GET_ALL_USERS = gql`
+query GetAllUsers {
+  getAllUsers {
+  id
+  firstName
+  middleName
+  lastName
+  email
+  phoneNumber
+  image {
+    id
+    path
+  }  
+  }
+}
+`;
+export const GET_TOTAL_REVENUE = gql`
+query Query {
+  getTotalRevenueByAdmin
+}
+`;
+export const GET_GROUPED_REVENUE = gql`
+query GetGroupedRevenue {
+  getGroupedRevenue {
+  daily {
+    name
+    revenue
+  }  
+  monthly {
+    name
+    revenue
+  }
+  weekly {
+  name
+    revenue
+  }
+  yearly {
+  name
+    revenue
+  }
+  }
 }
 `;

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
+import { showToast } from "@/components/ToastNotification";
 
 const LOGIN_MUTATION = gql`
   mutation AdminLogin($password: String!, $email: String!) {
@@ -40,19 +41,16 @@ const AdminLogin = () => {
           secure: true,
           sameSite: "Strict",
         });
-        setMessage(response.data.message, "success");
+        showToast(response.data.message, "success");
         navigate("/admin");
       } else {
         console.error("No response data:", response);
-        setMessage(response.data.message, "error");
+        showToast(response.data.message, "error");
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.log("ohno");
-        const graphqlError = error?.graphQLErrors?.[0]?.message;
-
-        console.error("GraphQL Error:", graphqlError);
-        setMessage(graphqlError!, "error");
+      
+        showToast(err.message, "error");
       } else {
         console.error("Unexpected Error:", err);
       }

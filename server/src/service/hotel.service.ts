@@ -4,7 +4,7 @@ import { emailRegex } from "../utils/regex.utils";
 import { GuideDTO } from "../dto/guide.dto";
 import { AppDataSource } from "../config/database.config";
 import { Guide } from "../entities/guide/guide.entity";
-import BcryptService from "./bcrypt.service";
+import bcryptService from "./bcrypt.service";
 import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
@@ -19,7 +19,6 @@ import { HotelDTO } from "../dto/hotel.dto";
 import HotelKyc from "../entities/hotels/hotelKyc.entity";
 import { HotelRoomDTO } from "../dto/hotelRoom.dto";
 import { HotelRoom } from "../entities/hotels/hotelRoom.entity";
-const bcryptService = new BcryptService();
 const hashService = new HashService();
 const otpService = new OtpService();
 class HotelService {
@@ -270,18 +269,18 @@ class HotelService {
       const hotel = await this.hotelRepo.findOneBy({ id: hotel_id });
       if (!hotel) throw HttpException.unauthorized("You are not authorized");
 
-      const room = this.hotelRoomRepo.create({
-        roomType: RoomType[data.roomType as keyof typeof RoomType],
-        roomDescription: data.roomDescription,
-        isAttachedBathroom: data.isAttachedBathroom,
-        maxOccupancy: data.maxOccupancy,
-        roomSize: data.roomSize,
-        Amenities: data.Amenities,
-        pricePerNight: data.pricePerNight,
-        isAvailable: data.isAvailable,
-        hotels: hotel,
-      });
-      await this.hotelRoomRepo.save(room);
+      // const room = this.hotelRoomRepo.create({
+      //   roomType: RoomType[data.roomType as keyof typeof RoomType],
+      //   roomDescription: data.roomDescription,
+      //   isAttachedBathroom: data.isAttachedBathroom,
+      //   maxOccupancy: data.maxOccupancy,
+      //   roomSize: data.roomSize,
+      //   Amenities: data.Amenities,
+      //   pricePerNight: data.pricePerNight,
+      //   isAvailable: data.isAvailable,
+      //   hotels: hotel,
+      // });
+      // await this.hotelRoomRepo.save(room);
       return;
     } catch (error: unknown) {
       if (error instanceof Error) {

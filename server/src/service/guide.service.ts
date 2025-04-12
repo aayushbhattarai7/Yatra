@@ -18,6 +18,7 @@ import { LoginDTO } from "../dto/login.dto";
 import { Message, rejectRequest } from "../constant/message";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
+import { User } from "../entities/user/user.entity";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
@@ -30,12 +31,12 @@ class GuideService {
     private readonly guideRequestRepo = AppDataSource.getRepository(
       RequestGuide,
     ),
-      private readonly notificationRepo = AppDataSource.getRepository(
-          Notification,
-        ),
-
+    private readonly notificationRepo = AppDataSource.getRepository(
+      Notification,
+    ),
+    private readonly userRepo = AppDataSource.getRepository(User),
     private readonly guideKycRepo = AppDataSource.getRepository(GuideKYC),
-  ) {}
+  ) { }
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
     console.log("🚀 ~ GuideService ~ create ~ data:", data);
@@ -426,18 +427,92 @@ class GuideService {
           guide: { id: guide_id },
           id: requestId,
         },
+        relations:["users","guide"]
       });
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
+      if (requests.guideBargain > 2)
+        throw HttpException.badRequest("Bargain limit exceed");
+      const newPrice = parseFloat(price)
+      const advancePrice = newPrice * 0.25;
       const data = await this.guideRequestRepo.update(
         { id: requests.id },
         {
           price: price,
+          advancePrice: advancePrice,
           lastActionBy: Role.GUIDE,
         },
       );
+      if(data){
+        const request = await this.guideRequestRepo.findOne({where:{id:requestId}, relations:["users","guide"]})
+        if(!request){
+          throw HttpException.notFound("guide request not found")
+        }
+        io.to(request.users.id).emit("get-booking", request);
+         const notification = this.notificationRepo.create({
+          senderGuide:guide,
+          receiverUser:{id:request.users.id},
+          message:`Guide ${guide.firstName} sent you the trip price ${price}`
+        })
+        await this.notificationRepo.save(notification)
+        io.to(request.users.id).emit("notification", notification)
+
+      }
+
       return Message.priceSent;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async completeGuideService(guide_id: string, user_id: string) {
+    try {
+      const travel = await this.guideRepo.findOne({
+        where: {
+          id: guide_id,
+        }
+      });
+      if (!travel) {
+        throw HttpException.unauthorized("you are not authorized");
+      }
+      const user = await this.userRepo.findOneBy({ id: user_id })
+      if (!user) throw HttpException.notFound("User not found")
+
+      return await AppDataSource.transaction(
+        async (transactionEntityManager) => {
+          const findTravelService = await transactionEntityManager.findOne(
+            this.guideRequestRepo.target, {
+            where: {
+              guide: { id: guide_id },
+              users: { id: user_id },
+              status: RequestStatus.ACCEPTED,
+              lastActionBy:Role.GUIDE
+            }
+          }
+          )
+
+          if (!findTravelService) throw HttpException.notFound("Request not found")
+
+          const update = await transactionEntityManager.update(
+            RequestGuide,
+            { id: findTravelService.id },
+            {
+              status: RequestStatus.CONFIRMATION_PENDING,
+              lastActionBy: Role.TRAVEL
+            }
+          );
+          if (update) {
+
+            io.to(user_id).emit("request-travel", findTravelService)
+          }
+          return `Please wait for user to confirm it`
+        }
+      )
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -476,13 +551,13 @@ class GuideService {
       }
       const notifications = await this.notificationRepo.findBy({
         receiverGuide: { id: guide_id },
-        isRead:false
+        isRead: false
       });
       if (!notifications) {
         throw HttpException.notFound("No notifications yet");
       }
       const notificationCount = notifications.length
-io.to(guide_id).emit("notification-count", notificationCount)
+      io.to(guide_id).emit("notification-count", notificationCount)
       return notificationCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -499,7 +574,7 @@ io.to(guide_id).emit("notification-count", notificationCount)
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
-    const updateResult =  await this.notificationRepo.update(
+      const updateResult = await this.notificationRepo.update(
         { receiverGuide: { id: guide_id } },
         { isRead: true },
       );
@@ -507,7 +582,7 @@ io.to(guide_id).emit("notification-count", notificationCount)
       if (updateResult.affected && updateResult.affected > 0) {
         io.to(guide_id).emit("notification-updated", { unreadCount: 0 });
       }
-  
+
       return updateResult;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -606,7 +681,7 @@ io.to(guide_id).emit("notification-count", notificationCount)
         throw HttpException.badRequest("You are not authorized");
       }
       await this.guideRepo.update({ id: userId }, { available: true });
-const activeGuides = await this.getAllActiveUsers()
+      const activeGuides = await this.getAllActiveUsers()
       io.to(userId).emit("active-guide", activeGuides);
       return;
     } catch (error: unknown) {
@@ -635,5 +710,21 @@ const activeGuides = await this.getAllActiveUsers()
       }
     }
   }
+
+  async getBookings(guideId: string) {
+    try {
+
+      const booking = await this.guideRequestRepo.find({ where: { guide: { id: guideId } }, relations: ["guide", "user"] })
+      if (booking.length === 0) throw HttpException.notFound("Booking not found")
+      return booking;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
 }
 export default GuideService;

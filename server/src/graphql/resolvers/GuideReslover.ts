@@ -284,4 +284,19 @@ export class GuideResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async requestForCompletedGuide(@Arg("userId") userId: string,  @Ctx() ctx: Context,) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.completeGuideService(guideId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 }

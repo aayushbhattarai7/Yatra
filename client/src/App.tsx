@@ -37,6 +37,7 @@ import Place from "./components/ui/Places";
 import Places from "./components/ui/AdminPlaces";
 import Support from "./components/ui/Support";
 import SavedPlace from "./components/ui/FavouritePlaces";
+import BookingHistory from "./ui/common/organisms/BookingHistory";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -76,7 +77,7 @@ const router = createBrowserRouter([
           { path: "user-profile", element: <UserProfile /> },
           { path: "settings", element: <Settings /> },
           { path: "/booking", element: <Booking /> },
-          { path: "/history", element: <TravelBookingHistory /> },
+          { path: "/history", element: <BookingHistory /> },
           { path: "travel-booking", element: <TravelBooking /> },
           { path: "guide-booking", element: <GuideBooking /> },
           { path: "guide-home", element: <GuideHome /> },

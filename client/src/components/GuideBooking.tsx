@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
 import {
   CANCEL_GUIDE_REQUEST,
+  COMPLETE_GUIDE,
   SEND_PRICE_TO_GUIDE,
   USER_REQUESTS_FOR_GUIDE,
 } from "@/mutation/queries";
@@ -13,9 +14,11 @@ import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
-import CheckoutGuide from "./CheckoutOfGuide";
-import {  Clock, MapPin,  User, Mail, Phone, Calendar, CreditCard, AlertCircle } from "lucide-react";
-import Esewa from "./Esewa";
+import { Clock, Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle } from "lucide-react";
+import Payments from "./Payments";
+import { useSocket } from "@/contexts/SocketContext";
+import Rating from "./ui/Rating";
+import { useNavigate } from "react-router-dom";
 
 interface GuideBooking {
   id: string;
@@ -26,9 +29,10 @@ interface GuideBooking {
   guide: Guide;
   status: string;
   price: string;
+  advancePrice: number;
   lastActionBy: string;
-  createdAt: string;
   userBargain: number;
+  createdAt: string;
 }
 
 interface Guide {
@@ -38,6 +42,7 @@ interface Guide {
   lastName: string;
   gender: string;
   email: string;
+  phoneNumber: string;
 }
 
 interface Price {
@@ -45,17 +50,19 @@ interface Price {
 }
 
 const GuideBooking = () => {
-  const [pay, setPay] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cancellationId, setCancellationId] = useState<string | null>(null);
-  const [guideBooking, setGuideBooking] = useState<GuideBooking[] | null>(null);
+  const [guideBooking, setGuideBooking] = useState<GuideBooking[] | []>([]);
+  const { socket } = useSocket();
+  const navigate = useNavigate();
+  const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_GUIDE);
   const { lang } = useLang();
+  const [showCompletionPopup, setShowCompletionPopup] = useState('');
   const [sendPriceToGuide] = useMutation(SEND_PRICE_TO_GUIDE);
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
-
-
+  const [completeGuideServiceByUser] = useMutation(COMPLETE_GUIDE);
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -63,16 +70,22 @@ const GuideBooking = () => {
       const res = await sendPriceToGuide({
         variables: { price: price.price, requestId: selectedId },
       });
+      refetch();
       showToast(res.data.sendPriceToGuide, "success");
       reset();
       setSelectedId(null);
-      refetch();
     } catch (error: unknown) {
       if (error instanceof Error) {
         showToast(error.message || "An error occurred", "error");
       }
     }
   };
+  
+  useEffect(() => {
+    socket.on("get-booking", (booking) => {
+      setGuideBooking((prev) => [...prev, booking]);
+    });
+  }, [socket]);
 
   const acceptRequest = async () => {
     setPay(true);
@@ -88,8 +101,22 @@ const GuideBooking = () => {
     showToast(res.data.cancelGuideRequest, "success");
   };
 
+  const completeGuide = async (id: string) => {
+    const res = await completeGuideServiceByUser({
+      variables: { guideId: id },
+    });
+    console.log("🚀 ~ completeGuide ~ res:", res)
+    reset();
+    setShowCompletionPopup(id);
+    refetch();
+    showToast(res.data.completeGuideServiceByUser, "success");
+  };
+
   useEffect(() => {
-    if (data) setGuideBooking(data.getOwnGuideRequest);
+    if (data) {
+      console.log("🚀 ~ useEffect ~ data:", data)
+      setGuideBooking(data.getOwnGuideRequest);
+    }
   }, [data]);
 
   const getStatusColor = (status: string) => {
@@ -136,9 +163,9 @@ const GuideBooking = () => {
           </div>
         </div>
 
-        {guideBooking && guideBooking.length > 0 ? (
+        {guideBooking.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {guideBooking.map((book) => (
+            {guideBooking?.map((book) => (
               <motion.div
                 key={book.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -146,13 +173,13 @@ const GuideBooking = () => {
                 className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div className="p-6">
-                   <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
                       <User className="w-7 h-7 text-emerald-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {book.guide.firstName} {book.guide.middleName} {book.guide.lastName}
+                        {book.guide?.firstName} {book.guide?.middleName} {book.guide?.lastName}
                       </h3>
                       <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                         <MapPin className="w-4 h-4" />
@@ -177,11 +204,11 @@ const GuideBooking = () => {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-sm">
                           <Mail className="w-4 h-4 text-gray-400" />
-                          <span>{book.guide.email}</span>
+                          <span>{book.guide?.email}</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="w-4 h-4 text-gray-400" />
-                          <span>Available after booking</span>
+                          <span>{book.guide?.phoneNumber}</span>
                         </div>
                       </div>
                     )}
@@ -190,6 +217,12 @@ const GuideBooking = () => {
                       <div className="text-sm text-gray-500">Price</div>
                       <div className="font-semibold text-lg">
                         Rs. {book.price ? book.price : "Not set"}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                      <div className="text-sm text-gray-500">Advance Payment</div>
+                      <div className="font-semibold text-lg">
+                        Rs. {book.advancePrice ? book.advancePrice : "Not set"}
                       </div>
                     </div>
 
@@ -219,7 +252,16 @@ const GuideBooking = () => {
                           <div className="space-y-3">
                             {book.lastActionBy === "GUIDE" ? (
                               <>
-                                {book.status !== "ACCEPTED" && (
+                                {book.status === "CONFIRMATION_PENDING" && (
+                                  <Button
+                                    onClick={() => completeGuide(book.guide.id)}
+                                    buttonText={authLabel.complete[lang]}
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors disabled:bg-gray-300"
+                                  />
+                                )}
+                                {book.status !== "ACCEPTED" && book.status !== "CONFIRMATION_PENDING" && (
                                   <>
                                     <Button
                                       onClick={acceptRequest}
@@ -232,7 +274,7 @@ const GuideBooking = () => {
                                       buttonText={authLabel.bargain[lang]}
                                       disabled={book.userBargain > 2}
                                       type="submit"
-                                      className="w-full bg-yellow-600 border text-emerald-600 hover:bg-yellow-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                      className="w-full bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                     />
                                   </>
                                 )}
@@ -250,7 +292,7 @@ const GuideBooking = () => {
                               buttonText="Cancel Booking"
                               type="submit"
                               onClick={() => setCancellationId(book.id)}
-                              className="w-full border text-red-600 py-3 rounded-xl font-medium transition-colors"
+                              className="w-full border text-red-600 hover:bg-red-700 py-3 rounded-xl font-medium transition-colors"
                             />
                           </div>
                         )}
@@ -260,7 +302,13 @@ const GuideBooking = () => {
                 </div>
 
                 {pay && (
-                  <Esewa id={book.id} amount={parseInt(book.price)} type="guide" />
+                  <Payments 
+                    id={book.id} 
+                    refresh={refetch} 
+                    onClose={() => setPay(false)} 
+                    type="guide" 
+                    amount={book.advancePrice}
+                  />
                 )}
               </motion.div>
             ))}
@@ -281,12 +329,10 @@ const GuideBooking = () => {
               <p className="text-gray-500 mb-6">
                 Start your journey by booking your first guide experience with us.
               </p>
-              <Button
-                buttonText="Book Your First Guide"
-                type="button"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors"
-                icon={<CreditCard className="w-5 h-5" />}
-              />
+              <button onClick={()=>navigate("/guide")} className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-colors">
+                <CreditCard className="w-5 h-5" />
+                Book Your First Guide
+              </button>
             </div>
           </motion.div>
         )}
@@ -309,13 +355,12 @@ const GuideBooking = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">Set Your Price</h2>
-                  <Button
+                  <button
                     onClick={() => setSelectedId(null)}
-                    buttonText=""
-                    type="button"
                     className="text-gray-400 hover:text-gray-600 transition-colors"
-                    icon={<IoClose size={24} />}
-                  />
+                  >
+                    <IoClose size={24} />
+                  </button>
                 </div>
                 <form onSubmit={handleSubmit(sendPrice)} className="space-y-6">
                   <InputField
@@ -362,13 +407,12 @@ const GuideBooking = () => {
             >
               <div className="p-6">
                 <div className="flex justify-end">
-                  <Button
+                  <button
                     onClick={() => setCancellationId(null)}
-                    buttonText=""
-                    type="button"
                     className="text-gray-400 hover:text-gray-600 transition-colors"
-                    icon={<IoClose size={24} />}
-                  />
+                  >
+                    <IoClose size={24} />
+                  </button>
                 </div>
                 <div className="text-center mb-6">
                   <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -380,24 +424,32 @@ const GuideBooking = () => {
                   </p>
                 </div>
                 <div className="flex gap-4">
-                  <Button
+                  <button
                     onClick={() => setCancellationId(null)}
-                    buttonText="Keep Booking"
-                    type="button"
                     className="flex-1 px-6 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors"
-                  />
-                  <Button
+                  >
+                    Keep Booking
+                  </button>
+                  <button
                     onClick={CancelRequest}
-                    buttonText="Yes, Cancel"
-                    type="button"
                     className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium transition-colors"
-                  />
+                  >
+                    Yes, Cancel
+                  </button>
                 </div>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showCompletionPopup && (
+        <Rating 
+          onClose={() => setShowCompletionPopup('')}  
+          providers="guide" 
+          id={showCompletionPopup}
+        />
+      )}
     </div>
   );
 };

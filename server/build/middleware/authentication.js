@@ -1,0 +1,38 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authentication = void 0;
+const env_config_1 = require("../config/env.config");
+const webToken_service_1 = __importDefault(require("../service/webToken.service"));
+const HttpException_utils_1 = __importDefault(require("../utils/HttpException.utils"));
+const authentication = () => {
+    return (req, res, next) => {
+        const tokens = req.headers.authorization?.split(" ");
+        try {
+            if (!tokens) {
+                throw new Error("You are not authorized");
+            }
+            const mode = tokens[0];
+            const accessToken = tokens[1];
+            if (mode != "Bearer" || !accessToken)
+                throw new Error("You are not authorized");
+            const payload = webToken_service_1.default.verify(accessToken, env_config_1.DotenvConfig.ACCESS_TOKEN_SECRET);
+            if (payload) {
+                req.user = payload;
+                next();
+            }
+            else {
+                throw HttpException_utils_1.default.unauthorized("You are not authorized");
+            }
+        }
+        catch (err) {
+            if (err.name === "TokenExpiredError") {
+                throw HttpException_utils_1.default.badRequest("Token Expired, Please sign in again");
+            }
+            return next(new Error("You are not authorized"));
+        }
+    };
+};
+exports.authentication = authentication;

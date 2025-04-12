@@ -57,6 +57,7 @@ const UserProfile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, loading, refetch, error } = useQuery(GET_USER_QUERY);
+  console.log("🚀 ~ UserProfile ~ error:", error)
   const [changeEmailOfUser] = useMutation(CHANGE_EMAIL_OF_USER);
   const [verifyEmailWhileChangeOfUser] = useMutation(VERIFY_EMAIL_OF_USER);
   // const [updateUserImage] = useMutation(UPDATE_USER_IMAGE);

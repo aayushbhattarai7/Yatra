@@ -1,4 +1,3 @@
-import { MapPin, Calendar, Users, User, Clock, MapPinned } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import Button from "../common/atoms/Button";
@@ -7,11 +6,13 @@ import { useLang } from "../../hooks/useLang";
 import {
   GUIDE_REQUESTS,
   REJECT_REQUEST_BY_GUIDE,
+  REQUEST_FOR_COMPLETE_GUIDE_SERVICE,
   SEND_PRICE_BY_GUIDE,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
-import { useSocket } from '../../contexts/SocketContext';
+import { MapPin, Calendar, Users, User, Clock, MapPinned } from "lucide-react";
+import { useSocket } from "../../contexts/SocketContext";
 
 interface FormData {
   id: string;
@@ -23,6 +24,7 @@ interface FormData {
   gender: string;
   users: User;
   lastActionBy: string;
+  status: string;
 }
 
 interface User {
@@ -44,21 +46,47 @@ const GuideRequests = () => {
   const [guides, setGuides] = useState<FormData[] | []>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
+  const { socket } = useSocket();
   const { data, loading, error, refetch } = useQuery(GUIDE_REQUESTS);
   const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
   const [sendPriceByGuide] = useMutation(SEND_PRICE_BY_GUIDE);
   const { register, handleSubmit, reset } = useForm<Price>();
-const {socket} = useSocket()
+  const [requestForCompletedGuide] = useMutation(REQUEST_FOR_COMPLETE_GUIDE_SERVICE);
+
   const sendPrice: SubmitHandler<Price> = async (price) => {
-    if (!selectedId) return;
-    const res = await sendPriceByGuide({
-      variables: { price: price.price, requestId: selectedId },
-    });
-    showToast(res.data.sendPriceByGuide, "success");
-    reset();
-    setSelectedId(null);
+    try {
+      if (!selectedId) return;
+      const res = await sendPriceByGuide({
+        variables: { price: price.price, requestId: selectedId },
+      });
+      showToast(res.data.sendPriceByGuide, "success");
+      reset();
+      setSelectedId(null);
+      refetch();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occurred", "error");
+        setSelectedId(null);
+      }
+    }
+  };
+
+  const rejectRequest = async (id: string) => {
+    await rejectRequestByGuide({ variables: { requestId: id } });
     refetch();
   };
+
+  const requestForComplete = async (id: string) => {
+    await requestForCompletedGuide({ variables: { userId: id } });
+    refetch();
+  };
+
+  useEffect(() => {
+    if (data) {
+      setGuides(data.getRequestsByGuide);
+    }
+  }, [data]);
+
   useEffect(() => {
     const handleNewRequests = (newBooking: FormData) => {
       console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking);
@@ -70,16 +98,6 @@ const {socket} = useSocket()
       socket.off("request-guide", handleNewRequests);
     };
   }, [socket]);
-  const rejectRequest = async (id: string) => {
-    await rejectRequestByGuide({ variables: { requestId: id } });
-    refetch();
-  };
-
-  useEffect(() => {
-    if (data) {
-      setGuides(data.getRequestsByGuide);
-    }
-  }, [data]);
 
   if (loading) {
     return (
@@ -219,11 +237,14 @@ const {socket} = useSocket()
                       />
                     ) : (
                       <>
-                        <Button
-                          type="button"
-                          buttonText={authLabel.accept[lang]}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
-                        />
+                        {request.status === "ACCEPTED" && (
+                          <Button
+                            type="button"
+                            buttonText={authLabel.complete[lang]}
+                            onClick={() => requestForComplete(request.users.id)}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                          />
+                        )}
                         <Button
                           type="button"
                           onClick={() => setSelectedId(request.id)}

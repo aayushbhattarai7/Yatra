@@ -5,10 +5,11 @@ import CryptoJS from "crypto-js";
 interface PaymentProps {
   id: string;
   amount: number;
-  type: "travel" | "guide";
+  type: "travel" | "guide" | "travel-connect" | "guide-connect";
 }
 
 const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
+  console.log("🚀 ~ amount:", amount)
   const hashedId = `${uuidv4()}_${id}`;
   const formRef = useRef<HTMLFormElement>(null);
 

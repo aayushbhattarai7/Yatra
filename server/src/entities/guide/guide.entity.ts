@@ -89,9 +89,9 @@ export class Guide extends Base {
   @OneToOne(() => Location, (location) => location.guide, { cascade: true })
   location: Location;
 
-  @Field(() => Rating, { nullable: true })
+  @Field(() => [Rating], { nullable: true })
   @OneToMany(() => Rating, (ratings) => ratings.guide, { cascade: true })
-  ratings: Rating;
+  ratings: Rating[];
 
   @Field(() => GuideDetails)
   @OneToOne(() => GuideDetails, (details) => details.guide, { cascade: true })

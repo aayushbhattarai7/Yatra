@@ -44,6 +44,7 @@ import UserImage from "../entities/user/userImage.entity";
 import { UserDTO } from "../dto/user.dto";
 import { transferImageFromUploadToTemp } from "../utils/path.utils";
 import { TrekkingPlace } from "../entities/place/trekkingplace.entity";
+import mailUtils from "../utils/mail.utils";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -356,6 +357,7 @@ class UserService {
   async googleLogin(googleId: string) {
     try {
       const decoded: any = jwtDecode(googleId);
+      console.log("🚀 ~ UserService ~ googleLogin ~ decoded:", decoded)
       const user = await this.userRepo.findOne({
         where: { email: decoded.email },
       });
@@ -364,7 +366,7 @@ class UserService {
           const saveUser = this.userRepo.create({
             email: decoded.email,
             firstName: decoded.given_name,
-            lastName: decoded.family_name,
+            lastName: decoded.family_name?decoded.family_name:decoded.name ,
             gender: Gender.NONE,
             phoneNumber: decoded.jti,
             password: await bcryptService.hash(decoded?.sub),
@@ -377,7 +379,14 @@ class UserService {
       } else {
         return await this.getByid(user.id);
       }
-    } catch (error: any) { }
+    } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ googleLogin ~ error:", error)
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
   }
 
   async debugFBToken(userAccessToken: string) {
@@ -483,14 +492,14 @@ class UserService {
   async getByid(id: string) {
     try {
       const user = await this.userRepo
-        .createQueryBuilder("user")
-        .leftJoinAndSelect("user.image", "image")
-        .where("user.id =:id", { id })
-        .andWhere("image.user_id =:id", { id })
-        .getOne();
-
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.image", "image")
+      .where("user.id =:id", { id })
+      .getOne();
+      
       return user;
     } catch (error) {
+      console.log("🚀 ~ UserService ~ getByid ~ error:", error)
       throw HttpException.notFound("User not found");
     }
   }
@@ -540,7 +549,6 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
-        where: { verified: true, approved: true, connects: MoreThan(0) },
         relations: ["details", "location", "kyc"],
       });
       if (!guides) {
@@ -563,7 +571,6 @@ class UserService {
         where: {
           verified: true,
           approved: true,
-          connects: MoreThan(0),
         },
         relations: ["details", "location", "kyc"],
       });
@@ -660,6 +667,7 @@ class UserService {
   }
 
   async requestGuide(user_id: string, guide_id: string, data: RequestGuides) {
+    console.log("🚀 ~ UserService ~ requestGuide ~ guide_id:", guide_id)
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) {
@@ -669,7 +677,6 @@ class UserService {
         id: guide_id,
         approved: true,
         verified: true,
-        connects: MoreThan(0),
       });
 
       if (!guide) {
@@ -739,14 +746,12 @@ class UserService {
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
-      console.log(user, "jjjjjjaaaa");
       if (!user) {
         throw HttpException.unauthorized("You are not authorized user");
       }
 
       const travel = await this.travelrepo.findOneBy({
         id: travel_id,
-        connects: MoreThan(0),
       });
       const findRequest = await this.travelRequestRepo.find({
         where: {
@@ -853,6 +858,44 @@ class UserService {
 
         }
       )
+
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async completeGuideService(user_id: string, guide_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id })
+      if (!user) throw HttpException.notFound("You are not authorized")
+      const travel = await this.guideRepo.findOne({
+        where: {
+          id: guide_id,
+        }
+      });
+      if (!travel) {
+        throw HttpException.unauthorized("Travel not found");
+      }
+
+      const request = await this.guideRequestRepo.findOneBy({
+        guide:{id:guide_id},
+        users:{id:user_id},
+        status:RequestStatus.CONFIRMATION_PENDING
+      })
+      console.log("🚀 ~ UserService ~ completeGuideService ~ request:", request)
+      if(!request) throw HttpException.notFound("Request not found");
+      
+          await this.guideRequestRepo.update(
+            { id: request.id },
+            { status: RequestStatus.COMPLETED, lastActionBy: Role.USER }
+          );
+          return `Your guide service has been successfully completed! Please take a moment to rate your travel service provider.`
+
+        
 
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -987,6 +1030,38 @@ class UserService {
       }
     }
   }
+  async getGuideRequestsHistory(user_id: string) {
+    try {
+      const user = await this.userRepo.findOneBy({
+        id: user_id,
+      });
+      if (!user) {
+        throw HttpException.unauthorized("You are not authorized");
+      }
+      const data = await this.guideRequestRepo
+        .createQueryBuilder("requestGuide")
+        .leftJoinAndSelect("requestGuide.guide", "guide")
+        .leftJoinAndSelect("guide.kyc", "kyc")
+        .leftJoinAndSelect("requestGuide.users", "user")
+        .where("requestGuide.user_id =:user_id", { user_id })
+        .andWhere("requestGuide.status IN (:...statuses)", {
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+        })
+        .getMany();
+
+      if (!data)
+        throw HttpException.notFound(
+          "You do not requested any travels for booking",
+        );
+      return data;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError("An unknown error occured");
+      }
+    }
+  }
   async getOwnGuideRequests(user_id: string) {
     try {
       const user = await this.userRepo.findOneBy({
@@ -1034,14 +1109,32 @@ class UserService {
 
       if (requests.userBargain > 2)
         throw HttpException.badRequest("Bargain limit exceed");
-      await this.travelRequestRepo.update(
+      const newPrice = parseFloat(price)
+      const advancePrice = newPrice * 0.25;
+    const data =  await this.travelRequestRepo.update(
         { id: requests.id },
         {
           price: price,
           lastActionBy: Role.USER,
+          advancePrice,
           userBargain: requests.userBargain + 1,
         },
       );
+      if(data){
+        const request = await this.travelRequestRepo.findOne({where:{id:requestId}, relations:["user", "travel"]})
+        if(!request){
+        
+          throw HttpException.notFound("Guide request not found")
+        }
+        const notification =  this.notificationRepo.create({
+          senderUser:{id:user_id},
+          receiverTravel:{id:request.travel.id},
+          message:`User ${request.user.firstName} bargained with your price, check it out`
+        })
+        await this.notificationRepo.save(notification)
+        io.to(request.travel.id).emit("request-travel", request)
+        io.to(request.travel.id).emit("notification", notification)
+              }
       return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1068,13 +1161,34 @@ class UserService {
       if (!requests) {
         throw HttpException.notFound("no request found");
       }
+      if (requests.userBargain > 2)
+        throw HttpException.badRequest("Bargain limit exceed");
+      const newPrice = parseFloat(price)
+      const advancePrice = newPrice * 0.25;
       const data = await this.guideRequestRepo.update(
         { id: requests.id },
         {
           price: price,
+          advancePrice: advancePrice,
           lastActionBy: Role.USER,
+          userBargain: requests.userBargain + 1,
         },
       );
+      if(data){
+        const request = await this.guideRequestRepo.findOne({where:{id:requestId}, relations:["users", "guide"]})
+        if(!request){
+        
+          throw HttpException.notFound("Guide request not found")
+        }
+        const notification =  this.notificationRepo.create({
+          senderUser:{id:user_id},
+          receiverGuide:{id:request.guide.id},
+          message:`User ${request.users.firstName} bargained with your price, check it out`
+        })
+        await this.notificationRepo.save(notification)
+        io.to(request.guide.id).emit("request-guide", request)
+        io.to(request.guide.id).emit("notification", notification)
+              }
       return Message.priceSent;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1103,7 +1217,7 @@ class UserService {
           travel: { id: travel.id },
           user: { id: user.id },
           status: RequestStatus.PENDING,
-        },
+        },relations:["travel","user"]
       });
 
       if (!requests) {
@@ -1116,6 +1230,22 @@ class UserService {
           lastActionBy: Role.USER,
         },
       );
+      if(data){
+const request = await this.travelRequestRepo.findOne({where:{id:requestId}, relations:["user", "travel"]})
+if(!request){
+
+  throw HttpException.notFound("Travel request not found")
+}
+const notification =  this.notificationRepo.create({
+  senderUser:{id:user_id},
+  receiverTravel:{id:request.travel.id},
+  message:`User ${request.user.firstName} accept your price, get ready for the trip`
+})
+await mailUtils.sendAcceptedMail(user.email, "Travel", user.firstName)
+await this.notificationRepo.save(notification)
+io.to(request.travel.id).emit("request-travel", request)
+io.to(request.travel.id).emit("notification", notification)
+      }
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1147,6 +1277,22 @@ class UserService {
           lastActionBy: Role.USER,
         },
       );
+      if(data){
+        const request = await this.guideRequestRepo.findOne({where:{id:requestId}, relations:["users", "guide"]})
+        if(!request){
+        
+          throw HttpException.notFound("Guide request not found")
+        }
+        const notification =  this.notificationRepo.create({
+          senderUser:{id:user_id},
+          receiverGuide:{id:request.guide.id},
+          message:`User ${request.users.firstName} accept your price, get ready for the trip`
+        })
+        await mailUtils.sendAcceptedMail(user.email, "Guide", user.firstName)
+        await this.notificationRepo.save(notification)
+        io.to(request.guide.id).emit("request-guide", request)
+        io.to(request.guide.id).emit("notification", notification)
+              }
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1390,6 +1536,7 @@ class UserService {
           },
           {
             status: RequestStatus.ACCEPTED,
+            lastActionBy:Role.USER
           },
         );
       }
@@ -1413,7 +1560,7 @@ class UserService {
     requestId: string,
     token: string,
   ) {
-    console.log("🚀 ~ UserService ~ userId:", userId);
+    console.log("🚀 ~ UserService ~ userId:", requestId);
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
@@ -1431,7 +1578,7 @@ class UserService {
 
       console.log(payment?.verifiedData);
       if (payment) {
-        await this.travelRequestRepo.update(
+       const data = await this.travelRequestRepo.update(
           { id: request.id },
           { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA, lastActionBy: Role.USER },
         );
@@ -1440,17 +1587,22 @@ class UserService {
           userId,
           request.travel.id,
         );
-        const notification = this.notificationRepo.create({
-          message: `${user.firstName} ${user.middleName} ${user.lastName} has accepted the price check it out! `,
-          senderUser: user,
-          receiverTravel: request.travel,
-        });
-
-        await this.notificationRepo.save(notification);
-        io.to(notification.receiverTravel.id).emit(
-          "notification",
-          notification,
-        );
+        if(data){
+          const request = await this.travelRequestRepo.findOne({where:{id:requestId}, relations:["user", "travel"]})
+          if(!request){
+          
+            throw HttpException.notFound("Travel request not found")
+          }
+          const notification =  this.notificationRepo.create({
+            senderUser:{id:userId},
+            receiverTravel:{id:request.travel.id},
+            message:`User ${request.user.firstName} accept your price, get ready for the trip`
+          })
+          await mailUtils.sendAcceptedMail(user.email, "Travel", user.firstName)
+          await this.notificationRepo.save(notification)
+          io.to(request.travel.id).emit("request-travel", request)
+          io.to(request.travel.id).emit("notification", notification)
+                }
         return booked("Travel");
       } else {
         throw HttpException.badRequest("Payment unsuccessful");
@@ -1486,7 +1638,7 @@ class UserService {
       if (payment) {
         await this.travelRequestRepo.update(
           { id: request.id },
-          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.KHALTI },
+          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.KHALTI, lastActionBy:Role.USER },
         );
         const notification = this.notificationRepo.create({
           message: `${user.firstName} ${user?.middleName} ${user.lastName} has accepted the price check it out! `,
@@ -1592,16 +1744,28 @@ class UserService {
       const payment = await esewaService.verifyPayment(token);
       console.log(payment?.verifiedData);
       if (payment) {
-        console.log("done 1");
-        await this.guideRequestRepo.update(
+       const data =  await this.guideRequestRepo.update(
           { id: request.id },
-          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA },
+          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.ESEWA, lastActionBy:Role.USER },
         );
-        console.log("done 2");
 
         await roomService.checkRoomWithGuide(userId, request.guide.id);
-        console.log("done 3");
-
+        if(data){
+          const request = await this.guideRequestRepo.findOne({where:{id:requestId}, relations:["users", "guide"]})
+          if(!request){
+          
+            throw HttpException.notFound("Guide request not found")
+          }
+          const notification =  this.notificationRepo.create({
+            senderUser:{id:userId},
+            receiverGuide:{id:request.guide.id},
+            message:`User ${request.users.firstName} accept your price, get ready for the trip`
+          })
+          await mailUtils.sendAcceptedMail(user.email, "Guide", user.firstName)
+          await this.notificationRepo.save(notification)
+          io.to(request.guide.id).emit("request-guide", request)
+          io.to(request.guide.id).emit("notification", notification)
+                }
         return booked("Guide");
       } else {
         throw HttpException.badRequest("Payment unsuccessful");
@@ -1649,6 +1813,7 @@ class UserService {
           },
           {
             status: RequestStatus.ACCEPTED,
+            lastActionBy:Role.USER
           },
         );
       }
@@ -1658,6 +1823,64 @@ class UserService {
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.badRequest("An error occured");
+      }
+    }
+  }
+
+  async advancePaymentForGuideWithKhalti(
+    userId: string,
+    requestId: string,
+    id: string,
+  ) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId });
+      if (!user) {
+        throw HttpException.unauthorized("User not found");
+      }
+
+      const request = await this.guideRequestRepo.findOne({
+        where: { id: requestId },
+        relations: ["guide"],
+      });
+      if (!request) {
+        throw HttpException.notFound("Request not found");
+      }
+      const payment = await khaltiService.verifyPayment(id);
+      if (payment) {
+        await this.guideRequestRepo.update(
+          { id: request.id },
+          { status: RequestStatus.ACCEPTED, paymentType: PaymentType.KHALTI, lastActionBy:Role.USER },
+        );
+        const notification = this.notificationRepo.create({
+          message: `${user.firstName} ${user?.middleName} ${user.lastName} has accepted the price check it out! `,
+          senderUser: user,
+          receiverGuide: request.guide,
+        });
+        const room = await roomService.checkRoomWithGuide(
+          userId,
+          request.guide.id,
+        );
+
+        const saveNotification = await this.notificationRepo.save(notification);
+        console.log(saveNotification);
+        const notifications = await this.notificationRepo.find({
+          where: {
+            receiverGuide: { id: request.guide.id },
+          },
+        });
+        io.to(saveNotification.receiverGuide.id).emit(
+          "notification",
+          notifications,
+        );
+        return booked("Guide");
+      } else {
+        throw HttpException.badRequest("Payment unsuccessful");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.badRequest("An error occurred");
       }
     }
   }

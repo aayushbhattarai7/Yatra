@@ -253,6 +253,12 @@ export const REQUEST_FOR_COMPLETE_TRAVEL_SERVICE = gql`
 }
 `;
 
+export const REQUEST_FOR_COMPLETE_GUIDE_SERVICE = gql`
+mutation RequestForCompletedGuide($userId: String!) {
+  requestForCompletedGuide(userId: $userId)
+}
+`;
+
 export const GET_TRAVEL_NOTIFICATIONS = gql`
   query GetAllNotificationsOfTravel {
     getAllNotificationsOfTravel {
