@@ -8,7 +8,7 @@ import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Travel } from "../entities/travels/travel.entity";
 import TravelKyc from "../entities/travels/travelKyc.entity";
-import { FileType, Gender, RequestStatus, Role } from "../constant/enum";
+import { FileType, Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
 import { TravelDetails } from "../entities/travels/travelDetails.entity";
 import { RequestTravel } from "../entities/user/RequestTravels.entity";
 import { User } from "../entities/user/user.entity";
@@ -19,6 +19,8 @@ import { LoginDTO } from "../dto/login.dto";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
 import { io } from "../socket/socket";
+import ReportFile from "../entities/user/reportFile.entity";
+import { Report } from "../entities/user/report.entity";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -37,6 +39,8 @@ class TravelService {
     private readonly notificationRepo = AppDataSource.getRepository(
       Notification,
     ),
+    private readonly reportRepo = AppDataSource.getRepository(Report),
+    private readonly reportFileRepo = AppDataSource.getRepository(ReportFile),
   ) {}
 
   async create(image: any[], data: TravelDTO): Promise<string> {
@@ -783,6 +787,50 @@ class TravelService {
         throw HttpException.notFound("Booking not found");
 
       return booking;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async reportUser(id: string, userId: string, message: string, images: any[]) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+      if (!user) throw HttpException.notFound("user not found")
+
+      const isReportAlreadyExist = await this.reportRepo.findOne({
+        where: {
+          reporterTravel: { id },
+          reportedUser: user,
+          status: ReportStatus.PENDING
+        }, relations: ["reportedUser", "reporterTravel"]
+      })
+
+      if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this user recently")
+
+      const reportGuide = this.reportRepo.create({
+        message,
+        reporterTravel: { id },
+        reportedUser: user
+      })
+
+      await this.reportRepo.save(reportGuide)
+      if (images) {
+        for (const file of images) {
+      
+          const files = this.reportFileRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            report: reportGuide
+
+          })
+          const saveFiles = await this.reportFileRepo.save(files)
+          saveFiles.transferImageToUpload(files.id, MediaType.REPORT)
+        }
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

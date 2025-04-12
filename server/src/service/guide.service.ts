@@ -8,7 +8,7 @@ import bcryptService from "./bcrypt.service";
 import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
-import { Gender, RequestStatus, Role } from "../constant/enum";
+import { Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
 import { Location } from "../entities/location/location.entity";
 import { GuideDetails } from "../entities/guide/guideDetails.entity";
 import { LocationDTO } from "../dto/location.dto";
@@ -19,6 +19,8 @@ import { Message, rejectRequest } from "../constant/message";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
 import { User } from "../entities/user/user.entity";
+import ReportFile from "../entities/user/reportFile.entity";
+import { Report } from "../entities/user/report.entity";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
@@ -36,6 +38,8 @@ class GuideService {
     ),
     private readonly userRepo = AppDataSource.getRepository(User),
     private readonly guideKycRepo = AppDataSource.getRepository(GuideKYC),
+    private readonly reportRepo = AppDataSource.getRepository(Report),
+    private readonly reportFileRepo = AppDataSource.getRepository(ReportFile),
   ) {}
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
@@ -722,6 +726,50 @@ class GuideService {
       if (booking.length === 0)
         throw HttpException.notFound("Booking not found");
       return booking;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async reportGuide(id: string, userId: string, message: string, images: any[]) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+      if (!user) throw HttpException.notFound("user not found")
+
+      const isReportAlreadyExist = await this.reportRepo.findOne({
+        where: {
+          reporterGuide: { id },
+          reportedUser: user,
+          status: ReportStatus.PENDING
+        }, relations: ["reportedUser", "reporterGuide"]
+      })
+
+      if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this user recently")
+
+      const reportGuide = this.reportRepo.create({
+        message,
+        reporterGuide: { id },
+        reportedUser: user
+      })
+
+      await this.reportRepo.save(reportGuide)
+      if (images) {
+        for (const file of images) {
+      
+          const files = this.reportFileRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            report: reportGuide
+
+          })
+          const saveFiles = await this.reportFileRepo.save(files)
+          saveFiles.transferImageToUpload(files.id, MediaType.REPORT)
+        }
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

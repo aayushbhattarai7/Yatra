@@ -105,7 +105,7 @@ class PlaceService {
   async getPlaces() {
     try {
       const places = await this.trekkingPlaceRepo.find({
-        relations: ["images"],
+        relations: ["images","ratings"],
       });
       return places;
     } catch (error: unknown) {
@@ -116,6 +116,27 @@ class PlaceService {
       }
     }
   }
+
+  async getTopPlaces() {
+    try {
+      const topPlaces = await this.trekkingPlaceRepo.find({
+        relations: ["images"],
+        order: { overallRating: "DESC" },
+        take: 3,
+      });
+  
+      return topPlaces;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  
+  
+  
   async deletePlace(admin_id: string, placeId: string) {
     try {
       const admin = await this.adminrepo.findOneBy({ id: admin_id });

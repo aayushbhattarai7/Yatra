@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
 import {
@@ -14,11 +14,12 @@ import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
-import { Clock, Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle } from "lucide-react";
+import {  Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle, MoreVertical } from "lucide-react";
 import Payments from "./Payments";
 import { useSocket } from "@/contexts/SocketContext";
 import Rating from "./ui/Rating";
 import { useNavigate } from "react-router-dom";
+import Report from "./Report";
 
 interface GuideBooking {
   id: string;
@@ -63,6 +64,8 @@ const GuideBooking = () => {
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
   const [completeGuideServiceByUser] = useMutation(COMPLETE_GUIDE);
+  const [reportTravelId, setReportTravelId] = useState<string | null>(null)
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -133,7 +136,10 @@ const GuideBooking = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
-
+ const handleReport = (bookingId: string) => {
+    setReportTravelId(bookingId)
+    setActiveMenu(null);
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -157,21 +163,38 @@ const GuideBooking = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Guide Bookings</h1>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Clock className="w-4 h-4" />
-            <span>Last updated just now</span>
-          </div>
+        
         </div>
 
         {guideBooking.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {guideBooking?.map((book) => (
-              <motion.div
+                <motion.div
                 key={book.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow relative"
               >
+                <div className="absolute top-4 right-4 menu-container">
+                  <button
+                    onClick={() => setActiveMenu(activeMenu === book.id ? null : book.id)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                  </button>
+                  
+                  {activeMenu === book.id && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-10 border">
+                      <button
+                        onClick={() => handleReport(book.guide.id)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        Report this booking
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -309,6 +332,9 @@ const GuideBooking = () => {
                     type="guide" 
                     amount={book.advancePrice}
                   />
+                )}
+                  {reportTravelId && (
+                  <Report id={reportTravelId} type="guide" onClose={()=>setReportTravelId(null)}/>
                 )}
               </motion.div>
             ))}

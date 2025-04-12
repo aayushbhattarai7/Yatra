@@ -10,6 +10,7 @@ import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
+import { Report } from "../../entities/user/report.entity";
 
 @ObjectType()
 @Entity("travel")
@@ -123,4 +124,16 @@ export class Travel extends Base {
 
   @OneToMany(() => Room, (room) => room.travel)
   travels: Room[];
+
+    @Field(() => [Report])
+    @OneToMany(() => Report, (report) => report.reporterTravel, {
+      onDelete: "CASCADE",
+    })
+    report: Report[];
+  
+    @Field(() => [Report])
+    @OneToMany(() => Report, (reports) => reports.reportedTravel, {
+      onDelete: "CASCADE",
+    })
+    reports: Report[];
 }

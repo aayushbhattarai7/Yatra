@@ -14,10 +14,11 @@ import { showToast } from "./ToastNotification";
 import { IoClose } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import InputField from "@/ui/common/atoms/InputField";
-import {  Clock, Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle } from "lucide-react";
+import {  Phone, Mail, User, Calendar, MapPin, CreditCard, AlertCircle, MoreVertical } from "lucide-react";
 import Payments from "./Payments";
 import { useSocket } from "@/contexts/SocketContext";
 import Rating from "./ui/Rating";
+import Report from "./Report";
 
 interface TravelBooking {
   id: string;
@@ -29,7 +30,7 @@ interface TravelBooking {
   status: string;
   vehicleType: string;
   price: string;
-  advancePrice:number;
+  advancePrice: number;
   lastActionBy: string;
   userBargain: number;
   createdAt: string;
@@ -62,8 +63,8 @@ const TravelBooking = () => {
   const { register, handleSubmit, reset, setValue } = useForm<Price>();
   const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
   const [completeTravelServiceByUser] = useMutation(COMPLETE_TRAVEL);
-
-
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [reportTravelId, setReportTravelId] = useState<string | null>(null)
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -112,6 +113,11 @@ const TravelBooking = () => {
     showToast(res.data.completeTravelServiceByUser, "success");
   };
 
+  const handleReport = (bookingId: string) => {
+    setReportTravelId(bookingId)
+    setActiveMenu(null);
+  };
+
   useEffect(() => {
     if (data) {
       console.log("🚀 ~ useEffect ~ data:", data)
@@ -133,6 +139,17 @@ const TravelBooking = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeMenu && !(event.target as Element).closest('.menu-container')) {
+        setActiveMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeMenu]);
 
   if (loading) {
     return (
@@ -157,10 +174,7 @@ const TravelBooking = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Travel Bookings</h1>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Clock className="w-4 h-4" />
-            <span>Last updated just now</span>
-          </div>
+        
         </div>
 
         {travelBooking.length > 0 ? (
@@ -170,8 +184,29 @@ const TravelBooking = () => {
                 key={book.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow relative"
               >
+                <div className="absolute top-4 right-4 menu-container">
+                  <button
+                    onClick={() => setActiveMenu(activeMenu === book.id ? null : book.id)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                  </button>
+                  
+                  {activeMenu === book.id && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-10 border">
+                      <button
+                        onClick={() => handleReport(book.travel.id)}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        Report this booking
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -217,15 +252,14 @@ const TravelBooking = () => {
                       <div className="text-sm text-gray-500">Price</div>
                       <div className="font-semibold text-lg">
                         Rs. {book.price ? book.price : "Not set"}
-                    </div>
                       </div>
-                      <div className="flex items-center justify-between py-3 border-t border-gray-100">
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-t border-gray-100">
                       <div className="text-sm text-gray-500">Advance Payment</div>
                       <div className="font-semibold text-lg">
                         Rs. {book.advancePrice ? book.advancePrice : "Not set"}
                       </div>
-
-                      </div>
+                    </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">Status</span>
@@ -275,7 +309,7 @@ const TravelBooking = () => {
                                       buttonText={authLabel.bargain[lang]}
                                       disabled={book.userBargain > 2}
                                       type="submit"
-                                      className="w-full bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                      className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                     />
                                   </>
                                 )}
@@ -304,6 +338,10 @@ const TravelBooking = () => {
 
                 {pay && (
                   <Payments id={book.id} refresh={refetch} onClose={()=>setPay(false)} type="travel" amount={book.advancePrice}/>
+                )}
+
+                {reportTravelId && (
+                  <Report id={reportTravelId} type="travel" onClose={()=>setReportTravelId(null)}/>
                 )}
               </motion.div>
             ))}

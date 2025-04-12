@@ -17,7 +17,7 @@ import HttpException from "../../utils/HttpException.utils";
 import { Context } from "../../types/context";
 import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
-import { Gender, Role } from "../../constant/enum";
+import {  Role } from "../../constant/enum";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import GuideKYC from "../../entities/guide/guideKyc.entity";
@@ -29,47 +29,14 @@ import { Room } from "../../entities/chat/room.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Rating } from "../../entities/ratings/rating.entity";
-import UserImage from "../../entities/user/userImage.entity";
 import placeService from "../../service/place.service";
 import { FavouritPlace } from "../../entities/place/placefavourite.entity";
+import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
 const roomService = new RoomService();
 const chatService = new ChatService();
 @Resolver((of) => User)
 export class UserResolver {
-  @Mutation(() => String)
-  // async signup(
-  //   @Arg("firstName") firstName: string,
-  //   @Arg("middleName", {nullable:true}) middleName: string,
-  //   @Arg("lastName") lastName: string,
-  //   @Arg("email") email: string,
-  //   @Arg("phoneNumber") phoneNumber: string,
-  //   @Arg("gender") gender: Gender,
-  //   @Arg("password") password: string,
-  // ) {
-  //   const image = "aaaaa"
-  //   console.log("yessss")
-  //   try {
-  //     const newUser = {
-  //       firstName,
-  //       middleName,
-  //       lastName,
-  //       email,
-  //       phoneNumber,
-  //       gender,
-  //       password,
-  //     };
-  //     if(!newUser) throw HttpException.badRequest("Fill all required fields")
 
-  //     const createdUser = await userService.signup(newUser, image as any);
-  //     return createdUser;
-  //   } catch (error) {
-  //     throw new Error(
-  //       error instanceof Error
-  //         ? error.message
-  //         : "An error occurred during signup",
-  //     );
-  //   }
-  // }
   @Mutation(() => LoginResponse)
   async login(@Arg("email") email: string, @Arg("password") password: string) {
     try {
@@ -263,7 +230,6 @@ export class UserResolver {
   async getUser(@Ctx() ctx: Context): Promise<User | null> {
     try {
       const id = ctx.req.user?.id as string;
-      console.log("🚀 ~ UserResolver ~ getUser ~ id:", id);
       return userService.getByid(id);
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -868,6 +834,40 @@ export class UserResolver {
       const userId = ctx.req.user?.id!;
       console.log("🚀 ~ UserResolver ~ getFavouritePlace ~ userId:", userId);
       return await placeService.getFavouritePlace(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [TrekkingPlace])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getTopPlaces(@Ctx() ctx: Context) {
+    try {
+      return await placeService.getTopPlaces();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async ratePlace(
+    @Arg("id") id: string,
+    @Arg("rating") rating: number,
+    @Arg("message") message: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ userId:", userId)
+      return await userService.ratePlace(userId, id, rating, message);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

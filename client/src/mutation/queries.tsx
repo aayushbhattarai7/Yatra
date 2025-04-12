@@ -412,6 +412,11 @@ export const READ_CHAT_OF_TRAVEL = gql`
     }
   }
 `;
+export const RATE_PLACE = gql`
+mutation RatePlace($message: String!, $rating: Float!, $id: String!) {
+  ratePlace(message: $message, rating: $rating, id: $id)
+}
+`;
 
 
 // Admin
@@ -521,6 +526,26 @@ query GetPlacesByAdmin {
   latitude
   location
   longitude
+  overallRating
+  price
+  images {
+    id
+    path
+  }  
+  }
+}
+`;
+export const GET_TOP_PLACES= gql`
+query GetTopPlaces {
+  getTopPlaces {
+  id
+  name
+  description
+  duration
+  latitude
+  location
+  longitude
+  overallRating
   price
   images {
     id
@@ -674,3 +699,86 @@ query GetGroupedRevenue {
   }
 }
 `;
+export const GET_ALL_TRAVEL_REQUESTS_BY_ADMIN = gql`
+query GetAllTravelRequestsByAdmin {
+  getAllTravelRequestsByAdmin {
+  id
+  from
+  to
+  price
+  status
+  totalDays
+  totalPeople
+  advancePrice
+  user {
+    id
+    firstName
+    middleName
+    lastName
+    email
+    phoneNumber
+    gender
+    image {
+      id
+      path
+    }
+  }  
+  travel {
+     id
+    firstName
+    middleName
+    lastName
+    email
+    phoneNumber
+    gender
+    kyc {
+      id
+      path
+      fileType
+    }
+  }
+  }
+}
+`;
+export const GET_ALL_GUIDE_REQUESTS_BY_ADMIN = gql`
+query GetAllGuideRequestsByAdmin {
+  getAllGuideRequestsByAdmin {
+    id
+  from
+  to
+  price
+  status
+  totalDays
+  totalPeople
+  advancePrice
+  users {
+    id
+    firstName
+    middleName
+    lastName
+    email
+    phoneNumber
+    gender
+    image {
+      id
+      path
+    }
+  }  
+  guide {
+     id
+    firstName
+    middleName
+    lastName
+    email
+    phoneNumber
+    gender
+    kyc {
+      id
+      path
+      fileType
+    }
+  }  
+  }
+}
+`;
+

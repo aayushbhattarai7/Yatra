@@ -12,6 +12,8 @@ import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
 import UserImage from "./userImage.entity";
 import { FavouritPlace } from "../../entities/place/placefavourite.entity";
+import { Report } from "./report.entity";
+import { PlaceRating } from "../../entities/ratings/place.rating.entity";
 
 @ObjectType()
 @Entity("user")
@@ -65,9 +67,13 @@ export class User extends Base {
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
 
-  @Field(() => Rating)
-  @OneToOne(() => Rating, (rating) => rating.user, { cascade: true })
-  rating: Rating;
+  @Field(() => [Rating])
+  @OneToMany(() => Rating, (rating) => rating.user, { cascade: true })
+  rating: Rating[];
+
+  @Field(() => [PlaceRating])
+  @OneToMany(() => PlaceRating, (rating) => rating.user, { cascade: true })
+  placeRating: PlaceRating[];
 
   @Field(() => BookHotel)
   @OneToOne(() => BookHotel, (bookHotel) => bookHotel.user, { cascade: true })
@@ -116,4 +122,16 @@ export class User extends Base {
   @Field(() => [FavouritPlace], { nullable: true })
   @OneToMany(() => FavouritPlace, (favourite) => favourite.user)
   favourite: FavouritPlace[];
+
+  @Field(() => [Report])
+  @OneToMany(() => Report, (report) => report.reporterUser, {
+    onDelete: "CASCADE",
+  })
+  report: Report[];
+
+  @Field(() => [Report])
+  @OneToMany(() => Report, (reports) => reports.reportedUser, {
+    onDelete: "CASCADE",
+  })
+  reports: Report[];
 }

@@ -4,19 +4,12 @@ import { gql, useQuery } from "@apollo/client";
 import { profileImage } from "@/config/constant/image";
 interface FormData {
   id: string;
-  firstName: string;
-  middleName: string;
-  lastName: string;
+name:string;
   gender: string;
   email: string;
   phoneNumber: string;
-  image:Image[]
 }
-interface Image{
-  id:string;
-  path:string;
-  type:string;
-}
+
 interface ProfileProps {
   onClose: () => void
 }
@@ -25,13 +18,11 @@ const AdminProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
 
   const [user, setUser] = useState<FormData | null>(null);
   const GET_ADMIN = gql`
-  query GetAdmin {
+query GetAdmin {
   getAdmin {
   id
   email
   name
-  password
-  role  
   }
 }
   `;
@@ -39,7 +30,7 @@ const AdminProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
   console.log("🚀 ~ data:", data)
   useEffect(() => {
     if (data) {
-      setUser(data.getUser);
+      setUser(data.getAdmin);
     }
   }, [data]);
 
@@ -54,17 +45,15 @@ const AdminProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
       <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            {user?.image.map((image)=>(
+           
               <div>
-{image.type === "PROFILE" && (
 
-                <img className="h-10 w-10 rounded-full" src={image.path} alt="Profile Image" />
-)}
+                <img className="h-10 w-10 rounded-full" src={profileImage} alt="Profile Image" />
+
               </div>
-            ))}
           <div>
               <h4 className="text-sm font-semibold">
-                {user?.firstName} {user?.middleName} {user?.lastName}
+                {user?.name}
               </h4>
               <p className="text-xs text-gray-600">{user?.email}</p>
             </div>
@@ -72,9 +61,7 @@ const AdminProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
         </div>
         <div className="py-2">
           {[
-            { label: "Your Profile", href: "/user-profile" },
             { label: "Settings", href: "/settings" },
-            { label: "Saved Places", href: "/saved" },
           ].map((item, index) => (
             <a
               key={index}

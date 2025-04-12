@@ -392,6 +392,29 @@ class AdminService {
     sunday.setDate(start.getDate() + 6);
     return sunday.toISOString().split("T")[0];
   }
+
+  async getAllTravelRequests() {
+    try {
+      const travelRequests = await this.travelRequestRepo.find({relations:["user","travel","travel.kyc","user.image"]})
+      if(travelRequests.length === 0) throw HttpException.notFound("requests not found")
+        return travelRequests
+    } catch (error:unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : "Failed to fetch revenue",
+      );
+    }
+  }
+  async getAllGuideRequests() {
+    try {
+      const guideRequests = await this.guideRequestRepo.find({relations:["users","guide","guide.kyc","users.image"]})
+      if(guideRequests.length === 0) throw HttpException.notFound("requests not found")
+        return guideRequests
+    } catch (error:unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : "Failed to fetch revenue",
+      );
+    }
+  }
 }
 
 export default new AdminService();

@@ -17,6 +17,7 @@ import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
+import { Report } from "../../entities/user/report.entity";
 
 @ObjectType()
 @Entity("guide")
@@ -129,4 +130,16 @@ export class Guide extends Base {
 
   @OneToMany(() => Room, (room) => room.guide)
   guides: Room[];
+
+    @Field(() => [Report])
+      @OneToMany(() => Report, (report) => report.reporterGuide, {
+        onDelete: "CASCADE",
+      })
+      report: Report[];
+    
+      @Field(() => [Report])
+      @OneToMany(() => Report, (reports) => reports.reportedGuide, {
+        onDelete: "CASCADE",
+      })
+      reports: Report[];
 }

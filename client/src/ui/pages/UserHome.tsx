@@ -10,13 +10,46 @@ import {
   Instagram,
   Facebook,
   Twitter,
+  Mountain,
+  Clock,
+  Route,
+  Navigation2,
 } from "lucide-react"
 import { homeImage } from "@/config/constant/image"
 import { authLabel } from "@/localization/auth"
 import { useLang } from "@/hooks/useLang"
+import { useQuery } from "@apollo/client";
+import { GET_TOP_PLACES } from "@/mutation/queries";
+import { useEffect, useState } from "react";
+interface Place {
+  id: string;
+  name: string;
+  description: string;
+  duration: string;
+  difficulty: string;
+  elevation: string;
+  distance: string;
+  location: string;
+  latitude: string;
+  longitude: string;
+  price: string;
+  images: Image[];
+  overallRating?: number;
+}
 
+interface Image {
+  id: string;
+  path: string;
+}
 function UserHome() {
+    const [places, setPlaces] = useState<Place[]>([]);
   const { lang } = useLang()
+  const { data:getPlaces, loading, error } = useQuery(GET_TOP_PLACES);
+ useEffect(() => {
+    if (getPlaces?.getTopPlaces) {
+      setPlaces(getPlaces.getTopPlaces);
+    }
+  }, [getPlaces]);
 
   const topPlaces = [
     {
@@ -105,6 +138,89 @@ function UserHome() {
     },
   ]
 
+  const isVideo = (path: string) => {
+    const videoExtensions = [".mp4", ".webm", ".ogg"];
+    return videoExtensions.some(ext => path.toLowerCase().endsWith(ext));
+  };
+
+  const PlaceCard = ({ place }: { place: Place }) => (
+    <div className="group relative bg-white rounded-2xl overflow-hidden transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl">
+      <div className="aspect-[4/3] overflow-hidden">
+        {place.images[0] && (
+          isVideo(place.images[0].path) ? (
+            <video 
+              src={place.images[0].path} 
+              muted 
+              autoPlay 
+              loop 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+            />
+          ) : (
+            <img 
+              src={place.images[0].path} 
+              alt={place.name} 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+            />
+          )
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
+      </div>
+
+      <div className="absolute bottom-0 inset-x-0 p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="bg-blue-500 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+            {place.difficulty}
+          </div>
+          {place.overallRating && (
+            <div className="flex items-center gap-1">
+              <Star className="text-yellow-400" size={16} />
+              <span className="text-white text-sm">{place.overallRating}</span>
+            </div>
+          )}
+        </div>
+        
+        <h3 className="text-2xl font-bold text-white mb-2">{place.name}</h3>
+        
+        <div className="flex items-center gap-3 text-white/90 mb-4">
+          <div className="flex items-center gap-1.5">
+            <MapPin size={16} className="text-blue-400" />
+            <span className="text-sm">{place.location}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock size={16} />
+            <span className="text-sm">{place.duration}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5">
+              <Mountain size={16} className="text-white/80" />
+              <span className="text-white/90 text-sm">{place.elevation}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Route size={16} className="text-white/80" />
+              <span className="text-white/90 text-sm">{place.distance}</span>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            <button 
+              className="p-2 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors"
+            >
+              <Navigation2 size={18} className="text-white" />
+            </button>
+            <button 
+              className="p-2 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors"
+            >
+              <ChevronRight size={18} className="text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="relative">
       <div className="relative h-[600px]">
@@ -130,36 +246,33 @@ function UserHome() {
       <section className="py-16 px-4 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800">Top Destinations</h2>
-          <a href="#" className="text-green-500 hover:text-green-600 flex items-center gap-1 font-medium">
+          <a href="/places" className="text-green-500 hover:text-green-600 flex items-center gap-1 font-medium">
             View all <ChevronRight className="h-4 w-4" />
           </a>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {topPlaces.map((place) => (
-            <div
-              key={place.id}
-              className="bg-white rounded-xl shadow-md overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg"
-            >
-              <div className="h-48 overflow-hidden">
-                <img src={place.image || "/placeholder.svg"} alt={place.name} className="w-full h-full object-cover" />
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-bold text-gray-800">{place.name}</h3>
-                  <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm font-medium">{place.rating}</span>
-                  </div>
-                </div>
-                <p className="text-gray-500 text-sm mb-3">{place.location}</p>
-                <p className="text-gray-600 mb-4">{place.description}</p>
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
-                  Explore
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="">
+        {places.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {places.map((place) => (
+              <PlaceCard key={place.id} place={place} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center text-gray-500">
+            <img 
+              src="https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f" 
+              alt="No Places" 
+              className="w-40 h-40 mb-6 opacity-60 rounded-full object-cover" 
+            />
+            <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+              No Places to Show
+            </h3>
+            <p className="text-gray-500 text-md">
+              Check back later or add new places to explore!
+            </p>
+          </div>
+        )}
         </div>
       </section>
 

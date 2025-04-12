@@ -178,4 +178,70 @@ export class UserController {
       }
     }
   }
+
+    async reportTravel(req: Request, res: Response) {
+      try {
+        const userId = req.user?.id as string;
+        console.log("🚀 ~ UserController ~ reportTravel ~ userId:", req.files)
+        const travelId = req.params.id;
+        const {message} = req.body
+        const data = req.files?.map((file: any) => {
+          return {
+            name: file?.filename,
+            mimetype: file?.mimetype,
+            type: req.body?.type,
+          }
+        })
+        const details = await userService.reportTravel(
+          userId,
+          travelId,
+          message,
+          data as any,
+        
+        );
+        res.status(StatusCodes.CREATED).json({
+          status: true,
+          details,
+          message: "Guide is registered successfully",
+        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          res.status(StatusCodes.BAD_REQUEST).json({
+            message: error?.message,
+          });
+        }
+      }
+    }
+    async reportGuide(req: Request, res: Response) {
+      try {
+        const userId = req.user?.id as string;
+        const guideId = req.params.id;
+        const {message} = req.body
+        const data = req.files?.map((file: any) => {
+          return {
+            name: file?.filename,
+            mimetype: file?.mimetype,
+            type: req.body?.type,
+          }
+        })
+        const details = await userService.reportGuide(
+          userId,
+          guideId,
+          message,
+          data as any,
+        
+        );
+        res.status(StatusCodes.CREATED).json({
+          status: true,
+          details,
+          message: "Guide is registered successfully",
+        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          res.status(StatusCodes.BAD_REQUEST).json({
+            message: error?.message,
+          });
+        }
+      }
+    }
 }

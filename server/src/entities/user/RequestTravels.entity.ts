@@ -14,7 +14,7 @@ export class RequestTravel extends Base {
 
   @Field()
   @Column({ name: "to" })
-  to: string;
+to: string;
 
   @Field()
   @Column({ name: "total_days" })

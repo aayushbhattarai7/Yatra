@@ -52,6 +52,15 @@ export const getUploadFolderpathForUser = (): string => {
   return path.join(__dirname, "..", "..", "public");
 };
 
+export const getTempFolderPathForReport = (): string => {
+  return path.resolve(process.cwd(), "public", "temp");
+};
+export const getUploadFolderpathForReport = (): string => {
+  if (process.env.NODE_ENV === Environment.PRODUCTION)
+    return path.resolve(process.cwd(), "public");
+  return path.join(__dirname, "..", "..", "public");
+};
+
 export const transferImageFromUploadToTemp = (
   id: string,
   name: string,

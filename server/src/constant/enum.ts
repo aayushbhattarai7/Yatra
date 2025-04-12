@@ -11,6 +11,15 @@ export enum Status {
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
 }
+export enum PackageStatus {
+  AVAILABLE = "AVAILABLE",
+  FULL = "FULL",
+  CLOSED = "CLOSED",
+}
+export enum ReportStatus {
+  PENDING = "PENDING",
+  SOLVED = "SOLVED",
+}
 
 export enum RequestStatus {
   PENDING = "PENDING",
@@ -36,6 +45,7 @@ export enum MediaType {
   PROFILE = "PROFILE",
   COVER = "COVER",
   PLACE = "PLACE",
+  REPORT = "REPORT"
 }
 
 export enum FileType {

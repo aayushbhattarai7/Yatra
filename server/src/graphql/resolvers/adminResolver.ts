@@ -143,9 +143,33 @@ export class AdminResolver {
       );
     }
   }
+  @Query(() => [RequestTravel])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getAllTravelRequestsByAdmin(@Ctx() ctx: Context) {
+    try {
+      const requests= adminService.getAllTravelRequests();
+      return requests
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  @Query(() => [RequestGuide])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getAllGuideRequestsByAdmin(@Ctx() ctx: Context) {
+    try {
+      const requests= adminService.getAllGuideRequests();
+      return requests
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
 
   @Query(() => [TrekkingPlace])
-  async getPlacesByAdmin(@Ctx() ctx: Context): Promise<TrekkingPlace[] | null> {
+  async getPlacesByAdmin(@Ctx() ctx: Context) {
     try {
       const place = await placeService.getPlaces();
       return place;

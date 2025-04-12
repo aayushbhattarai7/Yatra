@@ -3,6 +3,7 @@ import { ObjectType, Field, ID } from "type-graphql";
 import Base from "../base.entity";
 import PlaceImage from "./PlaceImages.entity";
 import { FavouritPlace } from "./placefavourite.entity";
+import { PlaceRating } from "../../entities/ratings/place.rating.entity";
 
 @ObjectType()
 @Entity("place")
@@ -31,9 +32,15 @@ export class TrekkingPlace extends Base {
   @Column({ name: "latitude" })
   latitude: string;
 
+  
   @Field()
-  @Column({ name: "longitude" })
+  @Column({ name: "longitude", nullable:true })
   longitude: string;
+
+  @Field({nullable:true})
+  @Column({ name: "overall_rating", type: "float", nullable:true })
+  overallRating: number;
+
 
   @Field(() => [PlaceImage])
   @OneToMany(() => PlaceImage, (images) => images.TrekkingPlace, {
@@ -46,4 +53,8 @@ export class TrekkingPlace extends Base {
     cascade: true,
   })
   favourite: FavouritPlace[];
+
+   @Field(() => [PlaceRating])
+    @OneToMany(() => PlaceRating, (rating) => rating.place, { cascade: true })
+    ratings: PlaceRating[];
 }

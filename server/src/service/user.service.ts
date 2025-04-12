@@ -9,6 +9,7 @@ import {
   Gender,
   MediaType,
   PaymentType,
+  ReportStatus,
   RequestStatus,
   Role,
 } from "../constant/enum";
@@ -45,6 +46,9 @@ import { UserDTO } from "../dto/user.dto";
 import { transferImageFromUploadToTemp } from "../utils/path.utils";
 import { TrekkingPlace } from "../entities/place/trekkingplace.entity";
 import mailUtils from "../utils/mail.utils";
+import { Report } from "../entities/user/report.entity";
+import ReportFile from "../entities/user/reportFile.entity";
+import { PlaceRating } from "../entities/ratings/place.rating.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -82,8 +86,11 @@ class UserService {
     ),
     private readonly chatRepo = AppDataSource.getRepository(Chat),
     private readonly ratingsRepo = AppDataSource.getRepository(Rating),
+    private readonly placeRatingsRepo = AppDataSource.getRepository(PlaceRating),
     private readonly placeRepo = AppDataSource.getRepository(TrekkingPlace),
-  ) {}
+    private readonly reportRepo = AppDataSource.getRepository(Report),
+    private readonly reportFileRepo = AppDataSource.getRepository(ReportFile),
+  ) { }
 
   async signup(data: UserDTO, images: { profile?: any; cover?: any }) {
     console.log("🚀 ~ UserService ~ signup ~ data:", data);
@@ -2022,6 +2029,140 @@ class UserService {
       }
     }
   }
+
+  async reportTravel(id: string, travelId: string, message: string, images: any[]) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id: travelId })
+      if (!travel) throw HttpException.notFound("Travel not found")
+
+      const isReportAlreadyExist = await this.reportRepo.findOne({
+        where: {
+          reporterUser: { id },
+          reportedTravel: travel,
+          status: ReportStatus.PENDING
+        }, relations: ["reporterUser", "reportedTravel"]
+      })
+
+      if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this travel recently")
+
+      const reportTravel = this.reportRepo.create({
+        message,
+        reporterUser: { id },
+        reportedTravel: travel
+      })
+      await this.reportRepo.save(reportTravel)
+      if (images) {
+        for (const file of images) {
+
+          const files = this.reportFileRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            report: reportTravel
+
+          })
+          const saveFiles = await this.reportFileRepo.save(files)
+          saveFiles.transferImageToUpload(files.id, MediaType.REPORT)
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async reportGuide(id: string, guideId: string, message: string, images: any[]) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guideId })
+      if (!guide) throw HttpException.notFound("Guide not found")
+
+      const isReportAlreadyExist = await this.reportRepo.findOne({
+        where: {
+          reporterUser: { id },
+          reportedGuide: guide,
+          status: ReportStatus.PENDING
+        }, relations: ["reporterUser", "reportedGuide"]
+      })
+
+      if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this guide recently")
+
+      const reportGuide = this.reportRepo.create({
+        message,
+        reporterUser: { id },
+        reportedGuide: guide
+      })
+
+      await this.reportRepo.save(reportGuide)
+      if (images) {
+        for (const file of images) {
+
+          const files = this.reportFileRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            report: reportGuide
+
+          })
+          const saveFiles = await this.reportFileRepo.save(files)
+          saveFiles.transferImageToUpload(files.id, MediaType.REPORT)
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async ratePlace(
+    user_id: string,
+    place_id: string,
+    rating: number,
+    message: string,
+  ) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: user_id });
+      if (!user) throw HttpException.notFound("You are not authorized");
+
+      const place = await this.placeRepo.findOne({
+        where: { id: place_id },
+      });
+
+      if (!place) throw HttpException.notFound("Place not found");
+
+      const newRating = this.placeRatingsRepo.create({
+        rating,
+        message,
+        user,
+        place,
+      });
+      await this.placeRatingsRepo.save(newRating);
+
+      const allRatings = await this.placeRatingsRepo.find({
+        where: { place: { id: place_id } },
+      });
+
+      const totalRating = allRatings.reduce((sum, r) => sum + r.rating, 0);
+      const averageRating = allRatings.length
+        ? parseFloat((totalRating / allRatings.length).toFixed(2))
+        : 0;
+
+      place.overallRating = averageRating;
+      await this.placeRepo.save(place);
+
+      return `Thank you for your review! New overall rating: ${averageRating}`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+
 }
 
 export default new UserService();

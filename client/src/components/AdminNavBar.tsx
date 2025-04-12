@@ -113,6 +113,7 @@ const Navbar = () => {
             <RouterNavLink to="/admin/places" className="text-sm font-medium hover:text-gray-600">{authLabel.place[lang]}</RouterNavLink>
             <RouterNavLink to="/admin/travels" className="text-sm font-medium hover:text-gray-600">{authLabel.travel[lang]}</RouterNavLink>
             <RouterNavLink to="/admin/guides" className="text-sm font-medium hover:text-gray-600">{authLabel.guide[lang]}</RouterNavLink>
+            <RouterNavLink to="/admin/booking" className="text-sm font-medium hover:text-gray-600">{authLabel.booking[lang]}</RouterNavLink>
          
           </div>
  
