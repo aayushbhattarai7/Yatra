@@ -11,7 +11,6 @@ export interface Route {
 }
 const router = Router();
 const routes: Route[] = [
- 
   {
     path: "/user",
     route: user,

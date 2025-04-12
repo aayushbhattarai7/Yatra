@@ -37,7 +37,7 @@ class TravelService {
     private readonly notificationRepo = AppDataSource.getRepository(
       Notification,
     ),
-  ) { }
+  ) {}
 
   async create(image: any[], data: TravelDTO): Promise<string> {
     return await AppDataSource.transaction(
@@ -309,7 +309,7 @@ class TravelService {
         },
         relations: ["user", "travel"],
       });
-      console.log("🚀 ~ TravelService ~ getRequests ~ requests:", requests)
+      console.log("🚀 ~ TravelService ~ getRequests ~ requests:", requests);
       return requests;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -345,43 +345,44 @@ class TravelService {
       const travel = await this.travelrepo.findOne({
         where: {
           id: travel_id,
-        }
+        },
       });
       if (!travel) {
         throw HttpException.unauthorized("you are not authorized");
       }
-      const user = await this.userRepo.findOneBy({ id: user_id })
-      if (!user) throw HttpException.notFound("User not found")
+      const user = await this.userRepo.findOneBy({ id: user_id });
+      if (!user) throw HttpException.notFound("User not found");
 
       return await AppDataSource.transaction(
         async (transactionEntityManager) => {
           const findTravelService = await transactionEntityManager.findOne(
-            this.travelRequestRepo.target, {
-            where: {
-              travel: { id: travel_id },
-              user: { id: user_id },
-              status: RequestStatus.ACCEPTED
-            }
-          }
-          )
+            this.travelRequestRepo.target,
+            {
+              where: {
+                travel: { id: travel_id },
+                user: { id: user_id },
+                status: RequestStatus.ACCEPTED,
+              },
+            },
+          );
 
-          if (!findTravelService) throw HttpException.notFound("Request not found")
+          if (!findTravelService)
+            throw HttpException.notFound("Request not found");
 
           const update = await transactionEntityManager.update(
             RequestTravel,
             { id: findTravelService.id },
             {
               status: RequestStatus.CONFIRMATION_PENDING,
-              lastActionBy: Role.TRAVEL
-            }
+              lastActionBy: Role.TRAVEL,
+            },
           );
           if (update) {
-
-            io.to(user_id).emit("request-travel", findTravelService)
+            io.to(user_id).emit("request-travel", findTravelService);
           }
-          return `Please wait for user to confirm it`
-        }
-      )
+          return `Please wait for user to confirm it`;
+        },
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -409,7 +410,7 @@ class TravelService {
       }
       if (requests.travelBargain > 2)
         throw HttpException.badRequest("Bargain limit exceed");
-      const newPrice = parseFloat(price)
+      const newPrice = parseFloat(price);
       const advancePrice = newPrice * 0.25;
 
       const data = await this.travelRequestRepo.update(
@@ -476,13 +477,13 @@ class TravelService {
       }
       const notifications = await this.notificationRepo.findBy({
         receiverTravel: { id: travelId },
-        isRead: false
+        isRead: false,
       });
       if (!notifications) {
         throw HttpException.notFound("No notifications yet");
       }
-      const notificationCount = notifications.length
-      io.to(travelId).emit("notification-count", notificationCount)
+      const notificationCount = notifications.length;
+      io.to(travelId).emit("notification-count", notificationCount);
       return notificationCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -722,11 +723,14 @@ class TravelService {
 
   async getBookings(travelId: string) {
     try {
-      const booking = await this.travelRequestRepo.find({ where: { travel: { id: travelId } }, relations: ["travel", "user"] })
-      if (booking.length === 0) throw HttpException.notFound("Booking not found")
+      const booking = await this.travelRequestRepo.find({
+        where: { travel: { id: travelId } },
+        relations: ["travel", "user"],
+      });
+      if (booking.length === 0)
+        throw HttpException.notFound("Booking not found");
 
       return booking;
-
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -771,11 +775,14 @@ class TravelService {
 
   async purchaseConnects(travelId: string, price: string) {
     try {
-      const booking = await this.travelRequestRepo.find({ where: { travel: { id: travelId } }, relations: ["travel", "user"] })
-      if (booking.length === 0) throw HttpException.notFound("Booking not found")
+      const booking = await this.travelRequestRepo.find({
+        where: { travel: { id: travelId } },
+        relations: ["travel", "user"],
+      });
+      if (booking.length === 0)
+        throw HttpException.notFound("Booking not found");
 
       return booking;
-
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

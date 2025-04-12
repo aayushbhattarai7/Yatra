@@ -15,8 +15,7 @@ export class Rating extends Base {
 
   @Field()
   @Column({ name: "message" })
-message:string
-
+  message: string;
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.rating, { onDelete: "CASCADE" })
@@ -31,7 +30,7 @@ message:string
   @JoinColumn({ name: "guide_id" })
   guide: Guide;
 
-  @Field(()=> Travel, {nullable:true})
+  @Field(() => Travel, { nullable: true })
   @ManyToOne(() => Travel, (travel) => travel.ratings, {
     onDelete: "CASCADE",
     nullable: true,

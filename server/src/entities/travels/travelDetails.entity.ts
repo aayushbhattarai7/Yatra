@@ -26,15 +26,15 @@ export class TravelDetails extends Base {
   @Column({ name: "municipality" })
   municipality: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "citizenship_id", nullable: true })
   citizenshipId: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "citizenship_issue_date", nullable: true })
   citizenshipIssueDate: Date;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "citizenship_issue_from", nullable: true })
   citizenshipIssueFrom: string;
 
@@ -50,27 +50,27 @@ export class TravelDetails extends Base {
   @Column({ name: "vehicle_number" })
   vehicleNumber: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "passport_id", nullable: true })
   passportId: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "passport_issue_date", nullable: true })
   passportIssueDate: Date;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "passport_expiry_date", nullable: true })
   passportExpiryDate: Date;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "passport_issue_from", nullable: true })
   passportIssueFrom: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "voter_id", nullable: true })
   voterId: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @Column({ name: "voter_address", nullable: true })
   voterAddress: string;
 

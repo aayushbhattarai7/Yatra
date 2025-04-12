@@ -1,10 +1,4 @@
-import {
-  AfterLoad,
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-} from "typeorm";
+import { AfterLoad, Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { ObjectType, Field, ID, registerEnumType } from "type-graphql";
 import Base from "../../entities/base.entity";
 import { MediaType } from "../../constant/enum";
@@ -24,7 +18,6 @@ registerEnumType(MediaType, {
 @ObjectType()
 @Entity("placesImages")
 class PlaceImage extends Base {
-
   @Field({ nullable: true })
   @Column({ nullable: true })
   name: string;

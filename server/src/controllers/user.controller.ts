@@ -8,7 +8,7 @@ export class UserController {
   async create(req: Request, res: Response) {
     try {
       const profileImage = req.files?.profile?.[0];
-      const coverImage = req.files?.cover?.[0]; 
+      const coverImage = req.files?.cover?.[0];
       const image = {
         profile: profileImage
           ? {
@@ -25,7 +25,7 @@ export class UserController {
             }
           : null,
       };
-      console.log(req.body,"-body")
+      console.log(req.body, "-body");
       const data = await userService.signup(req.body as UserDTO, image as any);
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error: unknown) {
@@ -36,11 +36,11 @@ export class UserController {
     }
   }
   async updateprofile(req: Request, res: Response) {
-    const id = req.user?.id as string
-    console.log("🚀 ~ UserController ~ updateprofile ~ id:", id)
+    const id = req.user?.id as string;
+    console.log("🚀 ~ UserController ~ updateprofile ~ id:", id);
     try {
       const profileImage = req.files?.profile?.[0];
-      const coverImage = req.files?.cover?.[0]; 
+      const coverImage = req.files?.cover?.[0];
       const image = {
         profile: profileImage
           ? {
@@ -57,7 +57,11 @@ export class UserController {
             }
           : null,
       };
-      const data = await userService.updateProfile(id,req.body as UserDTO, image as any);
+      const data = await userService.updateProfile(
+        id,
+        req.body as UserDTO,
+        image as any,
+      );
       res.status(StatusCodes.SUCCESS).json({ data });
     } catch (error: unknown) {
       if (error instanceof Error)

@@ -25,9 +25,7 @@ class AdminService {
     private readonly travelRequestRepo = AppDataSource.getRepository(
       RequestTravel,
     ),
-
-
-  ) { }
+  ) {}
 
   async login(data: LoginDTO): Promise<Admin> {
     try {
@@ -51,11 +49,10 @@ class AdminService {
       );
     }
   }
-  async getAdmin(id:string){
+  async getAdmin(id: string) {
     try {
-      const admin = await this.adminrepo.findOneBy({id})
-      return admin!
-      
+      const admin = await this.adminrepo.findOneBy({ id });
+      return admin!;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -73,7 +70,7 @@ class AdminService {
         where: {
           approved: false,
           verified: true,
-          approval: Status.PENDING
+          approval: Status.PENDING,
         },
         relations: ["kyc", "details"],
       });
@@ -96,11 +93,14 @@ class AdminService {
         where: {
           approved: false,
           verified: true,
-          approval: Status.PENDING
+          approval: Status.PENDING,
         },
         relations: ["kyc", "details"],
       });
-      console.log("🚀 ~ AdminService ~ getTravelApprovalRequest ~ getUnapprovedTravel:", getUnapprovedTravel)
+      console.log(
+        "🚀 ~ AdminService ~ getTravelApprovalRequest ~ getUnapprovedTravel:",
+        getUnapprovedTravel,
+      );
       if (!getUnapprovedTravel)
         throw HttpException.notFound("Travel not found");
       return getUnapprovedTravel;
@@ -123,7 +123,7 @@ class AdminService {
         { id: travelId, approved: false },
         { approved: true, approval: Status.ACCEPTED },
       );
-      await Mail.sendMail(travel.email, 'accepted')
+      await Mail.sendMail(travel.email, "accepted");
 
       return "Travel Approved successfully";
     } catch (error: unknown) {
@@ -145,7 +145,7 @@ class AdminService {
         { id: guideId, approved: false },
         { approved: true, approval: Status.ACCEPTED },
       );
-      await Mail.sendMail(guide.email, 'accepted')
+      await Mail.sendMail(guide.email, "accepted");
       return "Guide Approved successfully";
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -166,8 +166,8 @@ class AdminService {
         { id: guideId },
         { approveStatus: message, approval: Status.REJECTED },
       );
-      await Mail.sendMail(guide.email, 'rejected', message)
-      return "Guide rejected successfully"
+      await Mail.sendMail(guide.email, "rejected", message);
+      return "Guide rejected successfully";
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -187,9 +187,9 @@ class AdminService {
         { id: travelId },
         { approveStatus: message, approval: Status.REJECTED },
       );
-      await Mail.sendMail(travel.email, 'rejected', travel.approveStatus)
+      await Mail.sendMail(travel.email, "rejected", travel.approveStatus);
 
-      return "Travel rejected rejected"
+      return "Travel rejected rejected";
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -199,9 +199,10 @@ class AdminService {
 
   async getAllUsers() {
     try {
-      const travels = await this.userRepo.find({ relations: ["image"] })
-      if (travels.length === 0) throw HttpException.notFound("Travels not found")
-      return travels
+      const travels = await this.userRepo.find({ relations: ["image"] });
+      if (travels.length === 0)
+        throw HttpException.notFound("Travels not found");
+      return travels;
     } catch (error) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -210,9 +211,11 @@ class AdminService {
   }
   async getAllTravels() {
     try {
-      const users = await this.travelRepo.find({ relations: ["kyc", "details"] })
-      if (users.length === 0) throw HttpException.notFound("Travels not found")
-      return users
+      const users = await this.travelRepo.find({
+        relations: ["kyc", "details"],
+      });
+      if (users.length === 0) throw HttpException.notFound("Travels not found");
+      return users;
     } catch (error) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -221,9 +224,11 @@ class AdminService {
   }
   async getAllGuides() {
     try {
-      const guides = await this.guideRepo.find({ relations: ["kyc", "details"] })
-      if (guides.length === 0) throw HttpException.notFound("Guides not found")
-      return guides
+      const guides = await this.guideRepo.find({
+        relations: ["kyc", "details"],
+      });
+      if (guides.length === 0) throw HttpException.notFound("Guides not found");
+      return guides;
     } catch (error) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -240,7 +245,8 @@ class AdminService {
         throw HttpException.notFound("Guides not found");
       }
       const guidesWithRating = guides.map((guide) => {
-        const totalRatings = guide.ratings?.reduce((sum, r) => sum + r.rating, 0) || 0;
+        const totalRatings =
+          guide.ratings?.reduce((sum, r) => sum + r.rating, 0) || 0;
         const avgRating = guide.ratings?.length
           ? parseFloat((totalRatings / guide.ratings.length).toFixed(2))
           : 0;
@@ -257,7 +263,7 @@ class AdminService {
       return topGuides;
     } catch (error) {
       throw HttpException.badRequest(
-        error instanceof Error ? error.message : "Something went wrong"
+        error instanceof Error ? error.message : "Something went wrong",
       );
     }
   }
@@ -272,7 +278,8 @@ class AdminService {
         throw HttpException.notFound("Travel not found");
       }
       const travelsWithRating = travels.map((travel) => {
-        const totalRatings = travel.ratings?.reduce((sum, r) => sum + r.rating, 0) || 0;
+        const totalRatings =
+          travel.ratings?.reduce((sum, r) => sum + r.rating, 0) || 0;
         const avgRating = travel.ratings?.length
           ? parseFloat((totalRatings / travel.ratings.length).toFixed(2))
           : 0;
@@ -289,7 +296,7 @@ class AdminService {
       return topTravels;
     } catch (error) {
       throw HttpException.badRequest(
-        error instanceof Error ? error.message : "Something went wrong"
+        error instanceof Error ? error.message : "Something went wrong",
       );
     }
   }
@@ -313,65 +320,78 @@ class AdminService {
 
       const totalRevenue = allPrices.reduce((sum, price) => sum + price, 0);
 
-      return parseFloat(totalRevenue.toFixed(2)); 
+      return parseFloat(totalRevenue.toFixed(2));
     } catch (error) {
       throw HttpException.badRequest(
-        error instanceof Error ? error.message : "Failed to fetch revenue"
+        error instanceof Error ? error.message : "Failed to fetch revenue",
       );
     }
   }
 
   async getGroupedRevenue() {
-    const completedTravelRequests = await this.travelRequestRepo.find({ where: { status: RequestStatus.COMPLETED } });
-    const completedGuideRequests = await this.guideRequestRepo.find({ where: { status: RequestStatus.COMPLETED } });
-  
+    const completedTravelRequests = await this.travelRequestRepo.find({
+      where: { status: RequestStatus.COMPLETED },
+    });
+    const completedGuideRequests = await this.guideRequestRepo.find({
+      where: { status: RequestStatus.COMPLETED },
+    });
+
     const allRequests = [...completedTravelRequests, ...completedGuideRequests];
-  
+
     const daily: Record<string, number> = {};
     const weekly: Record<string, number> = {};
     const monthly: Record<string, number> = {};
     const yearly: Record<string, number> = {};
-  
+
     allRequests.forEach((req) => {
       const date = new Date(req.updatedAt);
       const price = parseFloat(req.price);
-  
-      const day = date.toISOString().split('T')[0];
+
+      const day = date.toISOString().split("T")[0];
       const week = `${this.getStartOfWeek(date)} to ${this.getEndOfWeek(date)}`;
-      const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       const year = String(date.getFullYear());
-  
+
       daily[day] = (daily[day] || 0) + price;
       weekly[week] = (weekly[week] || 0) + price;
       monthly[month] = (monthly[month] || 0) + price;
       yearly[year] = (yearly[year] || 0) + price;
     });
-  
+
     return {
-      daily: Object.entries(daily).map(([name, revenue]) => ({ name, revenue })),
-      weekly: Object.entries(weekly).map(([name, revenue]) => ({ name, revenue })),
-      monthly: Object.entries(monthly).map(([name, revenue]) => ({ name, revenue })),
-      yearly: Object.entries(yearly).map(([name, revenue]) => ({ name, revenue })),
+      daily: Object.entries(daily).map(([name, revenue]) => ({
+        name,
+        revenue,
+      })),
+      weekly: Object.entries(weekly).map(([name, revenue]) => ({
+        name,
+        revenue,
+      })),
+      monthly: Object.entries(monthly).map(([name, revenue]) => ({
+        name,
+        revenue,
+      })),
+      yearly: Object.entries(yearly).map(([name, revenue]) => ({
+        name,
+        revenue,
+      })),
     };
   }
-  
+
   getStartOfWeek(date: Date): string {
     const d = new Date(date);
-    const day = d.getDay(); 
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(d.setDate(diff));
-    return monday.toISOString().split('T')[0];
+    return monday.toISOString().split("T")[0];
   }
-  
+
   getEndOfWeek(date: Date): string {
     const start = new Date(this.getStartOfWeek(date));
     const sunday = new Date(start);
     sunday.setDate(start.getDate() + 6);
-    return sunday.toISOString().split('T')[0];
+    return sunday.toISOString().split("T")[0];
   }
-  
-  
-
 }
 
 export default new AdminService();

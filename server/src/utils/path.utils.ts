@@ -12,7 +12,8 @@ export const getTempFolderPathForGuide = (): string => {
   return path.resolve(process.cwd(), "public", "temp");
 };
 
-export const getUploadFolderpathForplace = (): string => {  `QAAA`
+export const getUploadFolderpathForplace = (): string => {
+  `QAAA`;
   if (process.env.NODE_ENV === Environment.PRODUCTION)
     return path.resolve(process.cwd(), "public");
   return path.join(__dirname, "..", "..", "public");

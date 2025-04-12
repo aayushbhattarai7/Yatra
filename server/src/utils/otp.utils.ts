@@ -51,16 +51,15 @@ class OtpService {
           `,
         });
       }
-  
+
       return { otp, expires };
     } catch (error: any) {
       throw HttpException.badRequest(error.message);
     }
   }
-  
 
   verifyOtp(hashedOtp: string, data: any) {
-    console.log("🚀 ~ OtpService ~ verifyOtp ~ data:", data)
+    console.log("🚀 ~ OtpService ~ verifyOtp ~ data:", data);
     const hash = hashService.hashOtp(data);
     return hash === hashedOtp;
   }

@@ -262,7 +262,10 @@ export class TravelResolver {
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
-  async requestForCompletedTravel(@Arg("userId") userId: string,  @Ctx() ctx: Context,) {
+  async requestForCompletedTravel(
+    @Arg("userId") userId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const travelId = ctx.req.user?.id!;
       return await travelService.completeTravelService(travelId, userId);

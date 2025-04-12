@@ -24,7 +24,6 @@ export class RequestGuide extends Base {
   @Column({ name: "total_people" })
   totalPeople: string;
 
-
   @Field({ nullable: true })
   @Column({ name: "user_bargain", nullable: true })
   userBargain: number;

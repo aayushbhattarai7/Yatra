@@ -70,7 +70,7 @@ function initializeSocket(server: any) {
     }
     const guide = await Guide.findOneBy({ id: userId });
     if (guide) {
-      console.log("oukay")
+      console.log("oukay");
       await guideService.activeUser(userId);
     }
     const travel = await Travel.findOneBy({ id: userId });
@@ -94,11 +94,11 @@ function initializeSocket(server: any) {
         await userService.readNotification(id);
       });
       socket.on("read-travel-notification", async () => {
-        const id = socket.data.user.id
+        const id = socket.data.user.id;
         await travelService.readNotification(id);
       });
       socket.on("read-guide-notification", async () => {
-        const id = socket.data.user.id
+        const id = socket.data.user.id;
         await guideService.readNotification(id);
       });
       socket.on("travel-location", async ({ id, latitude, longitude }) => {
@@ -131,11 +131,10 @@ function initializeSocket(server: any) {
     });
     socket.on("mark-as-read", async ({ senderId, role }) => {
       const userId = socket.data.user.id;
-      if(role === "TRAVEL"){
-
+      if (role === "TRAVEL") {
         await chatService.readChatOfTravel(userId, senderId);
-      }else{
-        await chatService.readChatOfGuide(userId, senderId)
+      } else {
+        await chatService.readChatOfGuide(userId, senderId);
       }
     });
 

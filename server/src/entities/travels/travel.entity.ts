@@ -81,10 +81,9 @@ export class Travel extends Base {
   @OneToOne(() => Location, (location) => location.travel, { cascade: true })
   location: Location;
 
-   @Field(() => [Rating], { nullable: true })
-    @OneToMany(() => Rating, (rating) => rating.travel, { cascade: true })
-    ratings: Rating[];
-
+  @Field(() => [Rating], { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.travel, { cascade: true })
+  ratings: Rating[];
 
   @Field(() => [TravelKyc])
   @OneToMany(() => TravelKyc, (kyc) => kyc.travels, { cascade: true })

@@ -61,11 +61,10 @@ export class User extends Base {
   @Column({ name: "otp", nullable: true })
   otp: string;
 
-
-  @Field(() => Location,{nullable:true})
+  @Field(() => Location, { nullable: true })
   @OneToOne(() => Location, (location) => location.user, { cascade: true })
   location: Location;
-  
+
   @Field(() => Rating)
   @OneToOne(() => Rating, (rating) => rating.user, { cascade: true })
   rating: Rating;
@@ -110,13 +109,11 @@ export class User extends Base {
   @OneToMany(() => Room, (room) => room.user)
   users: Room[];
 
-  @Field(() => [UserImage],{nullable:true})
-  @OneToMany(() => UserImage, (image) => image.user, {nullable:true})
+  @Field(() => [UserImage], { nullable: true })
+  @OneToMany(() => UserImage, (image) => image.user, { nullable: true })
   image: UserImage[];
 
-
-  @Field(() => [FavouritPlace],{nullable:true})
+  @Field(() => [FavouritPlace], { nullable: true })
   @OneToMany(() => FavouritPlace, (favourite) => favourite.user)
   favourite: FavouritPlace[];
-
 }

@@ -70,7 +70,6 @@ export class UserResolver {
   //     );
   //   }
   // }
-
   @Mutation(() => LoginResponse)
   async login(@Arg("email") email: string, @Arg("password") password: string) {
     try {
@@ -100,7 +99,6 @@ export class UserResolver {
     }
   }
 
-
   @Mutation(() => String)
   async senOtpToUser(@Arg("email") email: string) {
     try {
@@ -115,11 +113,11 @@ export class UserResolver {
   }
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async changeEmailOfUser(@Arg("email") email: string, @Ctx() ctx:Context) {
+  async changeEmailOfUser(@Arg("email") email: string, @Ctx() ctx: Context) {
     try {
-      const userId = ctx.req.user?.id as string
-      
-      return await userService.sendOtpToChangeEmail(userId,email);
+      const userId = ctx.req.user?.id as string;
+
+      return await userService.sendOtpToChangeEmail(userId, email);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -131,10 +129,14 @@ export class UserResolver {
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async verifyEmailWhileChangeOfUser(@Arg("email") email: string, @Arg("otp") otp:string, @Ctx() ctx:Context) {
+  async verifyEmailWhileChangeOfUser(
+    @Arg("email") email: string,
+    @Arg("otp") otp: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
-      const userId = ctx.req.user?.id as string
-      return await userService.verifyEmail(userId,email, otp);
+      const userId = ctx.req.user?.id as string;
+      return await userService.verifyEmail(userId, email, otp);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -144,7 +146,7 @@ export class UserResolver {
     }
   }
   @Mutation(() => String)
-  async VerifyUserOTP(@Arg("email") email: string, @Arg("otp") otp:string) {
+  async VerifyUserOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
     try {
       return await userService.verifyUser(email, otp);
     } catch (error) {
@@ -156,7 +158,11 @@ export class UserResolver {
     }
   }
   @Mutation(() => String)
-  async changePasswordOfUser(@Arg("email") email: string, @Arg("password") password:string, @Arg("confirmPassword") confirmPassword:string) {
+  async changePasswordOfUser(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+  ) {
     try {
       return await userService.changePassword(password, confirmPassword, email);
     } catch (error) {
@@ -168,10 +174,20 @@ export class UserResolver {
     }
   }
   @Mutation(() => String)
-  async updatePasswordOfUser(@Arg("currentPassword") currentPassword: string, @Arg("password") password:string, @Arg("confirmPassword") confirmPassword:string, @Ctx() ctx:Context) {
+  async updatePasswordOfUser(
+    @Arg("currentPassword") currentPassword: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
-      const id = ctx.req.user?.id as string
-      return await userService.updatePassword(id,password, confirmPassword, currentPassword);
+      const id = ctx.req.user?.id as string;
+      return await userService.updatePassword(
+        id,
+        password,
+        confirmPassword,
+        currentPassword,
+      );
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -247,7 +263,7 @@ export class UserResolver {
   async getUser(@Ctx() ctx: Context): Promise<User | null> {
     try {
       const id = ctx.req.user?.id as string;
-      console.log("🚀 ~ UserResolver ~ getUser ~ id:", id)
+      console.log("🚀 ~ UserResolver ~ getUser ~ id:", id);
       return userService.getByid(id);
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -362,7 +378,6 @@ export class UserResolver {
     }
   }
 
-
   @Query(() => [RequestTravel])
   @UseMiddleware(authentication, authorization([Role.USER]))
   async getOwnTravelRequest(@Ctx() ctx: Context) {
@@ -436,7 +451,10 @@ export class UserResolver {
   }
   @Query(() => Travel)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getTravelProfile(@Ctx() ctx: Context, @Arg("travelId") travelId: string) {
+  async getTravelProfile(
+    @Ctx() ctx: Context,
+    @Arg("travelId") travelId: string,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.getTravelProfile(userId, travelId);
@@ -451,7 +469,10 @@ export class UserResolver {
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async completeTravelServiceByUser(@Arg("travelId") travelId: string,  @Ctx() ctx: Context,) {
+  async completeTravelServiceByUser(
+    @Arg("travelId") travelId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.completeTravelService(userId, travelId);
@@ -460,13 +481,16 @@ export class UserResolver {
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.internalServerError;
-      } 
+      }
     }
   }
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async completeGuideServiceByUser(@Arg("guideId") guideId: string,  @Ctx() ctx: Context,) {
+  async completeGuideServiceByUser(
+    @Arg("guideId") guideId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.completeGuideService(userId, guideId);
@@ -475,16 +499,26 @@ export class UserResolver {
         throw HttpException.badRequest(error.message);
       } else {
         throw HttpException.internalServerError;
-      } 
+      }
     }
   }
 
   @Mutation(() => Rating)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async rateTravel(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+  async rateTravel(
+    @Arg("id") id: string,
+    @Arg("rating") rating: number,
+    @Arg("message") message: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ rateTravel ~ userId:", userId, message, rating)
+      console.log(
+        "🚀 ~ UserResolver ~ rateTravel ~ userId:",
+        userId,
+        message,
+        rating,
+      );
       return await userService.rateTravel(userId, id, rating, message);
     } catch (error) {
       if (error instanceof Error) {
@@ -496,7 +530,12 @@ export class UserResolver {
   }
   @Mutation(() => Rating)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async rateGuide(@Arg("id") id: string, @Arg("rating") rating:number, @Arg("message") message:string,  @Ctx() ctx: Context) {
+  async rateGuide(
+    @Arg("id") id: string,
+    @Arg("rating") rating: number,
+    @Arg("message") message: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
       const userId = ctx.req.user?.id!;
       return await userService.rateGuide(userId, id, rating, message);
@@ -764,7 +803,7 @@ export class UserResolver {
   }
   @Query(() => Number)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getChatCountOfGuide(@Ctx() ctx: Context, @Arg("id") id:string) {
+  async getChatCountOfGuide(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.getUnreadChatOFGuide(userId, id);
@@ -778,7 +817,7 @@ export class UserResolver {
   }
   @Query(() => Number)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getChatCountOfTravel(@Ctx() ctx: Context, @Arg("id") id:string) {
+  async getChatCountOfTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.getUnreadChatOFTravel(userId, id);
@@ -792,10 +831,10 @@ export class UserResolver {
   }
 
   @Mutation(() => String)
-  async addToFavourite(@Arg("placeId") placeId: string, @Ctx() ctx:Context) {
+  async addToFavourite(@Arg("placeId") placeId: string, @Ctx() ctx: Context) {
     try {
-      const userId = ctx.req.user?.id as string
-      return await placeService.addPlaceToFavourite(userId, placeId)
+      const userId = ctx.req.user?.id as string;
+      return await placeService.addPlaceToFavourite(userId, placeId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -806,10 +845,13 @@ export class UserResolver {
   }
 
   @Mutation(() => String)
-  async removeFromFavourite(@Arg("placeId") placeId: string, @Ctx() ctx:Context) {
+  async removeFromFavourite(
+    @Arg("placeId") placeId: string,
+    @Ctx() ctx: Context,
+  ) {
     try {
-      const userId = ctx.req.user?.id as string
-      return await placeService.removePlaceToFavourite(userId, placeId)
+      const userId = ctx.req.user?.id as string;
+      return await placeService.removePlaceToFavourite(userId, placeId);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -824,7 +866,7 @@ export class UserResolver {
   async getFavouritePlace(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getFavouritePlace ~ userId:", userId)
+      console.log("🚀 ~ UserResolver ~ getFavouritePlace ~ userId:", userId);
       return await placeService.getFavouritePlace(userId);
     } catch (error) {
       if (error instanceof Error) {

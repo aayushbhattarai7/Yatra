@@ -4,10 +4,9 @@ import Base from "../base.entity";
 import PlaceImage from "./PlaceImages.entity";
 import { FavouritPlace } from "./placefavourite.entity";
 
-@ObjectType() 
+@ObjectType()
 @Entity("place")
 export class TrekkingPlace extends Base {
-
   @Field()
   @Column()
   name: string;

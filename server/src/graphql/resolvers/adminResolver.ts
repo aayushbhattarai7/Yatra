@@ -64,7 +64,7 @@ export class AdminResolver {
     try {
       const id = ctx.req.user?.id;
       const admin = await adminService.getGuideApprovalRequest(id!);
-      return admin
+      return admin;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -79,20 +79,20 @@ export class AdminResolver {
     try {
       const id = ctx.req.user?.id;
       const admin = await adminService.getTravelApprovalRequest(id!);
-      return admin
+      return admin;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
       );
     }
   }
-  
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async approveTravel(@Ctx() ctx: Context, @Arg("travel_id") travelId: string) {
     try {
       const adminId = ctx.req.user?.id!;
-      console.log("🚀 ~ AdminResolver ~ approveTravel ~ adminId:", adminId)
+      console.log("🚀 ~ AdminResolver ~ approveTravel ~ adminId:", adminId);
       return await adminService.approveTravel(adminId, travelId);
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -112,7 +112,7 @@ export class AdminResolver {
       );
     }
   }
-  
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectTravel(
@@ -132,13 +132,11 @@ export class AdminResolver {
 
   @Query(() => Admin)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getAdmin(
-    @Ctx() ctx: Context,
-  ): Promise<Admin | null> {
+  async getAdmin(@Ctx() ctx: Context): Promise<Admin | null> {
     try {
       const id = ctx.req.user?.id as string;
       const user = await adminService.getAdmin(id);
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -147,19 +145,17 @@ export class AdminResolver {
   }
 
   @Query(() => [TrekkingPlace])
-  async getPlacesByAdmin(
-    @Ctx() ctx: Context,
-  ): Promise<TrekkingPlace[] | null> {
+  async getPlacesByAdmin(@Ctx() ctx: Context): Promise<TrekkingPlace[] | null> {
     try {
       const place = await placeService.getPlaces();
-      return place
+      return place;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
       );
     }
   }
-  
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectGuide(
@@ -178,10 +174,7 @@ export class AdminResolver {
   }
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async deletePlace(
-    @Ctx() ctx: Context,
-    @Arg("placeId") placeId: string,
-  ) {
+  async deletePlace(@Ctx() ctx: Context, @Arg("placeId") placeId: string) {
     try {
       const adminId = ctx.req.user?.id!;
       return await placeService.deletePlace(adminId, placeId);
@@ -194,12 +187,10 @@ export class AdminResolver {
 
   @Query(() => [User])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getAllUsers(
-    @Ctx() ctx: Context,
-  ): Promise<User[] | null> {
+  async getAllUsers(@Ctx() ctx: Context): Promise<User[] | null> {
     try {
       const user = await adminService.getAllUsers();
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -209,12 +200,10 @@ export class AdminResolver {
 
   @Query(() => [Guide])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getAllGuides(
-    @Ctx() ctx: Context,
-  ): Promise<Guide[] | null> {
+  async getAllGuides(@Ctx() ctx: Context): Promise<Guide[] | null> {
     try {
       const user = await adminService.getAllGuides();
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -223,12 +212,10 @@ export class AdminResolver {
   }
   @Query(() => [Guide])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getHighestRatedGuides(
-    @Ctx() ctx: Context,
-  ) {
+  async getHighestRatedGuides(@Ctx() ctx: Context) {
     try {
       const user = await adminService.getHighestRatingGuides();
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -237,12 +224,10 @@ export class AdminResolver {
   }
   @Query(() => [Travel])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getAllTravels(
-    @Ctx() ctx: Context,
-  ): Promise<Travel[] | null> {
+  async getAllTravels(@Ctx() ctx: Context): Promise<Travel[] | null> {
     try {
       const user = await adminService.getAllTravels();
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -251,12 +236,10 @@ export class AdminResolver {
   }
   @Query(() => [Travel])
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getHighestratedTravels(
-    @Ctx() ctx: Context,
-  ) {
+  async getHighestratedTravels(@Ctx() ctx: Context) {
     try {
       const user = await adminService.getHighestRatingTravels();
-      return user
+      return user;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -265,12 +248,10 @@ export class AdminResolver {
   }
   @Query(() => Number)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
-  async getTotalRevenueByAdmin(
-    @Ctx() ctx: Context,
-  ) {
+  async getTotalRevenueByAdmin(@Ctx() ctx: Context) {
     try {
       const revenue = await adminService.getTotalRevenue();
-      return revenue
+      return revenue;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -279,9 +260,7 @@ export class AdminResolver {
   }
 
   @Query(() => RevenueGroupedResponse)
-async getGroupedRevenue(): Promise<RevenueGroupedResponse> {
-  return adminService.getGroupedRevenue();
-}
-
-
+  async getGroupedRevenue(): Promise<RevenueGroupedResponse> {
+    return adminService.getGroupedRevenue();
+  }
 }

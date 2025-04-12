@@ -3,24 +3,25 @@ import HttpException from "./HttpException.utils";
 
 const mailService = new EmailService();
 class Mail {
-  constructor(
-  ) {}
+  constructor() {}
 
-
-
-  async sendMail(email: string, status: 'accepted' | 'rejected', messages?:string) {
+  async sendMail(
+    email: string,
+    status: "accepted" | "rejected",
+    messages?: string,
+  ) {
     try {
-      if (email) { 
-        const subject = 'Identity Verification Update';
+      if (email) {
+        const subject = "Identity Verification Update";
         const message =
-          status === 'accepted'
+          status === "accepted"
             ? `Dear user,<br><br>Your identity verification has been <strong>accepted</strong>. You can now access all the features of our platform.`
-            : `Dear user,<br><br>We regret to inform you that your identity verification has been <strong>rejected(${messages?messages:''})</strong>. Please ensure all information provided is accurate and try again.`;
-  
+            : `Dear user,<br><br>We regret to inform you that your identity verification has been <strong>rejected(${messages ? messages : ""})</strong>. Please ensure all information provided is accurate and try again.`;
+
         await mailService.sendMail({
           to: email,
           subject,
-          text: 'Identity Verification Update',
+          text: "Identity Verification Update",
           html: `
             <div class="content">
               ${message}
@@ -33,19 +34,18 @@ class Mail {
             </div>`,
         });
       }
-  
+
       return;
     } catch (error: any) {
       throw HttpException.badRequest(error.message);
     }
   }
-  
 
   async sendAcceptedMail(email: string, messages?: string, firstname?: string) {
     try {
       if (email) {
         const subject = "Your Booking is Confirmed!";
-  
+
         const htmlContent = `
           <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; background-color: #f9f9f9; padding: 30px;">
             <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 30px;">
@@ -72,7 +72,7 @@ class Mail {
             </div>
           </div>
         `;
-  
+
         await mailService.sendMail({
           to: email,
           subject,
@@ -80,13 +80,11 @@ class Mail {
           html: htmlContent,
         });
       }
-  
+
       return;
     } catch (error: any) {
       throw HttpException.badRequest(error.message);
     }
   }
-  
- 
 }
 export default new Mail();

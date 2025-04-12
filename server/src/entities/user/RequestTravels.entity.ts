@@ -46,7 +46,7 @@ export class RequestTravel extends Base {
   @Field({ nullable: true })
   @Column({ name: "advance_price", nullable: true })
   advancePrice: number;
-  
+
   @Field({ nullable: true })
   @Column({ type: "enum", enum: PaymentType, nullable: true })
   paymentType: PaymentType;

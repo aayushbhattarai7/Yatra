@@ -5,17 +5,18 @@ import PlaceImage from "./PlaceImages.entity";
 import { TrekkingPlace } from "./trekkingplace.entity";
 import { User } from "../../entities/user/user.entity";
 
-@ObjectType() 
+@ObjectType()
 @Entity("favourite_place")
 export class FavouritPlace extends Base {
   @Field(() => TrekkingPlace)
-  @ManyToOne(() => TrekkingPlace, (place) => place.favourite, {onDelete:"CASCADE"})
-  @JoinColumn({name:"place_id"})
+  @ManyToOne(() => TrekkingPlace, (place) => place.favourite, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "place_id" })
   place: TrekkingPlace;
- 
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.favourite, {onDelete:"CASCADE"})
-  @JoinColumn({name:"user_id"})
+  @ManyToOne(() => User, (user) => user.favourite, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "user_id" })
   user: User;
 }
