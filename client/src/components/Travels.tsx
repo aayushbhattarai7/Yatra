@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_TRAVELS } from "../mutation/queries";
 import TravelMap from "./TravelMap";
@@ -33,10 +33,10 @@ interface Kyc {
 
 const Travels = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
-  const [travels, setTravels] = useState<FormData[] | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null,
-  );
+  const [allTravels, setAllTravels] = useState<FormData[] | null>(null);
+  const [onlineTravels, setOnlineTravels] = useState<FormData[] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
   const [travel, setTravel] = useState<string>("");
   const { socket } = useSocket();
   const [showMobileList, setShowMobileList] = useState(true);
@@ -44,37 +44,83 @@ const Travels = () => {
   const [travelId, setTravelId] = useState<string>("");
   const { data, loading } = useQuery(GET_TRAVELS);
 
+  const travels = activeTab === "online" ? onlineTravels : allTravels;
+
   useEffect(() => {
     if (data?.findTravel) {
-      setTravels(data.findTravel);
+      setAllTravels(data.findTravel);
     }
+    socket.emit("get-active-travels");
   }, [data]);
 
   useEffect(() => {
+    socket.on("active-travel", (activeTravels: FormData[]) => {
+      console.log("🚀 ~ socket.on ~ activeTravels:", activeTravels)
+      setOnlineTravels(activeTravels);
+    });
+
     socket.on(
       "travels",
       (updatedTravel: {
         id: string;
         location: { latitude: string; longitude: string };
       }) => {
-        setTravels(
-          (prevTravels) =>
-            prevTravels?.map((travel) =>
-              travel.id === updatedTravel.id
-                ? {
+        setAllTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
                   ...travel,
                   location: {
                     latitude: updatedTravel.location.latitude,
                     longitude: updatedTravel.location.longitude,
                   },
                 }
-                : travel,
-            ) || null,
+              : travel
+          ) || null
         );
-      },
+
+        setOnlineTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
+                  ...travel,
+                  location: {
+                    latitude: updatedTravel.location.latitude,
+                    longitude: updatedTravel.location.longitude,
+                  },
+                }
+              : travel
+          ) || null
+        );
+      }
     );
+
+    socket.on(
+      "active-travel",
+      (updatedTravel: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setOnlineTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
+                  ...travel,
+                  location: {
+                    latitude: updatedTravel.location.latitude,
+                    longitude: updatedTravel.location.longitude,
+                  },
+                }
+              : travel
+          ) || null
+        );
+      }
+    );
+
     return () => {
       socket.off("travels");
+      socket.off("active-travels");
+      socket.off("active-travel");
     };
   }, [socket]);
 
@@ -82,14 +128,11 @@ const Travels = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
         },
         (error) => {
           console.error("Error getting location:", error);
-        },
+        }
       );
     }
   }, []);
@@ -107,20 +150,28 @@ const Travels = () => {
       <div className="hidden md:flex h-full">
         <div className="w-1/3 p-6 overflow-y-auto border-r border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            {authLabel.availableTravels[lang]}          </h2>
+            {authLabel.availableTravels[lang]}
+          </h2>
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "online" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeTab === "online"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
             >
               {authLabel.onlineTravels[lang]}
-
             </button>
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "all" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeTab === "all"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
             >
-             {authLabel.allTravels[lang]}
+              {authLabel.allTravels[lang]}
             </button>
           </div>
           <div className="space-y-4">
@@ -147,7 +198,10 @@ const Travels = () => {
                     </div>
                   </div>
                   <p className="text-gray-600 text-sm mb-3">
-                    {authLabel.vehicle[lang]}: {travel.vehicleType} • {travel.gender === "MALE" ? `${authLabel.male[lang]}` : `${authLabel.female[lang]}`}
+                    {authLabel.vehicle[lang]}: {travel.vehicleType} •{" "}
+                    {travel.gender === "MALE"
+                      ? `${authLabel.male[lang]}`
+                      : `${authLabel.female[lang]}`}
                   </p>
                   <div className="flex gap-3">
                     <Button
@@ -157,7 +211,7 @@ const Travels = () => {
                       onClick={() => setTravelId(travel.id)}
                     />
                     <Button
-                     onClick={() => setTravel(travel.id)}
+                      onClick={() => setTravel(travel.id)}
                       buttonText={authLabel.viewProfile[lang]}
                       className="border bg-gray-900 border-gray-300 px-4 py-4 rounded-lg text-sm font-medium hover:bg-gray-700"
                       type="button"
@@ -247,8 +301,9 @@ const Travels = () => {
           </svg>
         </button>
         <div
-          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${showMobileList ? "translate-y-0" : "translate-y-full"
-            }`}
+          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${
+            showMobileList ? "translate-y-0" : "translate-y-full"
+          }`}
           style={{ maxHeight: "75vh" }}
         >
           <div className="p-4">
@@ -259,13 +314,21 @@ const Travels = () => {
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "online" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                  activeTab === "online"
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
               >
                 {authLabel.onlineTravels[lang]}
               </button>
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "all" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                  activeTab === "all"
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
               >
                 {authLabel.allTravels[lang]}
               </button>
@@ -307,7 +370,7 @@ const Travels = () => {
                         onClick={() => setTravelId(travel.id)}
                       />
                       <Button
-                       onClick={() => setTravel(travel.id)}
+                        onClick={() => setTravel(travel.id)}
                         buttonText={authLabel.viewProfile[lang]}
                         className="border bg-gray-900 border-gray-300 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-700"
                         type="button"
@@ -323,7 +386,7 @@ const Travels = () => {
       {travelId && (
         <RequestTravelBooking id={travelId} onClose={() => setTravelId("")} />
       )}
-        {travel && (
+      {travel && (
         <TravelProfileUserView
           travelId={travel}
           isOpen={true}

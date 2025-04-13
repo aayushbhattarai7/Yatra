@@ -53,48 +53,92 @@ interface Location {
 
 const Guides = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null,
-  );
+  const [allGuides, setAllGuides] = useState<FormData[] | null>(null);
+  const [onlineGuides, setOnlineGuides] = useState<FormData[] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [guideId, setGuideId] = useState<string>("");
   const { socket } = useSocket();
-  const [guides, setGuides] = useState<FormData[] | null>(null);
   const [showMobileList, setShowMobileList] = useState(true);
   const [guide, setGuide] = useState<string>("");
   const { lang } = useLang();
   const { data, loading } = useQuery(GET_GUIDE_QUERY);
 
+  const guides = activeTab === "online" ? onlineGuides : allGuides;
+
   useEffect(() => {
     if (data) {
-      setGuides(data.findGuide);
+      setAllGuides(data.findGuide);
     }
+    socket.emit("get-active-guides");
   }, [data]);
 
   useEffect(() => {
+    socket.on("active-guide", (activeGuides: FormData[]) => {
+      setOnlineGuides(activeGuides);
+    });
+
     socket.on(
       "guides",
       (updatedGuide: {
         id: string;
         location: { latitude: string; longitude: string };
       }) => {
-        setGuides(
-          (prev) =>
-            prev?.map((guide) =>
-              guide.id === updatedGuide.id
-                ? {
-                    ...guide,
-                    location: {
-                      latitude: updatedGuide.location.latitude,
-                      longitude: updatedGuide.location.longitude,
-                    },
-                  }
-                : guide,
-            ) || null,
+        setAllGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
         );
-      },
+
+        setOnlineGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
+        );
+      }
     );
+
+    socket.on(
+      "active-guide",
+      (updatedGuide: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setOnlineGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
+        );
+      }
+    );
+
     return () => {
       socket.off("guides");
+      socket.off("active-guides");
+      socket.off("active-guide");
     };
   }, [socket]);
 
@@ -102,14 +146,11 @@ const Guides = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
         },
         (error) => {
           console.error("Error getting location:", error);
-        },
+        }
       );
     }
   }, []);
@@ -133,21 +174,19 @@ const Guides = () => {
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === "online"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "online"
                   ? "bg-purple-100 text-purple-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               Online Guides
             </button>
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === "all"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "all"
                   ? "bg-purple-100 text-purple-700"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               All Guides
             </button>
@@ -184,7 +223,7 @@ const Guides = () => {
 
                   <div className="flex gap-3">
                     <Button
-                      buttonText={authLabel.book [lang]}
+                      buttonText={authLabel.book[lang]}
                       onClick={() => setGuideId(guide.id)}
                       className="bg-blue-600 text-white px-4 py-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       type="button"
@@ -286,9 +325,8 @@ const Guides = () => {
         </button>
 
         <div
-          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${
-            showMobileList ? "translate-y-0" : "translate-y-full"
-          }`}
+          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${showMobileList ? "translate-y-0" : "translate-y-full"
+            }`}
           style={{ maxHeight: "75vh" }}
         >
           <div className="p-4">
@@ -300,21 +338,19 @@ const Guides = () => {
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === "online"
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "online"
                     ? "bg-purple-100 text-purple-700"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Online Guides
               </button>
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === "all"
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "all"
                     ? "bg-purple-100 text-purple-700"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 All Guides
               </button>
@@ -354,7 +390,7 @@ const Guides = () => {
 
                     <div className="flex gap-2">
                       <Button
-                        buttonText={authLabel.booknow[lang]}
+                        buttonText={authLabel.book[lang]}
                         onClick={() => setGuideId(guide.id)}
                         className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                         type="button"

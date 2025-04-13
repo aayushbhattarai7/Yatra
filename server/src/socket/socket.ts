@@ -58,6 +58,7 @@ function initializeSocket(server: any) {
 
     socket.on("get-active-travels", async () => {
       const activeTravel = await travelService.getAllActiveUsers();
+      console.log("🚀 ~ socket.on ~ activeTravel:", activeTravel)
       socket.emit("active-travel", activeTravel);
     });
     socket.on("get-active-guides", async () => {

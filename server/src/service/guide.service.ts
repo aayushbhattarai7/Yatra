@@ -40,7 +40,7 @@ class GuideService {
     private readonly guideKycRepo = AppDataSource.getRepository(GuideKYC),
     private readonly reportRepo = AppDataSource.getRepository(Report),
     private readonly reportFileRepo = AppDataSource.getRepository(ReportFile),
-  ) {}
+  ) { }
 
   async create(image: any[], data: GuideDTO): Promise<Guide> {
     console.log("🚀 ~ GuideService ~ create ~ data:", data);
@@ -759,7 +759,7 @@ class GuideService {
       await this.reportRepo.save(reportGuide)
       if (images) {
         for (const file of images) {
-      
+
           const files = this.reportFileRepo.create({
             name: file.name,
             mimetype: file.mimetype,

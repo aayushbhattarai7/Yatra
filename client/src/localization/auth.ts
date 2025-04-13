@@ -9,9 +9,41 @@ export const authLabel: LabelTypes = {
     en: "Yatra",
     ne: "यात्रा",
   },
+  yatraFooter: {
+    en: "Connecting adventurers with expert guides for unforgettable trekking experiences around the world.",
+    ne: "सारा संसारभर अविस्मरणीय पदयात्रा अनुभवका लागि साहसिक यात्रुहरूलाई अनुभवी मार्गदर्शकहरूसँग जोड्दै।",
+  },
   desc: {
     en: "Travel is the only purchase that enriches you in ways beyond material wealth",
     ne: "यात्रा मात्र यस्तो खरिद हो जसले तपाईंलाई भौतिक सम्पत्तिभन्दा बाहिरका तरिकामा समृद्ध बनाउँछ।",
+  },
+  topDestination: {
+    en: "Top Destination",
+    ne: "शीर्ष गन्तव्यहरू",
+  },
+  destinations: {
+    en: "Destinations",
+    ne: "गन्तव्यहरू",
+  },
+  popularTravels: {
+    en: "Popular Travels",
+    ne: "लोकप्रिय यात्रा",
+  },
+  expertGuides: {
+    en: "Expert Guides",
+    ne: "अनुभवी मार्गदर्शकहरू",
+  },
+  bookThisGuide: {
+    en: "Book Guide",
+    ne: "मार्गदर्शक बुक गर्नुहोस्",
+  },
+  viewAll: {
+    en: "View All",
+    ne: "सबै हेर्नुहोस्",
+  },
+  bookTravels: {
+    en: "Book Travels",
+    ne: "यात्रा बुक गर्नुहोस्",
   },
   userLogin: {
     en: "User Login",
@@ -201,8 +233,20 @@ export const authLabel: LabelTypes = {
   },
 
   homeSlogan: {
-    en: "Find the Best Travel Agencies & Guides for Your Next Adventure!",
-    ne: "विश्‍वसनीय गाइड र ट्राभल एजेन्सीहरूसँग नयाँ गन्तव्य खोज्नुहोस्",
+    en: " Discover Your Next Adventure  ",
+    ne: "तपाईंको अर्को साहसिक यात्रा पत्ता लगाउनुहोस्",
+  },
+  footerSlogan: {
+    en: "Ready for Your Next Adventure?",
+    ne: "तपाईंको अर्को साहसिक यात्राका लागि तयार हुनु भएको छ?",
+  },
+  aboutUs: {
+    en: "About Us",
+    ne: "हाम्रोबारे",
+  },
+  footerSmallSlogan: {
+    en: "Join thousands of travelers who have experienced the world's most breathtaking treks with our expert guides.",
+    ne: "हाम्रा अनुभवी मार्गदर्शकहरूसँग विश्वकै अद्भुत पदयात्रा अनुभव गरेका हजारौं यात्रुहरूमा सामेल हुनुहोस्।",
   },
   homeSmallSlogan: {
     en: "Your Journey Begins Here – Explore with Trusted Guides & Agencies!",
@@ -335,7 +379,7 @@ export const authLabel: LabelTypes = {
   },
   travel: {
     en: "Travel",
-    ne: "यात्रा एजेन्सी",
+    ne: "यात्रा",
   },
   guide: {
     en: "Guide",

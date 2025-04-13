@@ -32,6 +32,7 @@ import { Rating } from "../../entities/ratings/rating.entity";
 import placeService from "../../service/place.service";
 import { FavouritPlace } from "../../entities/place/placefavourite.entity";
 import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
+import adminService from "../../service/admin.service";
 const roomService = new RoomService();
 const chatService = new ChatService();
 @Resolver((of) => User)
@@ -847,6 +848,32 @@ export class UserResolver {
   async getTopPlaces(@Ctx() ctx: Context) {
     try {
       return await placeService.getTopPlaces();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Guide])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getTopGuidesByUser(@Ctx() ctx: Context) {
+    try {
+      return await adminService.getHighestRatingGuides();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => [Travel])
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getTopTravelsByUser(@Ctx() ctx: Context) {
+    try {
+      return await adminService.getHighestRatingTravels();
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

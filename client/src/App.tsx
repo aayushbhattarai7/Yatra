@@ -40,6 +40,7 @@ import SavedPlace from "./components/ui/FavouritePlaces";
 import BookingHistory from "./ui/common/organisms/BookingHistory";
 import { RequestsTable } from "./components/AdminRequests";
 import AdminProfilePopup from "./components/AdminProfilePopup";
+import AboutUs from "./ui/common/organisms/AboutUs";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -89,6 +90,7 @@ const router = createBrowserRouter([
           { path: "support", element: <Support /> },
           { path: "places", element: <Place /> },
           { path: "saved", element: <SavedPlace /> },
+          { path: "about", element: <AboutUs /> },
         ],
       },
     ],

@@ -417,6 +417,42 @@ mutation RatePlace($message: String!, $rating: Float!, $id: String!) {
   ratePlace(message: $message, rating: $rating, id: $id)
 }
 `;
+export const GET_TOP_GUIDES = gql`
+query GetTopGuidesByUser {
+  getTopGuidesByUser {
+    id
+  firstName
+  middleName
+  lastName
+  role
+  gender
+  guiding_location
+  kyc {
+    id
+    fileType
+    path
+  }  
+  }
+}
+`;
+export const GET_TOP_TRAVELS = gql`
+query GetTopTravelsByUser {
+  getTopTravelsByUser {
+  id
+  firstName
+  middleName
+  lastName
+  role
+  gender
+  vehicleType
+  kyc {
+    id
+    fileType
+    path
+  }  
+  }
+}
+`;
 
 
 // Admin
