@@ -882,6 +882,58 @@ export class UserResolver {
       }
     }
   }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getAllUserCount(@Ctx() ctx: Context) {
+    try {
+      return await userService.getAllUserCount();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getAllGuideCount(@Ctx() ctx: Context) {
+    try {
+      return await userService.getAllGuideCount();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getAllTravelCount(@Ctx() ctx: Context) {
+    try {
+      return await userService.getAllTravelCount();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.USER]))
+  async getAllPlaceCount(@Ctx() ctx: Context) {
+    try {
+      return await userService.getAllPlaceCount();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))

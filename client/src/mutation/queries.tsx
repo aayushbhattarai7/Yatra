@@ -453,6 +453,26 @@ query GetTopTravelsByUser {
   }
 }
 `;
+export const GET_ALL_USER_COUNT = gql`
+query Query {
+  getAllUserCount
+}
+`;
+export const GET_ALL_GUIDE_COUNT = gql`
+query Query {
+  getAllGuideCount
+}
+`;
+export const GET_ALL_TRAVEL_COUNT = gql`
+query Query {
+  getAllTravelCount
+}
+`;
+export const GET_ALL_PLACE_COUNT = gql`
+query Query {
+  getAllPlaceCount
+}
+`;
 
 
 // Admin
@@ -597,6 +617,8 @@ export const GET_USER_QUERY = gql`
       firstName
       middleName
       lastName
+      travelStyle
+      exploreLevel
       gender
       email
       phoneNumber

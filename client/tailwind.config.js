@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        'travel-primary': '#2563eb',  
+        'travel-primary': 'green',  
         'travel-accent': '#0ea5e9',     
         'travel-sunset': '#f97316',     
         'travel-forest': '#059669',     

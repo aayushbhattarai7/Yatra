@@ -1,5 +1,5 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import {  RiImageAddFill } from "react-icons/ri";
+import { RiImageAddFill } from "react-icons/ri";
 import Label from "../atoms/Label";
 import InputField from "../atoms/InputField";
 import Button from "../atoms/Button";
@@ -17,6 +17,7 @@ interface FormData {
   email: string;
   phoneNumber: string;
   password: string;
+  travelStyle: string;
   gender: "MALE" | "FEMALE";
   profile?: File;
   cover?: File;
@@ -51,6 +52,7 @@ const RegisterForm = () => {
       formDataToSend.append("email", formData.email);
       formDataToSend.append("phoneNumber", formData.phoneNumber);
       formDataToSend.append("password", formData.password);
+      formDataToSend.append("travelStyle", formData.travelStyle);
       formDataToSend.append("gender", formData.gender);
       if (formData.profile) formDataToSend.append("profile", formData.profile);
       if (formData.cover) formDataToSend.append("cover", formData.cover);
@@ -122,10 +124,10 @@ const RegisterForm = () => {
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             />
           </div>
-         
+
         </div>
         <div className="flex gap-10">
-        <div>
+          <div>
             <Label name="phoneNumber" className="pl-3" label={authLabel.phoneNumber[lang]} />
             <InputField
               setValue={setValue}
@@ -152,21 +154,21 @@ const RegisterForm = () => {
 
         <div className="flex gap-10">
           <div>
-            <Label name="profile" className="pl-3" label="Profile Photo" />
+            <Label name="profile" className="pl-3" label={authLabel.profilePhoto[lang]} />
             <input type="file" accept="image/*" className="hidden" id="profileUpload" onChange={(e) => handleFileChange(e, "profile")} />
             <label htmlFor="profileUpload" className="cursor-pointer flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
               <RiImageAddFill className="text-blue-500" />
-              Upload Profile
+              {authLabel.uploadProfile[lang]}
             </label>
             {profilePreview && <img src={profilePreview} alt="Profile Preview" className="mt-2 w-24 h-24 rounded-full border" />}
           </div>
 
           <div>
-            <Label name="cover" className="pl-3" label="Cover Photo" />
+            <Label name="cover" className="pl-3" label={authLabel.coverPhoto[lang]} />
             <input type="file" accept="image/*" className="hidden" id="coverUpload" onChange={(e) => handleFileChange(e, "cover")} />
             <label htmlFor="coverUpload" className="cursor-pointer flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
               <RiImageAddFill className="text-blue-500" />
-              Upload Cover
+              {authLabel.uploadCover[lang]}
             </label>
             {coverPreview && <img src={coverPreview} alt="Cover Preview" className="mt-2 w-48 h-24 rounded-lg border" />}
           </div>
@@ -179,6 +181,22 @@ const RegisterForm = () => {
               <option value="MALE">{authLabel.male[lang]}</option>
               <option value="FEMALE">{authLabel.female[lang]}</option>
             </select>
+          </div>
+        </div>
+        <div className="flex gap-10">
+          <div>
+            <Label name="travelStyle" className="pl-3" label={authLabel.travelStyle[lang]} />
+            <select
+              {...register("travelStyle", { required: true })}
+              className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 bg-white text-black rounded-lg"
+            >
+              <option value="Nature Explorer">{authLabel.natureExplorer[lang]}</option>
+              <option value="Adventure Seeker">{authLabel.adventureSeeker[lang]}</option>
+              <option value="Cultural Enthusiast">{authLabel.culturalEnthusiast[lang]}</option>
+              <option value="Luxury Traveler">{authLabel.luxuryTraveler[lang]}</option>
+              <option value="Budget Backpacker">{authLabel.budgetBackpacker[lang]}</option>
+            </select>
+
           </div>
         </div>
       </div>

@@ -40,23 +40,26 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   useEffect(() => {
     const handleNotification = (notification: Notification) => {
       console.log("New Notification Received:", notification);
-
+    
       setNotifications((prev) => {
         const exists = prev.some((n) => n.id === notification.id);
-        return exists ? prev : [notification, ...prev];
-      });
-
-      if (Notification.permission === "granted") {
-        try {
-          new Notification("New Notification", {
-            body: notification.message,
-            icon: "/notification-icon.png",
-          });
-        } catch (error) {
-          console.error("Notification Error:", error);
+        if (exists) return prev;
+    
+        if (Notification.permission === "granted") {
+          try {
+            new Notification("New Notification", {
+              body: notification.message,
+              icon: "/notification-icon.png",
+            });
+          } catch (error) {
+            console.error("Notification Error:", error);
+          }
         }
-      }
+    
+        return [notification, ...prev];
+      });
     };
+    
 
     socket.on("notification", handleNotification);
 

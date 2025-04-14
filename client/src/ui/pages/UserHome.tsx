@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   MapPin, Clock, X, Mountain, Star,
-  Navigation2, Route, Heart, ChevronRight,
-  Search, Calendar, Users, Mail, Phone,
+  Navigation2, Route, Heart, ChevronRight, Mail, Phone,
   Instagram, Facebook, Twitter
 } from "lucide-react";
 import { Carousel } from "react-responsive-carousel";
@@ -548,7 +547,7 @@ function UserHome() {
             </div>
 
             <div>
-              <h4 className="text-lg font-bold mb-4">Company</h4>
+              <h4 className="text-lg font-bold mb-4">{authLabel.company[lang]}</h4>
               <ul className="space-y-2">
                 <li>
                   <a href="/about" className="text-gray-300 hover:text-green-400 transition-colors">
@@ -556,30 +555,16 @@ function UserHome() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Our Guides
+                  <a href="/career" className="text-gray-300 hover:text-green-400 transition-colors">
+                    {authLabel.Career[lang]}
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-green-400 transition-colors">
-                    Press
-                  </a>
-                </li>
+              
               </ul>
             </div>
 
             <div>
-              <h4 className="text-lg font-bold mb-4">Contact Us</h4>
+              <h4 className="text-lg font-bold mb-4">{authLabel.careerCTAButtonContact[lang]}</h4>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <Mail className="h-5 w-5 text-green-400 mt-0.5" />

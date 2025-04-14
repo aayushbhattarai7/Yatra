@@ -31,6 +31,14 @@ export class User extends Base {
   lastName: string;
 
   @Field()
+  @Column({ name: "travel_style", default:"Nature Explorer" })
+  travelStyle: string;
+
+  @Field({nullable:true})
+  @Column({ name: "explorer_level", default:1 })
+  exploreLevel: number;
+
+  @Field()
   @Column({ type: "enum", enum: Role, default: Role.USER })
   role: Role;
 

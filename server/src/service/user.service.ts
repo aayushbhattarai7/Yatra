@@ -21,7 +21,6 @@ import { EmailService } from "./email.service";
 import { DotenvConfig } from "../config/env.config";
 import Stripe from "stripe";
 import { LoginDTO } from "../dto/login.dto";
-
 import {
   booked,
   bookRequestMessage,
@@ -31,7 +30,7 @@ import {
   updatedMessage,
 } from "../constant/message";
 import axios from "axios";
-import { In, MoreThan, Not } from "typeorm";
+import { In,  Not } from "typeorm";
 import esewaService from "./esewa.service";
 import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
@@ -104,6 +103,7 @@ class UserService {
         lastName: data.lastName,
         email: data.email,
         phoneNumber: data.phoneNumber,
+        travelStyle:data.travelStyle,
         gender: Gender[data.gender as keyof typeof Gender],
         password: hashPassword,
       });
@@ -183,6 +183,7 @@ class UserService {
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
+          travelStyle:data.travelStyle,
           phoneNumber: data.phoneNumber,
           gender: Gender[data.gender as keyof typeof Gender],
         },
@@ -900,6 +901,10 @@ class UserService {
             { id: findTravelService.id },
             { status: RequestStatus.COMPLETED, lastActionBy: Role.USER },
           );
+          await transactionEntityManager.update(
+           User,{id:user_id},
+           {exploreLevel:user.exploreLevel+1}
+          )
           return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`;
         },
       );
@@ -930,16 +935,16 @@ class UserService {
         users: { id: user_id },
         status: RequestStatus.CONFIRMATION_PENDING,
       });
-      console.log(
-        "🚀 ~ UserService ~ completeGuideService ~ request:",
-        request,
-      );
+    
       if (!request) throw HttpException.notFound("Request not found");
 
       await this.guideRequestRepo.update(
         { id: request.id },
         { status: RequestStatus.COMPLETED, lastActionBy: Role.USER },
       );
+      await this.userRepo.update({id:user_id},
+        {exploreLevel:user.exploreLevel+1}
+       )
       return `Your guide service has been successfully completed! Please take a moment to rate your travel service provider.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -2020,6 +2025,59 @@ class UserService {
       });
       io.to(userId).emit("chat-count", chatCount.length);
       return chatCount.length;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  
+  async getAllUserCount() {
+    try {
+      const user = await this.userRepo.find()
+      console.log("🚀 ~ UserService ~ getAllUserCount ~ user:", user)
+      ;
+      return user.length;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async getAllGuideCount() {
+    try {
+      const guide = await this.guideRepo.find()
+      ;
+      return guide.length;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async getAllTravelCount() {
+    try {
+      const travel = await this.travelrepo.find()
+      ;
+      return travel.length;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async getAllPlaceCount() {
+    try {
+      const place = await this.placeRepo.find()
+      return place.length;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);

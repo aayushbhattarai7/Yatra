@@ -25,6 +25,8 @@ import {
 import axiosInstance from "@/service/axiosInstance";
 import EditProfilePopup from "./EditUserProfile";
 import { useNavigate } from "react-router-dom";
+import { authLabel } from "@/localization/auth";
+import { useLang } from "@/hooks/useLang";
 
 interface Image {
   id: string;
@@ -39,6 +41,8 @@ interface UserData {
   lastName: string;
   gender: string;
   email: string;
+  exploreLevel: number;
+  travelStyle: string;
   phoneNumber: string;
   createdAt: string;
   image: Image[];
@@ -50,6 +54,7 @@ interface EditProfileData {
   lastName: string;
   gender: string;
   phoneNumber: string;
+  travelStyle: string;
 }
 
 const UserProfile = () => {
@@ -72,11 +77,12 @@ const UserProfile = () => {
     lastName: "",
     gender: "",
     phoneNumber: "",
+    travelStyle: ""
   });
   const { data, loading, refetch, error } = useQuery(GET_USER_QUERY);
   const [changeEmailOfUser] = useMutation(CHANGE_EMAIL_OF_USER);
   const [verifyEmailWhileChangeOfUser] = useMutation(VERIFY_EMAIL_OF_USER);
-
+  const { lang } = useLang()
   useEffect(() => {
     if (data?.getUser) {
       setUser(data.getUser);
@@ -178,6 +184,7 @@ const UserProfile = () => {
         lastName: user.lastName || "",
         gender: user.gender || "",
         phoneNumber: user.phoneNumber || "",
+        travelStyle: user.travelStyle || "",
       });
       setShowEditProfile(true);
     }
@@ -241,11 +248,11 @@ const UserProfile = () => {
                   <div className="flex flex-wrap gap-4">
                     <span className="flex items-center gap-1 text-sm">
                       <MapPin className="w-4 h-4" />
-                      Adventure Seeker
+                      {user?.travelStyle}
                     </span>
                     <span className="flex items-center gap-1 text-sm">
                       <Compass className="w-4 h-4" />
-                      Explorer Level 1
+                      {authLabel.explorerLevel[lang]} {user?.exploreLevel}
                     </span>
                   </div>
                 </div>
@@ -265,19 +272,19 @@ const UserProfile = () => {
                       onClick={openEditProfile}
                       className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-2"
                     >
-                      <Settings className="w-4 h-4" /> Edit Profile
+                      <Settings className="w-4 h-4" /> {authLabel.editProfileTitle[lang]}
                     </button>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <Mountain className="w-5 h-5 text-emerald-600" /> Explorer Details
+                    <Mountain className="w-5 h-5 text-emerald-600" /> {authLabel.explorerDetails[lang]}
                   </h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="p-4 bg-gray-50 rounded-xl">
                       <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-500">Email</div>
+                        <div className="text-sm text-gray-500">{authLabel.email[lang]}</div>
                         {!isEditingEmail && (
                           <button className="text-sm text-emerald-600 hover:underline" onClick={() => setIsEditingEmail(true)}>
-                            Change
+                            {authLabel.change[lang]}
                           </button>
                         )}
                       </div>
@@ -298,21 +305,21 @@ const UserProfile = () => {
                               onClick={handleEmailChange}
                               className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-emerald-700 transition-all"
                             >
-                              Submit
+                              {authLabel.submit[lang]}
                             </button>
                           </div>
                         )}
                       </div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="text-sm text-gray-500">Phone</div>
+                      <div className="text-sm text-gray-500">{authLabel.phoneNumber[lang]}</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         <Phone className="w-4 h-4 text-emerald-600" />
                         {user?.phoneNumber}
                       </div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="text-sm text-gray-500">Member Since</div>
+                      <div className="text-sm text-gray-500">{authLabel.memberSince[lang]}</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-emerald-600" />
                         {new Date(user?.createdAt || "").toLocaleDateString("en-US", {
@@ -323,10 +330,10 @@ const UserProfile = () => {
                       </div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="text-sm text-gray-500">Travel Style</div>
+                      <div className="text-sm text-gray-500">{authLabel.travelStyle[lang]}</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         <Compass className="w-4 h-4 text-emerald-600" />
-                        {user?.gender === "male" ? "Adventure Seeker" : "Nature Explorer"}
+                        {user?.travelStyle}
                       </div>
                     </div>
                   </div>
@@ -337,16 +344,16 @@ const UserProfile = () => {
               <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
                 <div className="p-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                    <Compass className="w-5 h-5 text-emerald-600" /> Quick Actions
+                    <Compass className="w-5 h-5 text-emerald-600" /> {authLabel.quickActions[lang]}
                   </h2>
                   <div className="space-y-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl text-gray-900 hover:bg-gray-100 transition-colors"
                     >
-                      <div onClick={()=>navigate("/settings")} className="flex items-center gap-3">
+                      <div onClick={() => navigate("/settings")} className="flex items-center gap-3">
                         <Settings className="w-5 h-5 text-emerald-600" />
-                        <span>Account Settings</span>
+                        <span>{authLabel.accountSettings[lang]}</span>
                       </div>
                     </motion.button>
                     <motion.button
@@ -356,7 +363,7 @@ const UserProfile = () => {
                     >
                       <div className="flex items-center gap-3">
                         <LogOut className="w-5 h-5" />
-                        <span>End Journey</span>
+                        <span>{authLabel.endJourney[lang]}</span>
                       </div>
                     </motion.button>
                   </div>
@@ -382,7 +389,7 @@ const UserProfile = () => {
                 >
                   <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-gray-900">
-                      Update {uploadType === "profile" ? "Profile" : "Cover"} Photo
+                       {uploadType === "profile" ? `${authLabel.profilePhoto[lang]}`: `${authLabel.coverPhoto[lang]}`} 
                     </h3>
                     <button onClick={() => setShowImageUpload(false)} className="text-gray-500 hover:text-gray-700">
                       <X className="w-6 h-6" />
@@ -394,9 +401,8 @@ const UserProfile = () => {
                         <img
                           src={previewUrl}
                           alt="Preview"
-                          className={`w-full rounded-xl ${
-                            uploadType === "profile" ? "h-64 object-cover" : "h-40 object-cover"
-                          }`}
+                          className={`w-full rounded-xl ${uploadType === "profile" ? "h-64 object-cover" : "h-40 object-cover"
+                            }`}
                         />
                         <button
                           onClick={() => {
@@ -414,8 +420,8 @@ const UserProfile = () => {
                         className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-emerald-500 transition-colors"
                       >
                         <ImageIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                        <p className="text-sm text-gray-600 mb-2">Click to upload or drag and drop</p>
-                        <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                        <p className="text-sm text-gray-600 mb-2">`${authLabel.clickToUpload[lang]}`</p>
+                        <p className="text-xs text-gray-500">`${authLabel.supportedFormats[lang]}`</p>
                       </div>
                     )}
                     <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
@@ -424,17 +430,16 @@ const UserProfile = () => {
                         onClick={() => setShowImageUpload(false)}
                         className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                       >
-                        Cancel
+                        {authLabel.cancel[lang]}
                       </button>
                       <button
                         onClick={handleImageUpload}
                         disabled={!selectedImage}
-                        className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors flex items-center justify-center gap-2 ${
-                          selectedImage ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-400 cursor-not-allowed"
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg text-white transition-colors flex items-center justify-center gap-2 ${selectedImage ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-400 cursor-not-allowed"
+                          }`}
                       >
                         <Upload className="w-4 h-4" />
-                        Upload Photo
+                        {authLabel.uploadPhoto[lang]}
                       </button>
                     </div>
                   </div>

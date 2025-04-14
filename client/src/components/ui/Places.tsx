@@ -13,8 +13,10 @@ import {
 } from "@/mutation/queries";
 import PlaceLocation from "@/components/ui/PlaceLocation";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { useLang } from "@/hooks/useLang";
+import { authLabel } from "@/localization/auth";
 
-interface Place {
+interface PlaceType {
   id: string;
   name: string;
   description: string;
@@ -41,8 +43,9 @@ const isVideo = (path: string) => {
 };
 
 const Place = () => {
-  const [places, setPlaces] = useState<Place[]>([]);
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const { lang } = useLang();
+  const [places, setPlaces] = useState<PlaceType[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceType | null>(null);
   const [userLatitude, setUserLatitude] = useState<number>(0);
   const [userLongitude, setUserLongitude] = useState<number>(0);
   const [showMap, setShowMap] = useState(false);
@@ -136,7 +139,9 @@ const Place = () => {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-900">Rate this place</h3>
+          <h3 className="text-xl font-bold text-gray-900">
+            {authLabel.ratingModalTitle[lang]}
+          </h3>
           <button 
             onClick={() => setShowRatingModal("")}
             className="text-gray-400 hover:text-gray-500 transition-colors"
@@ -145,7 +150,9 @@ const Place = () => {
           </button>
         </div>
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {authLabel.ratingLabel[lang]}
+          </label>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -166,14 +173,14 @@ const Place = () => {
         </div>
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Share your experience
+            {authLabel.shareExperienceLabel[lang]}
           </label>
           <textarea
             value={ratingMessage}
             onChange={(e) => setRatingMessage(e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             rows={4}
-            placeholder="What did you think about this place?"
+            placeholder={authLabel.ratingPlaceholder[lang]}
           />
         </div>
         <button
@@ -185,13 +192,13 @@ const Place = () => {
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
           }`}
         >
-          Submit Rating
+          {authLabel.submitRatingButton[lang]}
         </button>
       </div>
     </div>
   );
 
-  const PlaceCard = ({ place }: { place: Place }) => (
+  const PlaceCard = ({ place }: { place: PlaceType }) => (
     <div className="group relative bg-white rounded-2xl overflow-hidden transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl">
       <div className="aspect-[4/3] overflow-hidden">
         {place.images[0] && (
@@ -259,11 +266,15 @@ const Place = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
               <Mountain size={16} className="text-white/80" />
-              <span className="text-white/90 text-sm">{place.elevation}</span>
+              <span className="text-white/90 text-sm">
+                {place.elevation}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Route size={16} className="text-white/80" />
-              <span className="text-white/90 text-sm">{place.distance}</span>
+              <span className="text-white/90 text-sm">
+                {place.distance}
+              </span>
             </div>
           </div>
           
@@ -307,14 +318,18 @@ const Place = () => {
     );
   }
 
-  const place = places.find((p) => p.id === placeDetails);
+  const placeDetail = places.find((p) => p.id === placeDetails);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-1">Mountain Trails</h2>
-          <p className="text-gray-600 font-medium">Discover breathtaking hiking adventures</p>
+          <h2 className="text-3xl font-bold text-gray-800 mb-1">
+            {authLabel.mountainTrailsTitle[lang]}
+          </h2>
+          <p className="text-gray-600 font-medium">
+            {authLabel.mountainTrailsSubtitle[lang]}
+          </p>
         </div>
 
         {places.length > 0 ? (
@@ -327,20 +342,20 @@ const Place = () => {
           <div className="flex flex-col items-center justify-center py-24 text-center text-gray-500">
             <img 
               src="https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f" 
-              alt="No Places" 
+              alt={authLabel.noPlacesTitle[lang]} 
               className="w-40 h-40 mb-6 opacity-60 rounded-full object-cover" 
             />
             <h3 className="text-2xl font-semibold text-gray-700 mb-2">
-              No Places to Show
+              {authLabel.noPlacesTitle[lang]}
             </h3>
             <p className="text-gray-500 text-md">
-              Check back later or add new places to explore!
+              {authLabel.noPlacesSubtitle[lang]}
             </p>
           </div>
         )}
       </div>
 
-      {placeDetails && place && (
+      {placeDetails && placeDetail && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center overflow-hidden">
           <div className="bg-white w-full md:w-[800px] rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
             <div className="relative h-[40vh]">
@@ -371,7 +386,7 @@ const Place = () => {
                   )
                 )}
               >
-                {place.images.map((image) => (
+                {placeDetail.images.map((image) => (
                   <div key={image.id} className="h-[40vh]">
                     {isVideo(image.path) ? (
                       <video 
@@ -382,7 +397,7 @@ const Place = () => {
                     ) : (
                       <img 
                         src={image.path} 
-                        alt={place.name} 
+                        alt={placeDetail.name} 
                         className="w-full h-full object-cover" 
                       />
                     )}
@@ -393,19 +408,19 @@ const Place = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
               
               <div className="absolute bottom-6 left-6">
-                <h2 className="text-4xl font-bold text-white mb-2">{place.name}</h2>
+                <h2 className="text-4xl font-bold text-white mb-2">{placeDetail.name}</h2>
                 <div className="flex items-center gap-3">
-                  {place.overallRating && (
+                  {placeDetail.overallRating && (
                     <div className="flex items-center gap-1">
                       <Star className="text-yellow-400" size={20} />
                       <span className="text-white font-medium">
-                        {place.overallRating}
+                        {placeDetail.overallRating}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center gap-1.5">
                     <MapPin size={18} className="text-blue-400" />
-                    <span className="text-white">{place.location}</span>
+                    <span className="text-white">{placeDetail.location}</span>
                   </div>
                 </div>
               </div>
@@ -414,13 +429,13 @@ const Place = () => {
                 <button
                   onClick={(e) => { 
                     e.stopPropagation(); 
-                    toggleFavorite(place.id); 
+                    toggleFavorite(placeDetail.id); 
                   }}
                   className="p-2 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors"
                 >
                   <Heart 
                     size={20} 
-                    className={favorites.has(place.id) ? "fill-red-500 stroke-red-500" : "text-white"} 
+                    className={favorites.has(placeDetail.id) ? "fill-red-500 stroke-red-500" : "text-white"} 
                   />
                 </button>
                 <button 
@@ -434,59 +449,67 @@ const Place = () => {
             
             <div className="flex-1 overflow-y-auto p-8">
               <div className="prose prose-lg max-w-none mb-8">
-                <p className="text-gray-600">{place.description}</p>
+                <p className="text-gray-600">{placeDetail.description}</p>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <div className="bg-gray-50 p-4 rounded-2xl">
                   <Mountain className="text-blue-600 mb-2" size={24} />
-                  <div className="text-sm text-gray-600">Elevation</div>
+                  <div className="text-sm text-gray-600">
+                    {authLabel.detailsElevation[lang]}
+                  </div>
                   <div className="text-lg font-bold text-gray-900">
-                    {place.elevation}
+                    {placeDetail.elevation}
                   </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-2xl">
                   <Route className="text-blue-600 mb-2" size={24} />
-                  <div className="text-sm text-gray-600">Distance</div>
+                  <div className="text-sm text-gray-600">
+                    {authLabel.detailsDistance[lang]}
+                  </div>
                   <div className="text-lg font-bold text-gray-900">
-                    {place.distance}
+                    {placeDetail.distance}
                   </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-2xl">
                   <Clock className="text-blue-600 mb-2" size={24} />
-                  <div className="text-sm text-gray-600">Duration</div>
+                  <div className="text-sm text-gray-600">
+                    {authLabel.detailsDuration[lang]}
+                  </div>
                   <div className="text-lg font-bold text-gray-900">
-                    {place.duration}
+                    {placeDetail.duration}
                   </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-2xl">
                   <MapPin className="text-blue-600 mb-2" size={24} />
-                  <div className="text-sm text-gray-600">Price</div>
+                  <div className="text-sm text-gray-600">
+                    {authLabel.detailsPrice[lang]}
+                  </div>
                   <div className="text-lg font-bold text-blue-600">
-                    {place.price}
+                    {placeDetail.price}
                   </div>
                 </div>
               </div>
               
               <div className="space-y-4">
                 <button
-                  onClick={() => setShowRatingModal(place.id)}
+                  onClick={() => setShowRatingModal(placeDetail.id)}
                   className="flex items-center justify-center gap-2 w-full bg-yellow-500 text-white py-3 px-6 rounded-xl hover:bg-yellow-600 transition shadow-lg shadow-yellow-500/20"
                 >
                   <Star size={20} />
-                  Rate this Place
+                  {authLabel.rateButton[lang]}
                 </button>
 
                 <button 
                   onClick={() => {
-                    setSelectedPlace(place);
+                    setSelectedPlace(placeDetail);
                     setShowMap(true);
                     setPlaceDetails(null);
                   }} 
                   className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-600/20"
                 >
                   <Navigation2 size={20} />
-                  View on Map
+                  {authLabel.viewOnMapButton[lang]}
                 </button>
               </div>
             </div>
