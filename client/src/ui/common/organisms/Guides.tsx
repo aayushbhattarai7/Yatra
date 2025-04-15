@@ -421,6 +421,6 @@ const Guides = () => {
       )}
     </div>
   );
-};
+}; 
 
 export default Guides;

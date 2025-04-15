@@ -6,7 +6,7 @@ import Button from "../../common/atoms/Button";
 import { useMessage } from "../../../contexts/MessageContext";
 import { useState } from "react";
 import OTP from "../../../components/Otp";
-import { gql } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 
 interface FormData {
   firstName: string;
@@ -47,10 +47,10 @@ const GuideRegister: React.FC = () => {
   const [showIdentityFields, setShowIdentityFields] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [identityType, setIdentityType] = useState<string>("");
-
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { isSubmitting },
   } = useForm<FormData>();
 
@@ -155,6 +155,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="firstName" label="First Name" required />
               <InputField
+                setValue={setValue}
                 type="text"
                 name="firstName"
                 register={register}
@@ -164,6 +165,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="middleName" label="Middle Name" />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="middleName"
                 register={register}
@@ -173,6 +176,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="lastName" label="Last Name" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="lastName"
                 register={register}
@@ -182,6 +187,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="email" label="Email" required />
               <InputField
+                setValue={setValue}
+
                 type="email"
                 name="email"
                 register={register}
@@ -191,6 +198,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="phoneNumber" label="Phone Number" required />
               <InputField
+                setValue={setValue}
+
                 type="tel"
                 name="phoneNumber"
                 register={register}
@@ -208,6 +217,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="password" label="Password" required />
               <InputField
+                setValue={setValue}
+
                 type="password"
                 name="password"
                 register={register}
@@ -217,6 +228,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="DOB" label="Date Of Birth" required />
               <InputField
+                setValue={setValue}
+
                 type="date"
                 name="DOB"
                 register={register}
@@ -226,6 +239,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="nationality" label="Nationality" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="nationality"
                 register={register}
@@ -235,6 +250,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="province" label="Province" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="province"
                 register={register}
@@ -244,6 +261,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="district" label="District" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="district"
                 register={register}
@@ -253,6 +272,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="municipality" label="Municipality" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="municipality"
                 register={register}
@@ -263,6 +284,8 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="licenseNumber" label="licenseNumber" required />
               <InputField
+                setValue={setValue}
+
                 type="text"
                 name="licenseNumber"
                 register={register}
@@ -277,6 +300,8 @@ const GuideRegister: React.FC = () => {
                 required
               />
               <InputField
+                setValue={setValue}
+
                 type="date"
                 name="licenseValidityFrom"
                 register={register}
@@ -291,6 +316,8 @@ const GuideRegister: React.FC = () => {
                 required
               />
               <InputField
+                setValue={setValue}
+
                 type="date"
                 name="licenseValidityTo"
                 register={register}
@@ -326,6 +353,8 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="citizenshipId" label="Citizenship ID" required />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="citizenshipId"
                     register={register}
@@ -339,6 +368,8 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                    setValue={setValue}
+
                     type="date"
                     name="citizenshipIssueDate"
                     register={register}
@@ -352,6 +383,8 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="citizenshipIssueFrom"
                     register={register}
@@ -382,6 +415,8 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="passportId" label="Passport ID" required />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="passportId"
                     register={register}
@@ -391,6 +426,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="passportIssueDate" label="Issue Date" required />
                   <InputField
+                    setValue={setValue}
                     type="date"
                     name="passportIssueDate"
                     register={register}
@@ -404,6 +440,7 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                    setValue={setValue}
                     type="date"
                     name="passportExpiryDate"
                     register={register}
@@ -417,6 +454,8 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="passportIssueFrom"
                     register={register}
@@ -435,6 +474,8 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="voterId" label="Voter ID" required />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="voterId"
                     register={register}
@@ -444,6 +485,8 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="voterAddress" label="Voter Address" required />
                   <InputField
+                    setValue={setValue}
+
                     type="text"
                     name="voterAddress"
                     register={register}

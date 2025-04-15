@@ -16,6 +16,8 @@ import { ChatService } from "../../service/chat.service";
 import { Room } from "../../entities/chat/room.entity";
 import { RoomService } from "../../service/room.service";
 import { Notification } from "../../entities/notification/notification.entity";
+import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
+import placeService from "../../service/place.service";
 const roomService = new RoomService();
 const chatService = new ChatService();
 export class GuideResolver {
@@ -85,6 +87,19 @@ export class GuideResolver {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
       );
+    }
+  }
+
+  @Query(() => [TrekkingPlace])
+  async getPlacesByProviders(@Ctx() ctx: Context) {
+    try {
+      return await placeService.getPlaces();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 

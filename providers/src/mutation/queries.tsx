@@ -163,16 +163,21 @@ export const TRAVEL_BOOKING_HISTORY = gql`
   }
 `;
 export const GET_GUIDE_PROFILE = gql`
-  query GetGuideProfile($guideId: String!) {
-    getGuideProfile(guideId: $guideId) {
-      id
+query GetGuideDetails {
+  getGuideDetails {
+  id
       firstName
       middleName
       lastName
+      createdAt
       gender
-      guiding_location
-    }
+      guiding_location   
+      kyc{
+      id
+      fileType
+      path} 
   }
+}
 `;
 export const GET_TRAVEL_PROFILE = gql`
   query GetTravelDetails {
@@ -332,3 +337,24 @@ export const GET_USER_FOR_CHAT_BY_GUIDE = gql`
     }
   }
 `;
+
+export const GET_PLACES_BY_PROVIDERS = gql`
+query GetPlacesByProviders {
+  getPlacesByProviders {
+    id
+  name
+  description
+  duration
+  latitude
+  location
+  longitude
+  overallRating
+  price
+  images {
+    id
+    path
+  }  
+
+  }
+}
+`

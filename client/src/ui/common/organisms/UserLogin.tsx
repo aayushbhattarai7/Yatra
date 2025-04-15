@@ -8,6 +8,10 @@ import SocialLogin from "./SocialLogin";
 import LoginHero from "./LoginHero";
 import { useLang } from "@/hooks/useLang";
 import { authLabel  } from "@/localization/auth";
+import { MockedProvider } from '@apollo/client/testing';
+import { render, screen, waitFor } from '@testing-library/react';
+
+
 const LOGIN_MUTATION = gql`
   mutation Login($password: String!, $email: String!) {
     login(password: $password, email: $email) {
