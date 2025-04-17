@@ -7,6 +7,8 @@ import {
 } from "../mutation/queries";
 import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
+import { useSocket } from "../contexts/SocketContext";
+import UnreadChatBadge from "./UnreadChatBadge";
 interface Room {
   id: string;
   user: {
@@ -15,6 +17,7 @@ interface Room {
     middleName: string;
     lastName: string;
     gender: string;
+    image:Image[]
   };
   travel: {
     id: string;
@@ -25,13 +28,21 @@ interface Room {
   };
 }
 
+interface Image{
+  id:string;
+  path:string;
+  type:string;
+}
+
 const ChatPopup = () => {
   const token = getCookie("accessToken");
   const decodedToken: any = jwtDecode(token!);
+  const {socket} = useSocket();
   const query =
     decodedToken.role === "TRAVEL"
       ? GET_USER_FOR_CHAT
       : GET_USER_FOR_CHAT_BY_GUIDE;
+ 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { data } = useQuery(query);
   const [userInRoom, setUserInRoom] = useState<Room[]>([]);
@@ -67,20 +78,24 @@ const ChatPopup = () => {
                   className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-start space-x-3"
                 >
                   {/* <p>{room.id}</p> */}
-                  {/* {room.user?.kyc?.[0]?.path ? (
+                  {room.user?.image?.[0]?.path ? (
                     <img
-                      src={room.user.kyc[0].path}
+                      src={room.user.image[0].path}
                       alt={room.user.firstName}
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gray-300" />
-                  )} */}
+                  )}
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-semibold truncate">
                       {room.user
                         ? `${room.user.firstName} ${room.user.lastName}`
                         : "Unknown User"}
+                     
+                        <UnreadChatBadge id={room.user.id} />
+                    
+                      
                     </h4>
                   </div>
                 </div>

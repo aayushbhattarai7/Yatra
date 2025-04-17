@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import Button from "../common/atoms/Button";
@@ -6,8 +7,8 @@ import { useLang } from "../../hooks/useLang";
 import {
   GUIDE_REQUESTS,
   REJECT_REQUEST_BY_GUIDE,
-  REQUEST_FOR_COMPLETE_GUIDE_SERVICE,
   SEND_PRICE_BY_GUIDE,
+  REQUEST_FOR_COMPLETE_GUIDE_SERVICE,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
@@ -25,6 +26,7 @@ interface FormData {
   users: User;
   lastActionBy: string;
   status: string;
+  advancePrice:number;
 }
 
 interface User {
@@ -32,7 +34,6 @@ interface User {
   firstName: string;
   middleName: string;
   lastName: string;
-  guiding_location: string;
   gender: string;
   location: Location;
   nationality: string;
@@ -77,6 +78,7 @@ const GuideRequests = () => {
   };
 
   const requestForComplete = async (id: string) => {
+    console.log("🚀 ~ requestForComplete ~ id:", id)
     await requestForCompletedGuide({ variables: { userId: id } });
     refetch();
   };
@@ -210,12 +212,25 @@ const GuideRequests = () => {
                     {request.price || "Not set"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Advance price</span>
+                  <span className="font-semibold">
+                    {request.advancePrice || "Not set"}
+                  </span>
+                </div>
+                <div className="flex justify-between mb-4 items-center">
                   <span className="text-gray-600">Last Action</span>
                   <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-600 rounded">
                     {request.lastActionBy}
                   </span>
                 </div>
+                <div className="flex justify-between gap-5 items-center">
+                  <span className="text-gray-600">Status</span>
+                  <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-600 rounded">
+                    {request.status}
+                  </span>
+                </div>
+              
               </div>
 
               <div className="space-y-2">
@@ -237,28 +252,35 @@ const GuideRequests = () => {
                       />
                     ) : (
                       <>
-                        {request.status === "ACCEPTED" && (
+                        {request.status === "ACCEPTED" ? (
                           <Button
                             type="button"
                             buttonText={authLabel.complete[lang]}
                             onClick={() => requestForComplete(request.users.id)}
                             className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
                           />
-                        )}
+                        ):(
+                          <>
+                        {!(request.status === "COMPLETED" || request.status === "CONFIRMATION_PENDING") && (
+                          <>
                         <Button
                           type="button"
                           onClick={() => setSelectedId(request.id)}
                           buttonText={authLabel.bargain[lang]}
                           className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
                         />
-                      </>
-                    )}
                     <Button
                       type="button"
                       buttonText={authLabel.reject[lang]}
                       onClick={() => rejectRequest(request.id)}
                       className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
                     />
+                          </>
+)}
+                          </>
+                        )}
+                      </>
+                    )}
                   </>
                 )}
                 <Button

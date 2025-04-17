@@ -29,6 +29,8 @@
     "button": "link:components/ui/button",
     "framer-motion": "^12.0.11",
     "js-cookie": "^3.0.5",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "leaflet-geosearch": "^4.2.0",
@@ -46,6 +48,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.1.5",
     "react-toastify": "^11.0.3",
+    "recharts": "^2.15.2",
     "shadcn": "^2.3.0",
     "socket.io-client": "^4.8.1"
   },

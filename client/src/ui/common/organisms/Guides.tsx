@@ -168,28 +168,27 @@ const Guides = () => {
       <div className="hidden md:flex h-full">
         <div className="w-1/3 p-6 overflow-y-auto border-r border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Available Guides
+            {authLabel.availableGuides[lang]}
           </h2>
 
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "online"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
             >
-              Online Guides
+              {authLabel.onlineGuides[lang]}
             </button>
             <button
               onClick={() => setActiveTab("all")}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "all"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
             >
-              All Guides
-            </button>
+              {authLabel.allGuides[lang]}</button>
           </div>
 
           <div className="space-y-4">
@@ -218,7 +217,7 @@ const Guides = () => {
                   </div>
 
                   <p className="text-gray-600 text-sm mb-3">
-                    Location: {guide.guiding_location} • {guide.gender}
+                  {authLabel.location[lang]}: {guide.guiding_location} •  {authLabel.gender[lang]}: {guide.gender === "MALE" ? ` ${authLabel.male[lang]}` : `${authLabel.female[lang]}`}
                   </p>
 
                   <div className="flex gap-3">
@@ -332,28 +331,27 @@ const Guides = () => {
           <div className="p-4">
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Available Guides
+              {authLabel.availableGuides[lang]}
             </h2>
 
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
                 className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "online"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
-                Online Guides
+                {authLabel.onlineGuides[lang]}
               </button>
               <button
                 onClick={() => setActiveTab("all")}
                 className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "all"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
               >
-                All Guides
-              </button>
+                {authLabel.allGuides[lang]}              </button>
             </div>
 
             <div
@@ -421,6 +419,6 @@ const Guides = () => {
       )}
     </div>
   );
-}; 
+};
 
 export default Guides;

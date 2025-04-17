@@ -534,15 +534,15 @@ function UserHome() {
             <div>
               <h4 className="text-lg font-bold mb-4">{authLabel.destinations[lang]}</h4>
               <ul className="space-y-2">
-                {places.map((place)=>(
+                {places.map((place) => (
 
-                <li>
-                  <a href="/places" className="text-gray-300 hover:text-green-400 transition-colors">
-                    {place.name}
-                  </a>
-                </li>
+                  <li>
+                    <a href="/places" className="text-gray-300 hover:text-green-400 transition-colors">
+                      {place.name}
+                    </a>
+                  </li>
                 ))}
-            
+
               </ul>
             </div>
 
@@ -559,7 +559,7 @@ function UserHome() {
                     {authLabel.Career[lang]}
                   </a>
                 </li>
-              
+
               </ul>
             </div>
 
@@ -568,15 +568,19 @@ function UserHome() {
               <ul className="space-y-3">
                 <li className="flex items-start gap-3">
                   <Mail className="h-5 w-5 text-green-400 mt-0.5" />
-                  <span className="text-gray-300">infos.yatra@gmail.com</span>
+                 
+                    <a  className="text-gray-300" href="mailto:infos.yatra@gmail.com">infos.yatra@gmail.com</a>
+                    
                 </li>
                 <li className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-green-400 mt-0.5" />
-                  <span className="text-gray-300">+9779847194310</span>
+                  <a href="tel:+9779847194310" className="text-gray-300">
+                    +9779847194310
+                  </a>
                 </li>
                 <li className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-green-400 mt-0.5" />
-                  <span className="text-gray-300">Itahari-1, Sunsari, Nepal</span>
+                  <span className="text-gray-300">{authLabel.address[lang]}</span>
                 </li>
               </ul>
             </div>

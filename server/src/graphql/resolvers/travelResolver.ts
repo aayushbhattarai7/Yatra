@@ -20,6 +20,8 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { ChatService } from "../../service/chat.service";
 import { Room } from "../../entities/chat/room.entity";
 import { RoomService } from "../../service/room.service";
+import { RevenueGroupedResponse } from "../../graphql/schema/RevenueSchems";
+import { GuideProfileDTO } from "../../dto/guideProfile.dto";
 const chatService = new ChatService();
 const roomService = new RoomService();
 export class TravelResolver {
@@ -139,6 +141,41 @@ export class TravelResolver {
           ? error.message
           : "An error occurred during login",
       );
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async changeEmailOfTravel(@Arg("email") email: string, @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id as string;
+
+      return await travelService.sendOtpToChangeEmail(userId, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async verifyEmailWhileChangeOfTravel(
+    @Arg("email") email: string,
+    @Arg("otp") otp: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id as string;
+      return await travelService.verifyEmail(userId, email, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 
@@ -361,4 +398,78 @@ export class TravelResolver {
       }
     }
   }
+
+  @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getChatCountOfTravel(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await travelService.getUnreadChatCount(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getChatCountOfUserByTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await chatService.getUnreadChatByTravel(userId, id);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+    @Mutation(() => String)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async updateTravelProfile(
+      @Ctx() ctx: Context,
+      @Arg("data") data: GuideProfileDTO
+    ): Promise<string> {
+      try {
+        const travelId = ctx.req.user?.id!;
+        return await travelService.updateProfile(travelId, data);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Query(() => [RequestTravel])
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getTotalBookedUsersByTravel(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await travelService.getTotalbookedUsers(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getTravelTotalRevenue(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      return travelService.getTravelTotalRevenue(guideId);
+    }
+    @Query(() => RevenueGroupedResponse)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getGroupedRevenueOfTravel(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      return travelService.getTravelGroupedRevenue(guideId);
+    }
 }

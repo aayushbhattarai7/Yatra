@@ -276,13 +276,25 @@ export const authLabel: LabelTypes = {
     en: "Available Travels",
     ne: "उपलब्ध यात्रा सेवाहरू",
   },
+  availableGuides: {
+    en: "Available Guides",
+    ne: "उपलब्ध मार्गदर्शकहरू",
+  },
   onlineTravels: {
     en: "Online Travels",
     ne: "अनलाइन यात्रा सेवाहरू",
   },
+  onlineGuides: {
+    en: "Online Guides",
+    ne: "अनलाइन मार्गदर्शकहरू",
+  },
   allTravels: {
     en: "All Travels",
     ne: "सबै यात्रा सेवाहरू",
+  },
+  allGuides: {
+    en: "All Travels",
+    ne: "सबै मार्गदर्शकहरू",
   },
   requests: {
     en: "Requests",
@@ -388,6 +400,10 @@ export const authLabel: LabelTypes = {
   complete: {
     en: "Complete",
     ne: "पेश गर्नुहोस्",
+  },
+  address: {
+    en: "Itahari-1, Sunsari, Nepal",
+    ne: "इटहरी–१, सुनसरी, नेपाल",
   },
   home: {
     en: "Home",
@@ -622,6 +638,10 @@ export const authLabel: LabelTypes = {
   careerJobLocation: {
     en: "Location: Global Office",
     ne: "स्थान: ग्लोबल कार्यालय",
+  },
+  location: {
+    en: "Location",
+    ne: "स्थान",
   },
   careerApplyButton: {
     en: "Apply Now",

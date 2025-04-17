@@ -284,6 +284,7 @@ export class AdminResolver {
   }
 
   @Query(() => RevenueGroupedResponse)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async getGroupedRevenue(): Promise<RevenueGroupedResponse> {
     return adminService.getGroupedRevenue();
   }

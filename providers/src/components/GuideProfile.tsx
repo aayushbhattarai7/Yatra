@@ -5,7 +5,6 @@ import {
   LogOut,
   Mail,
   Phone,
-  MapPin,
   Calendar,
   Compass,
   Mountain,
@@ -18,12 +17,16 @@ import {
 import { LogoutPopup } from "./LogoutPopup";
 import { showToast } from "./ToastNotification";
 import {
+  CHANGE_EMAIL_OF_GUIDE,
   GET_GUIDE_PROFILE,
+  UPDATE_GUIDE_PROFILE,
+  VERIFY_EMAIL_OF_GUIDE,
 } from "../mutation/queries";
 import axiosInstance from "../service/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { authLabel } from "../localization/auth";
 import { useLang } from "../hooks/useLang";
+import EditProfilePopup from "./EditProgilrPopup";
 
 interface Image {
   id: string;
@@ -40,6 +43,7 @@ interface UserData {
   email: string;
   phoneNumber: string;
   createdAt: string;
+  guiding_location:string;
   kyc: Image[];
 }
 
@@ -69,14 +73,15 @@ const GuideProfile = () => {
     firstName: "",
     middleName: "",
     lastName: "",
-    gender: "",
+    gender: "", 
     phoneNumber: "",
   });
+  const [updateGuideProfile] = useMutation(UPDATE_GUIDE_PROFILE);
   const { data, loading, refetch, error } = useQuery(GET_GUIDE_PROFILE);
   console.log("🚀 ~ GuideProfile ~ data:", data)
   console.log("🚀 ~ GuideProfile ~ error:", error)
-  // const [changeEmailOfUser] = useMutation(CHANGE_EMAIL_OF_USER);
-  // const [verifyEmailWhileChangeOfUser] = useMutation(VERIFY_EMAIL_OF_USER);
+  const [changeEmailOfGuide] = useMutation(CHANGE_EMAIL_OF_GUIDE);
+  const [verifyEmailWhileChangeOfGuide] = useMutation(VERIFY_EMAIL_OF_GUIDE);
   const { lang } = useLang()
   useEffect(() => {
     if (data?.getGuideDetails) {
@@ -86,7 +91,7 @@ const GuideProfile = () => {
 
   const handleEmailChange = async () => {
     try {
-      // await changeEmailOfUser({ variables: { email: newEmail } });
+      await changeEmailOfGuide({ variables: { email: newEmail } });
       setShowOtpPopup(true);
     } catch (err: unknown) {
       if (err instanceof Error) showToast(err.message, "error");
@@ -96,9 +101,9 @@ const GuideProfile = () => {
 
   const handleVerifyOtp = async () => {
     try {
-      // await verifyEmailWhileChangeOfUser({
-      //   variables: { email: newEmail, otp },
-      // });
+      await verifyEmailWhileChangeOfGuide({
+        variables: { email: newEmail, otp },
+      });
       refetch();
       setIsEditingEmail(false);
       setShowOtpPopup(false);
@@ -315,8 +320,8 @@ const GuideProfile = () => {
                       </div>
                     </div>
                     <div className="p-4 bg-gray-50 rounded-xl">
-                      <div className="text-sm text-gray-500">{authLabel.travelStyle[lang]}</div>
-                    
+                      <div className="text-sm text-gray-500">{authLabel.location[lang]}</div>
+                        <div>{user?.guiding_location}</div>
                     </div>
                   </div>
                 </div>
@@ -454,17 +459,20 @@ const GuideProfile = () => {
               </div>
             </div>
           )}
-          {/* {showEditProfile && (
+          {showEditProfile && (
             <EditProfilePopup
+            type="guide"
               editProfileData={editProfileData}
               setEditProfileData={setEditProfileData}
               handleEditProfileSubmit={async () => {
                 try {
-                  const formData = new FormData();
-                  Object.entries(editProfileData).forEach(([key, value]) => {
-                    formData.append(key, value);
-                  });
-                  await axiosInstance.patch("/user/update-profile", formData);
+                  const payload = {
+                    ...editProfileData,
+                    gender: editProfileData.gender.toUpperCase(), // assuming gender needs to be like "MALE"
+                  };
+              
+                  await updateGuideProfile({ variables: { data: payload } });
+              
                   await refetch();
                   setShowEditProfile(false);
                   showToast("Profile updated successfully", "success");
@@ -473,9 +481,10 @@ const GuideProfile = () => {
                   console.error("Failed to update profile:", err);
                 }
               }}
+              
               onClose={() => setShowEditProfile(false)}
             />
-          )} */}
+          )}
         </motion.div>
       </div>
     </div>

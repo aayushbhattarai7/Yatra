@@ -15,18 +15,22 @@ import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
-import { Message, rejectRequest } from "../constant/message";
+import { Message, rejectRequest, updatedMessage } from "../constant/message";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
 import { User } from "../entities/user/user.entity";
 import ReportFile from "../entities/user/reportFile.entity";
 import { Report } from "../entities/user/report.entity";
+import { Chat } from "../entities/chat/chat.entity";
+import { GuideProfileDTO } from "../dto/guideProfile.dto";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
   constructor(
     private readonly guideRepo = AppDataSource.getRepository(Guide),
     private readonly locationRepo = AppDataSource.getRepository(Location),
+        private readonly chatRepo = AppDataSource.getRepository(Chat),
+
     private readonly guideDetailsrepo = AppDataSource.getRepository(
       GuideDetails,
     ),
@@ -189,6 +193,82 @@ class GuideService {
         }
       },
     );
+  }
+
+  async sendOtpToChangeEmail(id: string, email: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id });
+      if (!guide) throw HttpException.unauthorized("You are not authorized");
+      const otp = await otpService.generateOTP();
+      const expires = Date.now() + 5 * 60 * 1000;
+      const payload = `${id}.${otp}.${expires}`;
+      const hashedOtp = hashService.hashOtp(payload);
+      const newOtp = `${hashedOtp}.${expires}`;
+
+      await this.guideRepo.update({ id }, { otp: newOtp });
+      await otpService.sendOtp(email, otp, expires);
+      return "Otp has been sent to your new email please verify your otp";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async verifyEmail(id: string, email: string, otp: string) {
+    console.log("🚀 ~  ero ~ verifyEmail ~ id:", id);
+    try {
+      const guide = await this.guideRepo.findOneBy({ id });
+      if (!guide) throw HttpException.unauthorized("You are not authorized");
+
+      const [hashedOtp, expires] = guide?.otp?.split(".");
+      if (Date.now() > +expires)
+        throw HttpException.badRequest("Otp is expired");
+      const payload = `${id}.${otp}.${expires}`;
+      const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+      await this.guideRepo.update({ id }, { email });
+      return "Email changed successfully!.";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async updateProfile(
+    id: string,
+    data: GuideProfileDTO,
+  ) {
+    try {
+      const guide = await this.guideRepo.findOne({
+        where: { id },
+      });
+      console.log("🚀 ~ GuideService ~ guide:", guide)
+      if (!guide) throw HttpException.unauthorized("You are not authorized");
+
+      await this.guideRepo.update(
+        { id },
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          gender: Gender[data.gender as keyof typeof Gender],
+        },
+      );
+   
+      return updatedMessage("Profile");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
   }
 
   async reSendOtp(email: string): Promise<string> {
@@ -382,7 +462,6 @@ class GuideService {
         },
         relations: ["details", "kyc"],
       });
-      console.log("🚀 ~ GuideService ~ getGuideDetails ~ guide:", guide);
       if (!guide) {
         throw HttpException.unauthorized("you are not authorized");
       }
@@ -491,17 +570,11 @@ class GuideService {
 
       return await AppDataSource.transaction(
         async (transactionEntityManager) => {
-          const findTravelService = await transactionEntityManager.findOne(
-            this.guideRequestRepo.target,
-            {
-              where: {
-                guide: { id: guide_id },
-                users: { id: user_id },
-                status: RequestStatus.ACCEPTED,
-                lastActionBy: Role.GUIDE,
-              },
-            },
-          );
+          const findTravelService = await this.guideRequestRepo.findOne({  where: {
+            guide: { id: guide_id },
+            users: { id: user_id },
+            status: RequestStatus.ACCEPTED,
+          },relations:["users","guide"]})
 
           if (!findTravelService)
             throw HttpException.notFound("Request not found");
@@ -511,7 +584,7 @@ class GuideService {
             { id: findTravelService.id },
             {
               status: RequestStatus.CONFIRMATION_PENDING,
-              lastActionBy: Role.TRAVEL,
+              lastActionBy: Role.GUIDE,
             },
           );
           if (update) {
@@ -778,5 +851,132 @@ class GuideService {
       }
     }
   }
+
+  async getUnreadChatCount(guideId: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.badRequest("You are not authorized");
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverGuide: { id: guideId },
+          read: false,
+        },
+      }); 
+      io.to(guideId).emit("chat-count", chatCount.length);
+      return chatCount.length;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  async getTotalbookedUsers(guideId: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.badRequest("You are not authorized");
+      const requests = await this.guideRequestRepo.find({
+        where: {
+          guide: { id: guideId },
+          status:RequestStatus.COMPLETED
+        },relations:["users","users.image"]
+      }); 
+      return requests ;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async getGuideTotalRevenue(guideId: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.badRequest("Guide not found");
+  
+      const completedRequests = await this.guideRequestRepo.find({
+        where: {
+          guide: { id: guideId },
+          status: RequestStatus.COMPLETED,
+        },
+        select: ["price"],
+      });
+  
+      const prices = completedRequests.map((req) => parseFloat(req.price));
+      const totalRevenue = prices.reduce((sum, price) => sum + price, 0);
+  
+      return parseFloat(totalRevenue.toFixed(2));
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : "Failed to fetch guide revenue",
+      );
+    }
+  }
+  
+  async getGuideGroupedRevenue(guideId: string) {
+    try {
+      const guide = await this.guideRepo.findOneBy({ id: guideId });
+      if (!guide) throw HttpException.badRequest("Guide not found");
+      console.log("🚀 ~ GuideService ~ getGuideGroupedRevenue ~ guide:", guide)
+  
+      const completedRequests = await this.guideRequestRepo.find({
+        where: {
+          guide: { id: guideId },
+          status: RequestStatus.COMPLETED,
+        },
+      });
+  
+      const daily: Record<string, number> = {};
+      const weekly: Record<string, number> = {};
+      console.log("🚀 ~ GuideService ~ getGuideGroupedRevenue ~ daily:", daily)
+      const monthly: Record<string, number> = {};
+      const yearly: Record<string, number> = {};
+  
+      completedRequests.forEach((req) => {
+        const date = new Date(req.updatedAt);
+        const price = parseFloat(req.price);
+        console.log("🚀 ~ GuideService ~ completedRequests.forEach ~ price:", price)
+  
+        const day = date.toISOString().split("T")[0];
+        const week = `${this.getStartOfWeek(date)} to ${this.getEndOfWeek(date)}`;
+        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        const year = String(date.getFullYear());
+  
+        daily[day] = (daily[day] || 0) + price;
+        weekly[week] = (weekly[week] || 0) + price;
+        monthly[month] = (monthly[month] || 0) + price;
+        yearly[year] = (yearly[year] || 0) + price;
+      });
+  
+      return {
+        daily: Object.entries(daily).map(([name, revenue]) => ({ name, revenue })),
+        weekly: Object.entries(weekly).map(([name, revenue]) => ({ name, revenue })),
+        monthly: Object.entries(monthly).map(([name, revenue]) => ({ name, revenue })),
+        yearly: Object.entries(yearly).map(([name, revenue]) => ({ name, revenue })),
+      };
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : "Failed to fetch grouped guide revenue"
+      );
+    }
+  }
+  getStartOfWeek(date: Date): string {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    return monday.toISOString().split("T")[0];
+  }
+  
+  getEndOfWeek(date: Date): string {
+    const start = new Date(this.getStartOfWeek(date));
+    const sunday = new Date(start);
+    sunday.setDate(start.getDate() + 6);
+    return sunday.toISOString().split("T")[0];
+  }
+    
 }
 export default GuideService;

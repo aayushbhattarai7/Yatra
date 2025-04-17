@@ -191,10 +191,7 @@
 //     en: "Complete",
 //     ne: "अस्वीकार गर्नु",
 //   },
-//   details: {
-//     en: "Details",
-//     ne: "विवरण",
-//   },
+
 //   sendPrice: {
 //     en: "Send Price",
 //     ne: "गाडीको प्रकार",
@@ -330,6 +327,18 @@ export const authLabel: LabelTypes = {
     en: "Popular Travels",
     ne: "लोकप्रिय यात्रा",
   },
+    details: {
+    en: "Details",
+    ne: "विवरण",
+  },
+    reject: {
+    en: "Reject",
+    ne: "अस्वीकार गर्नु",
+  },
+    sendPrice: {
+    en: "Send Price",
+    ne: "गाडीको प्रकार",
+  },
   expertGuides: {
     en: "Expert Guides",
     ne: "अनुभवी मार्गदर्शकहरू",
@@ -342,6 +351,7 @@ export const authLabel: LabelTypes = {
     en: "View All",
     ne: "सबै हेर्नुहोस्",
   },
+  
   bookTravels: {
     en: "Book Travels",
     ne: "यात्रा बुक गर्नुहोस्",
@@ -923,6 +933,10 @@ export const authLabel: LabelTypes = {
   careerJobLocation: {
     en: "Location: Global Office",
     ne: "स्थान: ग्लोबल कार्यालय",
+  },
+  location: {
+    en: "Location",
+    ne: "स्थान",
   },
   careerApplyButton: {
     en: "Apply Now",

@@ -14,6 +14,18 @@ export const SIGNUP_MUTATION = gql`
   }
 `;
 
+export const UPDATE_GUIDE_PROFILE = gql`
+mutation UpdateGuideProfile($data: GuideProfileDTO!) {
+  updateGuideProfile(data: $data)
+}
+`;
+
+export const UPDATE_TRAVEL_PROFILE = gql`
+mutation UpdateTravelProfile($data: GuideProfileDTO!) {
+  updateTravelProfile(data: $data)
+}
+`;
+
 export const TRAVEL_BOOKING_MUTATION = gql`
   mutation RequestTravel(
     $vehicleType: String!
@@ -33,6 +45,109 @@ export const TRAVEL_BOOKING_MUTATION = gql`
     )
   }
 `;
+export const GET_TOTAL_BOOKED_USERS_BY_GUIDE = gql`
+ query GetTotalBookedUsersByGuide {
+  getTotalBookedUsersByGuide {
+    id
+    from
+    to
+    price
+    totalDays
+    totalPeople
+    advancePrice
+    users {
+      id
+      firstName
+      middleName
+      lastName
+      image {
+        id
+        path
+        type
+      }
+      
+    }
+  }
+}
+`;
+export const GET_GROUPED_REVENUE_OF_GUIDE = gql`
+query GetGroupedRevenueOfGuide {
+  getGroupedRevenueOfGuide {
+daily {
+  name
+  revenue
+  }
+  weekly {
+    name
+    revenue
+    }
+    monthly {
+      name
+      revenue
+      }
+      yearly {
+        name
+        revenue
+        }
+        }
+        }
+        `;
+export const GET_TOTAL_BOOKED_USERS_BY_TRAVEL = gql`
+        query GetTotalBookedUsersByTravel {
+          getTotalBookedUsersByTravel {
+          id
+          from
+          to
+          totalDays
+          totalPeople
+          user {
+            id
+            firstName
+            middleName
+            lastName
+            image {
+              id
+              type
+              path
+            }
+          }
+          }
+        }
+        `;
+export const GET_TRAVEL_TOTAL_REVENUE = gql`
+        query Query {
+  getTravelTotalRevenue
+}
+`;
+export const GET_GROUPED_REVENUE_OF_TRAVEL = gql`
+query GetGroupedRevenueOfTravel {
+  getGroupedRevenueOfTravel {
+  daily {
+name
+revenue
+}
+weekly {
+name
+revenue
+}
+monthly {
+name
+revenue
+}
+yearly {
+name
+revenue
+}  
+  }
+}
+`;
+export const GET_GUIDE_TOTAL_REVENUE = gql`
+query Query {
+getGuideTotalRevenue
+}
+`;
+
+
 export const GUIDE_BOOKING_MUTATION = gql`
   mutation RequestGuide(
     $totalPeople: String!
@@ -102,6 +217,8 @@ export const GUIDE_REQUESTS = gql`
       totalPeople
       price
       lastActionBy
+      status
+      advancePrice
       users {
         id
         firstName
@@ -170,6 +287,8 @@ query GetGuideDetails {
       middleName
       lastName
       createdAt
+      email
+      phoneNumber
       gender
       guiding_location   
       kyc{
@@ -177,6 +296,47 @@ query GetGuideDetails {
       fileType
       path} 
   }
+}
+`;
+export const GET_GUIDE_CHAT_COUNT = gql`
+query Query {
+  getChatCountOfGuide
+}
+`;
+export const GET_CHAT_COUNT_OF_USER_BY_GUIDE = gql`
+query Query($id: String!) {
+  getChatCountOfUserByGuide(id: $id)
+}
+`;
+export const GET_CHAT_COUNT_OF_USER_BY_TRAVEL = gql`
+query Query($id: String!) {
+  getChatCountOfUserByTravel(id: $id)
+}
+`;
+export const GET_TRAVEL_CHAT_COUNT = gql`
+query Query {
+  getChatCountOfTravel
+}
+`;
+export const CHANGE_EMAIL_OF_GUIDE = gql`
+mutation ChangeEmailOfGuide($email: String!) {
+  changeEmailOfGuide(email: $email)
+}
+`;
+export const CHANGE_EMAIL_OF_TRAVEL = gql`
+mutation ChangeEmailOfTravel($email: String!) {
+  changeEmailOfTravel(email: $email)
+}
+`;
+
+export const VERIFY_EMAIL_OF_TRAVEL = gql`
+mutation VerifyEmailWhileChangeOfTravel($otp: String!, $email: String!) {
+  verifyEmailWhileChangeOfTravel(otp: $otp, email: $email)
+}
+`;
+export const VERIFY_EMAIL_OF_GUIDE = gql`
+mutation VerifyEmailWhileChangeOfGuide($otp: String!, $email: String!) {
+  verifyEmailWhileChangeOfGuide(otp: $otp, email: $email)
 }
 `;
 export const GET_TRAVEL_PROFILE = gql`
@@ -188,6 +348,7 @@ export const GET_TRAVEL_PROFILE = gql`
       lastName
       email
       phoneNumber
+  vehicleType
       gender
       createdAt
       kyc {

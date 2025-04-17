@@ -106,7 +106,7 @@ export class RoomService {
 
       const getConnectUsers = await this.roomrepo.find({
         where: { guide: { id: guide_id } },
-        relations: ["user", "guide"],
+        relations: ["user", "guide","user.image"],
       });
       return getConnectUsers;
     } catch (error: unknown) {

@@ -89,6 +89,7 @@ const Navbar = () => {
 
     return () => {
       socket.off("chat-count", chatCountListener);
+      socket.off("notification");
     };
   }, [socket]);
 

@@ -234,28 +234,32 @@ const TravelRequests = () => {
                       />
                     ) : (
                       <>
-                       {request.status === "ACCEPTED" && (
+                       {request.status === "ACCEPTED" ? (
                         <Button
                           type="button"
                           buttonText={authLabel.complete[lang]}
                           onClick={()=>requestForComplete(request.user.id)}
                           className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
                         />
+                  ):(
+<>
+<Button
+  type="button"
+  onClick={() => setSelectedId(request.id)}
+  buttonText={authLabel.bargain[lang]}
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+/>
+
+<Button
+  type="button"
+  buttonText={authLabel.reject[lang]}
+  onClick={() => rejectRequest(request.id)}
+  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
+/>
+</>
                   )}
-                        <Button
-                          type="button"
-                          onClick={() => setSelectedId(request.id)}
-                          buttonText={authLabel.bargain[lang]}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
-                        />
                       </>
                     )}
-                    <Button
-                      type="button"
-                      buttonText={authLabel.reject[lang]}
-                      onClick={() => rejectRequest(request.id)}
-                      className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
-                    />
                   </>
                 )}
                 <Button

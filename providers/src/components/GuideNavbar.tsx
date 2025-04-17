@@ -1,15 +1,15 @@
-///import { Bell, MessageSquare, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
 import NotificationsPopup from "./NotificationPopup";
 import ChatPopup from "./ChatPopup";
 import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "../function/GetCookie";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import { gql, useQuery } from "@apollo/client";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
-import { GET_GUIDE_UNREAD_NOTIFICATIONS } from "../mutation/queries";
+import { GET_GUIDE_CHAT_COUNT, GET_GUIDE_PROFILE, GET_GUIDE_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
+
 interface FormData {
   id: string;
   firstName: string;
@@ -19,6 +19,13 @@ interface FormData {
   gender: string;
   location: Location;
   nationality: string;
+  kyc: Image[];
+}
+
+interface Image {
+  id: string;
+  fileType: string;
+  path: string;
 }
 
 const GuideNavBar = () => {
@@ -26,31 +33,57 @@ const GuideNavBar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [guide, setGuide] = useState<FormData | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<number>(0);
-  const {socket} = useSocket()
-    const { data } = useQuery(GET_GUIDE_UNREAD_NOTIFICATIONS);
+  const { socket } = useSocket();
+  const { data } = useQuery(GET_GUIDE_UNREAD_NOTIFICATIONS);
+  const { data: guideData } = useQuery(GET_GUIDE_PROFILE);
+  const [chatCount, setChatCount] = useState<number>(0);
+  const {data:chatData, refetch:chatRefetch} = useQuery(GET_GUIDE_CHAT_COUNT)
 
-    useEffect(() => {
-      if (data?.getUnreadNotificationsOfGuide) {
-        setNotifications(data.getUnreadNotificationsOfGuide);
-      }
-    }, [data]);
+  const profileImageUrl = guide?.kyc.find(img => img.fileType === "PASSPHOTO")?.path || "/default-avatar.png";
 
-    useEffect(() => {
-      socket.on("notification-count", (notificationCount) => {
-        console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)
-        setNotifications(notificationCount);
-      });
-  
-      socket.on("notification-updated", ({ isRead }) => {
-       setNotifications(isRead)
-      })
-  
-      return()=>{
-        socket.off("notification-count")
-      }
-    }, [socket]);
+  useEffect(() => {
+    if (data?.getUnreadNotificationsOfGuide) {
+      setNotifications(data.getUnreadNotificationsOfGuide);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (guideData?.getGuideDetails) {
+      setGuide(guideData.getGuideDetails);
+    }
+  }, [guideData]);
+
+  useEffect(() => {
+    if (chatData?.getChatCountOfGuide !== undefined) {
+      setChatCount(chatData.getChatCountOfGuide);
+    }
+  }, [chatData]);
+
+  useEffect(() => {
+    const chatCountListener = (chatCount: any) => {
+      console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
+      setChatCount(chatCount);
+      if (chatRefetch) chatRefetch();
+    };
+    socket.on("notification", (notificationCount) => {
+      console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount);
+      setNotifications(notificationCount);
+    });
+
+    socket.on("notification-updated", ({ isRead }) => {
+      setNotifications(isRead);
+    });
+    socket.on("chat-count", chatCountListener);
+
+    return () => {
+      socket.off("notification-count");
+      socket.off("chat-count", chatCountListener);
+
+    };
+  }, [socket]);
 
   useEffect(() => {
     const token = getCookie("accessToken");
@@ -82,9 +115,9 @@ const GuideNavBar = () => {
   };
 
   const handleNotifications = () => {
-    setShowNotifications(!showNotifications)
-    socket.emit("read-guide-notification")
-  }
+    setShowNotifications(!showNotifications);
+    socket.emit("read-guide-notification");
+  };
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
@@ -117,7 +150,7 @@ const GuideNavBar = () => {
                   show={showChat}
                   popup={<ChatPopup />}
                   icon={MessageSquare}
-                  count={1}
+                  count={chatCount}
                 />
                 <PopupButton
                   onClick={() => handleNotifications()}
@@ -132,6 +165,7 @@ const GuideNavBar = () => {
                 show={showProfile}
                 popup={<ProfilePopup />}
                 profileImage
+                imageUrl={profileImageUrl}
               />
             </div>
           ) : (
@@ -181,14 +215,18 @@ const GuideNavBar = () => {
                 </div>
               ) : (
                 <div className="flex items-center px-5">
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src=""
-                    alt="Profile"
-                  />
-                  <div className="ml-3">
-                    <div className="text-base font-medium text-gray-800"></div>
-                  </div>
+                  {guide?.kyc.map((image) => (
+                    <div key={image.id}>
+                      {image.fileType === "PASSPHOTO" && (
+                        <img
+                          className="h-10 w-10 rounded-full"
+                          src={image.path}
+                          alt="Profile"
+                        />
+                      )}
+                    </div>
+                  ))}
+                
                 </div>
               )}
             </div>
@@ -206,6 +244,7 @@ const PopupButton = ({
   icon: Icon,
   count,
   profileImage,
+  imageUrl,
 }: {
   onClick: () => void;
   show: boolean;
@@ -213,6 +252,7 @@ const PopupButton = ({
   icon?: React.ElementType;
   count?: number;
   profileImage?: boolean;
+  imageUrl?: string;
 }) => (
   <div className="popup-container relative">
     <button
@@ -223,7 +263,11 @@ const PopupButton = ({
       className="flex items-center space-x-2"
     >
       {profileImage ? (
-        <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
+        <img
+          className="h-8 w-8 rounded-full"
+          src={imageUrl}
+          alt="Profile"
+        />
       ) : (
         Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
@@ -262,11 +306,11 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
     <Icon className="h-[22px] w-[22px] text-gray-600" />
-    {count>0 && (
-<span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-  {count}
-</span>
-)}
+    {count > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+        {count}
+      </span>
+    )}
   </div>
 );
 

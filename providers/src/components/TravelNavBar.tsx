@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import TravelProfilePopup from "./TravelProfilePopup";
 import { useQuery } from "@apollo/client";
-import { GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
+import { GET_TRAVEL_CHAT_COUNT, GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
 
 const TravelNavBar = () => {
@@ -18,7 +18,8 @@ const TravelNavBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<number>(0);
   const { socket } = useSocket();
-
+  const [chatCount, setChatCount] = useState<number>(0);
+  const {data:chatData, refetch:chatRefetch} = useQuery(GET_TRAVEL_CHAT_COUNT)
   const { data } = useQuery(GET_TRAVEL_UNREAD_NOTIFICATIONS);
 
   useEffect(() => {
@@ -26,11 +27,27 @@ const TravelNavBar = () => {
       setNotifications(data.getUnreadNotificationsOfTravel);
     }
   }, [data]);
+
   useEffect(() => {
+    if (chatData?.getChatCountOfTravel !== undefined) {
+      setChatCount(chatData.getChatCountOfTravel);
+    }
+  }, [chatData]);
+
+  useEffect(() => {
+
+    const chatCountListener = (chatCount: any) => {
+      console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
+      setChatCount(chatCount);
+      if (chatRefetch) chatRefetch();
+    };
+
     socket.on("notification-count", (notificationCount) => {
       console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)
       setNotifications(notificationCount);
     });
+
+    socket.on("chat-count", chatCountListener);
 
     socket.on("notification-updated", ({ isRead }) => {
      setNotifications(isRead)
@@ -38,6 +55,8 @@ const TravelNavBar = () => {
 
     return()=>{
       socket.off("notification-count")
+      socket.off("chat-count", chatCountListener);
+
     }
   }, [socket]);
 
@@ -105,7 +124,7 @@ const handleNotifications = () => {
                   show={showChat}
                   popup={<ChatPopup />}
                   icon={MessageSquare}
-                  count={1}
+                  count={chatCount}
                 />
                 <PopupButton
                   onClick={() => handleNotifications()}
