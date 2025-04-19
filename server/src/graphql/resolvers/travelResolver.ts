@@ -245,6 +245,47 @@ export class TravelResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+    async changePasswordOfTravel(
+      @Arg("email") email: string,
+      @Arg("password") password: string,
+      @Arg("confirmPassword") confirmPassword: string,
+    ) {
+      try {
+        return await travelService.changePassword(password, confirmPassword, email);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+  @Mutation(() => String)
+  async updatePasswordOfTravel(
+    @Arg("currentPassword") currentPassword: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const id = ctx.req.user?.id as string;
+      return await travelService.updatePassword(
+        id,
+        password,
+        confirmPassword,
+        currentPassword,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Query(() => Travel, { nullable: true })
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async getTravelDetails(@Ctx() ctx: Context) {
@@ -417,6 +458,7 @@ export class TravelResolver {
     @Query(() => Number)
     @UseMiddleware(authentication, authorization([Role.TRAVEL]))
     async getChatCountOfUserByTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
+      console.log("🚀 ~ TravelResolver ~ getChatCountOfUserByTravel ~ id:", id)
       try {
         const userId = ctx.req.user?.id!;
         return await chatService.getUnreadChatByTravel(userId, id);

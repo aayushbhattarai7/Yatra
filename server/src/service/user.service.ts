@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
 import {
+  ActiveStatus,
   Gender,
   MediaType,
   PaymentType,
@@ -30,7 +31,7 @@ import {
   updatedMessage,
 } from "../constant/message";
 import axios from "axios";
-import { In,  Not } from "typeorm";
+import { In, Not } from "typeorm";
 import esewaService from "./esewa.service";
 import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
@@ -48,6 +49,8 @@ import mailUtils from "../utils/mail.utils";
 import { Report } from "../entities/user/report.entity";
 import ReportFile from "../entities/user/reportFile.entity";
 import { PlaceRating } from "../entities/ratings/place.rating.entity";
+import { Support } from "../entities/user/support.entity";
+import { Admin } from "../entities/admin/admin.entity";
 const roomService = new RoomService();
 const emailService = new EmailService();
 
@@ -74,6 +77,9 @@ class UserService {
     private readonly locationRepo = AppDataSource.getRepository(Location),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
     private readonly travelrepo = AppDataSource.getRepository(Travel),
+    private readonly adminRepo = AppDataSource.getRepository(Admin),
+
+    private readonly supportRepo = AppDataSource.getRepository(Support),
     private readonly guideRequestRepo = AppDataSource.getRepository(
       RequestGuide,
     ),
@@ -103,7 +109,7 @@ class UserService {
         lastName: data.lastName,
         email: data.email,
         phoneNumber: data.phoneNumber,
-        travelStyle:data.travelStyle,
+        travelStyle: data.travelStyle,
         gender: Gender[data.gender as keyof typeof Gender],
         password: hashPassword,
       });
@@ -164,6 +170,33 @@ class UserService {
       }
     }
   }
+
+  async sendSupportMessage(name: string, email: string, message: string) {
+    try {
+      const sendMessage = this.supportRepo.create({
+        email,
+        message,
+        name
+      })
+      await this.supportRepo.save(sendMessage)
+      const admin = await this.adminRepo.findOneBy({ email: DotenvConfig.ADMIN_EMAIL })
+      if (!admin) throw HttpException.notFound("Admin not found")
+      const notification = this.notificationRepo.create({
+        message: `${name} sent you a support message!`,
+        receiverAdmin: { id: admin.id }
+      })
+      await this.notificationRepo.save(notification)
+      io.to(admin.id).emit("notification", notification)
+      io.to(admin.id).emit("support", sendMessage)
+      return `Message sent to the Yatra Team, Thank you for your message`
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   async updateProfile(
     id: string,
     data: UserDTO,
@@ -183,7 +216,7 @@ class UserService {
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
-          travelStyle:data.travelStyle,
+          travelStyle: data.travelStyle,
           phoneNumber: data.phoneNumber,
           gender: Gender[data.gender as keyof typeof Gender],
         },
@@ -290,6 +323,7 @@ class UserService {
           "gender",
           "phoneNumber",
           "verified",
+          "status"
         ],
       });
 
@@ -298,10 +332,20 @@ class UserService {
           "The email you provided is not registered yet, please try with the registered one or create new account",
         );
 
-      if (!user.verified)
-        throw HttpException.badRequest(
-          "You are not verified user, please verify your otp",
-        );
+        if (user.status === ActiveStatus.BANNED  ) {
+          throw HttpException.badRequest(
+            "You have been banned from using Yatra, If you have any help contact Yatra support team",
+          );
+        }
+        if (user.status === ActiveStatus.BLOCKED  ) {
+          throw HttpException.badRequest(
+            "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
+          );
+        }
+
+        if (!user.verified) {
+          await this.reSendOtp(user.email);
+        }
       const passwordMatched = await bcryptService.compare(
         data.password,
         user.password,
@@ -412,6 +456,17 @@ class UserService {
           throw HttpException.badRequest(error.message);
         }
       } else {
+        if (user.status === ActiveStatus.BANNED  ) {
+          throw HttpException.badRequest(
+            "You have been banned from using Yatra, If you have any help contact Yatra support team",
+          );
+        }
+        if (user.status === ActiveStatus.BLOCKED  ) {
+          throw HttpException.badRequest(
+            "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
+          );
+        }
+  
         return await this.getByid(user.id);
       }
     } catch (error: unknown) {
@@ -769,6 +824,7 @@ class UserService {
       const unreadNotificationCount = await this.notificationRepo.count({
         where: { receiverGuide: { id: guide_id }, isRead: false },
       });
+      
 
       io.to(guide_id).emit("notification-count", unreadNotificationCount);
       await emailService.sendMail({
@@ -902,8 +958,8 @@ class UserService {
             { status: RequestStatus.COMPLETED, lastActionBy: Role.USER },
           );
           await transactionEntityManager.update(
-           User,{id:user_id},
-           {exploreLevel:user.exploreLevel+1}
+            User, { id: user_id },
+            { exploreLevel: user.exploreLevel + 1 }
           )
           return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`;
         },
@@ -935,16 +991,16 @@ class UserService {
         users: { id: user_id },
         status: RequestStatus.CONFIRMATION_PENDING,
       });
-    
+
       if (!request) throw HttpException.notFound("Request not found");
 
       await this.guideRequestRepo.update(
         { id: request.id },
         { status: RequestStatus.COMPLETED, lastActionBy: Role.USER },
       );
-      await this.userRepo.update({id:user_id},
-        {exploreLevel:user.exploreLevel+1}
-       )
+      await this.userRepo.update({ id: user_id },
+        { exploreLevel: user.exploreLevel + 1 }
+      )
       return `Your guide service has been successfully completed! Please take a moment to rate your travel service provider.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -2023,6 +2079,7 @@ class UserService {
           read: false,
         },
       });
+      console.log("🚀 ~ UserService ~ getUnreadChatCount ~ chatCount:", chatCount.length)
       io.to(userId).emit("chat-count", chatCount.length);
       return chatCount.length;
     } catch (error: unknown) {
@@ -2033,12 +2090,12 @@ class UserService {
       }
     }
   }
-  
+
   async getAllUserCount() {
     try {
       const user = await this.userRepo.find()
       console.log("🚀 ~ UserService ~ getAllUserCount ~ user:", user)
-      ;
+        ;
       return user.length;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -2051,7 +2108,7 @@ class UserService {
   async getAllGuideCount() {
     try {
       const guide = await this.guideRepo.find()
-      ;
+        ;
       return guide.length;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -2064,7 +2121,7 @@ class UserService {
   async getAllTravelCount() {
     try {
       const travel = await this.travelrepo.find()
-      ;
+        ;
       return travel.length;
     } catch (error: unknown) {
       if (error instanceof Error) {

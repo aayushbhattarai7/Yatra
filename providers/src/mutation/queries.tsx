@@ -14,6 +14,26 @@ export const SIGNUP_MUTATION = gql`
   }
 `;
 
+export const CHANGE_GUIDE_PASSWORD = gql`
+mutation ChangePasswordOfGuide($confirmPassword: String!, $password: String!, $email: String!) {
+  changePasswordOfGuide(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const CHANGE_TRAVEL_PASSWORD = gql`
+mutation ChangePasswordOfTravel($confirmPassword: String!, $password: String!, $email: String!) {
+  changePasswordOfTravel(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const UPDATE_TRAVEL_PASSWORD = gql`
+mutation UpdatePasswordOfTravel($confirmPassword: String!, $password: String!, $currentPassword: String!) {
+  updatePasswordOfTravel(confirmPassword: $confirmPassword, password: $password, currentPassword: $currentPassword)
+}
+`;
+export const UPDATE_GUIDE_PASSWORD = gql`
+mutation UpdatePasswordOfGuide($confirmPassword: String!, $password: String!, $currentPassword: String!) {
+  updatePasswordOfGuide(confirmPassword: $confirmPassword, password: $password, currentPassword: $currentPassword)
+}
+`;
 export const UPDATE_GUIDE_PROFILE = gql`
 mutation UpdateGuideProfile($data: GuideProfileDTO!) {
   updateGuideProfile(data: $data)
@@ -385,11 +405,21 @@ export const TRAVEL_OTP = gql`
     travelVerifyOTP(otp: $otp, email: $email)
   }
 `;
+export const GUDIE_OTP = gql`
+mutation GuideVerifyOTP($otp: String!, $email: String!) {
+  guideVerifyOTP(otp: $otp, email: $email)
+}
+`;
 
 export const TRAVEL_RESEND_OTP = gql`
   mutation TravelResendOTP($email: String!) {
     travelResendOTP(email: $email)
   }
+`;
+export const GUIDE_RESEND_OTP = gql`
+mutation GuideResendOTP($email: String!) {
+  guideResendOTP(email: $email)
+}
 `;
 export const TRAVEL_LOGIN = gql`
   mutation TravelLogin($password: String!, $email: String!) {

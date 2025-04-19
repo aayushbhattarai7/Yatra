@@ -81,7 +81,6 @@ class PlaceService {
                 this.placeImageRepo.target,
                 images,
               );
-              console.log("🚀 ~ PlaceService ~ savedImage:", savedImage);
 
               savedImage.transferImageToUpload(
                 trekkingPlace.id,
@@ -179,7 +178,6 @@ class PlaceService {
     try {
       const user = await this.userrepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
-      console.log("🚀 ~ PlaceService ~ addPlaceToFavourite ~ user:", user);
 
       const place = await this.trekkingPlaceRepo.findOneBy({ id: placeId });
       if (!place) throw HttpException.notFound("Place not found");
@@ -190,12 +188,8 @@ class PlaceService {
         },
         relations: ["place", "user"],
       });
-      console.log(
-        "🚀 ~ PlaceService ~ addPlaceToFavourite ~ isFavourite:",
-        isFavourite,
-      );
+       
       if (isFavourite) {
-        console.log("vamo");
         await this.favouritePlaceRepo.delete({ id: isFavourite.id });
         return `Place removed from favourite`;
       } else {
@@ -215,10 +209,6 @@ class PlaceService {
     }
   }
   async removePlaceToFavourite(userId: string, placeId: string) {
-    console.log(
-      "🚀 ~ PlaceService ~ removePlaceToFavourite ~ placeId:",
-      placeId,
-    );
     try {
       const user = await this.userrepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
@@ -242,7 +232,6 @@ class PlaceService {
     }
   }
   async getFavouritePlace(userId: string) {
-    console.log("🚀 ~ PlaceService ~ getFavouritePlace ~ userId:", userId);
     try {
       const user = await this.userrepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
@@ -251,10 +240,6 @@ class PlaceService {
         where: { user: { id: userId } },
         relations: ["user", "place", "place.images"],
       });
-      console.log(
-        "🚀 ~ PlaceService ~ getFavouritePlace ~ getFavoutite:",
-        getFavoutite,
-      );
       return getFavoutite;
     } catch (error: unknown) {
       if (error instanceof Error) {

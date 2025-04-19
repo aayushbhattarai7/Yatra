@@ -43,7 +43,7 @@ const ProfilePopup = () => {
         <div className="py-2">
           {[
             { label: "Your Profile", href: "/guide/profile" },
-            { label: "Settings", href: "/settings" },
+            { label: "Settings", href: "/guide/settings" },
             { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },
             { label: "Help Center", href: "/help" },

@@ -100,181 +100,36 @@ export class TravelController {
     }
   }
 
-  async reSendOtp(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      const data = await travelService.reSendOtp(email);
-      res.status(StatusCodes.SUCCESS).json({
-        status: true,
-        data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
 
-  async verifyUser(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      const { otp } = req.body;
-      console.log(req.body);
-      const data = await travelService.verifyUser(email, otp);
-      res.status(StatusCodes.SUCCESS).json({
-        status: true,
-        data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
+   async reportUser(req: Request, res: Response) {
+        try {
+          const travelId = req.user?.id as string;
+          console.log("🚀 ~ UserController ~ reportTravel ~ userId:", req.files)
+          const userId = req.params.id;
+          const {message} = req.body
+          const data = req.files?.map((file: any) => {
+            return {
+              name: file?.filename,
+              mimetype: file?.mimetype,
+              type: req.body?.type,
+            }
+          })
+          const details = await travelService.reportUser(
+            travelId,
+            userId,
+            message,
+            data as any,
+          
+          );
+          res.status(StatusCodes.CREATED).json({
+            details,
+          });
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+              message: error?.message,
+            });
+          }
+        }
       }
-    }
-  }
-
-  async travelLogin(req: Request, res: Response) {
-    try {
-      const data = await travelService.loginTravel(req.body as TravelDTO);
-      const tokens = webTokenService.generateTokens(
-        {
-          id: data.id,
-        },
-        data.role,
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data: {
-          id: data.id,
-          firstName: data?.firstName,
-          lastName: data?.lastName,
-          email: data?.email,
-          phoneNumber: data.phoneNumber,
-          verified: data.verified,
-          approved: data.approved,
-          tokens: {
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-          },
-          message: "Loggedin successfully",
-        },
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async verifyToken(req: Request, res: Response) {
-    try {
-      const refreshToken = req.cookies.refreshToken;
-      const token = await webTokenService.verify(
-        refreshToken,
-        DotenvConfig.ACCESS_TOKEN_SECRET,
-      );
-      if (!token) {
-        throw HttpException.unauthorized("You are not authorized");
-      }
-      const newAccessToken = webTokenService.generateAccessToken(
-        token,
-        token.role,
-      );
-      res.json({ accessToken: newAccessToken });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async getRequests(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id;
-      console.log(travel_id, "travel");
-      const data = await travelService.getRequests(travel_id as string);
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async sendPrice(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id as string;
-      const { price, requestId } = req.body;
-      const data = await travelService.sendPrice(price, travel_id, requestId);
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async acceptRequest(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id;
-      const requestId = req.params.id;
-      const data = await travelService.acceptRequest(
-        travel_id as string,
-        requestId,
-      );
-      res
-        .status(StatusCodes.SUCCESS)
-        .json({ data, message: "Request accepted successfully" });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async rejectRequest(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id;
-      const requestId = req.params.id;
-      await travelService.rejectRequest(travel_id as string, requestId);
-      res.status(StatusCodes.SUCCESS).json({ message: "Request rejected" });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async addLocation(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id;
-      const data = await travelService.addLocation(
-        travel_id as string,
-        req.body as LocationDTO,
-      );
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({ message: error.message });
-      } else {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({ message: "Internal server error" });
-      }
-    }
-  }
 }

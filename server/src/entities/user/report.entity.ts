@@ -22,14 +22,14 @@ export class Report extends Base {
    @Column({ enum: ReportStatus, type: "enum", default:ReportStatus.PENDING })
    status: ReportStatus;
 
-  @Field(() => User)
+  @Field(() => User, {nullable:true})
   @ManyToOne(() => User, (user) => user.report, {
     cascade: true,
     nullable: true,
   })
   @JoinColumn({ name: "reporter_user_id" })
   reporterUser: User;
-  @Field(() => User)
+  @Field(() => User,{nullable:true})
   @ManyToOne(() => User, (users) => users.reports, {
     cascade: true,
     nullable: true,
@@ -37,23 +37,23 @@ export class Report extends Base {
   @JoinColumn({ name: "reported_user_id" })
   reportedUser: User;
 
-  @Field(() => Guide)
+  @Field(() => Guide,{nullable:true})
   @ManyToOne(() => Guide, (guide) => guide.report, {
     cascade: true,
     nullable: true,
   })
   @JoinColumn({ name: "reporter_guide_id" })
   reporterGuide: Guide;
-  @Field(() => Guide)
+  @Field(() => Guide,{nullable:true})
   @ManyToOne(() => Guide, (guide) => guide.reports, { cascade: true })
   @JoinColumn({ name: "reported_guide_id" })
   reportedGuide: Guide;
-  @Field(() => Travel)
+  @Field(() => Travel,{nullable:true})
   @ManyToOne(() => Travel, (travel) => travel.reports, { cascade: true })
   @JoinColumn({ name: "reported_travel_id" })
   reportedTravel: Travel;
 
-  @Field(() => Travel)
+  @Field(() => Travel,{nullable:true})
   @ManyToOne(() => Travel, (travel) => travel.report, { cascade: true })
   @JoinColumn({ name: "reporter_travel_id" })
   reporterTravel: Travel;

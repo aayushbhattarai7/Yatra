@@ -33,7 +33,6 @@ router.post("/travel-esewa", userController.paymentForTravelWithEsewa);
 router.post("/guide-esewa", userController.paymentForGuideWithEsewa);
 router.post("/travel-khalti", userController.paymentForTravelWithKhalti);
 router.post("/guide-khalti", userController.paymentForGuideWithEsewa);
-router.post("/chat-travel", userController.chatWithTravel);
 router.post('/report-travel/:id', upload.array('files'), userController.reportTravel)
 router.post('/report-guide/:id', upload.array('files'), userController.reportGuide)
 

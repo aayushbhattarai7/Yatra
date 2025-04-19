@@ -27,7 +27,6 @@ query GetAdmin {
 }
   `;
   const { data } = useQuery(GET_ADMIN);
-  console.log("🚀 ~ data:", data)
   useEffect(() => {
     if (data) {
       setUser(data.getAdmin);

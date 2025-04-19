@@ -90,25 +90,7 @@ export class UserController {
       }
     }
   }
-  async chatWithTravel(req: Request, res: Response) {
-    try {
-      const userId = req.user?.id;
-      const travelId = req.params.id;
-      const { message } = req.body;
-      const data = await chatService.chatWithTravel(
-        userId as string,
-        travelId,
-        message,
-      );
-      res.status(StatusCodes.CREATED).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).send({ message: error.message });
-      } else {
-        res.status(500).send("Failed to fetch trekking place");
-      }
-    }
-  }
+
   async paymentForGuideWithEsewa(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
@@ -200,9 +182,7 @@ export class UserController {
         
         );
         res.status(StatusCodes.CREATED).json({
-          status: true,
           details,
-          message: "Guide is registered successfully",
         });
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -232,9 +212,7 @@ export class UserController {
         
         );
         res.status(StatusCodes.CREATED).json({
-          status: true,
           details,
-          message: "Guide is registered successfully",
         });
       } catch (error: unknown) {
         if (error instanceof Error) {

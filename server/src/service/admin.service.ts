@@ -4,7 +4,7 @@ import HttpException from "../utils/HttpException.utils";
 import bcryptService from "./bcrypt.service";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
-import { RequestStatus, Status } from "../constant/enum";
+import { ReportStatus, RequestStatus, Status } from "../constant/enum";
 import { LoginDTO } from "../dto/login.dto";
 import { Message } from "../constant/message";
 import Mail from "../utils/mail.utils";
@@ -12,6 +12,10 @@ import { User } from "../entities/user/user.entity";
 import { Rating } from "../entities/ratings/rating.entity";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { RequestTravel } from "../entities/user/RequestTravels.entity";
+import { Support } from "../entities/user/support.entity";
+import { Report } from "../entities/user/report.entity";
+import { Notification } from "../entities/notification/notification.entity";
+import { io } from "../socket/socket";
 class AdminService {
   constructor(
     private readonly adminrepo = AppDataSource.getRepository(Admin),
@@ -25,7 +29,14 @@ class AdminService {
     private readonly travelRequestRepo = AppDataSource.getRepository(
       RequestTravel,
     ),
-  ) {}
+    private readonly notificationRepo = AppDataSource.getRepository(
+      Notification,
+    ),
+    private readonly supportRepo = AppDataSource.getRepository(Support),
+    private readonly reportRepo = AppDataSource.getRepository(Report),
+
+
+  ) { }
 
   async login(data: LoginDTO): Promise<Admin> {
     try {
@@ -199,10 +210,147 @@ class AdminService {
 
   async getAllUsers() {
     try {
-      const travels = await this.userRepo.find({ relations: ["image"] });
-      if (travels.length === 0)
-        throw HttpException.notFound("Travels not found");
-      return travels;
+      const users = await this.userRepo.find({ relations: ["image"] });
+      if (users.length === 0)
+        throw HttpException.notFound("Users not found");
+      return users;
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  async getSupportMessages() {
+    try {
+      const message = await this.supportRepo.find();
+      console.log("🚀 ~ AdminService ~ getSupportMessages ~ message:", message)
+      if (message.length === 0)
+        throw HttpException.notFound("Messages not found");
+      return message;
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  async getNotifications(id: string) {
+    try {
+      const notification = await this.notificationRepo.find({
+        where: {
+          receiverAdmin: { id }
+        }
+      });
+      if (notification.length === 0)
+        throw HttpException.notFound("Notifications not found");
+      return notification;
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  async deleteSupportMessage(id: string) {
+    try {
+      const message = await this.supportRepo.findOneBy({ id });
+      if (!message)
+        throw HttpException.notFound("Messages not found");
+      await this.supportRepo.delete({ id })
+      return "Message deleted successfully";
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  async getReports() {
+    try {
+      const reports = await this.reportRepo.find({ relations: ["reporterUser", "reportedUser", "reporterGuide", "reportedGuide", "reporterTravel", "reportedTravel", "file"] });
+      if (reports.length === 0)
+        throw HttpException.notFound("Reports not found");
+      return reports;
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  async responseOnreport(reportId: string, response: string) {
+    try {
+      const report = await this.reportRepo.findOne({
+        where: { id: reportId },
+        relations: [
+          "reporterUser",
+          "reportedUser",
+          "reporterGuide",
+          "reportedGuide",
+          "reporterTravel",
+          "reportedTravel",
+          "file",
+        ],
+      });
+  
+      if (!report) {
+        throw HttpException.notFound("Reports not found");
+      }
+  
+  
+      let reporterType = "";
+      let reporterInfo: any = null;
+  
+      if (report.reporterUser) {
+        reporterType = "user";
+        reporterInfo = report.reporterUser;
+        const notification = this.notificationRepo.create({
+          message:"Admin responded about your recent report please check your mail for details",
+          receiverUser:{id:reporterInfo.id}
+        })
+        await this.notificationRepo.save(notification)
+        io.to(reporterInfo.id).emit("notification",notification)
+      } else if (report.reporterGuide) {
+        reporterType = "guide";
+        reporterInfo = report.reporterGuide;
+        const notification = this.notificationRepo.create({
+          message:"Admin responded about your recent report please check your mail for details",
+          receiverGuide:{id:reporterInfo.id}
+        })
+        await this.notificationRepo.save(notification)
+        io.to(reporterInfo.id).emit("notification",notification)
+      } else if (report.reporterTravel) {
+        reporterType = "travel";
+        reporterInfo = report.reporterTravel;
+        const notification = this.notificationRepo.create({
+          message:"Admin responded about your recent report please check your mail for details",
+          receiverTravel:{id:reporterInfo.id}
+        })
+        await this.notificationRepo.save(notification)
+        io.to(reporterInfo.id).emit("notification",notification)
+
+      }
+  
+      console.log(`Reporter is a ${reporterType}`, reporterInfo);
+  
+      await this.reportRepo.update({ id: reportId }, { adminResponse: response, status:ReportStatus.SOLVED });
+  
+      return "Response sent to the user successfully";
+    } catch (error) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  
+
+
+  async deleteReports(id: string) {
+    try {
+      const reports = await this.reportRepo.findOneBy({ id })
+      if (!reports)
+        throw HttpException.notFound("Reports not found");
+      await this.reportRepo.delete({ id })
+      return " Report deleted successfully";
     } catch (error) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -395,10 +543,10 @@ class AdminService {
 
   async getAllTravelRequests() {
     try {
-      const travelRequests = await this.travelRequestRepo.find({relations:["user","travel","travel.kyc","user.image"]})
-      if(travelRequests.length === 0) throw HttpException.notFound("requests not found")
-        return travelRequests
-    } catch (error:unknown) {
+      const travelRequests = await this.travelRequestRepo.find({ relations: ["user", "travel", "travel.kyc", "user.image"] })
+      if (travelRequests.length === 0) throw HttpException.notFound("requests not found")
+      return travelRequests
+    } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : "Failed to fetch revenue",
       );
@@ -406,10 +554,10 @@ class AdminService {
   }
   async getAllGuideRequests() {
     try {
-      const guideRequests = await this.guideRequestRepo.find({relations:["users","guide","guide.kyc","users.image"]})
-      if(guideRequests.length === 0) throw HttpException.notFound("requests not found")
-        return guideRequests
-    } catch (error:unknown) {
+      const guideRequests = await this.guideRequestRepo.find({ relations: ["users", "guide", "guide.kyc", "users.image"] })
+      if (guideRequests.length === 0) throw HttpException.notFound("requests not found")
+      return guideRequests
+    } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : "Failed to fetch revenue",
       );

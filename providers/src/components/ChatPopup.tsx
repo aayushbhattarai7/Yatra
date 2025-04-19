@@ -55,6 +55,17 @@ const ChatPopup = () => {
     }
   }, [data?.getChatUserByTravel, data?.getChatUserByGuide]);
 
+  useEffect(() => {
+    socket.on("room",(newRoom)=>{
+      setUserInRoom((prev)=>[...prev, newRoom])
+    })
+    return () => {
+      socket.off("room");
+     
+    };
+  }, [socket]);
+
+
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
       {selectedUserId ? (

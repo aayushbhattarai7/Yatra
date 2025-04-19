@@ -44,7 +44,10 @@ interface Image {
   id: string;
   path: string;
 }
-
+const isVideo = (path: string) => {
+  const videoExtensions = [".mp4", ".webm", ".ogg"];
+  return videoExtensions.some(ext => path.toLowerCase().endsWith(ext));
+};
 const Places = () => {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
@@ -113,12 +116,21 @@ const Places = () => {
   const PlaceCard = ({ place }: { place: Place }) => (
     <div className="group relative bg-white rounded-2xl overflow-hidden transform hover:scale-[1.02] transition-all duration-300 hover:shadow-xl">
       <div className="aspect-[4/3] overflow-hidden">
-        {place.images[0] && (
-          <img
-            src={place.images[0].path}
-            alt={place.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
+      {place.images[0] && (
+          isVideo(place.images[0].path) ? (
+            <video 
+              src={place.images[0].path}  
+              autoPlay 
+              loop 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+            />
+          ) : (
+            <img 
+              src={place.images[0].path} 
+              alt={place.name} 
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+            />
+          )
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
       </div>

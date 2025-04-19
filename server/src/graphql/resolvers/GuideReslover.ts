@@ -121,7 +121,7 @@ export class GuideResolver {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-
+        verified:user.verified,
         phoneNumber: user.phoneNumber,
         gender: user.gender,
         tokens: {
@@ -136,6 +136,47 @@ export class GuideResolver {
           ? error.message
           : "An error occurred during login",
       );
+    }
+  }
+
+  @Mutation(() => String)
+  async changePasswordOfGuide(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+  ) {
+    try {
+      return await this.guideService.changePassword(password, confirmPassword, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  async updatePasswordOfGuide(
+    @Arg("currentPassword") currentPassword: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const id = ctx.req.user?.id as string;
+      return await this.guideService.updatePassword(
+        id,
+        password,
+        confirmPassword,
+        currentPassword,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 
@@ -418,6 +459,33 @@ async verifyEmailWhileChangeOfGuide(
         }
       }
     }
+
+    @Mutation(() => String)
+    async guideResendOTP(@Arg("email") email: string) {
+      try {
+        return await this.guideService.reSendOtp(email);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Mutation(() => String)
+    async guideVerifyOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
+      try {
+        return await this.guideService.verifyUser(email, otp);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
     @Query(() => Number)
     @UseMiddleware(authentication, authorization([Role.GUIDE]))
     async getGuideTotalRevenue(@Ctx() ctx: Context) {

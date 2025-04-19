@@ -1,15 +1,19 @@
 import { gql, useMutation } from "@apollo/client";
+import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginForm from "../../../../client/src/ui/common/organisms/LoginForm";
 import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
 import { showToast } from "../../components/ToastNotification";
+import OTP from "../../components/Otp";
+import { GUIDE_RESEND_OTP } from "../../mutation/queries";
 
 const LOGIN_MUTATION = gql`
   mutation GuideLogin($password: String!, $email: String!) {
     guideLogin(password: $password, email: $email) {
       message
+      verified
       tokens {
         accessToken
       }
@@ -25,35 +29,42 @@ interface FormData {
 const GuideLogin = () => {
   const navigate = useNavigate();
   const [guideLogin, { loading }] = useMutation(LOGIN_MUTATION);
+  const [guideResendOTP] = useMutation(GUIDE_RESEND_OTP);
+
+  const [showOTP, setShowOTP] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      console.log(formData.email, formData.password);
       const response = await guideLogin({
         variables: { email: formData.email, password: formData.password },
       });
-      console.log(
-        "🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ response:",
-        response,
-      );
+
       if (response.data) {
-        const { accessToken } = response.data.guideLogin.tokens;
+        const loginData = response.data.guideLogin;
+
+        if (!loginData.verified) {
+          await guideResendOTP({ variables: { email: formData.email } });
+          showToast("OTP sent to your email", "success");
+          setUserEmail(formData.email);
+          setShowOTP(true);
+          return;
+        }
+
+        const { accessToken } = loginData.tokens;
         Cookies.set("accessToken", accessToken, {
           path: "/",
           secure: true,
           sameSite: "Strict",
         });
-        showToast(response.data.guideLogin.message, "success");
+        showToast(loginData.message, "success");
         navigate("/guide/home");
       } else {
-        console.error("No response data:", response);
-        showToast(response.data.guideLogin.message, "error");
+        showToast("Login failed. Please try again.", "error");
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.log("ohno");
         showToast(err.message, "error");
-
         console.error("GraphQL Error:", err);
       } else {
         console.error("Unexpected Error:", err);
@@ -62,29 +73,51 @@ const GuideLogin = () => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center">
-      <div className="w-full md:w-[55%] p-8 flex flex-col justify-center items-center font-poppins">
-        <div className="w-full max-w-md space-y-8 font-poppins">
-          <div className="text-center w-[29rem]">
-            <h1 className="text-4xl font-bold text-gray-900 font-poppins">
-              Login
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 animate-bounce font-poppins">
-              Continue Your Journey with us
-            </p>
-          </div>
+    <>
+      <div className="flex h-screen items-center justify-center">
+        <div className="w-full md:w-[55%] p-8 flex flex-col justify-center items-center font-poppins">
+          <div className="w-full max-w-md space-y-8 font-poppins">
+            <div className="text-center w-[29rem]">
+              <h1 className="text-4xl font-bold text-gray-900 font-poppins">Login</h1>
+              <p className="mt-2 text-sm text-gray-600 animate-bounce font-poppins">
+                Continue Your Journey with us
+              </p>
+            </div>
 
-          <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
+            <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
+          </div>
         </div>
+
+        <LoginHero
+          title="Yatra"
+          description="Travel is the only purchase that enriches you in ways beyond material wealth."
+        />
       </div>
 
-      <LoginHero
-        title="Yatra"
-        description="Travel is the only purchase that enriches you in ways beyond material wealth."
-      />
-
-      <div className="hidden md-grid grid-cols-12"></div>
-    </div>
+      {showOTP && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative w-full">
+            <button
+              onClick={() => setShowOTP(false)}
+              className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <OTP email={userEmail} registerType="guide"  onClose={()=>setShowOTP(false)}/>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

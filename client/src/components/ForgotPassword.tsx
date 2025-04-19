@@ -34,7 +34,7 @@ const ForgotPassword = () => {
         showToast("An error occurred", 'error');
       }
     }
-  };
+};
 
   if (isEmail) {
     return <OTP email={isEmail} />;

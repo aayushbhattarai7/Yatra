@@ -42,6 +42,8 @@ import { RequestsTable } from "./components/AdminRequests";
 import AdminProfilePopup from "./components/AdminProfilePopup";
 import AboutUs from "./ui/common/organisms/AboutUs";
 import Career from "./ui/common/organisms/Career";
+import AdminSupport from "./components/ui/AdminSupport";
+import Dashboard from "./components/ui/Reports";
 
 const isLoggedIn = !!getCookie("accessToken");
 const home = isLoggedIn ? <UserHome /> : <Landing />;
@@ -64,6 +66,8 @@ const router = createBrowserRouter([
             {path:"places", element:<Places/>},
             {path:"guides", element:<GuideApproval/>},
             {path:"booking", element:<RequestsTable/>},
+            {path:"support", element:<AdminSupport/>},
+            {path:"report", element:<Dashboard/>},
 
           ]}
         ]

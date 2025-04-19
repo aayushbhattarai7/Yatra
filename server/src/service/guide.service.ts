@@ -8,7 +8,7 @@ import bcryptService from "./bcrypt.service";
 import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
-import { Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
+import { ActiveStatus, Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
 import { Location } from "../entities/location/location.entity";
 import { GuideDetails } from "../entities/guide/guideDetails.entity";
 import { LocationDTO } from "../dto/location.dto";
@@ -240,6 +240,39 @@ class GuideService {
     }
   }
 
+  async updatePassword(
+    id: string,
+    password: string,
+    confirmPassword: string,
+    currentPassword: string,
+  ): Promise<string> {
+    try {
+      const guide = await this.guideRepo.findOne({
+        where: { id },
+        select: ["password"],
+      });
+      if (!guide) throw HttpException.unauthorized("You are not authorized");
+
+      const passwordMatched = await bcryptService.compare(
+        currentPassword,
+        guide.password,
+      );
+      if (!passwordMatched)
+        throw HttpException.badRequest("Incorrect current password");
+      if (password !== confirmPassword)
+        throw HttpException.badRequest("passowrd must be same in both field");
+      const hashPassword = await bcryptService.hash(password);
+      await this.guideRepo.update({ id }, { password: hashPassword });
+      return `Your password is updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async updateProfile(
     id: string,
     data: GuideProfileDTO,
@@ -278,10 +311,7 @@ class GuideService {
       }
       const guide = await this.guideRepo.findOneBy({ email });
       if (!guide) throw HttpException.unauthorized("You are not authorized");
-      if (guide.verified)
-        throw HttpException.badRequest(
-          "You are already verified please wait for the approval",
-        );
+ 
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${email}.${otp}.${expires}`;
@@ -300,25 +330,45 @@ class GuideService {
     }
   }
 
+  async changePassword(
+    password: string,
+    confirmPassword: string,
+    email: string,
+  ): Promise<string> {
+    try {
+      const user = await this.guideRepo.findOneBy({ email });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+
+      if (password !== confirmPassword)
+        throw HttpException.badRequest("passowrd must be same in both field");
+      const hashPassword = await bcryptService.hash(password);
+      await this.guideRepo.update({ email }, { password: hashPassword });
+      return `Your password is updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async verifyUser(email: string, otp: string): Promise<string> {
     try {
       const guide = await this.guideRepo.findOneBy({ email });
       if (!guide) throw HttpException.unauthorized("You are not authorized");
 
-      if (guide.verified === true) {
-        throw HttpException.badRequest(
-          "You are already verified please wait for the approval",
-        );
-      }
+    
       const [hashedOtp, expires] = guide?.otp?.split(".");
       if (Date.now() > +expires)
-        throw HttpException.badRequest("Otp ie expired");
+        throw HttpException.badRequest("Otp is expired");
 
       const payload = `${email}.${otp}.${expires}`;
       const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      console.log("🚀 ~ GuideService ~ verifyUser ~ payload:", payload)
       if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
       await this.guideRepo.update({ email }, { verified: true });
-      return `Your verification was successful! Please allow up to 24 hours for admin approval.`;
+      return `Your verification was successful!.`;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error?.message);
@@ -344,16 +394,27 @@ class GuideService {
           "middleName",
           "lastName",
           "role",
+          "status"
+          
         ],
       });
       if (!guide)
         throw HttpException.notFound(
           "Invalid Email, Entered Email is not registered yet",
         );
-      if (!guide.verified) {
+      if (guide.status === ActiveStatus.BANNED  ) {
         throw HttpException.badRequest(
-          "You are not verified, please verify your email first",
+          "You have been banned from using Yatra, If you have any help contact Yatra support team",
         );
+      }
+      if (guide.status === ActiveStatus.BLOCKED  ) {
+        throw HttpException.badRequest(
+          "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
+        );
+      }
+
+      if (!guide.verified) {
+        await this.reSendOtp(guide.email);
       }
 
       if (!guide.approved) {
@@ -976,6 +1037,49 @@ class GuideService {
     const sunday = new Date(start);
     sunday.setDate(start.getDate() + 6);
     return sunday.toISOString().split("T")[0];
+  }
+  async reportUser(id: string, userId: string, message: string, images: any[]) {
+    try {
+      const user = await this.userRepo.findOneBy({ id: userId })
+      if (!user) throw HttpException.notFound("user not found")
+
+      const isReportAlreadyExist = await this.reportRepo.findOne({
+        where: {
+          reporterGuide: { id },
+          reportedUser: user,
+          status: ReportStatus.PENDING
+        }, relations: ["reportedUser", "reporterGuide"]
+      })
+
+      if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this user recently")
+
+      const report = this.reportRepo.create({
+        message,
+        reportedGuide: { id },
+        reportedUser: user
+      })
+
+      await this.reportRepo.save(report)
+      if (images) {
+        for (const file of images) {
+
+          const files = this.reportFileRepo.create({
+            name: file.name,
+            mimetype: file.mimetype,
+            report: report
+
+          })
+          const saveFiles = await this.reportFileRepo.save(files)
+          saveFiles.transferImageToUpload(files.id, MediaType.REPORT)
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
   }
     
 }

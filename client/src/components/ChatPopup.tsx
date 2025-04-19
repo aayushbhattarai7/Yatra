@@ -13,12 +13,41 @@ interface Details {
   lastName: string;
   role: string;
 }
+
+interface Room {
+id:string;
+guide:{
+  id:string;
+  firstName:string;
+  middleName:string;
+  lastName:string;
+  gender:string;
+  role:string;
+};
+travel:{
+  id:string;
+  firstName:string;
+  middleName:string;
+  lastName:string;
+  gender:string;
+  role:string;
+}
+
+}
+
 const ChatPopup = () => {
   const { socket } = useSocket();
   const [selectedTravelId, setSelectedTravelId] = useState<Details | null>(null);
   const { data, loading, error, refetch } = useQuery(GET_ROOM_CHATS);
+  console.log("🚀 ~ ChatPopup ~ data:", data)
+  const [rooms, setRooms] = useState<Room[]>([])
   const navigate = useNavigate();
 
+  useEffect(()=>{
+if(data?.getConnectedUsers){
+  setRooms(data?.getConnectedUsers)
+}
+  },[data])
   useEffect(() => {
     socket.on("chat-count-of-guide", () => {
       refetch();
@@ -26,6 +55,9 @@ const ChatPopup = () => {
     socket.on("chat-count-of-travel", () => {
       refetch();
     });
+    socket.on("room",(newRoom)=>{
+      setRooms((prev)=>[...prev, newRoom])
+    })
     return () => {
       socket.off("chat-count-of-guide");
       socket.off("chat-count-of-travel");
@@ -47,7 +79,6 @@ const ChatPopup = () => {
       </div>
     );
 
-  const usersInRoom = data?.getConnectedUsers || [];
 
   const selectedDetails = (
     id: string,
@@ -78,10 +109,10 @@ const ChatPopup = () => {
             <h3 className="text-lg font-semibold">People in Room</h3>
           </div>
           <div className="max-h-96 overflow-y-auto">
-            {usersInRoom.length === 0 ? (
+            {rooms.length === 0 ? (
               <p className="p-4 text-gray-500">No users in the room</p>
             ) : (
-              usersInRoom.map((user: any) => (
+              rooms.map((user: any) => (
                 <div
                   key={user.id}
                   onClick={() => {

@@ -25,6 +25,74 @@ export const TRAVEL_BOOKING_MUTATION = gql`
     )
   }
 `;
+export const GET_REPORTS = gql`
+  query GetReports {
+    getReports {
+      id
+      createdAt
+      file {
+        id
+        path
+      }
+      message
+      adminResponse
+      status
+      reportedGuide {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+      reporterGuide {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+      reportedTravel {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+      reporterTravel {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+      reportedUser {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+      reporterUser {
+        id
+        firstName
+        middleName
+        lastName
+        email
+        phoneNumber
+      }
+    }
+  }
+`;
+
+export const UPDATE_REPORT = gql`
+mutation ResponseOnreport($message: String!, $id: String!) {
+  responseOnreport(message: $message, id: $id)
+}`
 export const GUIDE_BOOKING_MUTATION = gql`
   mutation RequestGuide(
     $totalPeople: String!
@@ -270,6 +338,16 @@ export const GET_USER_NOTIFICATIONS = gql`
     }
   }
 `;
+export const GET_ADMIN_NOTIFICATIONS = gql`
+  query GetNotificationOfAdmin {
+  getNotificationOfAdmin {
+  id
+  message
+  isRead
+  createdAt  
+  }
+}
+`;
 export const RATE_TRAVEL = gql`
 mutation RateTravel($message: String!, $rating: Float!, $id: String!) {
   rateTravel(message: $message, rating: $rating, id: $id) {
@@ -311,7 +389,7 @@ mutation VerifyUserOTP($otp: String!, $email: String!) {
 `;
 export const GET_CHAT_COUNT_OF_GUIDE = gql`
 query Query($id: String!) {
-  getChatCountOfGuide(id: $id)
+  getChatCountOfGuideByUser(id: $id)
 }
 `;
 export const ADD_TO_FAVOURITE = gql`
@@ -349,7 +427,7 @@ query GetFavouritePlace {
 `;
 export const GET_CHAT_COUNT_OF_TRAVEL = gql`
 query Query($id: String!) {
-  getChatCountOfTravel(id: $id)
+  getChatCountOfTravelByUser(id: $id)
 }
 `;
 export const GET_USER_CHAT_COUNT = gql`

@@ -1,13 +1,11 @@
-import { Bell, MessageSquare, Menu, X } from "lucide-react";
+import { Bell, Menu, X } from "lucide-react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
-import NotificationsPopup from "./NotificationPopup";
-import ChatPopup from "./ChatPopup";
-import ProfilePopup from "./ProfilePopup";
+import NotificationsPopup from "./ui/AdminNotificationPopup";
 import { getCookie } from "@/function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import { useQuery } from "@apollo/client";
-import { GET_USER_CHAT_COUNT, GET_USER_NOTIFICATIONS } from "@/mutation/queries";
+import { GET_ADMIN_NOTIFICATIONS } from "@/mutation/queries";
 import { useSocket } from "@/contexts/SocketContext";
 import { profileImage } from "@/config/constant/image";
 import { useLang } from "@/hooks/useLang";
@@ -23,41 +21,30 @@ const Navbar = () => {
   const { socket } = useSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showChat, setShowChat] = useState(false);
-  const [chatCount, setChatCount] = useState<number>(0);
   
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
   const { lang } = useLang();
-  const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
-  const { data: chatData, refetch } = useQuery(GET_USER_CHAT_COUNT);
+  const { data: notificationData } = useQuery(GET_ADMIN_NOTIFICATIONS);
  
   useEffect(() => {
     if (notificationData) {
-      setNotifications(notificationData.getAllNotificationsOfUser);
+      setNotifications(notificationData.getNotificationOfAdmin);
     }
   }, [notificationData]);
  
-  useEffect(() => {
-    if (chatData?.getChatCount !== undefined) {
-      setChatCount(chatData.getChatCount);
-    }
-  }, [chatData]);
+
   
   useEffect(() => {
-    const chatCountListener = (chatCount: any) => {
-      setChatCount(chatCount.chatCount);
-      if (refetch) refetch();
-    };
+ 
     
     socket.on("notification", (notification) => {
       setNotifications((prev) => [...prev, notification]);
     });
-    socket.on("chat-count", chatCountListener);
   
     return () => {
-      socket.off("chat-count", chatCountListener);
+      socket.off("notification");
     };
   }, [socket]);
   
@@ -77,21 +64,14 @@ const Navbar = () => {
   }, []);
   
   const handleNotificationClick = () => {
-    setShowChat(false);
     setShowNotifications(!showNotifications);
     setShowProfile(false);
     const decode = jwtDecode<{ id: string }>(token);
-    socket.emit("read-user-notification", decode.id);
+    // socket.emit("read-user-notification", decode.id);
   };
 
-  const openChat = () => {
-    setShowChat(!showChat);
-    setShowNotifications(false);
-    setShowProfile(false);
-  };
-
+ 
   const openProfile = () => {
-    setShowChat(false);
     setShowNotifications(false);
     setShowProfile(!showProfile);
   };
@@ -109,23 +89,19 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center space-x-8">
-            <RouterNavLink to="/admin" className="text-sm font-medium hover:text-gray-600">{authLabel.home[lang]}</RouterNavLink>
-            <RouterNavLink to="/admin/places" className="text-sm font-medium hover:text-gray-600">{authLabel.place[lang]}</RouterNavLink>
-            <RouterNavLink to="/admin/travels" className="text-sm font-medium hover:text-gray-600">{authLabel.travel[lang]}</RouterNavLink>
-            <RouterNavLink to="/admin/guides" className="text-sm font-medium hover:text-gray-600">{authLabel.guide[lang]}</RouterNavLink>
-            <RouterNavLink to="/admin/booking" className="text-sm font-medium hover:text-gray-600">{authLabel.booking[lang]}</RouterNavLink>
+            <RouterNavLink to="/admin" className="text-sm font-medium hover:text-gray-600">Home</RouterNavLink>
+            <RouterNavLink to="/admin/places" className="text-sm font-medium hover:text-gray-600">Places</RouterNavLink>
+            <RouterNavLink to="/admin/travels" className="text-sm font-medium hover:text-gray-600">Travels</RouterNavLink>
+            <RouterNavLink to="/admin/guides" className="text-sm font-medium hover:text-gray-600">Guides</RouterNavLink>
+            <RouterNavLink to="/admin/booking" className="text-sm font-medium hover:text-gray-600">Booking</RouterNavLink>
+            <RouterNavLink to="/admin/report" className="text-sm font-medium hover:text-gray-600">Reports</RouterNavLink>
+            <RouterNavLink to="/admin/support" className="text-sm font-medium hover:text-gray-600">Support</RouterNavLink>
          
           </div>
  
           {isLoggedIn ? (
             <div className="hidden md:flex items-center space-x-6">
-              <PopupButton
-                onClick={openChat}
-                show={showChat}
-                popup={<ChatPopup />}
-                icon={MessageSquare}
-                count={chatCount}
-              />
+            
               <PopupButton
                 onClick={handleNotificationClick}
                 show={showNotifications}

@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSocket } from "../contexts/SocketContext";
 import { useQuery } from "@apollo/client";
-import { GET_USER_NOTIFICATIONS } from "../mutation/queries";
+import { GET_ADMIN_NOTIFICATIONS } from "../mutation/queries";
+
 
 interface Notification {
   message: string;
@@ -29,11 +30,12 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
   const { socket } = useSocket();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const { data } = useQuery(GET_USER_NOTIFICATIONS);
+  const { data } = useQuery(GET_ADMIN_NOTIFICATIONS);
+  console.log("🚀 ~ NotificationProvider ~ data:", data)
 
   useEffect(() => {
-    if (data?.GetAllNotificationsOfUser) {
-      setNotifications(data?.GetAllNotificationsOfUser || []);
+    if (data?.getNotificationOfAdmin) {
+      setNotifications(data?.getNotificationOfAdmin || []);
     }
   }, [data]);
 

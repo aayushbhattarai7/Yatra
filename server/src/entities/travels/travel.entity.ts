@@ -1,7 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
 import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import Base from "../base.entity";
-import { Gender, Role, Status } from "../../constant/enum";
+import { ActiveStatus, Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
 import TravelKyc from "./travelKyc.entity";
 import { TravelDetails } from "./travelDetails.entity";
@@ -43,6 +43,10 @@ export class Travel extends Base {
   @Field()
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
+
+    @Field({nullable:true})
+    @Column({ type: "enum", enum: ActiveStatus, default:ActiveStatus.AVAILABLE, nullable:true })
+    status: ActiveStatus;
 
   @Field()
   @Column({ name: "password", select: false })

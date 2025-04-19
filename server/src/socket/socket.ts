@@ -71,7 +71,6 @@ function initializeSocket(server: any) {
     }
     const guide = await Guide.findOneBy({ id: userId });
     if (guide) {
-      console.log("oukay");
       await guideService.activeUser(userId);
     }
     const travel = await Travel.findOneBy({ id: userId });

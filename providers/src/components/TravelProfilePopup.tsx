@@ -43,10 +43,7 @@ const TravelProfilePopup = () => {
         <div className="py-2">
           {[
             { label: "Your Profile", href: "/travel/profile" },
-            { label: "Settings", href: "/settings" },
-            { label: "Trip History", href: "/trips" },
-            { label: "Saved Places", href: "/saved" },
-            { label: "Help Center", href: "/help" },
+            { label: "Settings", href: "/travel/settings" },
           ].map((item, index) => (
             <a
               key={index}

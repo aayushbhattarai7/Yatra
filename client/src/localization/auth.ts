@@ -425,6 +425,11 @@ export const authLabel: LabelTypes = {
     en: "Booking",
     ne: "बुकिङ",
   },
+  report: {
+    en: "Booking",
+    ne: "बुकिङ",
+  },
+
   history: {
     en: "History",
     ne: "इतिहास",

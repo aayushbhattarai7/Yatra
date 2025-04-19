@@ -8,7 +8,7 @@ import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
 import { Travel } from "../entities/travels/travel.entity";
 import TravelKyc from "../entities/travels/travelKyc.entity";
-import { FileType, Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
+import { ActiveStatus, FileType, Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
 import { TravelDetails } from "../entities/travels/travelDetails.entity";
 import { RequestTravel } from "../entities/user/RequestTravels.entity";
 import { User } from "../entities/user/user.entity";
@@ -275,10 +275,7 @@ class TravelService {
       }
       const travel = await this.travelrepo.findOneBy({ email });
       if (!travel) throw HttpException.unauthorized("You are not authorized");
-      if (travel.verified)
-        throw HttpException.badRequest(
-          "You are already verified please wait for the approval",
-        );
+    
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${email}.${otp}.${expires}`;
@@ -325,6 +322,62 @@ class TravelService {
     }
   }
 
+  async changePassword(
+    password: string,
+    confirmPassword: string,
+    email: string,
+  ): Promise<string> {
+    try {
+      const user = await this.travelrepo.findOneBy({ email });
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+
+      if (password !== confirmPassword)
+        throw HttpException.badRequest("passowrd must be same in both field");
+      const hashPassword = await bcryptService.hash(password);
+      await this.travelrepo.update({ email }, { password: hashPassword });
+      return `Your password is updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  async updatePassword(
+    id: string,
+    password: string,
+    confirmPassword: string,
+    currentPassword: string,
+  ): Promise<string> {
+    try {
+      const travel = await this.travelrepo.findOne({
+        where: { id },
+        select: ["password"],
+      });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+
+      const passwordMatched = await bcryptService.compare(
+        currentPassword,
+        travel.password,
+      );
+      if (!passwordMatched)
+        throw HttpException.badRequest("Incorrect current password");
+      if (password !== confirmPassword)
+        throw HttpException.badRequest("passowrd must be same in both field");
+      const hashPassword = await bcryptService.hash(password);
+      await this.travelrepo.update({ id }, { password: hashPassword });
+      return `Your password is updated successfully!.`;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   async loginTravel(data: LoginDTO) {
     try {
       const travel = await this.travelrepo.findOne({
@@ -340,6 +393,7 @@ class TravelService {
           "middleName",
           "lastName",
           "role",
+          "status"
         ],
       });
 
@@ -347,6 +401,19 @@ class TravelService {
         throw HttpException.notFound(
           "Invalid Email, Entered Email is not registered yet",
         );
+  
+
+      if (travel.status === ActiveStatus.BANNED  ) {
+        throw HttpException.badRequest(
+          "You have been banned from using Yatra, If you have any help contact Yatra support team",
+        );
+      }
+      if (travel.status === ActiveStatus.BLOCKED  ) {
+        throw HttpException.badRequest(
+          "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
+        );
+      }
+
       if (!travel.verified) {
         await this.reSendOtp(travel.email);
       }
@@ -691,7 +758,6 @@ class TravelService {
 
   async addLocation(travel_id: string, data: LocationDTO) {
     try {
-      console.log("yess");
       const travel = await this.travelrepo.findOneBy({ id: travel_id });
       if (!travel) throw HttpException.unauthorized("you are not authorized");
       const isLocation = await this.locationRepo.findOneBy({
@@ -905,20 +971,20 @@ class TravelService {
 
       if (isReportAlreadyExist) throw HttpException.badRequest("You have already reported this user recently")
 
-      const reportGuide = this.reportRepo.create({
+      const report = this.reportRepo.create({
         message,
         reporterTravel: { id },
         reportedUser: user
       })
 
-      await this.reportRepo.save(reportGuide)
+      await this.reportRepo.save(report)
       if (images) {
         for (const file of images) {
 
           const files = this.reportFileRepo.create({
             name: file.name,
             mimetype: file.mimetype,
-            report: reportGuide
+            report: report
 
           })
           const saveFiles = await this.reportFileRepo.save(files)

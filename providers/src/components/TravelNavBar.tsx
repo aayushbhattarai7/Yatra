@@ -34,13 +34,13 @@ const TravelNavBar = () => {
     }
   }, [chatData]);
 
+  const chatCountListener = (chatCount: any) => {
+    console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
+    setChatCount(chatCount);
+    if (chatRefetch) chatRefetch();
+  };
   useEffect(() => {
 
-    const chatCountListener = (chatCount: any) => {
-      console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
-      setChatCount(chatCount);
-      if (chatRefetch) chatRefetch();
-    };
 
     socket.on("notification-count", (notificationCount) => {
       console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)

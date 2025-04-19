@@ -18,16 +18,10 @@ router.post(
   ]),
   travelController.create,
 );
-router.patch("/resend-otp", travelController.reSendOtp);
-router.post("/verify", travelController.verifyUser);
-router.post("/login", travelController.travelLogin);
-router.post("refresh", travelController.verifyToken);
+
 router.use(authentication());
 router.use(authorization([Role.TRAVEL]));
-router.get("/get-requests", travelController.getRequests);
-router.patch("/send-price", travelController.sendPrice);
-router.patch("/accept-request/:id", travelController.acceptRequest);
-router.delete("/reject-request/:id", travelController.rejectRequest);
-router.post("/add-location", travelController.addLocation);
+router.post('/report-user/:id', upload.array('files'), travelController.reportUser)
+
 
 export default router;

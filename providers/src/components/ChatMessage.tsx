@@ -114,10 +114,11 @@ const ChatMessages = ({
         decodedToken.role === "TRAVEL"
           ? "mark-read-by-travel"
           : "mark-read-by-guide";
+      console.log("🚀 ~ useEffect ~ emitTo:", emitTo)
       socket.emit(emitTo, { senderId: userId });
       refetch();
     }
-  }, [unreadMessages, socket, userId, decodedToken.role]);
+  }, [ socket, userId, decodedToken.role]);
 
   const scrollToBottom = () => {
     refetch();
@@ -126,6 +127,7 @@ const ChatMessages = ({
         decodedToken.role === "TRAVEL"
           ? "mark-read-by-travel"
           : "mark-read-by-guide";
+      console.log("🚀 ~ scrollToBottom ~ emitTo:", emitTo)
       socket.emit(emitTo, { senderId: userId });
     }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -3,8 +3,8 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import Base from "../base.entity";
 import { User } from "../user/user.entity";
 import { Guide } from "../../entities/guide/guide.entity";
-import { PaymentType, RequestStatus, Role } from "../../constant/enum";
 import { Travel } from "../../entities/travels/travel.entity";
+import { Admin } from "../../entities/admin/admin.entity";
 
 @ObjectType()
 @Entity("notification")
@@ -52,4 +52,14 @@ export class Notification extends Base {
   @ManyToOne(() => Travel, (travel) => travel.notification, { cascade: true })
   @JoinColumn({ name: "sender_travel_id" })
   senderTravel: Travel;
+
+  @Field(() => Admin)
+  @ManyToOne(() => Admin, (admin) => admin.notification, { cascade: true })
+  @JoinColumn({ name: "sender_admin_id" })
+  senderAdmin: Admin;
+
+  @Field(() => Admin)
+  @ManyToOne(() => Admin, (admin) => admin.notifications, { cascade: true })
+  @JoinColumn({ name: "receiver_admin_id" })
+  receiverAdmin: Admin;
 }

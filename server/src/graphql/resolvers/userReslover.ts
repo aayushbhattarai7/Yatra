@@ -141,7 +141,25 @@ export class UserResolver {
       }
     }
   }
+
   @Mutation(() => String)
+  async sendSupportMessage(
+    @Arg("email") email: string,
+    @Arg("name") name: string,
+    @Arg("message") message: string,
+  ) {
+    try {
+      return await userService.sendSupportMessage(name,  email, message);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async updatePasswordOfUser(
     @Arg("currentPassword") currentPassword: string,
     @Arg("password") password: string,
@@ -759,6 +777,7 @@ export class UserResolver {
   async getChatCount(@Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ getChatCount ~ userId:", userId)
       return await userService.getUnreadChatCount(userId);
     } catch (error) {
       if (error instanceof Error) {
@@ -770,7 +789,7 @@ export class UserResolver {
   }
   @Query(() => Number)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getChatCountOfGuide(@Ctx() ctx: Context, @Arg("id") id: string) {
+  async getChatCountOfGuideByUser(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.getUnreadChatOFGuide(userId, id);
@@ -784,7 +803,7 @@ export class UserResolver {
   }
   @Query(() => Number)
   @UseMiddleware(authentication, authorization([Role.USER]))
-  async getChatCountOfTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
+  async getChatCountOfTravelByUser(@Ctx() ctx: Context, @Arg("id") id: string) {
     try {
       const userId = ctx.req.user?.id!;
       return await chatService.getUnreadChatOFTravel(userId, id);

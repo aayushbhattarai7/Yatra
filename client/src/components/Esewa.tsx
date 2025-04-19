@@ -9,7 +9,6 @@ interface PaymentProps {
 }
 
 const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {
-  console.log("🚀 ~ amount:", amount)
   const hashedId = `${uuidv4()}_${id}`;
   const formRef = useRef<HTMLFormElement>(null);
 

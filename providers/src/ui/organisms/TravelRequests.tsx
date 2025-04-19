@@ -11,8 +11,9 @@ import {
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
-import { MapPin, Calendar, Users, User, Clock, MapPinned } from "lucide-react";
+import { MapPin, Calendar, Users, User, Clock, MapPinned, AlertCircle, MoreVertical } from "lucide-react";
 import { useSocket } from "../../contexts/SocketContext";
+import Report from "../../components/Report";
 
 interface FormData {
   id: string;
@@ -24,7 +25,7 @@ interface FormData {
   gender: string;
   user: User;
   lastActionBy: string;
-  status:string
+  status: string;
 }
 
 interface User {
@@ -50,7 +51,9 @@ const TravelRequests = () => {
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
   const { register, handleSubmit, reset } = useForm<Price>();
-  const [requestForCompletedTravel] = useMutation(REQUEST_FOR_COMPLETE_TRAVEL_SERVICE)
+  const [requestForCompletedTravel] = useMutation(REQUEST_FOR_COMPLETE_TRAVEL_SERVICE);
+  const [reportUserId, setReportUserId] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -74,9 +77,15 @@ const TravelRequests = () => {
     await rejectRequestByTravel({ variables: { requestId: id } });
     refetch();
   };
+
   const requestForComplete = async (id: string) => {
     await requestForCompletedTravel({ variables: { userId: id } });
     refetch();
+  };
+
+  const handleReport = (userId: string) => {
+    setReportUserId(userId);
+    setActiveMenu(null);
   };
 
   useEffect(() => {
@@ -84,9 +93,9 @@ const TravelRequests = () => {
       setTravels(data.getRequestByTravel);
     }
   }, [data]);
+
   useEffect(() => {
     const handleNewRequests = (newBooking: FormData) => {
-      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking);
       setTravels((prev) => [...prev, newBooking]);
     };
 
@@ -95,6 +104,7 @@ const TravelRequests = () => {
       socket.off("request-travel", handleNewRequests);
     };
   }, [socket]);
+
   if (loading) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -146,8 +156,29 @@ const TravelRequests = () => {
         {travels.map((request) => (
           <div
             key={request.id}
-            className="bg-white rounded-lg shadow-lg overflow-hidden"
+            className="bg-white rounded-lg shadow-lg overflow-hidden relative"
           >
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setActiveMenu(activeMenu === request.id ? null : request.id)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <MoreVertical className="w-5 h-5 text-gray-500" />
+              </button>
+              
+              {activeMenu === request.id && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-10 border">
+                  <button
+                    onClick={() => handleReport(request.user.id)}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    Report this user
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="p-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -224,7 +255,6 @@ const TravelRequests = () => {
                   />
                 ) : (
                   <>
-                 
                     {request.price === null ? (
                       <Button
                         type="button"
@@ -234,30 +264,33 @@ const TravelRequests = () => {
                       />
                     ) : (
                       <>
-                       {request.status === "ACCEPTED" ? (
-                        <Button
-                          type="button"
-                          buttonText={authLabel.complete[lang]}
-                          onClick={()=>requestForComplete(request.user.id)}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
-                        />
-                  ):(
-<>
-<Button
-  type="button"
-  onClick={() => setSelectedId(request.id)}
-  buttonText={authLabel.bargain[lang]}
-  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
-/>
-
-<Button
-  type="button"
-  buttonText={authLabel.reject[lang]}
-  onClick={() => rejectRequest(request.id)}
-  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
-/>
-</>
-                  )}
+                        {request.status === "ACCEPTED" ? (
+                          <Button
+                            type="button"
+                            buttonText={authLabel.complete[lang]}
+                            onClick={() => requestForComplete(request.user.id)}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                          />
+                        ) : (
+                          <>
+                            {!(request.status === "COMPLETED" || request.status === "CONFIRMATION_PENDING") && (
+                              <>
+                                <Button
+                                  type="button"
+                                  onClick={() => setSelectedId(request.id)}
+                                  buttonText={authLabel.bargain[lang]}
+                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                                />
+                                <Button
+                                  type="button"
+                                  buttonText={authLabel.reject[lang]}
+                                  onClick={() => rejectRequest(request.id)}
+                                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
+                                />
+                              </>
+                            )}
+                          </>
+                        )}
                       </>
                     )}
                   </>
@@ -267,7 +300,6 @@ const TravelRequests = () => {
                   buttonText={authLabel.details[lang]}
                   className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
                 />
-                
               </div>
             </div>
           </div>
@@ -301,6 +333,14 @@ const TravelRequests = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {reportUserId && (
+        <Report 
+          id={reportUserId} 
+          type="travel" 
+          onClose={() => setReportUserId(null)}
+        />
       )}
     </div>
   );

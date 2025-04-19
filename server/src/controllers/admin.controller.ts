@@ -21,7 +21,6 @@ export class AdminController {
         req.body as PlaceDTO,
         data,
       );
-      console.log("yessss");
       res.status(StatusCodes.CREATED).json({ trekkingPlace });
     } catch (error: unknown) {
       if (error instanceof Error) {

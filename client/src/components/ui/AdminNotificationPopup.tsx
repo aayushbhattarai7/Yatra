@@ -1,9 +1,8 @@
-import { useNotifications } from "../../contexts/AdminNotification";
+import { useNotifications } from "../../contexts/NotificationContext";
 import { formatTimeDifference } from "../../function/TimeDifference";
 
 const NotificationsPopup = () => {
   const { notifications, markAsRead } = useNotifications();
-  console.log("🚀 ~ NotificationsPopup ~ notifications:", notifications)
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">

@@ -55,7 +55,10 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState<Notifications[]>([]);
 
   const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
-  const { data: chatData, refetch } = useQuery(GET_USER_CHAT_COUNT);
+  const { data: chatData } = useQuery(GET_USER_CHAT_COUNT, {
+     fetchPolicy: "network-only"
+  });
+  console.log("🚀 ~ Navbar ~ chatData:", chatData?.getChatCount)
   const { data: userData } = useQuery(GET_USER_QUERY);
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const Navbar = () => {
   }, [notificationData]);
 
   useEffect(() => {
-    if (chatData?.getChatCount !== undefined) {
+    if (chatData?.getChatCount) {
       setChatCount(chatData.getChatCount);
     }
   }, [chatData]);
@@ -76,11 +79,11 @@ const Navbar = () => {
     }
   }, [userData]);
 
+  const chatCountListener = (chatCount: any) => {
+    console.log("🚀 ~ navs ~ chatCount:", chatCount)
+    setChatCount(chatCount.chatCount);
+  };
   useEffect(() => {
-    const chatCountListener = (chatCount: any) => {
-      setChatCount(chatCount.chatCount);
-      if (refetch) refetch();
-    };
 
     socket.on("notification", (notification) => {
       setNotifications((prev) => [...prev, notification]);

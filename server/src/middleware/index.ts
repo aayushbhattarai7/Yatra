@@ -43,7 +43,7 @@ const middleware = async (app: Application) => {
     }
   });
 
-  app.use(morgan("common"));
+  // app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 

@@ -21,6 +21,12 @@ export enum ReportStatus {
   SOLVED = "SOLVED",
 }
 
+export enum ActiveStatus {
+  AVAILABLE = "AVAILABLE",
+  BLOCKED = "BLOCKED",
+  BANNED = "BANNED",
+}
+
 export enum RequestStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",

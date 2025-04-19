@@ -5,6 +5,7 @@ import { User } from "../entities/user/user.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { Chat } from "../entities/chat/chat.entity";
 import { Guide } from "../entities/guide/guide.entity";
+import { io } from "../socket/socket";
 
 export class RoomService {
   constructor(
@@ -33,6 +34,9 @@ export class RoomService {
           travel: receiver,
         });
         await this.roomrepo.save(createRoom);
+        io.to(receiverId).emit("room", createRoom)
+        io.to(userId).emit("room", createRoom)
+
         return createRoom;
       }
       return findRoom;
@@ -60,6 +64,8 @@ export class RoomService {
           guide: receiver,
         });
         await this.roomrepo.save(createRoom);
+        io.to(receiverId).emit("room", createRoom)
+        io.to(userId).emit("room", createRoom)
         return createRoom;
       }
       return findRoom;

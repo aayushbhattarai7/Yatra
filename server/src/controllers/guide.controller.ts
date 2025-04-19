@@ -98,142 +98,34 @@ export class GuideController {
     }
   }
 
-  async reSendOtp(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      const data = await guideService.reSendOtp(email);
-      res.status(StatusCodes.SUCCESS).json({
-        status: true,
-        data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
+  async reportUser(req: Request, res: Response) {
+        try {
+          const guideId = req.user?.id as string;
+          const userId = req.params.id;
+          const {message} = req.body
+          const data = req.files?.map((file: any) => {
+            return {
+              name: file?.filename,
+              mimetype: file?.mimetype,
+              type: req.body?.type,
+            }
+          })
+          const details = await guideService.reportUser(
+            guideId,
+            userId,
+            message,
+            data as any,
+          
+          );
+          res.status(StatusCodes.CREATED).json({
+            details,
+          });
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            res.status(StatusCodes.BAD_REQUEST).json({
+              message: error?.message,
+            });
+          }
+        }
       }
-    }
-  }
-
-  async verifyUser(req: Request, res: Response) {
-    try {
-      const { email } = req.body;
-      const { otp } = req.body;
-      const data = await guideService.verifyUser(email, otp);
-      res.status(StatusCodes.SUCCESS).json({
-        status: true,
-        data,
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async guideLogin(req: Request, res: Response) {
-    try {
-      const data = await guideService.loginGuide(req.body as GuideDTO);
-      const tokens = webTokenService.generateTokens(
-        {
-          id: data.id,
-        },
-        data.role,
-      );
-      console.log(
-        "🚀 ~ GuideController ~ guideLogin ~ tokens:",
-        tokens,
-        data.role,
-      );
-      res.status(StatusCodes.SUCCESS).json({
-        data: {
-          id: data.id,
-          firstName: data?.firstName,
-          lastName: data?.lastName,
-          email: data?.email,
-          phoneNumber: data.phoneNumber,
-          verified: data.verified,
-          approved: data.approved,
-          tokens: {
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-          },
-          message: "Loggedin successfully",
-        },
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  // async addLocation(req: Request, res: Response) {
-  //   try {
-  //     const guide_id = req.user?.id;
-  //     const data = await guideService.addLocation(
-  //       guide_id as string,
-  //       req.body as LocationDTO,
-  //     );
-  //     res.status(StatusCodes.SUCCESS).json({ data });
-  //   } catch (error: unknown) {
-  //     if (error instanceof Error) {
-  //       res.status(StatusCodes.BAD_REQUEST).json({
-  //         message: error?.message,
-  //       });
-  //     }
-  //   }
-  // }
-
-  async getRequests(req: Request, res: Response) {
-    try {
-      const guide_id = req.user?.id;
-      const data = await guideService.getRequests(guide_id as string);
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-
-  async sendPrice(req: Request, res: Response) {
-    try {
-      const guide_id = req.user?.id as string;
-      const { price, requestId } = req.body;
-      const data = await guideService.sendPrice(price, guide_id, requestId);
-      res.status(StatusCodes.SUCCESS).json({ data });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
-  async acceptRequest(req: Request, res: Response) {
-    try {
-      const travel_id = req.user?.id;
-      const requestId = req.params.id;
-      const data = await guideService.acceptRequest(
-        travel_id as string,
-        requestId,
-      );
-      res
-        .status(StatusCodes.SUCCESS)
-        .json({ data, message: "Request accepted successfully" });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        res.status(StatusCodes.BAD_REQUEST).json({
-          message: error?.message,
-        });
-      }
-    }
-  }
 }

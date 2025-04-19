@@ -58,6 +58,7 @@ const GuideRegister: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>();
@@ -226,6 +227,7 @@ const GuideRegister: React.FC = () => {
                   <div>
                     <Label name="firstName" label="First Name" required />
                     <InputField
+                    setValue={setValue}
                       type="text"
                       name="firstName"
                       register={register}
@@ -243,6 +245,7 @@ const GuideRegister: React.FC = () => {
                   <div>
                     <Label name="middleName" label="Middle Name" />
                     <InputField
+                    setValue={setValue}
                       type="text"
                       name="middleName"
                       register={register}
@@ -255,6 +258,7 @@ const GuideRegister: React.FC = () => {
                 <div>
                   <Label name="lastName" label="Last Name" required />
                   <InputField
+                  setValue={setValue}
                     type="text"
                     name="lastName"
                     register={register}
@@ -274,6 +278,7 @@ const GuideRegister: React.FC = () => {
                   <div>
                     <Label name="email" label="Email" required />
                     <InputField
+                    setValue={setValue}
                       type="email"
                       name="email"
                       register={register}
@@ -291,6 +296,7 @@ const GuideRegister: React.FC = () => {
                   <div>
                     <Label name="phoneNumber" label="Phone Number" required />
                     <InputField
+                    setValue={setValue}
                       type="tel"
                       name="phoneNumber"
                       register={register}
@@ -331,6 +337,7 @@ const GuideRegister: React.FC = () => {
                   <div>
                     <Label name="password" label="Password" required />
                     <InputField
+                    setValue={setValue}
                       type="password"
                       name="password"
                       register={register}
@@ -350,6 +357,7 @@ const GuideRegister: React.FC = () => {
                 <div>
                   <Label name="DOB" label="Date Of Birth" required />
                   <InputField
+                  setValue={setValue}
                     type="date"
                     name="DOB"
                     register={register}
@@ -374,6 +382,7 @@ const GuideRegister: React.FC = () => {
                     <div>
                       <Label name="nationality" label="Nationality" required />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="nationality"
                         register={register}
@@ -390,6 +399,7 @@ const GuideRegister: React.FC = () => {
                     <div>
                       <Label name="province" label="Province" required />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="province"
                         register={register}
@@ -409,6 +419,7 @@ const GuideRegister: React.FC = () => {
                     <div>
                       <Label name="district" label="District" required />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="district"
                         register={register}
@@ -429,6 +440,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="municipality"
                         register={register}
@@ -458,6 +470,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="licenseNumber"
                         register={register}
@@ -481,6 +494,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="date"
                         name="licenseValidityFrom"
                         register={register}
@@ -499,6 +513,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="date"
                         name="licenseValidityTo"
                         register={register}
@@ -558,6 +573,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="citizenshipId"
                         register={register}
@@ -579,6 +595,7 @@ const GuideRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        setValue={setValue}
                           type="date"
                           name="citizenshipIssueDate"
                           register={register}
@@ -599,6 +616,7 @@ const GuideRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        setValue={setValue}
                           type="text"
                           name="citizenshipIssueFrom"
                           register={register}
@@ -665,6 +683,7 @@ const GuideRegister: React.FC = () => {
                     <div>
                       <Label name="passportId" label="Passport ID" required />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="passportId"
                         register={register}
@@ -686,6 +705,7 @@ const GuideRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        setValue={setValue}
                           type="date"
                           name="passportIssueDate"
                           register={register}
@@ -706,6 +726,7 @@ const GuideRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        setValue={setValue}
                           type="date"
                           name="passportExpiryDate"
                           register={register}
@@ -727,6 +748,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="passportIssueFrom"
                         register={register}
@@ -769,6 +791,7 @@ const GuideRegister: React.FC = () => {
                     <div>
                       <Label name="voterId" label="Voter ID" required />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="voterId"
                         register={register}
@@ -789,6 +812,7 @@ const GuideRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      setValue={setValue}
                         type="text"
                         name="voterAddress"
                         register={register}
@@ -881,7 +905,7 @@ const GuideRegister: React.FC = () => {
 
           {registered && (
             <div className="mt-8">
-              <OTP email={email} registerType="travel" />
+              <OTP email={email} registerType="guide" onClose={()=>setRegistered(false)}/>
             </div>
           )}
         </div>

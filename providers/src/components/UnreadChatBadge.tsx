@@ -11,8 +11,8 @@ const UnreadChatBadge = ({ id }: { id: string}) => {
     const decodedToken:any = jwtDecode(token!)
     const query = decodedToken.role === "TRAVEL" ? GET_CHAT_COUNT_OF_USER_BY_TRAVEL : GET_CHAT_COUNT_OF_USER_BY_GUIDE;
     
-    const { data, error, refetch } = useQuery(query, { variables: { id } });
-    console.log("🚀 ~ UnreadChatBadge ~ error:", error)
+    const { data, error } = useQuery(query, { variables: { id }, fetchPolicy:"network-only" });
+    console.log("🚀 ~ UnreadChatBadge ~ data:", data)
     const { socket } = useSocket();
 
     const updateUnread = useCallback((newCount: number) => {
@@ -25,25 +25,21 @@ const UnreadChatBadge = ({ id }: { id: string}) => {
             ? data?.getChatCountOfUserByGuide 
             : data?.getChatCountOfUserByTravel;
             setUnread(count || 0);
-            console.log("🚀 ~ useEffect ~ count:", count)
         }
     }, [data, decodedToken.role]);
 
     useEffect(() => {
         const handleChatCount = (payload: { id: string; chatCounts: number }) => {
-            console.log("🚀 ~ handlechatCounts ~ chatCounts:", payload.chatCounts)
-
-            console.log("🚀 ~ handlechatCounts ~ payload:", payload.id)
+            console.log("🚀 ~ handleChatCount ~ id:", payload,"------------------",id)
             if (payload.id === id) {
                 updateUnread(payload.chatCounts);
             }
-            refetch()
         };
         socket.on("chat-count-of-user", handleChatCount);
         return () => {
             socket.off("chat-count-of-user", handleChatCount);
         };
-    }, [socket, id, updateUnread]); 
+}, [socket, id, updateUnread]); 
 
     if (error) console.error(error);
 

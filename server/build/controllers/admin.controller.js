@@ -26,7 +26,6 @@ class AdminController {
         req.body,
         data,
       );
-      console.log("yessss");
       res.status(StatusCodes_1.StatusCodes.CREATED).json({ trekkingPlace });
     } catch (error) {
       if (error instanceof Error) {

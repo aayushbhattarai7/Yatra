@@ -8,7 +8,7 @@ import {
   OneToOne,
 } from "typeorm";
 import Base from "../base.entity";
-import { Gender, Role, Status } from "../../constant/enum";
+import { ActiveStatus, Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
 import GuideKYC from "./guideKyc.entity";
 import { GuideDetails } from "./guideDetails.entity";
@@ -58,6 +58,10 @@ export class Guide extends Base {
   @Field()
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
+
+    @Field({nullable:true})
+    @Column({ type: "enum", enum: ActiveStatus, default:ActiveStatus.AVAILABLE, nullable:true })
+    status: ActiveStatus;
 
   @Field()
   @Column({ name: "password", select: false })

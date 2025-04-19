@@ -62,12 +62,12 @@ const GuideNavBar = () => {
     }
   }, [chatData]);
 
+  const chatCountListener = (chatCount: any) => {
+    console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
+    setChatCount(chatCount);
+    if (chatRefetch) chatRefetch();
+  };
   useEffect(() => {
-    const chatCountListener = (chatCount: any) => {
-      console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
-      setChatCount(chatCount);
-      if (chatRefetch) chatRefetch();
-    };
     socket.on("notification", (notificationCount) => {
       console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount);
       setNotifications(notificationCount);

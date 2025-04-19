@@ -83,8 +83,9 @@ const ChatMessages = ({
   const query =
     details.role === "TRAVEL" ? GET_CHAT_OF_TRAVEL : GET_CHAT_OF_GUIDE;
 
-  const { data, loading, error, refetch } = useQuery(query, {
+  const { data, loading, error, } = useQuery(query, {
     variables: { id: details.id },
+    fetchPolicy: "network-only",
   });
 
   const datas =
@@ -98,7 +99,6 @@ const ChatMessages = ({
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     socket.emit("mark-as-read", { senderId: details.id, role: details.role });
-    refetch();
   };
 
   useEffect(() => {
@@ -181,7 +181,7 @@ const socketMessage = details.role === "TRAVEL"?"get-active-travels":"get-active
     const newMessage: Chat = {
       id: Date.now().toString(),
       message,
-      createdAt: new Date().toLocaleTimeString(),
+      createdAt: `${new Date()}`,
       read: false,
       receiverTravel: { id: details.id, firstName: "You", lastName: "" },
     };

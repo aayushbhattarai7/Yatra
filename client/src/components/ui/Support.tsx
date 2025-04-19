@@ -6,12 +6,9 @@ import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
 
 const SEND_SUPPORT_MESSAGE = gql`
-  mutation SendSupportMessage($name: String!, $email: String!, $message: String!) {
-    sendSupportMessage(name: $name, email: $email, message: $message) {
-      success
-      message
-    }
-  }
+mutation SendSupportMessage($message: String!, $name: String!, $email: String!) {
+  sendSupportMessage(message: $message, name: $name, email: $email)
+}
 `;
 
 const Support = () => {
@@ -22,7 +19,7 @@ const Support = () => {
     message: "",
   });
 
-  const [sendMessage, { loading, data, error }] = useMutation(SEND_SUPPORT_MESSAGE);
+  const [sendSupportMessage, { loading, data, error }] = useMutation(SEND_SUPPORT_MESSAGE);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -30,7 +27,7 @@ const Support = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await sendMessage({ variables: formData });
+    await sendSupportMessage({ variables:{name:formData.name, email:formData.email, message:formData.message}  });
   };
 
   return (

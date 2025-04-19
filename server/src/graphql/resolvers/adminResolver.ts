@@ -24,6 +24,9 @@ import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
 import placeService from "../../service/place.service";
 import { User } from "../../entities/user/user.entity";
 import { RevenueGroupedResponse } from "../../graphql/schema/RevenueSchems";
+import { Support } from "../../entities/user/support.entity";
+import { Report } from "../../entities/user/report.entity";
+import { Notification } from "../../entities/notification/notification.entity";
 
 @Resolver((of) => Admin)
 export class AdminResolver {
@@ -180,6 +183,49 @@ export class AdminResolver {
     }
   }
 
+  @Query(() => [Support])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getSupportMessages(@Ctx() ctx: Context) {
+    try {
+      const support = await adminService.getSupportMessages();
+      return support;
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  @Query(() => [Report])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getReports(@Ctx() ctx: Context) {
+    try {
+      const support = await adminService.getReports();
+      return support;
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async responseOnreport(
+    @Ctx() ctx: Context,
+    @Arg("id") id: string,
+    @Arg("message") message: string,
+  ) {
+    console.log("🚀 ~ AdminResolver ~ id:", id)
+    try {
+      return await adminService.responseOnreport( id, message);
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.ADMIN]))
   async rejectGuide(
@@ -190,6 +236,35 @@ export class AdminResolver {
     try {
       const adminId = ctx.req.user?.id!;
       return await adminService.rejectGuide(adminId, guideId, message);
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async deleteReport(
+    @Ctx() ctx: Context,
+    @Arg("id") id: string,
+  ) {
+    try {
+      return await adminService.deleteReports(id);
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async deleteSupportMessage(
+    @Ctx() ctx: Context,
+    @Arg("id") id: string,
+  ) {
+    try {
+      return await adminService.deleteSupportMessage(id);
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,
@@ -215,6 +290,20 @@ export class AdminResolver {
     try {
       const user = await adminService.getAllUsers();
       return user;
+    } catch (error: unknown) {
+      throw HttpException.badRequest(
+        error instanceof Error ? error.message : Message.error,
+      );
+    }
+  }
+
+  @Query(() => [Notification])
+  @UseMiddleware(authentication, authorization([Role.ADMIN]))
+  async getNotificationOfAdmin(@Ctx() ctx: Context) {
+    try {
+      const id = ctx.req.user?.id as string;
+      const notifications = await adminService.getNotifications(id);
+      return notifications;
     } catch (error: unknown) {
       throw HttpException.badRequest(
         error instanceof Error ? error.message : Message.error,

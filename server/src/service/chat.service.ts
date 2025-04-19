@@ -22,9 +22,10 @@ export class ChatService {
     private readonly notificationRepo = AppDataSource.getRepository(
       Notification,
     ),
-  ) {}
+  ) { }
 
   async chatWithGuide(userId: string, guideId: string, message: string) {
+    console.log("🚀 ~ ChatService ~ chatWithGuide ~ userId:", userId)
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
@@ -61,8 +62,9 @@ export class ChatService {
       });
       const chatCounts = chatCount.length;
       const id = guideId;
-     
+
       io.to(guideId).emit("chat-count", { id, chatCounts });
+      io.to(guideId).emit("chat-count-of-user", { id, chatCounts });
       await this.getUnreadChatByGuide(guideId, userId)
       return saveChat;
     } catch (error: unknown) {
@@ -111,7 +113,7 @@ export class ChatService {
       });
       const chatCounts = chatCount.length;
       const id = travelId;
-     
+
       io.to(travelId).emit("chat-count", { id, chatCounts });
       await this.getUnreadChatByTravel(travelId, userId)
 
@@ -253,7 +255,6 @@ export class ChatService {
         },
       });
       const chatCounts = chatCount.length;
-      const id = travel_id;
       const notification = this.notificationRepo.create({
         message: `${travel.firstName} ${user.middleName ? user.middleName + " " : ""} ${travel.lastName} sent you a message`,
         receiverUser: user,
@@ -262,7 +263,14 @@ export class ChatService {
       if (notification) {
         io.to(user_id).emit("notification", notification);
       }
-      io.to(user_id).emit("chat-count-of-travel", { id, chatCounts });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: user_id },
+          read: false
+        }
+      })
+      io.to(user_id).emit("chat-count", { chatCount: chatCountOfNav.length });
+      io.to(user_id).emit("chat-count-of-travel", { id: travel_id, chatCounts });
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -300,7 +308,6 @@ export class ChatService {
         },
       });
       const chatCounts = chatCount.length;
-      const id = guide_id;
       const notification = this.notificationRepo.create({
         message: `${guide.firstName} ${user.middleName ? user.middleName + " " : ""} ${guide.lastName} sent you a message`,
         receiverUser: user,
@@ -309,7 +316,14 @@ export class ChatService {
       if (notification) {
         io.to(user_id).emit("notification", notification);
       }
-      io.to(user_id).emit("chat-count-of-guide", { id, chatCounts });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: user_id },
+          read: false
+        }
+      })
+      io.to(user_id).emit("chat-count", { chatCount: chatCountOfNav.length });
+      io.to(user_id).emit("chat-count-of-guide", { id: guide_id, chatCounts });
       return chat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -434,7 +448,9 @@ export class ChatService {
           read: false,
         },
       });
+      console.log("🚀 ~ ChatService ~ readChatOfTravel ~ chatCount:", chatCount.length)
       io.to(userId).emit("chat-count", { chatCount: chatCount.length });
+      io.to(userId).emit("chat-count-of-travel", { id: travelId, chatCount: chatCount.length });
       return updateChat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -461,6 +477,16 @@ export class ChatService {
         .execute();
 
       io.to(userId).emit("message-read-by-travel", { id: travelId, userId });
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverTravel: { id: travelId },
+          read: false,
+        },
+      });
+      console.log("🚀 ~ ChatService ~ readChatByTravel ~ chatCount:", chatCount)
+      io.to(travelId).emit("chat-count", { id: travelId, chatCount: chatCount.length });
+      io.to(travelId).emit("chat-count-of-user", { id: userId, chatCount: chatCount.length });
+
       return updateChat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -487,6 +513,17 @@ export class ChatService {
         .execute();
 
       io.to(userId).emit("message-read", { guideId, userId });
+      io.to(userId).emit("message-read-by-guide", { id: guideId, userId });
+
+      const chatCount = await this.chatRepo.find({
+        where: {
+          receiverGuide: { id: guideId },
+          read: false,
+        },
+      });
+      io.to(guideId).emit("chat-count", { chatCount: chatCount.length });
+      io.to(guideId).emit("chat-count-of-user", { id: userId, chatCount: chatCount.length });
+
       return updateChat;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -511,13 +548,18 @@ export class ChatService {
           read: false,
         },
       });
-      console.log(
-        "🚀 ~ ChatService ~ getUnreadChatOFGuide ~ getUnreadChatsOFGuide:",
-        getUnreadChatsOFGuide.length,
-      );
+
       const unreadChatCount = getUnreadChatsOFGuide.length;
 
-      io.to(userId).emit("chat-count", { chatCount: unreadChatCount });
+      io.to(userId).emit("chat-count-of-guide", { chatCount: unreadChatCount });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      io.to(userId).emit("chat-count", { chatCount: chatCountOfNav.length });
+
       return unreadChatCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -541,13 +583,16 @@ export class ChatService {
           read: false,
         },
       });
-      console.log(
-        "🚀 ~ ChatService ~ getUnreadChatOFGuide ~ getUnreadChatsOFGuide:",
-        getUnreadChatsOFGuide.length,
-      );
       const unreadChatCount = getUnreadChatsOFGuide.length;
 
-      io.to(guideId).emit("chat-count-of-user", { id:userId,chatCount: unreadChatCount });
+      io.to(guideId).emit("chat-count-of-user", { id: userId, chatCount: unreadChatCount });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverGuide: { id: guideId },
+          read: false
+        }
+      })
+      io.to(guideId).emit("chat-count", { chatCount: chatCountOfNav.length });
       return unreadChatCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -558,6 +603,7 @@ export class ChatService {
     }
   }
   async getUnreadChatByTravel(travelId: string, userId: string) {
+    console.log("🚀 ~ ChatService ~ getUnreadChatByTravel ~ travelId:", travelId)
     try {
       const travel = await this.travelRepo.findOneBy({ id: travelId });
       if (!travel) throw HttpException.unauthorized("You are not authorized");
@@ -571,13 +617,20 @@ export class ChatService {
           read: false,
         },
       });
-      console.log(
-        "🚀 ~ ChatService ~ getUnreadChatOFGuide ~ getUnreadChatsOFGuide:",
-        getUnreadChatsOFTravel.length,
-      );
+      if (getUnreadChatsOFTravel.length === 0) {
+        return 0;
+      }
+
       const unreadChatCount = getUnreadChatsOFTravel.length;
 
-      io.to(travelId).emit("chat-count-of-user", { id:userId,chatCounts: unreadChatCount });
+      io.to(travelId).emit("chat-count-of-user", { id: userId, chatCounts: unreadChatCount });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverTravel: { id: travelId },
+          read: false
+        }
+      })
+      io.to(travelId).emit("chat-count", { chatCount: chatCountOfNav.length });
       return unreadChatCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -601,13 +654,16 @@ export class ChatService {
           read: false,
         },
       });
-      console.log(
-        "🚀 ~ ChatService ~ getUnreadChatOFTravel ~ getUnreadChatsOFTravel:",
-        getUnreadChatsOFTravel,
-      );
       const unreadChatCount = getUnreadChatsOFTravel.length;
 
-      io.to(userId).emit("chat-count", { chatCount: unreadChatCount });
+      const chatCountOfNav = await this.chatRepo.find({
+        where: {
+          receiverUser: { id: userId },
+          read: false
+        }
+      })
+      io.to(userId).emit("chat-count", { chatCount: chatCountOfNav.length });
+      io.to(userId).emit("chat-count-of-travel", { id: travelId, chatCount: unreadChatCount });
       return unreadChatCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
