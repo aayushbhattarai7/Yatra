@@ -25,6 +25,12 @@ const GET_GUIDE_QUERY = gql`
         id
         path
       }
+         ratings{
+        id
+        rating
+        message
+       
+        }
     }
   }
 `;
@@ -62,6 +68,7 @@ const Guides = () => {
   const [guide, setGuide] = useState<string>("");
   const { lang } = useLang();
   const { data, loading } = useQuery(GET_GUIDE_QUERY);
+  console.log("🚀 ~ Guides ~ data:", data)
 
   const guides = activeTab === "online" ? onlineGuides : allGuides;
 

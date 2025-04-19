@@ -63,6 +63,9 @@ class AdminService {
   async getAdmin(id: string) {
     try {
       const admin = await this.adminrepo.findOneBy({ id });
+      if(!admin){
+        throw HttpException.unauthorized("You are not authorized")
+      }
       return admin!;
     } catch (error: unknown) {
       throw HttpException.badRequest(

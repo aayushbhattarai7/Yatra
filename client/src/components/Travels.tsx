@@ -43,6 +43,7 @@ const Travels = () => {
   const { lang } = useLang();
   const [travelId, setTravelId] = useState<string>("");
   const { data, loading } = useQuery(GET_TRAVELS);
+  console.log("🚀 ~ Travels ~ data:", data)
 
   const travels = activeTab === "online" ? onlineTravels : allTravels;
 

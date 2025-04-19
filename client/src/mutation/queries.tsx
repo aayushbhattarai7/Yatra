@@ -128,6 +128,12 @@ export const GET_TRAVELS = gql`
         id
         path
       }
+        ratings{
+        id
+        rating
+        message
+       
+        }
     }
   }
 `;
@@ -198,6 +204,18 @@ export const GET_GUIDE_PROFILE = gql`
         id
         path
       }
+         ratings{
+        id
+        rating
+        message
+        user{
+        id
+        firstName
+        lastName
+        middleName}
+       
+        }
+        
     }
   }
 `;
@@ -215,6 +233,17 @@ export const GET_TRAVEL_PROFILE = gql`
         id
         path
       }  
+          ratings{
+        id
+        rating
+        message
+        user{
+        id
+        firstName
+        lastName
+        middleName}
+       
+        }
   }
 }
 `;

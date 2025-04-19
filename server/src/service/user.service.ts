@@ -637,7 +637,7 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
-        relations: ["details", "location", "kyc"],
+        relations: ["details", "location", "kyc","ratings"],
       });
       if (!guides) {
         throw HttpException.notFound("Guide not found");
@@ -660,7 +660,7 @@ class UserService {
           verified: true,
           approved: true,
         },
-        relations: ["details", "location", "kyc"],
+        relations: ["details", "location", "kyc","ratings"],
       });
       if (!travel) {
         throw HttpException.notFound("Travel not found");
@@ -1568,7 +1568,7 @@ class UserService {
       }
     }
   }
-  async getGuideProfile(user_id: string, guide_id: string) {
+async getGuideProfile(user_id: string, guide_id: string) {
     try {
       const user = await this.userRepo.findOneBy({
         id: user_id,
@@ -1580,7 +1580,7 @@ class UserService {
         where: {
           id: guide_id,
         },
-        relations: ["details", "kyc"],
+        relations: ["details", "kyc", "ratings", "ratings.user"],
       });
       if (!guide) {
         throw HttpException.notFound("Guide not found");

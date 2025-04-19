@@ -142,10 +142,4 @@ export class Travel extends Base {
   })
   reports: Report[];
 
-
-  @Field(() => [ProviderPlace])
-  @OneToMany(() => ProviderPlace, (travelPlace) => travelPlace.placeTravel, {
-    cascade: true,
-  })
-  travelPlaces: ProviderPlace[];
 }

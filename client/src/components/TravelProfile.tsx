@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, MapPin, Calendar, Star, X } from "lucide-react";
@@ -19,6 +18,19 @@ interface UserData {
   createdAt: string;
   vehicleType: string;
   kyc: KYC[];
+  ratings: Ratings[];
+}
+
+interface Ratings {
+  id: string;
+  message: string;
+  rating: number;
+  user: {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+  };
 }
 
 interface KYC {
@@ -31,27 +43,6 @@ interface TravelProfileUserViewProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const mockReviews = [
-  {
-    id: "1",
-    name: "David",
-    rating: 5,
-    comment: "Very professional driver, made our journey comfortable!",
-  },
-  {
-    id: "2",
-    name: "Emma",
-    rating: 4,
-    comment: "Great service and very punctual.",
-  },
-  {
-    id: "3",
-    name: "Frank",
-    rating: 5,
-    comment: "Excellent driving skills and very friendly attitude!",
-  },
-];
 
 const TravelProfileUserView = ({
   travelId,
@@ -81,6 +72,14 @@ const TravelProfileUserView = ({
         </div>
       );
     }
+
+    const avgRating = user.ratings.length
+      ? user.ratings.reduce((sum, r) => sum + r.rating, 0) / user.ratings.length
+      : 0;
+
+    const fullStars = Math.floor(avgRating);
+    const hasHalfStar = avgRating - fullStars >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
     return (
       <div className="bg-white p-6">
@@ -122,10 +121,19 @@ const TravelProfileUserView = ({
           </div>
 
           <div className="flex items-center gap-1 text-yellow-500">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-yellow-500" />
+            {[...Array(fullStars)].map((_, i) => (
+              <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-500" />
             ))}
-            <span className="text-gray-700 ml-2">(4.8 / 95 reviews)</span>
+            {hasHalfStar && (
+              <Star className="w-4 h-4 fill-yellow-500 opacity-50" /> // half look
+            )}
+            {[...Array(emptyStars)].map((_, i) => (
+              <Star key={`empty-${i}`} className="w-4 h-4 text-gray-300" />
+            ))}
+
+            <span className="text-gray-700 ml-2">
+              ({avgRating.toFixed(1)} / 5 — {user.ratings.length} reviews)
+            </span>
           </div>
 
           <Button
@@ -134,10 +142,11 @@ const TravelProfileUserView = ({
             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all"
           />
 
+         
           <div className="mt-6 w-full">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">What Passengers Say</h3>
             <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
-              {mockReviews.map((review) => (
+              {user.ratings.map((review) => (
                 <div
                   key={review.id}
                   className="bg-gray-50 border rounded-lg p-3 shadow-sm"
@@ -147,8 +156,10 @@ const TravelProfileUserView = ({
                       <Star key={i} className="w-4 h-4 fill-yellow-500" />
                     ))}
                   </div>
-                  <p className="text-gray-700 italic">"{review.comment}"</p>
-                  <p className="text-sm text-gray-500 mt-1 text-right">— {review.name}</p>
+                  <p className="text-gray-700 italic">"{review.message}"</p>
+                  <p className="text-sm text-gray-500 mt-1 text-right">
+                    — {review.user.firstName} {review.user?.middleName} {review.user.lastName}
+                  </p>
                 </div>
               ))}
             </div>
