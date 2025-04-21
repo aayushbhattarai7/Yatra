@@ -55,41 +55,26 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState<Notifications[]>([]);
 
   const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
-  const { data: chatData } = useQuery(GET_USER_CHAT_COUNT, {
-     fetchPolicy: "network-only"
-  });
-  console.log("🚀 ~ Navbar ~ chatData:", chatData?.getChatCount)
+  const { data: chatData } = useQuery(GET_USER_CHAT_COUNT, { fetchPolicy: "network-only" });
   const { data: userData } = useQuery(GET_USER_QUERY);
 
   useEffect(() => {
-    if (notificationData) {
-      setNotifications(notificationData.getAllNotificationsOfUser);
-    }
+    if (notificationData) setNotifications(notificationData.getAllNotificationsOfUser);
   }, [notificationData]);
 
   useEffect(() => {
-    if (chatData?.getChatCount) {
-      setChatCount(chatData.getChatCount);
-    }
+    if (chatData?.getChatCount) setChatCount(chatData.getChatCount);
   }, [chatData]);
 
   useEffect(() => {
-    if (userData?.getUser) {
-      setUser(userData.getUser);
-    }
+    if (userData?.getUser) setUser(userData.getUser);
   }, [userData]);
 
-  const chatCountListener = (chatCount: any) => {
-    console.log("🚀 ~ navs ~ chatCount:", chatCount)
-    setChatCount(chatCount.chatCount);
-  };
+  const chatCountListener = (chatCount: any) => setChatCount(chatCount.chatCount);
+
   useEffect(() => {
-
-    socket.on("notification", (notification) => {
-      setNotifications((prev) => [...prev, notification]);
-    });
+    socket.on("notification", (notification) => setNotifications((prev) => [...prev, notification]));
     socket.on("chat-count", chatCountListener);
-
     return () => {
       socket.off("chat-count", chatCountListener);
       socket.off("notification");
@@ -97,17 +82,13 @@ const Navbar = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (token) {
-      try {
-        const decoded = jwtDecode<{ id: string; email: string }>(token);
-        setIsLoggedIn(!!decoded);
-      } catch {
-        setIsLoggedIn(false);
-      }
-    } else {
+    try {
+      const decoded = token ? jwtDecode<{ id: string; email: string }>(token) : null;
+      setIsLoggedIn(!!decoded);
+    } catch {
       setIsLoggedIn(false);
     }
-  }, []);
+  }, [token]);
 
   const handleNotificationClick = () => {
     setShowChat(false);
@@ -129,12 +110,12 @@ const Navbar = () => {
     setShowProfile(!showProfile);
   };
 
-  const profileImgSrc = user?.image?.[1]?.path || "/default-profile.png";
+  const profileImgSrc = user?.image?.[0]?.path || "/default-profile.png";
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-[1920px] mx-auto px-6">
-        <div className="flex items-center justify-between h-[60px]">
+        <div className="flex items-center justify-between h-[60px] relative">
           <RouterNavLink to="/" className="text-xl font-bold">
             {authLabel.Yatra[lang]}
           </RouterNavLink>
@@ -180,61 +161,91 @@ const Navbar = () => {
               <NavLink to="/user-register" label={authLabel.signup[lang]} />
             </div>
           )}
+
+          {isOpen && (
+            <div className="absolute md:hidden w-full left-0 top-full bg-white shadow-lg z-50 border-t">
+              <div className="px-6 py-4 space-y-4">
+                <div className="flex flex-col space-y-4">
+                  <NavLink to="/" label={authLabel.home[lang]} onClick={() => setIsOpen(false)} mobile />
+                  <NavLink to="/places" label={authLabel.place[lang]} onClick={() => setIsOpen(false)} mobile />
+                  <NavLink to="/travel" label={authLabel.travel[lang]} onClick={() => setIsOpen(false)} mobile />
+                  <NavLink to="/guide" label={authLabel.guide[lang]} onClick={() => setIsOpen(false)} mobile />
+                  <NavLink to="/booking" label={authLabel.booking[lang]} onClick={() => setIsOpen(false)} mobile />
+                  <NavLink to="/history" label={authLabel.history[lang]} onClick={() => setIsOpen(false)} mobile />
+                </div>
+
+                {isLoggedIn ? (
+                  <div className="flex flex-col space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <PopupButton
+                        onClick={() => { openChat(); setIsOpen(false); }}
+                        show={showChat}
+                        popup={<ChatPopup />}
+                        icon={MessageSquare}
+                        count={chatCount}
+                        mobile
+                      />
+                      <PopupButton
+                        onClick={() => { handleNotificationClick(); setIsOpen(false); }}
+                        show={showNotifications}
+                        popup={<NotificationsPopup />}
+                        icon={Bell}
+                        mobile
+                      />
+                      <PopupButton
+                        onClick={() => { openProfile(); setIsOpen(false); }}
+                        show={showProfile}
+                        popup={<ProfilePopup onClose={() => setShowProfile(false)} />}
+                        profileImgSrc={profileImgSrc}
+                        mobile
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-4 pt-4 border-t">
+                    <NavLink to="/user-login" label={authLabel.login[lang]} onClick={() => setIsOpen(false)} mobile />
+                    <NavLink to="/user-register" label={authLabel.signup[lang]} onClick={() => setIsOpen(false)} mobile />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>
   );
 };
 
-const NavLink = ({ to, label }: NavLinkProps) => (
+const NavLink = ({ to, label, onClick, mobile }: NavLinkProps) => (
   <RouterNavLink
     to={to}
     className={({ isActive }) =>
       `text-sm font-medium transition-colors ${
         isActive ? "text-green-600" : "text-black hover:text-gray-600"
-      }`
+      } ${mobile ? "block py-2" : ""}`
     }
+    onClick={onClick}
   >
     {label}
   </RouterNavLink>
 );
 
-const PopupButton = ({
-  onClick,
-  show,
-  popup,
-  icon: Icon,
-  count,
-  profileImgSrc,
-}: {
-  onClick: () => void;
-  show: boolean;
-  popup: JSX.Element;
-  icon?: React.ElementType;
-  count?: number;
-  profileImgSrc?: string;
-}) => (
-  <div className="popup-container relative">
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      className="flex items-center space-x-2"
-    >
+const PopupButton = ({ onClick, show, popup, icon: Icon, count, profileImgSrc, mobile }: PopupButtonProps) => (
+  <div className={`popup-container relative ${mobile ? "mx-2" : ""}`}>
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }} className="flex items-center space-x-2">
       {profileImgSrc ? (
         <img className="h-8 w-8 rounded-full" src={profileImgSrc} alt="Profile" />
       ) : (
-        Icon && <NotificationIcon icon={Icon} count={count || 0} />
+        Icon && <NotificationIcon icon={Icon} count={count || 0} mobile={mobile} />
       )}
     </button>
     {show && popup}
   </div>
 );
 
-const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
+const NotificationIcon = ({ icon: Icon, count, mobile }: NotificationIconProps) => (
   <div className="relative">
-    <Icon className="h-[22px] w-[22px] text-gray-600" />
+    <Icon className={`${mobile ? "h-6 w-6" : "h-[22px] w-[22px]"} text-gray-600`} />
     {count > 0 && (
       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
         {count}
@@ -246,11 +257,24 @@ const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
 interface NavLinkProps {
   to: string;
   label: string;
+  onClick?: () => void;
+  mobile?: boolean;
 }
 
 interface NotificationIconProps {
   icon: React.ElementType;
   count: number;
+  mobile?: boolean;
+}
+
+interface PopupButtonProps {
+  onClick: () => void;
+  show: boolean;
+  popup: JSX.Element;
+  icon?: React.ElementType;
+  count?: number;
+  profileImgSrc?: string;
+  mobile?: boolean;
 }
 
 export default Navbar;

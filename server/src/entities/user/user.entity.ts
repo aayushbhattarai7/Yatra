@@ -5,7 +5,6 @@ import { ActiveStatus, Gender, Role } from "../../constant/enum";
 import { Location } from "../location/location.entity";
 import { RequestTravel } from "./RequestTravels.entity";
 import { RequestGuide } from "./RequestGuide.entities";
-import { BookHotel } from "../../entities/hotels/bookHotel.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
@@ -87,10 +86,6 @@ export class User extends Base {
   @Field(() => [PlaceRating])
   @OneToMany(() => PlaceRating, (rating) => rating.user, { cascade: true })
   placeRating: PlaceRating[];
-
-  @Field(() => BookHotel)
-  @OneToOne(() => BookHotel, (bookHotel) => bookHotel.user, { cascade: true })
-  bookHotel: BookHotel;
 
   @Field(() => [RequestTravel])
   @OneToMany(() => RequestTravel, (requestTravel) => requestTravel.user, {

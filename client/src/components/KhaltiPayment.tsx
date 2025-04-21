@@ -15,7 +15,7 @@ const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
         amount,
         website_url: "http://localhost:3001",
         return_url: `http://localhost:3001/khaltiSuccess/${type}/${id}`,
-        purchase_order_name: "Travel",
+        purchase_order_name: type,
         error_key: "http://localhost:3001/paymentfailure",
       };
 

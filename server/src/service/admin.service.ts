@@ -22,7 +22,6 @@ class AdminService {
     private readonly userRepo = AppDataSource.getRepository(User),
     private readonly guideRepo = AppDataSource.getRepository(Guide),
     private readonly travelRepo = AppDataSource.getRepository(Travel),
-    private readonly ratingsRepo = AppDataSource.getRepository(Rating),
     private readonly guideRequestRepo = AppDataSource.getRepository(
       RequestGuide,
     ),
@@ -40,7 +39,6 @@ class AdminService {
 
   async login(data: LoginDTO): Promise<Admin> {
     try {
-      console.log("admin");
       const admin = await this.adminrepo.findOne({
         where: [{ email: data.email }],
         select: ["id", "email", "password", "role"],
@@ -88,7 +86,7 @@ class AdminService {
         },
         relations: ["kyc", "details"],
       });
-      if (!getUnapprovedGuide) throw HttpException.notFound("Guide not found");
+      if (getUnapprovedGuide.length === 0) throw HttpException.notFound("Guide not found");
       return getUnapprovedGuide;
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -115,7 +113,7 @@ class AdminService {
         "🚀 ~ AdminService ~ getTravelApprovalRequest ~ getUnapprovedTravel:",
         getUnapprovedTravel,
       );
-      if (!getUnapprovedTravel)
+      if (getUnapprovedTravel.length === 0)
         throw HttpException.notFound("Travel not found");
       return getUnapprovedTravel;
     } catch (error: unknown) {
@@ -349,7 +347,7 @@ class AdminService {
 
   async deleteReports(id: string) {
     try {
-      const reports = await this.reportRepo.findOneBy({ id })
+      const reports = await this.reportRepo.findOne({where:{ id} })
       if (!reports)
         throw HttpException.notFound("Reports not found");
       await this.reportRepo.delete({ id })

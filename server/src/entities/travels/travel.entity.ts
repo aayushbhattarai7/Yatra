@@ -11,7 +11,6 @@ import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
 import { Rating } from "../../entities/ratings/rating.entity";
 import { Report } from "../../entities/user/report.entity";
-import { ProviderPlace } from "../../entities/place/providerPlaces.entity";
 
 @ObjectType()
 @Entity("travel")

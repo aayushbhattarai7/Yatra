@@ -1,14 +1,14 @@
 import React from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useMutation } from "@apollo/client";
-import { ADVANCE_PAYMENT_FOR_TRAVEL } from "@/mutation/queries";
+import { ADVANCE_PAYMENT_FOR_GUIDE, ADVANCE_PAYMENT_FOR_TRAVEL } from "@/mutation/queries";
 
 interface CheckoutProps {
   amount: number;
   travelId: string;
   refresh: (travelId: string) => void;
   onClose: () => void;
-  type: "travel" | "guide" | "travel-connect" | "guide-connect";
+  type: "travel" | "guide"
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
@@ -21,7 +21,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   const stripe = useStripe();
   const elements = useElements();
   const [AdvancePaymentForTravel] = useMutation(ADVANCE_PAYMENT_FOR_TRAVEL);
-
+  const [AdvancePaymentForGuide] = useMutation(ADVANCE_PAYMENT_FOR_GUIDE)
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!stripe || !elements) return;
@@ -29,10 +29,11 @@ const Checkout: React.FC<CheckoutProps> = ({
     const cardElement = elements.getElement(CardElement);
 
     try {
-      const response = await AdvancePaymentForTravel({
+      const query = type==="travel"? AdvancePaymentForTravel:AdvancePaymentForGuide
+      const response = await query({
         variables: { travelId, amount: amount },
       });
-      const client_secret = response.data.AdvancePaymentForTravel;
+      const client_secret = type==="travel"? response.data.AdvancePaymentForTravel:response.data.AdvancePaymentForGuide 
       console.log("🚀 ~ handleSubmit ~ client_secret:", client_secret);
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(
@@ -48,6 +49,7 @@ const Checkout: React.FC<CheckoutProps> = ({
         console.error("Payment failed:", error.message);
       } else if (paymentIntent?.status === "succeeded") {
         alert("Payment successful!");
+
         refresh(travelId);
         onClose();
       }

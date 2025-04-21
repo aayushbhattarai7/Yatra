@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { useEffect, useRef } from "react";
 import { getCookie } from "@/function/GetCookie";
@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import AdminNavBar from "./AdminNavBar";
 
 export function Route() {
+  const location = useLocation();
   const noNavbarRoutes = [
     "/user-login",
     "/user-register",
@@ -14,18 +15,24 @@ export function Route() {
   ];
 
   const hasRequestedNotificationPermission = useRef(false);
+  const token = getCookie("accessToken");
 
-  const token = getCookie("admin")
+  let navbar = null;
 
-  const isAdmin = import.meta.env.VITE_ADMIN_TOKEN
+  if (token) {
+    try {
+      const decodedToken: { role: string } = jwtDecode(token);
+      navbar = decodedToken.role === "ADMIN" ? <AdminNavBar /> : <Navbar />;
+    } catch (error) {
+      console.error("Invalid token", error);
+    }
+  }
 
-    const navbar =token === isAdmin? <AdminNavBar/>:<Navbar/>
   useEffect(() => {
-    
     if ("Notification" in window && !hasRequestedNotificationPermission.current) {
       Notification.requestPermission().then((permission) => {
         console.log("Notification permission:", permission);
-        hasRequestedNotificationPermission.current = true; 
+        hasRequestedNotificationPermission.current = true;
       });
     }
   }, []);

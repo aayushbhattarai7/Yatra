@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
 import { IoClose } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 export function LogoutPopup({ onClose }: { onClose: () => void }) {
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     Cookies.remove("accessToken");
     onClose()
     window.location.href="/user-login"
-    navigate("/user-login");
   };
 
   return (

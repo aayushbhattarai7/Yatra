@@ -40,7 +40,6 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
       }
     }
   };
-
   const resendOTP = async () => {
     try {
       const res = await senOtpToUser({ variables: { email } });
@@ -94,14 +93,6 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
 
             <div className="flex items-center gap-2 justify-center">
               <RefreshCw className={`w-4 h-4 ${resendLoading ? 'animate-spin' : ''}`} />
-              {/* <Button
-                buttonText={resendLoading ? 'Sending...' : 'Resend Code'}
-                name="resend"
-                type="button"
-                onClick={resendOTP}
-                disabled={resendLoading}
-                className="text-gray-600 hover:text-gray-800 flex"
-              /> */}
               <p className="" onClick={resendOTP} >{authLabel.resendCode[lang]}</p>
             </div>
           </div>

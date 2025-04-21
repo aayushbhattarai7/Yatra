@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { USER_GUIDE_BOOKING_HISTORY } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";
@@ -83,7 +83,7 @@ const GuideBookingHistory = () => {
                     {book.guide.firstName} {book.guide.middleName}{" "}
                     {book.guide.lastName}
                   </h3>
-                 
+
                 </div>
               </div>
 
@@ -132,13 +132,12 @@ const GuideBookingHistory = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Status</span>
                   <span
-                    className={`font-semibold ${
-                      book.status === "COMPLETED"
+                    className={`font-semibold ${book.status === "COMPLETED"
                         ? "text-green-600"
                         : book.status === "CANCELLED"
                           ? "text-red-600"
                           : "text-blue-600"
-                    }`}
+                      }`}
                   >
                     {book.status}
                   </span>

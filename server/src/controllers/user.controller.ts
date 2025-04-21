@@ -140,16 +140,16 @@ export class UserController {
   async paymentForGuideWithKhalti(req: Request, res: Response) {
     try {
       const userId = req.user?.id;
-      const { token, requestId } = req.body;
+      const { pidx, requestId } = req.body;
       console.log(
-        "🚀 ~ UserController ~ paymentForGuideWithEsewa ~ requestId:",
+        "🚀 ~ UserController ~ paymentForTravelWithKhalti ~ requestId:",
         requestId,
       );
 
-      const data = await userService.advancePaymentForGuideWithEsewa(
+      const data = await userService.advancePaymentForGuideWithKhalti(
         userId as string,
         requestId,
-        token,
+        pidx,
       );
       res.status(StatusCodes.CREATED).json({ data });
     } catch (error: unknown) {

@@ -293,7 +293,7 @@ export const authLabel: LabelTypes = {
     ne: "सबै यात्रा सेवाहरू",
   },
   allGuides: {
-    en: "All Travels",
+    en: "All Guides",
     ne: "सबै मार्गदर्शकहरू",
   },
   requests: {

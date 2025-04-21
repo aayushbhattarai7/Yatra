@@ -8,6 +8,7 @@ import Button from "@/ui/common/atoms/Button";
 import { GUIDE_BOOKING_MUTATION } from "@/mutation/queries";
 import { useMutation } from "@apollo/client";
 import { showToast } from "./ToastNotification";
+import { X } from "lucide-react";
 
 interface RequestProps {
   id: string;
@@ -26,7 +27,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
   const { register, setValue, handleSubmit } = useForm<FormData>();
   const [requestGuide, { loading, error }] = useMutation(
-    GUIDE_BOOKING_MUTATION,
+    GUIDE_BOOKING_MUTATION
   );
 
   const submit: SubmitHandler<FormData> = async (formData) => {
@@ -44,83 +45,48 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
       showToast(response.data.requestGuide, "success");
       onClose();
     } catch (err) {
-      showToast(error?.message || "error occured", "error");
+      showToast(error?.message || "Error occurred", "error");
       console.error("GraphQL Error:", err);
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-[25rem] animate-fade-in relative">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+      <div className="bg-white px-8 py-6 rounded-2xl shadow-2xl w-[90%] max-w-md animate-fade-in relative transition-all duration-300">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl transition-colors"
+          aria-label="Close"
         >
-          ✖
+          <X/>
         </button>
 
-        <h2 className="text-xl font-semibold text-center mb-4">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           {authLabel.book[lang]}
         </h2>
 
-        <form onSubmit={handleSubmit(submit)} className="space-y-4">
-          <div>
-            <Label name="from" label={authLabel.from[lang]} />
-            <InputField
-              setValue={setValue}
-              placeholder={authLabel.from[lang]}
-              type="text"
-              name="from"
-              register={register}
-              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              icon={<RxPerson />}
-            />
-          </div>
+        <form onSubmit={handleSubmit(submit)} className="space-y-5">
+          {["from", "to", "totalPeople", "totalDays"].map((field) => (
+            <div key={field}>
+              <Label name={field} label={authLabel[field][lang]} />
+              <InputField
+                setValue={setValue}
+                placeholder={authLabel[field][lang]}
+                type="text"
+                name={field}
+                register={register}
+                className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                icon={<RxPerson />}
+              />
+            </div>
+          ))}
 
-          <div>
-            <Label name="to" label={authLabel.to[lang]} />
-            <InputField
-              setValue={setValue}
-              placeholder={authLabel.to[lang]}
-              type="text"
-              name="to"
-              register={register}
-              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              icon={<RxPerson />}
-            />
-          </div>
-
-          <div>
-            <Label name="totalPeople" label={authLabel.totalPeople[lang]} />
-            <InputField
-              setValue={setValue}
-              placeholder={authLabel.totalPeople[lang]}
-              type="text"
-              name="totalPeople"
-              register={register}
-              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              icon={<RxPerson />}
-            />
-          </div>
-
-          <div>
-            <Label name="totalDays" label={authLabel.totalDays[lang]} />
-            <InputField
-              setValue={setValue}
-              placeholder={authLabel.totalDays[lang]}
-              type="text"
-              name="totalDays"
-              register={register}
-              className="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              icon={<RxPerson />}
-            />
-          </div>
-
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-6">
             <Button
-              buttonText={authLabel.book[lang]}
+              buttonText={loading ? `${authLabel.book[lang]}...` : authLabel.book[lang]}
               type="submit"
               disabled={loading}
+              className="w-full py-2 rounded-xl text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-colors"
             />
           </div>
         </form>

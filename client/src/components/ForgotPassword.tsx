@@ -74,7 +74,6 @@ const ForgotPassword = () => {
             type="submit"
             disabled={loading}
             className="w-full flex items-center justify-center gap-2"
-            // icon={<ArrowRight className="w-4 h-4" />}
           />
         </form>
 

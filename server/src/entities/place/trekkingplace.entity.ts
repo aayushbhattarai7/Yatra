@@ -4,7 +4,6 @@ import Base from "../base.entity";
 import PlaceImage from "./PlaceImages.entity";
 import { FavouritPlace } from "./placefavourite.entity";
 import { PlaceRating } from "../../entities/ratings/place.rating.entity";
-import { ProviderPlace } from "./providerPlaces.entity";
 
 @ObjectType()
 @Entity("place")
@@ -55,11 +54,7 @@ export class TrekkingPlace extends Base {
   })
   favourite: FavouritPlace[];
 
-  @Field(() => [ProviderPlace])
-  @OneToMany(() => ProviderPlace, (providers) => providers.places, {
-    cascade: true,
-  })
-  providers: ProviderPlace[];
+
 
    @Field(() => [PlaceRating])
     @OneToMany(() => PlaceRating, (rating) => rating.place, { cascade: true })

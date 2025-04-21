@@ -343,16 +343,16 @@ class UserService {
           );
         }
 
-        if (!user.verified) {
-          await this.reSendOtp(user.email);
+        const passwordMatched = await bcryptService.compare(
+          data.password,
+          user.password,
+        );
+        if (!passwordMatched) {
+          throw HttpException.badRequest("Password didnot matched");
         }
-      const passwordMatched = await bcryptService.compare(
-        data.password,
-        user.password,
-      );
-      if (!passwordMatched) {
-        throw HttpException.badRequest("Password didnot matched");
-      }
+        if (!user.verified) {
+        await this.reSendOtp(user.email);
+        }
 
       return user;
     } catch (error: unknown) {
@@ -442,12 +442,13 @@ class UserService {
       });
       if (!user) {
         try {
+          const shortJTI = decoded.jti.substring(0, 10);
           const saveUser = this.userRepo.create({
             email: decoded.email,
             firstName: decoded.given_name,
             lastName: decoded.family_name ? decoded.family_name : decoded.name,
             gender: Gender.NONE,
-            phoneNumber: decoded.jti,
+            phoneNumber:shortJTI,
             password: await bcryptService.hash(decoded?.sub),
           });
           const save = await this.userRepo.save(saveUser);
@@ -794,11 +795,11 @@ class UserService {
           guide: { id: guide_id },
         },
       });
-      // if (findRequest.length > 0) {
-      //   throw HttpException.badRequest(
-      //     "Request already sent to this guide, Please wait a while for the guide response",
-      //   );
-      // }
+      if (findRequest.length > 0) {
+        throw HttpException.badRequest(
+          "Request already sent to this guide, Please wait a while for the guide response",
+        );
+      }
 
       const request = this.guideRequestRepo.create({
         from: data.from,
@@ -870,12 +871,11 @@ class UserService {
           ),
         },
       });
-
-      // if (findRequest.length > 0) {
-      //   throw HttpException.badRequest(
-      //     "Request already sent to this travel, Please wait a while for the travel response",
-      //   );
-      // }
+      if (findRequest.length > 0) {
+        throw HttpException.badRequest(
+          "Request already sent to this travel, Please wait a while for the travel response",
+        );
+      }
       if (!travel) {
         throw HttpException.notFound("Travel not found");
       }
@@ -1927,6 +1927,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
     requestId: string,
     amount: number,
   ) {
+    console.log("🚀 ~ UserService ~ requestId:", requestId)
     try {
       const totalAmount = amount * 100;
       const user = await this.userRepo.findOneBy({
@@ -1937,9 +1938,10 @@ async getGuideProfile(user_id: string, guide_id: string) {
       }
       const request = await this.guideRequestRepo.findOneBy({
         id: requestId,
+        status:RequestStatus.PENDING
       });
       if (!request) {
-        throw HttpException.notFound("Travel not found");
+        throw HttpException.notFound("Request not found");
       }
 
       const stripe = new Stripe(DotenvConfig.STRIPE_SECRET);
@@ -1950,9 +1952,10 @@ async getGuideProfile(user_id: string, guide_id: string) {
         payment_method_types: ["card"],
       });
       if (paymentIntent) {
+        console.log("letsgo")
         await this.guideRequestRepo.update(
           {
-            id: request.id,
+            id: requestId,
           },
           {
             status: RequestStatus.ACCEPTED,

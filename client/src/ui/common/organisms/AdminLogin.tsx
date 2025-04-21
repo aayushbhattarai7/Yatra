@@ -1,7 +1,5 @@
 import { gql, useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
-import { useMessage } from "../../../contexts/MessageContext";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
@@ -24,9 +22,7 @@ interface FormData {
 }
 
 const AdminLogin = () => {
-  const { setMessage } = useMessage();
-  const navigate = useNavigate();
-  const [adminLogin, { error, loading }] = useMutation(LOGIN_MUTATION);
+  const [adminLogin, { loading }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -41,11 +37,11 @@ const AdminLogin = () => {
           secure: true,
           sameSite: "Strict",
         });
-        showToast(response.data.message, "success");
-        navigate("/admin");
+        showToast(response.data.adminLogin.message, "success");
+       window.location.href ="/admin";
       } else {
         console.error("No response data:", response);
-        showToast(response.data.message, "error");
+        showToast(response.data.adminLogin.message, "error");
       }
     } catch (err) {
       if (err instanceof Error) {

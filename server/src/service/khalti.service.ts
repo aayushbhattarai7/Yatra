@@ -72,7 +72,7 @@ class KhaltiService {
       const response = await axios.request(reqOptions);
       return response.data;
     } catch (error: any) {
-      console.error("Error initializing Khalti payment:", error);
+      console.error("Error initializing Khalti payment:", error.message);
       throw error;
     }
   }

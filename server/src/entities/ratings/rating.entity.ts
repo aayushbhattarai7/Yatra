@@ -4,7 +4,6 @@ import Base from "../base.entity";
 import { User } from "../user/user.entity";
 import { Guide } from "../guide/guide.entity";
 import { Travel } from "../../entities/travels/travel.entity";
-import { Hotel } from "../../entities/hotels/hotel.entity";
 
 @ObjectType()
 @Entity("rating")

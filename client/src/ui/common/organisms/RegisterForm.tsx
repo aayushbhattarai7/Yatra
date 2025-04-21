@@ -152,7 +152,7 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div className="flex gap-10">
+        <div className="flex gap-60">
           <div>
             <Label name="profile" className="pl-3" label={authLabel.profilePhoto[lang]} />
             <input type="file" accept="image/*" className="hidden" id="profileUpload" onChange={(e) => handleFileChange(e, "profile")} />
@@ -174,7 +174,7 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div className="flex gap-10">
+        <div className="flex gap-32">
           <div>
             <Label name="gender" className="pl-3" label={authLabel.gender[lang]} />
             <select {...register("gender", { required: true })} className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
@@ -182,8 +182,6 @@ const RegisterForm = () => {
               <option value="FEMALE">{authLabel.female[lang]}</option>
             </select>
           </div>
-        </div>
-        <div className="flex gap-10">
           <div>
             <Label name="travelStyle" className="pl-3" label={authLabel.travelStyle[lang]} />
             <select
@@ -199,6 +197,7 @@ const RegisterForm = () => {
 
           </div>
         </div>
+        
       </div>
 
       <div className="py-2">

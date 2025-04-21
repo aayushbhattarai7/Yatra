@@ -1,15 +1,7 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { getCookie } from "../function/GetCookie";
+import {  Outlet } from "react-router-dom";
 
-const AdminProtectedRoute = () => {
-  const adminToken = import.meta.env.VITE_ADMIN_TOKEN;
-  
-  const isAdmin = getCookie("admin");
 
-  if (!isAdmin || isAdmin !== adminToken) {
-    return <Navigate to="/user-login" />;
-  }
-
+const AdminProtectedRoute = () => {  
   return <Outlet />;
 };
 

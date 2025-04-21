@@ -23,7 +23,6 @@ const SocialLogin = () => {
       <div className="mt-6 w-[27rem] flex flex-col justify-center items-center">
         <button
           type="button"
-          className="flex w-72 justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
         
           <GoogleAuth />

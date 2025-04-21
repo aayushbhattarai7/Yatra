@@ -8,8 +8,8 @@ import SocialLogin from "./SocialLogin";
 import LoginHero from "./LoginHero";
 import { useLang } from "@/hooks/useLang";
 import { authLabel  } from "@/localization/auth";
-import { MockedProvider } from '@apollo/client/testing';
-import { render, screen, waitFor } from '@testing-library/react';
+import { showToast } from "@/components/ToastNotification";
+
 
 
 const LOGIN_MUTATION = gql`
@@ -29,7 +29,6 @@ interface FormData {
 
 const UserLogin = () => {
   const { setMessage } = useMessage();
-  const navigate = useNavigate();
     const {lang} = useLang()
 
   const [login, { error, loading }] = useMutation(LOGIN_MUTATION);
@@ -62,10 +61,8 @@ const UserLogin = () => {
       console.log("🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ err:", err)
       if (err instanceof Error) {
         console.log("ohno");
-        const graphqlError = error?.graphQLErrors?.[0]?.message;
 
-        console.error("GraphQL Error:", graphqlError);
-        setMessage(graphqlError!, "error");
+        showToast(err.message!, "error");
       } else {
         console.error("Unexpected Error:", err);
       }

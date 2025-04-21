@@ -702,6 +702,7 @@ export class UserResolver {
       }
     }
   }
+ 
   // @Mutation(() => String)
   // @UseMiddleware(authentication, authorization([Role.USER]))
   // async AdvancePaymentForTravelWithEsewa(
@@ -756,13 +757,13 @@ export class UserResolver {
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async AdvancePaymentForGuide(
-    @Arg("guideId") guideId: string,
+    @Arg("travelId") travelId: string,
     @Arg("amount") amount: number,
     @Ctx() ctx: Context,
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      return await userService.advancePaymentForGuide(userId, guideId, amount);
+      return await userService.advancePaymentForGuide(userId, travelId, amount);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
