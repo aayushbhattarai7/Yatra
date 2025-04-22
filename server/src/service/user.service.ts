@@ -793,6 +793,7 @@ class UserService {
         where: {
           users: { id: user_id },
           guide: { id: guide_id },
+          status: Not(In([RequestStatus.ACCEPTED, RequestStatus.PENDING, RequestStatus.CONFIRMATION_PENDING])),
         },
       });
       if (findRequest.length > 0) {

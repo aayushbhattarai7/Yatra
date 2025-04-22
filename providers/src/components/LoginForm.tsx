@@ -20,7 +20,7 @@ interface LoginFormProps {
 
 const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
   const { lang } = useLang();
-  const { register, handleSubmit } = useForm<FormData>({
+  const { register, handleSubmit, setValue } = useForm<FormData>({
     defaultValues: {
       email: "",
       password: "",
@@ -37,6 +37,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           <Label name="email" label={authLabel.email[lang]} />
           <div className="relative">
             <InputField
+            setValue={setValue}
               placeholder={authLabel.email[lang]}
               type="email"
               name="email"
@@ -51,6 +52,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           <Label name="password" label={authLabel.password[lang]} />
           <div className="relative">
             <InputField
+            setValue={setValue}
               placeholder={authLabel.password[lang]}
               type="password"
               name="password"

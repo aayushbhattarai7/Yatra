@@ -492,6 +492,7 @@ class GuideService {
       if (!guide) {
         throw HttpException.unauthorized("you are not authorized");
       }
+      console.log("🚀 ~ GuideService ~ getRequests ~ guide:", guide)
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
@@ -505,7 +506,7 @@ class GuideService {
         },
         relations: ["users"],
       });
-
+      if(requests.length === 0) throw HttpException.notFound("No requests found")
       return requests;
     } catch (error: unknown) {
       if (error instanceof Error) {

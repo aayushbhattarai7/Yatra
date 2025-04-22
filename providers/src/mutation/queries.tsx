@@ -194,6 +194,7 @@ export const GET_GUIDE_HISTORY = gql`
       totalPeople
       totalDays
       updatedAt
+      status
       price
       users {
         id
