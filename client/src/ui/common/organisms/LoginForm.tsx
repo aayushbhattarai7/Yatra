@@ -47,7 +47,6 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
             />
           </div>
         </div>
-
         <div>
           <Label name="password" label={authLabel.password[lang]} />
           <div className="relative">
@@ -59,8 +58,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
               icon={<RiLockPasswordLine />}
               register={register}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+            /> </div>
           <div className="py-2">
             <NavLink to={"/reset-password"} className={"text-blue-500 underline"}>
             {authLabel.forgotPassword[lang]}
@@ -79,11 +77,9 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           buttonText={authLabel.login[lang]}
           name=""
           type="submit"
-          disabled={isSubmitting}
-        />
+          disabled={isSubmitting}/>
       </div>
     </form>
   );
 };
-
 export default LoginForm;

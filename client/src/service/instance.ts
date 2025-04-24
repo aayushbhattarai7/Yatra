@@ -1,6 +1,5 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import encryptDecrypt from "../function/encryptDecrypt";
 import { getCookie } from "@/function/GetCookie";
 
 const authLink = setContext((_, { headers }) => {
