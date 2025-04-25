@@ -121,7 +121,6 @@ const GuideHistory = () => {
                   </p>
                 </div>
               </div>
-
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-gray-500" />

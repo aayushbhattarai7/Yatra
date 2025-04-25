@@ -5,7 +5,6 @@ import HttpException from "../utils/HttpException.utils";
 import { Room } from "../entities/chat/room.entity";
 import { Travel } from "../entities/travels/travel.entity";
 import { Guide } from "../entities/guide/guide.entity";
-import { ChatDTO } from "../dto/chat.dto";
 import { RoomService } from "../service/room.service";
 import { io } from "../socket/socket";
 import { Notification } from "../entities/notification/notification.entity";
@@ -540,7 +539,6 @@ export class ChatService {
       if (!user) throw HttpException.unauthorized("You are not authorized");
       const guide = await this.guideRepo.findOneBy({ id: guideId });
       if (!guide) throw HttpException.unauthorized("You are not authorized");
-
       const getUnreadChatsOFGuide = await this.chatRepo.find({
         where: {
           senderGuide: { id: guideId },
@@ -548,18 +546,14 @@ export class ChatService {
           read: false,
         },
       });
-
       const unreadChatCount = getUnreadChatsOFGuide.length;
-
       io.to(userId).emit("chat-count-of-guide", { chatCount: unreadChatCount });
       const chatCountOfNav = await this.chatRepo.find({
         where: {
           receiverUser: { id: userId },
           read: false
-        }
-      })
+        }})
       io.to(userId).emit("chat-count", { chatCount: chatCountOfNav.length });
-
       return unreadChatCount;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -575,7 +569,6 @@ export class ChatService {
       if (!guide) throw HttpException.unauthorized("You are not authorized");
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("User not found");
-
       const getUnreadChatsOFGuide = await this.chatRepo.find({
         where: {
           senderUser: { id: userId },
@@ -584,14 +577,12 @@ export class ChatService {
         },
       });
       const unreadChatCount = getUnreadChatsOFGuide.length;
-
       io.to(guideId).emit("chat-count-of-user", { id: userId, chatCount: unreadChatCount });
       const chatCountOfNav = await this.chatRepo.find({
         where: {
           receiverGuide: { id: guideId },
           read: false
-        }
-      })
+        }})
       io.to(guideId).emit("chat-count", { chatCount: chatCountOfNav.length });
       return unreadChatCount;
     } catch (error: unknown) {

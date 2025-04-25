@@ -8,7 +8,6 @@ import { getCookie } from "../function/GetCookie";
 import { jwtDecode } from "jwt-decode";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { logo } from "../constant/image";
 const emoji = data;
 
 const GET_CHAT_OF_TRAVEL = gql`
@@ -224,8 +223,7 @@ const ChatMessages = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
-            className="text-gray-500 hover:text-blue-600 transition-colors duration-200"
-          >
+            className="text-gray-500 hover:text-blue-600 transition-colors duration-200">
             <IoArrowBack className="text-xl" />
           </button>
           <div>
@@ -239,12 +237,10 @@ const ChatMessages = ({
         </div>
         <button
           onClick={onBack}
-          className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-        >
+          className="text-gray-400 hover:text-gray-600 transition-colors duration-200">
           <X size={18} />
         </button>
       </div>
-
       <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400">
@@ -258,16 +254,13 @@ const ChatMessages = ({
             return (
               <div
                 key={chat.id}
-                className={`flex ${isSent ? "justify-end" : "justify-start"} animate-fade-in`}
-              >
+                className={`flex ${isSent ? "justify-end" : "justify-start"} animate-fade-in`} >
                 <div
                   className={`max-w-[75%] p-2.5 rounded-2xl text-sm
                     ${
                       isSent
                         ? "bg-blue-600 text-white rounded-br-none"
-                        : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
-                    } shadow-sm`}
-                >
+                        : "bg-white text-gray-800 rounded-bl-none border border-gray-100"} shadow-sm`}>
                   <p className="leading-relaxed break-words">{chat.message}</p>
                   <span
                     className={`text-[10px] mt-1 block 

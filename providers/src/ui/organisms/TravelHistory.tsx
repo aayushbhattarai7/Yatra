@@ -164,7 +164,6 @@ const TravelHistory = () => {
                   </div>
                 )}
               </div>
-
               <div className="border-t border-b py-4 mb-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Price</span>
@@ -187,7 +186,6 @@ const TravelHistory = () => {
                   </span>
                 </div>
               </div>
-
               <div className="mb-4">{renderStars()}</div>
 
               <div className="space-y-2">
@@ -210,5 +208,4 @@ const TravelHistory = () => {
     </div>
   );
 };
-
 export default TravelHistory;

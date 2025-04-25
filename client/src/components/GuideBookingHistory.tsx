@@ -137,15 +137,12 @@ const GuideBookingHistory = () => {
                         : book.status === "CANCELLED"
                           ? "text-red-600"
                           : "text-blue-600"
-                      }`}
-                  >
+                      }`}>
                     {book.status}
                   </span>
                 </div>
               </div>
-
               <div className="mb-4">{renderStars()}</div>
-
               <div className="space-y-2">
                 <Button
                   buttonText="Re-Book"
@@ -169,5 +166,4 @@ const GuideBookingHistory = () => {
     </div>
   );
 };
-
 export default GuideBookingHistory;

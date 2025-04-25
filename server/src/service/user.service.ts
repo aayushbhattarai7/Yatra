@@ -619,7 +619,7 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("you are not authorized");
-      const places = await this.placeRepo.find({ relations: ["image"] });
+      const places = await this.placeRepo.find({ relations: ["image","ratings"] });
       if (!places) {
         throw HttpException.notFound("Places not found");
       }
@@ -846,16 +846,10 @@ class UserService {
   }
 
   async requestTravel(
-    user_id: string,
-    travel_id: string,
-    data: RequestTravels,
-  ) {
+    user_id: string,travel_id: string,data: RequestTravels) {
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
-      if (!user) {
-        throw HttpException.unauthorized("You are not authorized user");
-      }
-
+      if (!user) throw HttpException.unauthorized("You are not authorized user");
       const travel = await this.travelrepo.findOneBy({
         id: travel_id,
       });
@@ -877,10 +871,8 @@ class UserService {
           "Request already sent to this travel, Please wait a while for the travel response",
         );
       }
-      if (!travel) {
-        throw HttpException.notFound("Travel not found");
-      }
-
+      if (!travel) throw HttpException.notFound("Travel not found");
+      
       const request = this.travelRequestRepo.create({
         from: data.from,
         to: data.to,
@@ -906,7 +898,6 @@ class UserService {
       const unreadNotificationCount = await this.notificationRepo.count({
         where: { receiverTravel: { id: travel_id }, isRead: false },
       });
-
       io.to(travel_id).emit("notification-count", unreadNotificationCount);
       await emailService.sendMail({
         to: travel.email,
@@ -1118,9 +1109,8 @@ class UserService {
       const user = await this.userRepo.findOneBy({
         id: user_id,
       });
-      if (!user) {
-        throw HttpException.unauthorized("You are not authorized");
-      }
+      if (!user) throw HttpException.unauthorized("You are not authorized");
+      
       const data = await this.travelRequestRepo
         .createQueryBuilder("requestTravel")
         .leftJoinAndSelect("requestTravel.travel", "travel")
@@ -1131,11 +1121,8 @@ class UserService {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
         })
         .getMany();
-
       if (!data)
-        throw HttpException.notFound(
-          "You do not requested any travels for booking",
-        );
+        throw HttpException.notFound("You do not requested any travels for booking",);
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1161,13 +1148,9 @@ class UserService {
         .where("requestGuide.user_id =:user_id", { user_id })
         .andWhere("requestGuide.status IN (:...statuses)", {
           statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
-        })
-        .getMany();
-
+        }) .getMany();
       if (!data)
-        throw HttpException.notFound(
-          "You do not requested any travels for booking",
-        );
+        throw HttpException.notFound("You do not requested any travels for booking");
       return data;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1751,16 +1734,12 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForTravelWithKhalti(
-    userId: string,
-    requestId: string,
-    id: string,
-  ) {
+    userId: string,requestId: string,id: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-
       const request = await this.travelRequestRepo.findOne({
         where: { id: requestId },
         relations: ["travel"],
@@ -1787,7 +1766,6 @@ async getGuideProfile(user_id: string, guide_id: string) {
           userId,
           request.travel.id,
         );
-
         const saveNotification = await this.notificationRepo.save(notification);
         console.log(saveNotification);
         const notifications = await this.notificationRepo.find({
@@ -1860,17 +1838,12 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForGuideWithEsewa(
-    userId: string,
-    requestId: string,
-    token: string,
+    userId: string, requestId: string,token: string,
   ) {
-    console.log("🚀 ~ UserService ~ userId:", requestId);
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
-        throw HttpException.unauthorized("User not found");
-      }
-
+        throw HttpException.unauthorized("User not found") }
       const request = await this.guideRequestRepo.findOne({
         where: { id: requestId },
         relations: ["guide"],
@@ -1878,7 +1851,6 @@ async getGuideProfile(user_id: string, guide_id: string) {
       if (!request) {
         throw HttpException.notFound("Request not found");
       }
-      console.log("🚀 ~ UserService ~ request:", request);
       const payment = await esewaService.verifyPayment(token);
       console.log(payment?.verifiedData);
       if (payment) {
@@ -1890,7 +1862,6 @@ async getGuideProfile(user_id: string, guide_id: string) {
             lastActionBy: Role.USER,
           },
         );
-
         await roomService.checkRoomWithGuide(userId, request.guide.id);
         if (data) {
           const request = await this.guideRequestRepo.findOne({
@@ -1975,16 +1946,13 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForGuideWithKhalti(
-    userId: string,
-    requestId: string,
-    id: string,
+    userId: string,requestId: string, id: string,
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-
       const request = await this.guideRequestRepo.findOne({
         where: { id: requestId },
         relations: ["guide"],
@@ -2011,7 +1979,6 @@ async getGuideProfile(user_id: string, guide_id: string) {
           userId,
           request.guide.id,
         );
-
         const saveNotification = await this.notificationRepo.save(notification);
         console.log(saveNotification);
         const notifications = await this.notificationRepo.find({

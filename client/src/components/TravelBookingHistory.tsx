@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { USER_TRAVEL_BOOKING_HISTORY } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";

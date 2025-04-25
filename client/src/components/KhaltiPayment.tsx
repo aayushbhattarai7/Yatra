@@ -32,7 +32,6 @@ const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
     }
   };
   useEffect(() => {
-    console.log("yess");
     handlePaymentInitiation();
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import axiosInstance from "@/service/axiosInstance";
 import { showToast } from "./ToastNotification";
@@ -41,7 +41,7 @@ const Success: React.FC = () => {
     }
   };
 
-  return <div></div>;
+  return <></>;
 };
 
 export default Success;

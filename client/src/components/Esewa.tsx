@@ -5,7 +5,7 @@ import CryptoJS from "crypto-js";
 interface PaymentProps {
   id: string;
   amount: number;
-  type: "travel" | "guide" | "travel-connect" | "guide-connect";
+  type: "travel" | "guide";
 }
 
 const Esewa: React.FC<PaymentProps> = ({ id, amount, type }) => {

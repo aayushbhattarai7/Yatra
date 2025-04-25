@@ -8,7 +8,7 @@ import Button from "@/ui/common/atoms/Button";
 import { TRAVEL_BOOKING_MUTATION } from "@/mutation/queries";
 import { useMutation } from "@apollo/client";
 import { showToast } from "./ToastNotification";
-import { Cross, CrossIcon, X } from "lucide-react";
+import {  X } from "lucide-react";
 
 interface RequestProps {
   id: string;
