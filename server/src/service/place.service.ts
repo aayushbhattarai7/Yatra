@@ -232,6 +232,7 @@ class PlaceService {
     }
   }
   async getFavouritePlace(userId: string) {
+    console.log("🚀 ~ PlaceService ~ getFavouritePlace ~ userId:", userId)
     try {
       const user = await this.userrepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("You are not authorized");
@@ -240,6 +241,7 @@ class PlaceService {
         where: { user: { id: userId } },
         relations: ["user", "place", "place.images"],
       });
+      console.log("🚀 ~ PlaceService ~ getFavouritePlace ~ getFavoutite:", getFavoutite)
       return getFavoutite;
     } catch (error: unknown) {
       if (error instanceof Error) {

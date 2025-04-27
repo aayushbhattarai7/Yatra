@@ -6,6 +6,7 @@ import khaltiService from "../service/khalti.service";
 export class KhaltiController {
   async initializePayment(req: Request, res: Response) {
     try {
+      
       const paymentDetails = await khaltiService.initializeKhaltiPayment(
         req.body as any,
       );

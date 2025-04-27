@@ -8,7 +8,6 @@ mutation Signup($password: String!, $gender: String!, $phoneNumber: String!, $em
 
 export const TRAVEL_BOOKING_MUTATION = gql`
   mutation RequestTravel(
-    $vehicleType: String!
     $totalPeople: String!
     $totalDays: String!
     $to: String!
@@ -16,7 +15,6 @@ export const TRAVEL_BOOKING_MUTATION = gql`
     $travelId: String!
   ) {
     requestTravel(
-      vehicleType: $vehicleType
       totalPeople: $totalPeople
       totalDays: $totalDays
       to: $to

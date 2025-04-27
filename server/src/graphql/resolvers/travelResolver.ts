@@ -318,6 +318,23 @@ export class TravelResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async acceptRequestByTravel(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await travelService.acceptRequest(userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))

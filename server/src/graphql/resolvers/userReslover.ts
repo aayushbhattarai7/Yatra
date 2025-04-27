@@ -43,6 +43,7 @@ export class UserResolver {
     try {
       const data = { email, password };
       const user = await userService.login(data);
+      console.log("🚀 ~ UserResolver ~ login ~ user:", user)
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
@@ -51,6 +52,7 @@ export class UserResolver {
         lastName: user.lastName,
         email: user.email,
         phoneNumber: user.phoneNumber,
+        verified:user.verified,
         gender: user.gender,
         tokens: {
           accessToken: tokens.accessToken,
@@ -348,10 +350,9 @@ export class UserResolver {
     @Arg("to") to: string,
     @Arg("totalDays") totalDays: string,
     @Arg("totalPeople") totalPeople: string,
-    @Arg("vehicleType") vehicleType: string,
   ) {
     try {
-      const data = { from, to, totalDays, totalPeople, vehicleType };
+      const data = { from, to, totalDays, totalPeople };
       const userId = ctx.req.user?.id!;
       return await userService.requestTravel(userId, travelId, data);
     } catch (error) {
@@ -683,12 +684,15 @@ export class UserResolver {
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.USER]))
   async AdvancePaymentForTravel(
-    @Arg("travelId") travelId: string,
     @Arg("amount") amount: number,
+    @Arg("travelId") travelId: string,
     @Ctx() ctx: Context,
   ) {
+    console.log("🚀 ~ UserResolver ~ travelId:", travelId)
+    console.log("🚀 ~ UserResolver ~ amount:", amount)
     try {
       const userId = ctx.req.user?.id!;
+      console.log("🚀 ~ UserResolver ~ userId:", userId)
       return await userService.advancePaymentForTravel(
         userId,
         travelId,
@@ -818,6 +822,7 @@ export class UserResolver {
   }
 
   @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.USER]))
   async addToFavourite(@Arg("placeId") placeId: string, @Ctx() ctx: Context) {
     try {
       const userId = ctx.req.user?.id as string;

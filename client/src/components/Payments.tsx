@@ -37,7 +37,7 @@ const Payments: React.FC<payProps> = ({
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-lg font-semibold">
-                Select Payment Method{id}
+                Select Payment Method
               </h2>
               <button onClick={() => setShowModal(false)}>
                 <FaTimes
@@ -53,7 +53,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setEsewa(true)}
               >
                 <span className="flex items-center gap-2">
-                  <SiEsea className="text-green-500" size={24} />
                   <span className="font-medium">eSewa Rs.{amount}</span>
                 </span>
               </button>
@@ -63,7 +62,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setKhalti(true)}
               >
                 <span className="flex items-center gap-2">
-                  <SiKashflow className="text-purple-500" size={24} />
                   <span className="font-medium">Khalti Rs.{amount}</span>
                 </span>
               </button>
@@ -73,7 +71,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setStripe(true)}
               >
                 <span className="flex items-center gap-2">
-                  <FaCreditCard className="text-blue-500" size={24} />
                   <span className="font-medium">Credit Card Rs.{amount}</span>
                 </span>
               </button>

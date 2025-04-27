@@ -412,6 +412,7 @@ const TravelRegister: React.FC = () => {
                       setValue={setValue}
                         type="text"
                         name="province"
+                        error={errors.province}
                         register={register}
                         className={`form-input ${
                           errors.province ? "border-red-500" : ""

@@ -48,6 +48,7 @@ class TravelService {
   ) { }
 
   async create(image: any[], data: TravelDTO): Promise<string> {
+    console.log("🚀 ~ TravelService ~ create ~ data:", data)
     return await AppDataSource.transaction(
       async (transactionalEntityManager) => {
         try {
@@ -700,7 +701,7 @@ class TravelService {
       const requests = await this.travelRequestRepo.findOne({
         where: {
           travel: { id: travel_id },
-          id: requestId,
+        id: requestId,
         },
       });
       if (!requests) {
@@ -709,7 +710,6 @@ class TravelService {
       const data = await this.travelRequestRepo.update(
         { id: requests.id },
         {
-          status: RequestStatus.ACCEPTED,
           lastActionBy: Role.TRAVEL,
         },
       );
@@ -827,7 +827,7 @@ class TravelService {
             RequestStatus.CANCELLED,
           ]),
         },
-        relations: ["user", "travel"],
+        relations: ["user", "travel","travel.ratings"],
       });
       return requests;
     } catch (error: unknown) {

@@ -2,6 +2,7 @@ import React from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useMutation } from "@apollo/client";
 import { ADVANCE_PAYMENT_FOR_GUIDE, ADVANCE_PAYMENT_FOR_TRAVEL } from "@/mutation/queries";
+import { showToast } from "./ToastNotification";
 
 interface CheckoutProps {
   amount: number;
@@ -48,7 +49,7 @@ const Checkout: React.FC<CheckoutProps> = ({
       if (error) {
         console.error("Payment failed:", error.message);
       } else if (paymentIntent?.status === "succeeded") {
-        alert("Payment successful!");
+        showToast("Payment successful!","success");
 
         refresh(travelId);
         onClose();

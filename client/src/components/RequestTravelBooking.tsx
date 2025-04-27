@@ -17,7 +17,6 @@ interface RequestProps {
 
 interface FormData {
   id: string;
-  vehicleType: string;
   totalPeople: string;
   totalDays: string;
   to: string;
@@ -37,7 +36,6 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
         variables: {
           from: formData.from,
           to: formData.to,
-          vehicleType: formData.vehicleType,
           travelId: id,
           totalPeople: formData.totalPeople,
           totalDays: formData.totalDays,
@@ -70,7 +68,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
         </h2>
 
         <form onSubmit={handleSubmit(submit)} className="space-y-5">
-          {["from", "to", "totalPeople", "totalDays", "vehicleType"].map(
+          {["from", "to", "totalPeople", "totalDays"].map(
             (field) => (
               <div key={field}>
                 <Label name={field} label={authLabel[field][lang]} required />

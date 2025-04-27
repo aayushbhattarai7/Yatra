@@ -35,6 +35,7 @@ const GuideHistory = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
   const { data, loading, error } = useQuery(GET_GUIDE_HISTORY);
+  console.log("🚀 ~ GuideHistory ~ data:", data)
 
   useEffect(() => {
     if (data) {
@@ -187,7 +188,12 @@ const GuideHistory = () => {
                 </div>
               </div>
 
+{request.status === "COMPLETED" ? (
+
               <div className="mb-4">{renderStars()}</div>
+):(
+  <div className="mb-4">No Rating</div>
+)}
 
               <div className="space-y-2">
                 <Button

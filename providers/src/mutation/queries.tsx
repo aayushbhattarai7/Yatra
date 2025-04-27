@@ -385,10 +385,20 @@ export const REJECT_REQUEST_BY_GUIDE = gql`
     rejectRequestByGuide(requestId: $requestId)
   }
 `;
+export const ACCEPT_REQUEST_BY_GUIDE = gql`
+mutation AcceptRequestByGuide($requestId: String!) {
+  acceptRequestByGuide(requestId: $requestId)
+}
+`;
 export const REJECT_REQUEST_BY_TRAVEL = gql`
   mutation RejectRequestByTravel($requestId: String!) {
     rejectRequestByTravel(requestId: $requestId)
   }
+`;
+export const ACCEPT_REQUEST_BY_TRAVEL = gql`
+mutation AcceptRequestByTravel($requestId: String!) {
+  acceptRequestByTravel(requestId: $requestId)
+}
 `;
 export const SEND_PRICE_BY_GUIDE = gql`
   mutation SendPriceByGuide($price: String!, $requestId: String!) {

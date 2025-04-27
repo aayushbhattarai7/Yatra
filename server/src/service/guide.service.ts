@@ -545,8 +545,11 @@ class GuideService {
       const requests = await this.guideRequestRepo.find({
         where: {
           guide: { id: guide_id },
-          status: RequestStatus.COMPLETED,
-        },
+          status: In([
+            RequestStatus.COMPLETED,
+            RequestStatus.REJECTED,
+            RequestStatus.CANCELLED,
+          ]),        },
         relations: ["users"],
       });
 
@@ -754,8 +757,6 @@ class GuideService {
       const data = await this.guideRequestRepo.update(
         { id: requests.id },
         {
-          status: RequestStatus.ACCEPTED,
-
           lastActionBy: Role.GUIDE,
         },
       );
@@ -808,7 +809,7 @@ class GuideService {
   }
 
   async getAllActiveUsers() {
-    const activeGuides = await this.guideRepo.findBy({ available: true });
+    const activeGuides = await this.guideRepo.find({ where:{available: true},relations:["location", "ratings", "kyc"] });
 
     if (!activeGuides) return null;
 

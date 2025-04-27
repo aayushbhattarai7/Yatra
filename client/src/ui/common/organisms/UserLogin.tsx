@@ -6,17 +6,20 @@ import LoginForm from "./LoginForm";
 import SocialLogin from "./SocialLogin";
 import LoginHero from "./LoginHero";
 import { useLang } from "@/hooks/useLang";
-import { authLabel  } from "@/localization/auth";
+import { authLabel } from "@/localization/auth";
 import { showToast } from "@/components/ToastNotification";
-
-
+import { useState } from "react";
+import OTP from "@/components/Otp";
 
 const LOGIN_MUTATION = gql`
   mutation Login($password: String!, $email: String!) {
     login(password: $password, email: $email) {
       tokens {
         accessToken
+        refreshToken
       }
+      verified
+      email
     }
   }
 `;
@@ -28,17 +31,24 @@ interface FormData {
 
 const UserLogin = () => {
   const { setMessage } = useMessage();
-    const {lang} = useLang()
-
+  const { lang } = useLang();
   const [login, { error, loading }] = useMutation(LOGIN_MUTATION);
+  const [otp, setOtp] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      console.log(formData.email, formData.password);
       const response = await login({
         variables: { email: formData.email, password: formData.password },
       });
       if (response.data) {
+        const verified = response.data.login.verified;
+        const email = response.data.login.email;
+        setEmail(email);
+        if (!verified) {
+          setOtp(true);
+          return;
+        }
         const { accessToken, refreshToken } = response.data.login.tokens;
         Cookies.set("accessToken", accessToken, {
           path: "/",
@@ -53,15 +63,11 @@ const UserLogin = () => {
         setMessage("Login successful", "success");
         window.location.href = "/";
       } else {
-        console.error("No response data:", response);
         setMessage("Unexpected error. Please try again.", "error");
       }
     } catch (err) {
-      console.log("🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ err:", err)
       if (err instanceof Error) {
-        console.log("ohno");
-
-        showToast(err.message!, "error");
+        showToast(err.message, "error");
       } else {
         console.error("Unexpected Error:", err);
       }
@@ -74,26 +80,25 @@ const UserLogin = () => {
         <div className="w-full max-w-md space-y-8 font-poppins">
           <div className="text-center w-[29rem]">
             <h1 className="text-4xl font-bold text-gray-900 font-poppins">
-            {authLabel.login[lang]}
+              {authLabel.login[lang]}
             </h1>
             <p className="mt-2 text-sm text-gray-600 animate-bounce font-poppins">
-            {authLabel.continueJourney[lang]}
+              {authLabel.continueJourney[lang]}
             </p>
           </div>
-
           <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
           <SocialLogin />
         </div>
       </div>
-
-      <LoginHero
-        title={authLabel.Yatra[lang]}
-
-        description={authLabel.desc[lang]}
-
-      />
-
+      <LoginHero title={authLabel.Yatra[lang]} description={authLabel.desc[lang]} />
       <div className="hidden md-grid grid-cols-12"></div>
+      {otp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className=" p-6 rounded-xl shadow-lg">
+            <OTP email={email} onClose={()=>setOtp(false)}/>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

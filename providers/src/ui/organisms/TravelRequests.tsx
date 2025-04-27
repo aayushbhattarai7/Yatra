@@ -8,6 +8,7 @@ import {
   SEND_PRICE_BY_TRAEL,
   REJECT_REQUEST_BY_TRAVEL,
   REQUEST_FOR_COMPLETE_TRAVEL_SERVICE,
+  ACCEPT_REQUEST_BY_TRAVEL,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
@@ -49,6 +50,7 @@ const TravelRequests = () => {
   const { socket } = useSocket();
   const { data, loading, error, refetch } = useQuery(TRAVEL_REQUESTS);
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
+  const [acceptRequestByTravel] = useMutation(ACCEPT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
   const { register, handleSubmit, reset } = useForm<Price>();
   const [requestForCompletedTravel] = useMutation(REQUEST_FOR_COMPLETE_TRAVEL_SERVICE);
@@ -75,6 +77,10 @@ const TravelRequests = () => {
 
   const rejectRequest = async (id: string) => {
     await rejectRequestByTravel({ variables: { requestId: id } });
+    refetch();
+  };
+  const acceptRequest = async (id: string) => {
+    await acceptRequestByTravel({ variables: { requestId: id } });
     refetch();
   };
 
@@ -277,15 +283,21 @@ const TravelRequests = () => {
                               <>
                                 <Button
                                   type="button"
+                                  onClick={() => acceptRequest(request.id)}
+                                  buttonText={authLabel.accept[lang]}
+                                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors"
+                                  />
+                                <Button
+                                  type="button"
                                   onClick={() => setSelectedId(request.id)}
                                   buttonText={authLabel.bargain[lang]}
-                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
-                                />
+                                  className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                  />
                                 <Button
                                   type="button"
                                   buttonText={authLabel.reject[lang]}
                                   onClick={() => rejectRequest(request.id)}
-                                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
+                                  className="w-full bg-red-600 border border-red-700 text-emerald-600 hover:bg-red-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                 />
                               </>
                             )}
@@ -298,8 +310,8 @@ const TravelRequests = () => {
                 <Button
                   type="button"
                   buttonText={authLabel.details[lang]}
-                  className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
-                />
+                  className="w-full bg-blue-600 border border-blue-700 text-emerald-600 hover:bg-blue-800 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                  />
               </div>
             </div>
           </div>

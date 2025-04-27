@@ -7,14 +7,12 @@ import Print from "../utils/print";
 import travelService from "../service/travel.service";
 import GuideService from "../service/guide.service";
 import { ChatService } from "../service/chat.service";
-import { RoomService } from "../service/room.service";
 import { User } from "../entities/user/user.entity";
 import { Guide } from "../entities/guide/guide.entity";
 import { Travel } from "../entities/travels/travel.entity";
 const chatService = new ChatService();
 
 const guideService = new GuideService();
-const roomService = new RoomService();
 let io: Server;
 
 function initializeSocket(server: any) {

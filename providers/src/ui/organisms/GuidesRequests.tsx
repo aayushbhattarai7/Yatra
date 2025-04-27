@@ -9,6 +9,7 @@ import {
   REJECT_REQUEST_BY_GUIDE,
   SEND_PRICE_BY_GUIDE,
   REQUEST_FOR_COMPLETE_GUIDE_SERVICE,
+  ACCEPT_REQUEST_BY_GUIDE,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
@@ -56,6 +57,7 @@ const GuideRequests = () => {
   const [requestForCompletedGuide] = useMutation(REQUEST_FOR_COMPLETE_GUIDE_SERVICE);
   const [reportUserId, setReportUserId] = useState<string | null>(null);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [acceptRequestByGuide] = useMutation(ACCEPT_REQUEST_BY_GUIDE);
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
     try {
@@ -77,6 +79,10 @@ const GuideRequests = () => {
 
   const rejectRequest = async (id: string) => {
     await rejectRequestByGuide({ variables: { requestId: id } });
+    refetch();
+  };
+  const acceptRequest = async (id: string) => {
+    await acceptRequestByGuide({ variables: { requestId: id } });
     refetch();
   };
 
@@ -167,7 +173,7 @@ const GuideRequests = () => {
               >
                 <MoreVertical className="w-5 h-5 text-gray-500" />
               </button>
-              
+
               {activeMenu === request.id && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-10 border">
                   <button
@@ -291,15 +297,22 @@ const GuideRequests = () => {
                               <>
                                 <Button
                                   type="button"
+                                  onClick={() => acceptRequest(request.id)}
+                                  buttonText={authLabel.accept[lang]}
+                                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors"
+                                />
+
+                                <Button
+                                  type="button"
                                   onClick={() => setSelectedId(request.id)}
                                   buttonText={authLabel.bargain[lang]}
-                                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                                  className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                 />
                                 <Button
                                   type="button"
                                   buttonText={authLabel.reject[lang]}
                                   onClick={() => rejectRequest(request.id)}
-                                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md"
+                                  className="w-full bg-red-600 border border-red-700 text-emerald-600 hover:bg-red-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                 />
                               </>
                             )}
@@ -312,7 +325,7 @@ const GuideRequests = () => {
                 <Button
                   type="button"
                   buttonText={authLabel.details[lang]}
-                  className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
+                  className="w-full bg-blue-600 border border-blue-700 text-emerald-600 hover:bg-blue-800 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                 />
               </div>
             </div>
@@ -350,9 +363,9 @@ const GuideRequests = () => {
       )}
 
       {reportUserId && (
-        <Report 
-          id={reportUserId} 
-          type="guide" 
+        <Report
+          id={reportUserId}
+          type="guide"
           onClose={() => setReportUserId(null)}
         />
       )}

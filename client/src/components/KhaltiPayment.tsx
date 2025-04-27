@@ -8,11 +8,12 @@ interface KhaltiProps {
 }
 
 const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
+  console.log("🚀 ~ amount:", amount)
   const handlePaymentInitiation = async () => {
     try {
       const payload = {
         purchase_order_id: id,
-        amount,
+        amount:amount*100,
         website_url: "http://localhost:3001",
         return_url: `http://localhost:3001/khaltiSuccess/${type}/${id}`,
         purchase_order_name: type,
@@ -23,6 +24,7 @@ const Khalti: React.FC<KhaltiProps> = ({ id, amount, type }) => {
         "/khalti/initialize-esewa",
         payload,
       );
+      console.log("🚀 ~ handlePaymentInitiation ~ response:", response)
       const paymentUrl = response.data.paymentDetails.payment_url;
       console.log("🚀 ~ handlePaymentInitiation ~ paymentUrl:", paymentUrl);
 

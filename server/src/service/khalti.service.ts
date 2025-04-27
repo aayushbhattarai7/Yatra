@@ -28,6 +28,7 @@ class KhaltiService {
   }
 
   async initializeKhaltiPayment(details: any) {
+    console.log("🚀 ~ KhaltiService ~ initializeKhaltiPayment ~ details:", details)
     const headersList = {
       Authorization: `Key ${DotenvConfig.KHALTI_SECRET_KEY}`,
       "Content-Type": "application/json",

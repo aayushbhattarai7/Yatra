@@ -71,6 +71,7 @@ const Guides = () => {
   console.log("🚀 ~ Guides ~ data:", data)
 
   const guides = activeTab === "online" ? onlineGuides : allGuides;
+  console.log("🚀 ~ Guides ~ guides:", guides)
 
   useEffect(() => {
     if (data) {
@@ -90,7 +91,7 @@ const Guides = () => {
         id: string;
         location: { latitude: string; longitude: string };
       }) => {
-        setAllGuides((prevGuides) =>
+        setOnlineGuides((prevGuides) =>
           prevGuides?.map((guide) =>
             guide.id === updatedGuide.id
               ? {

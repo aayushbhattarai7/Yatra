@@ -297,7 +297,7 @@ const GuideBooking = () => {
                                       buttonText={authLabel.bargain[lang]}
                                       disabled={book.userBargain > 2}
                                       type="submit"
-                                      className="w-full bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-50 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                      className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                                     />
                                   </>
                                 )}

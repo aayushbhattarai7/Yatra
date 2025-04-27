@@ -65,7 +65,6 @@ interface RequestTravels {
   to: string;
   totalDays: string;
   totalPeople: string;
-  vehicleType: string;
 }
 
 const otpService = new OtpService();
@@ -878,7 +877,7 @@ class UserService {
         to: data.to,
         totalDays: parseInt(data.totalDays),
         totalPeople: parseInt(data.totalPeople),
-        vehicleType: data.vehicleType,
+        vehicleType: travel.vehicleType,
         user: user,
         travel: travel,
       });
@@ -1622,8 +1621,8 @@ async getGuideProfile(user_id: string, guide_id: string) {
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-      const request = await this.travelRequestRepo.findOneBy({
-        id: requestId,
+      const request = await this.travelRequestRepo.findOne({where:{
+        id: requestId}, relations:["travel"]
       });
       if (!request) {
         throw HttpException.notFound("Travel not found");
@@ -1639,9 +1638,10 @@ async getGuideProfile(user_id: string, guide_id: string) {
       if (paymentIntent) {
         await this.travelRequestRepo.update(
           {
-            id: request.id,
+            id: requestId,
           },
           {
+            paymentType:PaymentType.CARD,
             status: RequestStatus.ACCEPTED,
             lastActionBy: Role.USER,
           },
@@ -1654,6 +1654,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
 
       return paymentIntent.client_secret;
     } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ error:", error)
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
       } else {

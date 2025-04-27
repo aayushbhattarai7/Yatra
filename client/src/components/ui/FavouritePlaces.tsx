@@ -14,6 +14,8 @@ import { useQuery, useMutation, gql } from "@apollo/client";
 import { REMOVE_FROM_FAVOURITE } from "@/mutation/queries";
 import PlaceLocation from "@/components/ui/PlaceLocation";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { authLabel } from "@/localization/auth";
+import { useLang } from "@/hooks/useLang";
 
 interface Place {
   id: string;
@@ -71,7 +73,7 @@ const SavedPlace = () => {
   const [userLongitude, setUserLongitude] = useState<number>(0);
   const [showMap, setShowMap] = useState(false);
   const [placeDetails, setPlaceDetails] = useState<string | null>(null);
-
+const {lang} = useLang()
   const { data, refetch } = useQuery(GET_FAVOURITE);
   const [removeFromFavourite] = useMutation(REMOVE_FROM_FAVOURITE);
 
@@ -210,7 +212,7 @@ const SavedPlace = () => {
         </div>
       </div>
 
-      {placeDetails && place && (
+      {placeDetails && place ? (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white w-full md:w-[800px] rounded-2xl overflow-hidden max-h-[90vh] shadow-2xl">
             <div className="relative h-96">
@@ -298,6 +300,20 @@ const SavedPlace = () => {
             </div>
           </div>
         </div>
+      ):(
+          <div className="flex flex-col items-center justify-center py-24 text-center text-gray-500">
+                    <img 
+                      src="https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f" 
+                      alt={''} 
+                      className="w-40 h-40 mb-6 opacity-60 rounded-full object-cover" 
+                    />
+                    <h3 className="text-2xl font-semibold text-gray-700 mb-2">
+                      {authLabel.noPlacesTitle[lang]}
+                    </h3>
+                    <p className="text-gray-500 text-md">
+                      {authLabel.noPlacesSubtitle[lang]}
+                    </p>
+                  </div>
       )}
 
       {showMap && selectedPlace && (

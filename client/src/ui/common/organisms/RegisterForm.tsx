@@ -25,7 +25,7 @@ interface FormData {
 
 const RegisterForm = () => {
   const { lang } = useLang();
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>();
   const navigate = useNavigate();
 
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -60,8 +60,6 @@ const RegisterForm = () => {
       const response = await axiosInstance.post("/user/signup", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
-      console.log("🚀 ~ Signup Success:", response);
       navigate("/user-login");
 
       showToast(`Signup successful! Welcome, ${formData.firstName}!`, "success");
@@ -79,15 +77,24 @@ const RegisterForm = () => {
       <div className="space-y-4">
         <div className="flex gap-10">
           <div>
-            <Label name="firstName" className="pl-3" label={authLabel.firstName[lang]} />
+            <Label name="firstName" className="pl-3" label={authLabel.firstName[lang]} required />
             <InputField
               setValue={setValue}
               placeholder={authLabel.firstName[lang]}
               type="text"
-              name="firstName"
               register={register}
+              required
+              {...register("firstName", {
+                required: "First name is required",
+              })}
+              rules={{
+                required: "First name is required",
+              }}
+              error={errors.firstName}
               className="block w-[16rem] pl-11 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+
             />
+
           </div>
           <div>
             <Label name="middleName" className="pl-3" label={authLabel.middleName[lang]} />
@@ -103,55 +110,116 @@ const RegisterForm = () => {
         </div>
         <div className="flex gap-10">
           <div>
-            <Label name="lastName" className="pl-3" label={authLabel.lastName[lang]} />
+            <Label name="lastName" className="pl-3" label={authLabel.lastName[lang]} required />
             <InputField
               setValue={setValue}
               placeholder={authLabel.lastName[lang]}
               type="text"
-              name="lastName"
               register={register}
+              required
+              {...register("lastName", {
+                required: "Last name is required",
+              })}
+              
+              error={errors.lastName}
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+
             />
+
           </div>
           <div>
-            <Label name="email" className="pl-3" label={authLabel.email[lang]} />
+            <Label name="email" className="pl-3" label={authLabel.email[lang]} required />
             <InputField
-              setValue={setValue}
-              placeholder={authLabel.email[lang]}
-              type="text"
-              name="email"
+              placeholder="Enter your email"
+              type="email"
               register={register}
+              error={errors.email}
+              setValue={setValue}
+              required
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email address",
+                },
+              })}
+
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+
             />
+
           </div>
 
         </div>
         <div className="flex gap-10">
           <div>
-            <Label name="phoneNumber" className="pl-3" label={authLabel.phoneNumber[lang]} />
+            <Label name="phoneNumber" className="pl-3" label={authLabel.phoneNumber[lang]} required />
             <InputField
               setValue={setValue}
               placeholder={authLabel.phoneNumber[lang]}
               type="text"
-              name="phoneNumber"
+              error={errors.phoneNumber}
               register={register}
+              {...register("phoneNumber", {
+                required: "Phone number is required",
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: "Phone number must be exactly 10 digits",
+                },
+              })}
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+              required
             />
+
           </div>
           <div>
 
-            <Label name="password" className="pl-3" label={authLabel.password[lang]} />
+            <Label name="password" className="pl-3" label={authLabel.password[lang]} required />
             <InputField
               setValue={setValue}
+              error={errors.password}
               placeholder={authLabel.password[lang]}
-              type="text"
-              name="password"
+              type="password"
               register={register}
+              {...register("password", {
+                required: "Password is required",
+                pattern: {
+                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/,
+                  message: "Password must have uppercase, lowercase, number and special character",
+                },
+              })}
               className="block w-[16rem] pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+              required
             />
           </div>
         </div>
 
+        <div className="flex gap-8">
+          <div>
+            <Label name="gender" className="pl-3" label={authLabel.gender[lang]} required />
+            <select {...register("gender", { required: "Gender is required" })} required className="block w-[23rem] pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
+              <option value="MALE">{authLabel.male[lang]}</option>
+              <option value="FEMALE">{authLabel.female[lang]}</option>
+            </select>
+            {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender.message}</p>}
+
+          </div>
+          <div>
+            <Label name="travelStyle" className="pl-3"  label={authLabel.travelStyle[lang]} required />
+            <select
+              {...register("travelStyle", { required: "Travel style is required" })}
+              className="block w-[23rem] pl-3 pr-3 py-2 border border-gray-300 bg-white text-black rounded-lg"
+            >
+              <option value="Nature Explorer">{authLabel.natureExplorer[lang]}</option>
+              <option value="Adventure Seeker">{authLabel.adventureSeeker[lang]}</option>
+              <option value="Cultural Enthusiast">{authLabel.culturalEnthusiast[lang]}</option>
+              <option value="Luxury Traveler">{authLabel.luxuryTraveler[lang]}</option>
+              <option value="Budget Backpacker">{authLabel.budgetBackpacker[lang]}</option>
+            </select>
+            {errors.travelStyle && <p className="text-red-500 text-sm mt-1">{errors.travelStyle.message}</p>}
+
+          </div>
+        </div>
         <div className="flex gap-60">
           <div>
             <Label name="profile" className="pl-3" label={authLabel.profilePhoto[lang]} />
@@ -174,30 +242,7 @@ const RegisterForm = () => {
           </div>
         </div>
 
-        <div className="flex gap-32">
-          <div>
-            <Label name="gender" className="pl-3" label={authLabel.gender[lang]} />
-            <select {...register("gender", { required: true })} className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50">
-              <option value="MALE">{authLabel.male[lang]}</option>
-              <option value="FEMALE">{authLabel.female[lang]}</option>
-            </select>
-          </div>
-          <div>
-            <Label name="travelStyle" className="pl-3" label={authLabel.travelStyle[lang]} />
-            <select
-              {...register("travelStyle", { required: true })}
-              className="block w-[16rem] pl-3 pr-3 py-2 border border-gray-300 bg-white text-black rounded-lg"
-            >
-              <option value="Nature Explorer">{authLabel.natureExplorer[lang]}</option>
-              <option value="Adventure Seeker">{authLabel.adventureSeeker[lang]}</option>
-              <option value="Cultural Enthusiast">{authLabel.culturalEnthusiast[lang]}</option>
-              <option value="Luxury Traveler">{authLabel.luxuryTraveler[lang]}</option>
-              <option value="Budget Backpacker">{authLabel.budgetBackpacker[lang]}</option>
-            </select>
 
-          </div>
-        </div>
-        
       </div>
 
       <div className="py-2">

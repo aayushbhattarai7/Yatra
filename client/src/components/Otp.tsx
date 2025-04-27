@@ -9,7 +9,7 @@ import { useState } from "react";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
 import ChangePassword from "./ChangePassword";
-import { KeyRound, RefreshCw } from 'lucide-react';
+import { KeyRound, RefreshCw, X } from 'lucide-react';
 
 interface FormData {
   otp: string;
@@ -17,9 +17,10 @@ interface FormData {
 
 interface OTPProps {
   email: string;
+  onClose:()=>void
 }
 
-const OTP: React.FC<OTPProps> = ({ email }) => {
+const OTP: React.FC<OTPProps> = ({ email, onClose }) => {
   const [verified, setVerified] = useState<boolean>(false);
   const { register, handleSubmit, setValue, reset } = useForm<FormData>();
   const { lang } = useLang();
@@ -54,8 +55,11 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center  px-4">
       <div className="min-h-[400px] flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+        <div className="w-full flex justify-end cursor-pointer" onClick={onClose}>
+        <X/>
+        </div>
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
           <KeyRound className="w-8 h-8 text-blue-600" />
         </div>

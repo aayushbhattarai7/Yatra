@@ -52,7 +52,7 @@ const GoogleAuth = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="w-full">
+      <div className="w-full border-none">
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={() => {
