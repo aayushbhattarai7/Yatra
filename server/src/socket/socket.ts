@@ -52,15 +52,16 @@ function initializeSocket(server: any) {
 
     const user = await User.findOneBy({ id: userId });
     const activeTravel = await travelService.getAllActiveUsers();
+    const activeGuide = await guideService.getAllActiveUsers();
     socket.emit("active-travel", activeTravel);
+    socket.emit("active-guide", activeGuide);
 
     socket.on("get-active-travels", async () => {
-      const activeTravel = await travelService.getAllActiveUsers();
       console.log("🚀 ~ socket.on ~ activeTravel:", activeTravel)
       socket.emit("active-travel", activeTravel);
     });
     socket.on("get-active-guides", async () => {
-      const activeGuide = await guideService.getAllActiveUsers();
+      console.log("🚀 ~ socket.on ~ activeGuide:", activeGuide)
       socket.emit("active-guide", activeGuide);
     });
 

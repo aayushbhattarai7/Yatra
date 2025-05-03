@@ -11,9 +11,6 @@ import "leaflet-geosearch/dist/geosearch.css";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
 import axiosInstance from "../service/axiosInstance";
 import { useForm, SubmitHandler } from "react-hook-form";
-// import Label from "@/ui/common/atoms/Label";
-// import InputField from "@/ui/common/atoms/InputField";
-// import Button from "@/ui/common/atoms/Button";
 import { motion } from "framer-motion";
 
 import axios from "axios";

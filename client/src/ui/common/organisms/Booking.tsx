@@ -15,16 +15,16 @@ const Booking = () => {
 
   return (
     <div>
-      <div className="flex justify-around items-center border-b pb-2">
+      <div className="flex justify-around items-center border-b">
         <button
           onClick={() => setActiveTab("travel")}
-          className={`px-4 py-2 ${activeTab === "travel" ? "font-bold" : ""}`}
+          className={`px-4 py-4 ${activeTab === "travel" ? "font-bold" : ""}`}
         >
           Travel
         </button>
         <button
           onClick={() => setActiveTab("guide")}
-          className={`px-4 py-2 ${activeTab === "guide" ? "font-bold" : ""}`}
+          className={`px-4 py-4 ${activeTab === "guide" ? "font-bold" : ""}`}
         >
           Guide
         </button>

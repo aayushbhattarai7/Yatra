@@ -137,21 +137,17 @@ const AdminHome = () => {
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     
-    // Title
     doc.setFontSize(18);
     doc.text(`Revenue Report - ${timeFilter.charAt(0).toUpperCase() + timeFilter.slice(1)}`, 14, 22);
   
-    // Report details
     doc.setFontSize(11);
     doc.setTextColor(100);
     doc.text(`Report generated on: ${new Date().toLocaleDateString()}`, 14, 30);
     doc.text(`Time period: ${timeFilter}`, 14, 35);
   
-    // Table data
     const headers = [["Period", "Revenue (Rs)"]];
     const data = chartData.map((item: { name: any; revenue: { toLocaleString: () => any; }; }) => [item.name, `Rs ${item.revenue.toLocaleString()}`]);
   
-    // Use the imported autoTable function
     autoTable(doc, {
       startY: 40,
       head: headers,
@@ -171,7 +167,6 @@ const AdminHome = () => {
       }
     });
   
-    // Save PDF
     doc.save(`revenue_report_${timeFilter}.pdf`);
   };
   return (

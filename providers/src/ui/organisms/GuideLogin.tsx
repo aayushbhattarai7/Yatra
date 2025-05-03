@@ -1,13 +1,13 @@
 import { gql, useMutation } from "@apollo/client";
 import { useState } from "react";
 import { SubmitHandler } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import LoginForm from "../../../../client/src/ui/common/organisms/LoginForm";
-import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
 import { showToast } from "../../components/ToastNotification";
 import OTP from "../../components/Otp";
 import { GUIDE_RESEND_OTP } from "../../mutation/queries";
+import LoginForm from "../../components/LoginForm";
+import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
+import { useSocket } from "../../contexts/SocketContext";
 
 const LOGIN_MUTATION = gql`
   mutation GuideLogin($password: String!, $email: String!) {
@@ -27,12 +27,12 @@ interface FormData {
 }
 
 const GuideLogin = () => {
-  const navigate = useNavigate();
   const [guideLogin, { loading }] = useMutation(LOGIN_MUTATION);
   const [guideResendOTP] = useMutation(GUIDE_RESEND_OTP);
 
   const [showOTP, setShowOTP] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const {socket} = useSocket()
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -58,7 +58,11 @@ const GuideLogin = () => {
           sameSite: "Strict",
         });
         showToast(loginData.message, "success");
-        navigate("/guide/home");
+        if(socket){
+          socket.emit("get-active-travels")
+        }
+   
+        window.location.href = "/guide/home"
       } else {
         showToast("Login failed. Please try again.", "error");
       }
@@ -84,7 +88,7 @@ const GuideLogin = () => {
               </p>
             </div>
 
-            <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
+            <LoginForm onSubmit={handleSubmit} isSubmitting={loading} type="guide"/>
           </div>
         </div>
 

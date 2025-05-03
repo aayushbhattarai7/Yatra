@@ -8,14 +8,14 @@ import bcryptService from "./bcrypt.service";
 import GuideKYC from "../entities/guide/guideKyc.entity";
 import OtpService from "../utils/otp.utils";
 import { HashService } from "./hash.service";
-import { ActiveStatus, Gender, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
+import { ActiveStatus, FileType, Gender, KycType, MediaType, ReportStatus, RequestStatus, Role } from "../constant/enum";
 import { Location } from "../entities/location/location.entity";
 import { GuideDetails } from "../entities/guide/guideDetails.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { RequestGuide } from "../entities/user/RequestGuide.entities";
 import { io } from "../socket/socket";
 import { LoginDTO } from "../dto/login.dto";
-import { Message, rejectRequest, updatedMessage } from "../constant/message";
+import { acceptRequest, Message, rejectRequest, updatedMessage } from "../constant/message";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
 import { User } from "../entities/user/user.entity";
@@ -23,6 +23,7 @@ import ReportFile from "../entities/user/reportFile.entity";
 import { Report } from "../entities/user/report.entity";
 import { Chat } from "../entities/chat/chat.entity";
 import { GuideProfileDTO } from "../dto/guideProfile.dto";
+import { transferGuideImageFromUploadToTemp, transferImageFromUploadToTemp } from "../utils/path.utils";
 const hashService = new HashService();
 const otpService = new OtpService();
 class GuideService {
@@ -276,12 +277,12 @@ class GuideService {
   async updateProfile(
     id: string,
     data: GuideProfileDTO,
+    images: any
   ) {
     try {
       const guide = await this.guideRepo.findOne({
         where: { id },
       });
-      console.log("🚀 ~ GuideService ~ guide:", guide)
       if (!guide) throw HttpException.unauthorized("You are not authorized");
 
       await this.guideRepo.update(
@@ -293,7 +294,42 @@ class GuideService {
           gender: Gender[data.gender as keyof typeof Gender],
         },
       );
-   
+      if (images) {
+        console.log("🚀 ~ UserService ~ signup ~ images:", images);
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+          const profileImage = images;
+          if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+            throw HttpException.badRequest(
+              "Invalid profile image type. Only jpg, jpeg, and png are accepted.",
+            );
+          }
+          const profileImages = await this.guideKycRepo.findOneBy({
+            guide: { id },
+            fileType: FileType.PASSPHOTO,
+          });
+          console.log("🚀 ~ GuideService ~ profileImages:", profileImages)
+          if (!profileImages) {
+            const image = this.guideKycRepo.create({
+              name: profileImage.name,
+              mimetype: profileImage.mimetype,
+              fileType: FileType.PASSPHOTO,
+              guide: guide,
+            });
+            await this.guideKycRepo.save(image);
+            image.transferKycToUpload(guide.id, MediaType.PROFILE);
+          } else {
+            transferGuideImageFromUploadToTemp(
+              profileImages.id,
+              profileImages.name,
+              profileImages.type,
+            );
+            profileImages.name = profileImage.name;
+            profileImages.mimetype = profileImage.mimetype;
+            await this.guideKycRepo.save(profileImages);
+            profileImages.transferKycToUpload(guide.id, MediaType.PROFILE);
+          }
+        }
       return updatedMessage("Profile");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -766,7 +802,7 @@ class GuideService {
           available: false,
         },
       );
-      return data;
+      return acceptRequest("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -824,7 +860,7 @@ class GuideService {
       }
       await this.guideRepo.update({ id: userId }, { available: true });
       const activeGuides = await this.getAllActiveUsers();
-      io.to(userId).emit("active-guide", activeGuides);
+      io.emit("active-guide", activeGuides);
       return;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -842,7 +878,8 @@ class GuideService {
       }
       await this.guideRepo.update({ id: userId }, { available: false });
 
-      io.to(userId).emit("guide-active", { userId, active: false });
+      const activeGuide = await this.getAllActiveUsers();
+      io.emit("active-guide", activeGuide);
       return;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -1057,7 +1094,7 @@ class GuideService {
 
       const report = this.reportRepo.create({
         message,
-        reportedGuide: { id },
+        reporterGuide: { id },
         reportedUser: user
       })
 

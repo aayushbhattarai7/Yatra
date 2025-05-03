@@ -302,7 +302,7 @@ const {lang} = useLang()
         </div>
       ):(
           <div className="flex flex-col items-center justify-center py-24 text-center text-gray-500">
-                    <img 
+                    {/* <img 
                       src="https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f" 
                       alt={''} 
                       className="w-40 h-40 mb-6 opacity-60 rounded-full object-cover" 
@@ -312,7 +312,7 @@ const {lang} = useLang()
                     </h3>
                     <p className="text-gray-500 text-md">
                       {authLabel.noPlacesSubtitle[lang]}
-                    </p>
+                    </p> */}
                   </div>
       )}
 

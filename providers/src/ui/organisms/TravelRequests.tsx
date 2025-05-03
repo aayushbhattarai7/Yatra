@@ -76,11 +76,14 @@ const TravelRequests = () => {
   };
 
   const rejectRequest = async (id: string) => {
-    await rejectRequestByTravel({ variables: { requestId: id } });
+   const res = await rejectRequestByTravel({ variables: { requestId: id } });
+   showToast(res.data.rejectRequestByTravel,"success")
     refetch();
   };
   const acceptRequest = async (id: string) => {
-    await acceptRequestByTravel({ variables: { requestId: id } });
+    const res = await acceptRequestByTravel({ variables: { requestId: id } });
+    showToast(res.data.acceptRequestByTravel,"success")
+
     refetch();
   };
 

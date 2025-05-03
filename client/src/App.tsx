@@ -4,23 +4,18 @@ import UserRegister from "./ui/common/organisms/UserRegister";
 import UserLogin from "./ui/common/organisms/UserLogin";
 import Guides from "./ui/common/organisms/Guides";
 import UserHome from "./ui/pages/UserHome";
-import Landing from "./components/LandingPage";
-import { getCookie } from "./function/GetCookie";
 import AdminLogin from "./ui/common/organisms/AdminLogin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Travels from "./components/Travels";
 import ToastNotification from "./components/ToastNotification";
-import TravelBookingHistory from "./components/TravelBookingHistory";
 import TravelBooking from "./components/TravelBooking";
 import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
 import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
 import { StripeProvider } from "./contexts/StripeContext";
-import EsewaPaymentForm from "./components/EsewaPaymentForm";
 import Success from "./components/EsewaSuccess";
 import Failure from "./components/EsewaFailure";
-import PaymentForm from "./components/EsewaPaymentForm";
 import { SocketProvider } from "./contexts/SocketContext";
 import KhaltiSuccess from "./components/KhaltiSuccess";
 import Chat from "./components/ui/Chat";
@@ -39,21 +34,17 @@ import Support from "./components/ui/Support";
 import SavedPlace from "./components/ui/FavouritePlaces";
 import BookingHistory from "./ui/common/organisms/BookingHistory";
 import { RequestsTable } from "./components/AdminRequests";
-import AdminProfilePopup from "./components/AdminProfilePopup";
 import AboutUs from "./ui/common/organisms/AboutUs";
 import Career from "./ui/common/organisms/Career";
 import AdminSupport from "./components/ui/AdminSupport";
 import Dashboard from "./components/ui/Reports";
 
-const isLoggedIn = !!getCookie("accessToken");
-const home = isLoggedIn ? <UserHome /> : <Landing />;
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Route />,
     children: [
-      { path: "", element: home },
       { path: "/user-register", element: <UserRegister /> },
       { path: "/user-login", element: <UserLogin /> },
       {path:"/admin",
@@ -68,7 +59,7 @@ const router = createBrowserRouter([
             {path:"booking", element:<RequestsTable/>},
             {path:"support", element:<AdminSupport/>},
             {path:"report", element:<Dashboard/>},
-
+            
           ]}
         ]
       },
@@ -77,6 +68,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <ProtectedRoute />,
         children: [
+          { path: "", element: <UserHome/> },
           { path: "paymentsuccess/:type/:id", element: <Success /> },
           { path: "khaltiSuccess/:type/:id", element: <KhaltiSuccess /> },
           { path: "paymentfailure", element: <Failure /> },

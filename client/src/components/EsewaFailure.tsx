@@ -1,4 +1,3 @@
-// src/components/Failure.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 

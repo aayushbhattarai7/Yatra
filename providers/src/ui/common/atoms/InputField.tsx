@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FieldError, UseFormRegister, UseFormSetValue } from "react-hook-form";
+import { FieldError, RegisterOptions, UseFormRegister, UseFormSetValue, useWatch, Control } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface InputFieldProps {
@@ -10,6 +10,7 @@ interface InputFieldProps {
   error?: FieldError;
   register: UseFormRegister<any>;
   setValue: UseFormSetValue<any>;
+  control: Control<any>;
   multiple?: boolean;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   className: string;
@@ -19,6 +20,7 @@ interface InputFieldProps {
   accept?: string;
   value?: string;
   icon?: React.ReactNode;
+  rules?: RegisterOptions;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -29,54 +31,49 @@ const InputField: React.FC<InputFieldProps> = ({
   error,
   register,
   setValue,
+  control,
   multiple,
   onChange,
   className,
-  required,
+  rules,
   accept,
-  value,
   icon,
 }) => {
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const toggleField = () => {
-    setShowPassword((prev) => !prev);
-  };
+  const value = useWatch({ name, control });
 
   useEffect(() => {
-    const input = document.querySelector<HTMLInputElement>(
-      `input[name="${name}"]`,
-    );
-    if (input && input.value) {
-      setValue(name, input.value, { shouldValidate: true });
+    if (value) {
+      setValue(name, value, { shouldValidate: true });
     }
-  }, [name, setValue]);
+  }, [value, name, setValue]);
 
   return (
-    <div className="flex relative items-center">
-      {icon && (
-        <span className="absolute left-3 text-black text-xl">{icon}</span>
-      )}
+    <div className="flex flex-col relative items-start">
+      {icon && <span className="absolute left-3 top-3 text-black text-xl">{icon}</span>}
+
       <input
         type={type === "password" ? (showPassword ? "text" : "password") : type}
         readOnly={readOnly}
         placeholder={placeholder}
         multiple={multiple}
         accept={accept}
-        {...register(name, { required })}
+        autoComplete={type === "password" ? "current-password" : "on"}
+        {...register(name, rules)}
         onChange={onChange}
-        className={`w-[364px] h-[52px] rounded-lg p-5 pl-${
-          icon ? "10" : "5"
-        } border border-black bg-[#F0EDFF] outline-none placeholder-black ${className}`}
+        className={`w-[364px] h-[52px] rounded-lg p-5 pl-${icon ? "10" : "5"} border border-black bg-[#F0EDFF] outline-none placeholder-black ${className}`}
       />
+
       {type === "password" && (
         <span
           className="absolute right-5 top-1/3 transform-translate-y-1/2 cursor-pointer"
-          onClick={toggleField}
+          onClick={() => setShowPassword((prev) => !prev)}
         >
           {showPassword ? <FaEye /> : <FaEyeSlash />}
         </span>
       )}
+
       {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
     </div>
   );

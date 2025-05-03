@@ -14,7 +14,7 @@ import { RequestTravel } from "../entities/user/RequestTravels.entity";
 import { User } from "../entities/user/user.entity";
 import { LocationDTO } from "../dto/location.dto";
 import { Location } from "../entities/location/location.entity";
-import { Message, registeredMessage, rejectRequest, updatedMessage } from "../constant/message";
+import { acceptRequest, Message, registeredMessage, rejectRequest, updatedMessage } from "../constant/message";
 import { LoginDTO } from "../dto/login.dto";
 import { In, Not } from "typeorm";
 import { Notification } from "../entities/notification/notification.entity";
@@ -23,6 +23,7 @@ import ReportFile from "../entities/user/reportFile.entity";
 import { Report } from "../entities/user/report.entity";
 import { Chat } from "../entities/chat/chat.entity";
 import { GuideProfileDTO } from "../dto/guideProfile.dto";
+import { transferTravelImageFromUploadToTemp } from "../utils/path.utils";
 
 const hashService = new HashService();
 const otpService = new OtpService();
@@ -193,81 +194,117 @@ class TravelService {
     );
   }
 
-    async updateProfile(
-      id: string,
-      data: GuideProfileDTO,
-    ) {
-      try {
-        const travel = await this.travelrepo.findOne({
-          where: { id },
-        });
-        if (!travel) throw HttpException.unauthorized("You are not authorized");
-  
-        await this.travelrepo.update(
-          { id },
-          {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            phoneNumber: data.phoneNumber,
-            gender: Gender[data.gender as keyof typeof Gender],
-          },
-        );
-     
-        return updatedMessage("Profile");
-      } catch (error: unknown) {
-        console.log("🚀 ~ UserService ~ updateProfile ~ error:", error);
-        if (error instanceof Error) {
-          throw HttpException.badRequest(error.message);
-        } else {
-          throw HttpException.internalServerError;
-        }
-      }
-    }
+  async updateProfile(
+    id: string,
+    data: GuideProfileDTO,
+    images: any
+  ) {
+    try {
+      const travel = await this.travelrepo.findOne({
+        where: { id },
+      });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
 
-    async sendOtpToChangeEmail(id: string, email: string) {
-      try {
-        const travel = await this.travelrepo.findOneBy({ id });
-        if (!travel) throw HttpException.unauthorized("You are not authorized");
-        const otp = await otpService.generateOTP();
-        const expires = Date.now() + 5 * 60 * 1000;
-        const payload = `${id}.${otp}.${expires}`;
-        const hashedOtp = hashService.hashOtp(payload);
-        const newOtp = `${hashedOtp}.${expires}`;
-  
-        await this.travelrepo.update({ id }, { otp: newOtp });
-        await otpService.sendOtp(email, otp, expires);
-        return "Otp has been sent to your new email please verify your otp";
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          throw HttpException.badRequest(error?.message);
-        } else {
-          throw HttpException.internalServerError;
+      await this.travelrepo.update(
+        { id },
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          gender: Gender[data.gender as keyof typeof Gender],
+        },
+      );
+      if (images) {
+        console.log("🚀 ~ UserService ~ signup ~ images:", images);
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+          const profileImage = images;
+          if (!allowedMimeTypes.includes(profileImage.mimetype)) {
+            throw HttpException.badRequest(
+              "Invalid profile image type. Only jpg, jpeg, and png are accepted.",
+            );
+          }
+          const profileImages = await this.travelKycRepo.findOneBy({
+            travels: { id },
+            fileType: FileType.PASSPHOTO,
+          });
+          console.log("🚀 ~ GuideService ~ profileImages:", profileImages)
+          if (!profileImages) {
+            const image = this.travelKycRepo.create({
+              name: profileImage.name,
+              mimetype: profileImage.mimetype,
+              fileType: FileType.PASSPHOTO,
+              travels: travel,
+            });
+            await this.travelKycRepo.save(image);
+            image.transferTravelKycToUpload(travel.id, MediaType.PROFILE);
+          } else {
+            transferTravelImageFromUploadToTemp(
+              profileImages.id,
+              profileImages.name,
+              profileImages.type,
+            );
+            profileImages.name = profileImage.name;
+            profileImages.mimetype = profileImage.mimetype;
+            await this.travelKycRepo.save(profileImages);
+            profileImages.transferTravelKycToUpload(travel.id, MediaType.PROFILE);
+          }
         }
+      return updatedMessage("Profile");
+    } catch (error: unknown) {
+      console.log("🚀 ~ UserService ~ updateProfile ~ error:", error);
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
       }
     }
-  
-    async verifyEmail(id: string, email: string, otp: string) {
-      console.log("🚀 ~  ero ~ verifyEmail ~ id:", id);
-      try {
-        const travel = await this.travelrepo.findOneBy({ id });
-        if (!travel) throw HttpException.unauthorized("You are not authorized");
-  
-        const [hashedOtp, expires] = travel?.otp?.split(".");
-        if (Date.now() > +expires)
-          throw HttpException.badRequest("Otp is expired");
-        const payload = `${id}.${otp}.${expires}`;
-        const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
-        if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
-        await this.travelrepo.update({ id }, { email });
-        return "Email changed successfully!.";
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          throw HttpException.badRequest(error?.message);
-        } else {
-          throw HttpException.internalServerError;
-        }
+  }
+
+  async sendOtpToChangeEmail(id: string, email: string) {
+    try {
+      const travel = await this.travelrepo.findOneBy({ id });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+      const otp = await otpService.generateOTP();
+      const expires = Date.now() + 5 * 60 * 1000;
+      const payload = `${id}.${otp}.${expires}`;
+      const hashedOtp = hashService.hashOtp(payload);
+      const newOtp = `${hashedOtp}.${expires}`;
+
+      await this.travelrepo.update({ id }, { otp: newOtp });
+      await otpService.sendOtp(email, otp, expires);
+      return "Otp has been sent to your new email please verify your otp";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
       }
     }
+  }
+
+  async verifyEmail(id: string, email: string, otp: string) {
+    console.log("🚀 ~  ero ~ verifyEmail ~ id:", id);
+    try {
+      const travel = await this.travelrepo.findOneBy({ id });
+      if (!travel) throw HttpException.unauthorized("You are not authorized");
+
+      const [hashedOtp, expires] = travel?.otp?.split(".");
+      if (Date.now() > +expires)
+        throw HttpException.badRequest("Otp is expired");
+      const payload = `${id}.${otp}.${expires}`;
+      const isOtpValid = otpService.verifyOtp(hashedOtp, payload);
+      if (!isOtpValid) throw HttpException.badRequest("Invalid OTP");
+      await this.travelrepo.update({ id }, { email });
+      return "Email changed successfully!.";
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error?.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   async reSendOtp(email: string): Promise<string> {
     try {
@@ -276,7 +313,7 @@ class TravelService {
       }
       const travel = await this.travelrepo.findOneBy({ email });
       if (!travel) throw HttpException.unauthorized("You are not authorized");
-    
+
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${email}.${otp}.${expires}`;
@@ -402,14 +439,14 @@ class TravelService {
         throw HttpException.notFound(
           "Invalid Email, Entered Email is not registered yet",
         );
-  
 
-      if (travel.status === ActiveStatus.BANNED  ) {
+
+      if (travel.status === ActiveStatus.BANNED) {
         throw HttpException.badRequest(
           "You have been banned from using Yatra, If you have any help contact Yatra support team",
         );
       }
-      if (travel.status === ActiveStatus.BLOCKED  ) {
+      if (travel.status === ActiveStatus.BLOCKED) {
         throw HttpException.badRequest(
           "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
         );
@@ -491,7 +528,7 @@ class TravelService {
       }
     }
   }
-  
+
   async completeTravelService(travel_id: string, user_id: string) {
     try {
       const travel = await this.travelrepo.findOne({
@@ -701,7 +738,7 @@ class TravelService {
       const requests = await this.travelRequestRepo.findOne({
         where: {
           travel: { id: travel_id },
-        id: requestId,
+          id: requestId,
         },
       });
       if (!requests) {
@@ -713,7 +750,8 @@ class TravelService {
           lastActionBy: Role.TRAVEL,
         },
       );
-      return data;
+      return acceptRequest("Travel");
+
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -827,7 +865,7 @@ class TravelService {
             RequestStatus.CANCELLED,
           ]),
         },
-        relations: ["user", "travel","travel.ratings"],
+        relations: ["user", "travel", "travel.ratings"],
       });
       return requests;
     } catch (error: unknown) {
@@ -1008,10 +1046,10 @@ class TravelService {
       const requests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travelId },
-          status:RequestStatus.COMPLETED
-        },relations:["user","user.image"]
-      }); 
-      return requests ;
+          status: RequestStatus.COMPLETED
+        }, relations: ["user", "user.image"]
+      });
+      return requests;
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -1025,7 +1063,7 @@ class TravelService {
     try {
       const travel = await this.travelrepo.findOneBy({ id: travelId });
       if (!travel) throw HttpException.badRequest("Travel not found");
-  
+
       const completedRequests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travelId },
@@ -1033,10 +1071,10 @@ class TravelService {
         },
         select: ["price"],
       });
-  
+
       const prices = completedRequests.map((req) => parseFloat(req.price));
       const totalRevenue = prices.reduce((sum, price) => sum + price, 0);
-  
+
       return parseFloat(totalRevenue.toFixed(2));
     } catch (error: unknown) {
       throw HttpException.badRequest(
@@ -1044,39 +1082,39 @@ class TravelService {
       );
     }
   }
-  
+
   async getTravelGroupedRevenue(travelId: string) {
     try {
       const travel = await this.travelrepo.findOneBy({ id: travelId });
       if (!travel) throw HttpException.badRequest("Travel not found");
-  
+
       const completedRequests = await this.travelRequestRepo.find({
         where: {
           travel: { id: travelId },
           status: RequestStatus.COMPLETED,
         },
       });
-  
+
       const daily: Record<string, number> = {};
       const weekly: Record<string, number> = {};
       const monthly: Record<string, number> = {};
       const yearly: Record<string, number> = {};
-  
+
       completedRequests.forEach((req) => {
         const date = new Date(req.updatedAt);
         const price = parseFloat(req.price);
-  
+
         const day = date.toISOString().split("T")[0];
         const week = `${this.getStartOfWeek(date)} to ${this.getEndOfWeek(date)}`;
         const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         const year = String(date.getFullYear());
-  
+
         daily[day] = (daily[day] || 0) + price;
         weekly[week] = (weekly[week] || 0) + price;
         monthly[month] = (monthly[month] || 0) + price;
         yearly[year] = (yearly[year] || 0) + price;
       });
-  
+
       return {
         daily: Object.entries(daily).map(([name, revenue]) => ({ name, revenue })),
         weekly: Object.entries(weekly).map(([name, revenue]) => ({ name, revenue })),
@@ -1096,7 +1134,7 @@ class TravelService {
     const monday = new Date(d.setDate(diff));
     return monday.toISOString().split("T")[0];
   }
-  
+
   getEndOfWeek(date: Date): string {
     const start = new Date(this.getStartOfWeek(date));
     const sunday = new Date(start);

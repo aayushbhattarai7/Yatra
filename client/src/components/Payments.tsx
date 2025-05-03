@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaCreditCard } from "react-icons/fa";
-import { SiKashflow } from "react-icons/si";
-import { SiEsea } from "react-icons/si";
+import { FaTimes } from "react-icons/fa";
 import EsewaPayment from "./Esewa";
 import Khalti from "./KhaltiPayment";
 import Checkout from "./StripeCheckout";

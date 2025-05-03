@@ -117,7 +117,6 @@ export class TravelResolver {
     try {
       const data = { email, password };
       const user = await travelService.loginTravel(data);
-      console.log("🚀 ~ UserResolver ~ login ~ user:", user);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
@@ -487,23 +486,23 @@ export class TravelResolver {
         }
       }
     }
-    @Mutation(() => String)
-    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
-    async updateTravelProfile(
-      @Ctx() ctx: Context,
-      @Arg("data") data: GuideProfileDTO
-    ): Promise<string> {
-      try {
-        const travelId = ctx.req.user?.id!;
-        return await travelService.updateProfile(travelId, data);
-      } catch (error) {
-        if (error instanceof Error) {
-          throw HttpException.badRequest(error.message);
-        } else {
-          throw HttpException.internalServerError;
-        }
-      }
-    }
+    // @Mutation(() => String)
+    // @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    // async updateTravelProfile(
+    //   @Ctx() ctx: Context,
+    //   @Arg("data") data: GuideProfileDTO
+    // ): Promise<string> {
+    //   try {
+    //     const travelId = ctx.req.user?.id!;
+    //     return await travelService.updateProfile(travelId, data);
+    //   } catch (error) {
+    //     if (error instanceof Error) {
+    //       throw HttpException.badRequest(error.message);
+    //     } else {
+    //       throw HttpException.internalServerError;
+    //     }
+    //   }
+    // }
 
     @Query(() => [RequestTravel])
     @UseMiddleware(authentication, authorization([Role.TRAVEL]))

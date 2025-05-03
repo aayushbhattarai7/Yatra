@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
 import { showToast } from "@/components/ToastNotification";
+import { Link } from "react-router-dom";
 
 const LOGIN_MUTATION = gql`
   mutation AdminLogin($password: String!, $email: String!) {
@@ -68,6 +69,7 @@ const AdminLogin = () => {
 
           <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
         </div>
+       <Link className="text-blue-400 underline" to={"/user-login"}>Login as User</Link>
       </div>
 
       <LoginHero

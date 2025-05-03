@@ -761,7 +761,6 @@ function UserHome() {
           </div>
         </div>
       )}
-
       {showMap && selectedPlace && (
         <PlaceLocation
           latitude={parseFloat(selectedPlace.latitude)}
@@ -774,12 +773,10 @@ function UserHome() {
           }}
         />
       )}
-
       {showRatingModal && (
         <RatingModal placeId={showRatingModal} />
       )}
     </div>
   );
 }
-
 export default UserHome;

@@ -98,7 +98,7 @@ class UserService {
 
   async signup(data: UserDTO, images: { profile?: any; cover?: any }) {
     try {
-      const emailExist = await this.userRepo.findOneBy({ email: data.email });
+      const emailExist = await this.userRepo.findOne({where:{ email: data.email} });
       if (emailExist)
         throw HttpException.notFound("Entered Email is already registered");
 
@@ -222,7 +222,7 @@ class UserService {
       );
       if (images) {
         console.log("🚀 ~ UserService ~ signup ~ images:", images);
-        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg", "image/avif"];
 
         if (images.profile) {
           const profileImage = images.profile;
@@ -307,6 +307,7 @@ class UserService {
   }
 
   async login(data: LoginDTO): Promise<User> {
+    console.log("🚀 ~ UserService ~ login ~ data:", data)
     try {
       const user = await this.userRepo.findOne({
         where: [{ email: data.email }],
@@ -325,34 +326,34 @@ class UserService {
           "status"
         ],
       });
+      console.log("🚀 ~ UserService ~ login ~ user:", user)
 
       if (!user)
         throw HttpException.notFound(
           "The email you provided is not registered yet, please try with the registered one or create new account",
         );
 
-        if (user.status === ActiveStatus.BANNED  ) {
-          throw HttpException.badRequest(
-            "You have been banned from using Yatra, If you have any help contact Yatra support team",
-          );
-        }
-        if (user.status === ActiveStatus.BLOCKED  ) {
-          throw HttpException.badRequest(
-            "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
-          );
-        }
-
-        const passwordMatched = await bcryptService.compare(
-          data.password,
-          user.password,
+      if (user.status === ActiveStatus.BANNED) {
+        throw HttpException.badRequest(
+          "You have been banned from using Yatra, If you have any help contact Yatra support team",
         );
-        if (!passwordMatched) {
-          throw HttpException.badRequest("Password didnot matched");
-        }
-        if (!user.verified) {
-        await this.reSendOtp(user.email);
-        }
+      }
+      if (user.status === ActiveStatus.BLOCKED) {
+        throw HttpException.badRequest(
+          "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
+        );
+      }
 
+      const passwordMatched = await bcryptService.compare(
+        data.password,
+        user.password,
+      );
+      if (!passwordMatched) {
+        throw HttpException.badRequest("Password didnot matched");
+      }
+      if (!user.verified) {
+        await this.reSendOtp(user.email);
+      }
       return user;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -391,6 +392,11 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ id });
       if (!user) throw HttpException.unauthorized("You are not authorized");
+      const isEmailExist = await this.userRepo.findOne({where:{
+        email
+      }
+      })
+      if(isEmailExist) throw HttpException.conflict("Entered email is already registered")
       const otp = await otpService.generateOTP();
       const expires = Date.now() + 5 * 60 * 1000;
       const payload = `${id}.${otp}.${expires}`;
@@ -412,7 +418,7 @@ class UserService {
   async verifyEmail(id: string, email: string, otp: string) {
     console.log("🚀 ~  ero ~ verifyEmail ~ id:", id);
     try {
-      const user = await this.userRepo.findOneBy({ id });
+      const user = await this.userRepo.findOne({where:{ id} });
       if (!user) throw HttpException.unauthorized("You are not authorized");
 
       const [hashedOtp, expires] = user?.otp?.split(".");
@@ -447,7 +453,7 @@ class UserService {
             firstName: decoded.given_name,
             lastName: decoded.family_name ? decoded.family_name : decoded.name,
             gender: Gender.NONE,
-            phoneNumber:shortJTI,
+            phoneNumber: shortJTI,
             password: await bcryptService.hash(decoded?.sub),
           });
           const save = await this.userRepo.save(saveUser);
@@ -456,17 +462,17 @@ class UserService {
           throw HttpException.badRequest(error.message);
         }
       } else {
-        if (user.status === ActiveStatus.BANNED  ) {
+        if (user.status === ActiveStatus.BANNED) {
           throw HttpException.badRequest(
             "You have been banned from using Yatra, If you have any help contact Yatra support team",
           );
         }
-        if (user.status === ActiveStatus.BLOCKED  ) {
+        if (user.status === ActiveStatus.BLOCKED) {
           throw HttpException.badRequest(
             "You have been temporarily blocked from using Yatra,If you have any help contact Yatra support team",
           );
         }
-  
+
         return await this.getByid(user.id);
       }
     } catch (error: unknown) {
@@ -618,7 +624,7 @@ class UserService {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) throw HttpException.unauthorized("you are not authorized");
-      const places = await this.placeRepo.find({ relations: ["image","ratings"] });
+      const places = await this.placeRepo.find({ relations: ["image", "ratings"] });
       if (!places) {
         throw HttpException.notFound("Places not found");
       }
@@ -637,7 +643,7 @@ class UserService {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.unauthorized("you are not authorized");
       const guides = await this.guideRepo.find({
-        relations: ["details", "location", "kyc","ratings"],
+        relations: ["details", "location", "kyc", "ratings"],
       });
       if (!guides) {
         throw HttpException.notFound("Guide not found");
@@ -660,7 +666,7 @@ class UserService {
           verified: true,
           approved: true,
         },
-        relations: ["details", "location", "kyc","ratings"],
+        relations: ["details", "location", "kyc", "ratings"],
       });
       if (!travel) {
         throw HttpException.notFound("Travel not found");
@@ -773,16 +779,16 @@ class UserService {
   }
 
   async requestGuide(user_id: string, guide_id: string, data: RequestGuides) {
-    console.log("🚀 ~ UserService ~ requestGuide ~ guide_id:", guide_id);
     try {
-      const user = await this.userRepo.findOneBy({ id: user_id });
+      const user = await this.userRepo.findOne({where:{ id: user_id} });
       if (!user) {
         throw HttpException.unauthorized("You are not authorized user");
       }
-      const guide = await this.guideRepo.findOneBy({
+      const guide = await this.guideRepo.findOne({where:{
         id: guide_id,
         approved: true,
         verified: true,
+      }
       });
 
       if (!guide) {
@@ -792,7 +798,7 @@ class UserService {
         where: {
           users: { id: user_id },
           guide: { id: guide_id },
-          status: Not(In([RequestStatus.ACCEPTED, RequestStatus.PENDING, RequestStatus.CONFIRMATION_PENDING])),
+          status: Not(In([RequestStatus.ACCEPTED, RequestStatus.COMPLETED, RequestStatus.CONFIRMATION_PENDING, RequestStatus.CANCELLED, RequestStatus.REJECTED])),
         },
       });
       if (findRequest.length > 0) {
@@ -807,7 +813,7 @@ class UserService {
         totalDays: data.totalDays,
         totalPeople: data.totalPeople,
         users: user,
-        guide: guide,
+        guide: {id:guide_id},
       });
       await this.guideRequestRepo.save(request);
       if (request) {
@@ -818,6 +824,7 @@ class UserService {
         senderUser: user,
         receiverGuide: request.guide,
       });
+      
       await this.notificationRepo.save(notification);
       if (notification) {
         io.to(guide_id).emit("notification", notification);
@@ -825,7 +832,7 @@ class UserService {
       const unreadNotificationCount = await this.notificationRepo.count({
         where: { receiverGuide: { id: guide_id }, isRead: false },
       });
-      
+
 
       io.to(guide_id).emit("notification-count", unreadNotificationCount);
       await emailService.sendMail({
@@ -837,6 +844,7 @@ class UserService {
       return bookRequestMessage("Guide");
     } catch (error: unknown) {
       if (error instanceof Error) {
+        console.log("🚀 ~ UserService ~ requestGuide ~ error:", error)
         throw HttpException.badRequest(error?.message);
       } else {
         throw HttpException.internalServerError("An unknown error occured");
@@ -845,12 +853,14 @@ class UserService {
   }
 
   async requestTravel(
-    user_id: string,travel_id: string,data: RequestTravels) {
+    user_id: string, travel_id: string, data: RequestTravels) {
     try {
-      const user = await this.userRepo.findOneBy({ id: user_id });
+      const user = await this.userRepo.findOne({where:{ id: user_id }});
       if (!user) throw HttpException.unauthorized("You are not authorized user");
-      const travel = await this.travelrepo.findOneBy({
+      const travel = await this.travelrepo.findOne({where:{
+
         id: travel_id,
+      }
       });
       const findRequest = await this.travelRequestRepo.find({
         where: {
@@ -865,13 +875,13 @@ class UserService {
           ),
         },
       });
+      if (!travel) throw HttpException.notFound("Travel not found");
       if (findRequest.length > 0) {
         throw HttpException.badRequest(
           "Request already sent to this travel, Please wait a while for the travel response",
         );
       }
-      if (!travel) throw HttpException.notFound("Travel not found");
-      
+
       const request = this.travelRequestRepo.create({
         from: data.from,
         to: data.to,
@@ -916,7 +926,7 @@ class UserService {
 
   async completeTravelService(user_id: string, travel_id: string) {
     try {
-      const user = await this.userRepo.findOneBy({ id: user_id });
+      const user = await this.userRepo.findOne({ where:{id: user_id} });
       if (!user) throw HttpException.notFound("You are not authorized");
       const travel = await this.travelrepo.findOne({
         where: {
@@ -1087,7 +1097,7 @@ class UserService {
         .leftJoinAndSelect("requestTravel.user", "user")
         .where("requestTravel.user_id =:user_id", { user_id })
         .andWhere("requestTravel.status NOT IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED, RequestStatus.REJECTED],
         })
         .getMany();
       if (!data)
@@ -1109,7 +1119,7 @@ class UserService {
         id: user_id,
       });
       if (!user) throw HttpException.unauthorized("You are not authorized");
-      
+
       const data = await this.travelRequestRepo
         .createQueryBuilder("requestTravel")
         .leftJoinAndSelect("requestTravel.travel", "travel")
@@ -1117,7 +1127,7 @@ class UserService {
         .leftJoinAndSelect("requestTravel.user", "user")
         .where("requestTravel.user_id =:user_id", { user_id })
         .andWhere("requestTravel.status IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED, RequestStatus.REJECTED],
         })
         .getMany();
       if (!data)
@@ -1146,8 +1156,8 @@ class UserService {
         .leftJoinAndSelect("requestGuide.users", "user")
         .where("requestGuide.user_id =:user_id", { user_id })
         .andWhere("requestGuide.status IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
-        }) .getMany();
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED, RequestStatus.REJECTED],
+        }).getMany();
       if (!data)
         throw HttpException.notFound("You do not requested any travels for booking");
       return data;
@@ -1174,7 +1184,7 @@ class UserService {
         .leftJoinAndSelect("requestGuide.users", "user")
         .where("requestGuide.user_id = :user_id", { user_id })
         .andWhere("requestGuide.status NOT IN (:...statuses)", {
-          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED],
+          statuses: [RequestStatus.COMPLETED, RequestStatus.CANCELLED, RequestStatus.REJECTED],
         })
         .getMany();
 
@@ -1190,7 +1200,7 @@ class UserService {
 
   async sendTravelPrice(price: string, user_id: string, requestId: string) {
     try {
-      const user = await this.userRepo.findOneBy({ id: user_id });
+      const user = await this.userRepo.findOne({where:{ id: user_id} });
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
@@ -1441,7 +1451,7 @@ class UserService {
   }
   async cancelTravelRequest(user_id: string, requestId: string) {
     try {
-      const user = await this.userRepo.findOneBy({ id: user_id });
+      const user = await this.userRepo.findOne({where:{ id: user_id} });
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
@@ -1551,7 +1561,7 @@ class UserService {
       }
     }
   }
-async getGuideProfile(user_id: string, guide_id: string) {
+  async getGuideProfile(user_id: string, guide_id: string) {
     try {
       const user = await this.userRepo.findOneBy({
         id: user_id,
@@ -1621,8 +1631,10 @@ async getGuideProfile(user_id: string, guide_id: string) {
       if (!user) {
         throw HttpException.unauthorized("User not found");
       }
-      const request = await this.travelRequestRepo.findOne({where:{
-        id: requestId}, relations:["travel"]
+      const request = await this.travelRequestRepo.findOne({
+        where: {
+          id: requestId
+        }, relations: ["travel"]
       });
       if (!request) {
         throw HttpException.notFound("Travel not found");
@@ -1641,7 +1653,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
             id: requestId,
           },
           {
-            paymentType:PaymentType.CARD,
+            paymentType: PaymentType.CARD,
             status: RequestStatus.ACCEPTED,
             lastActionBy: Role.USER,
           },
@@ -1670,13 +1682,17 @@ async getGuideProfile(user_id: string, guide_id: string) {
   ) {
     console.log("🚀 ~ UserService ~ userId:", requestId);
     try {
-      const user = await this.userRepo.findOneBy({ id: userId });
+      const user = await this.userRepo.findOne({where:{
+        id:userId
+      }});
       if (!user) {
+        console.log("nnnnnnnnooooo")
         throw HttpException.unauthorized("User not found");
       }
+      console.log("🚀 ~ UserService ~ user:", user)
       const request = await this.travelRequestRepo.findOne({
         where: { id: requestId },
-        relations: ["travel"],
+        relations: ["travel","user"],
       });
       if (!request) {
         throw HttpException.notFound("Request not found");
@@ -1735,7 +1751,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForTravelWithKhalti(
-    userId: string,requestId: string,id: string) {
+    userId: string, requestId: string, id: string) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
@@ -1797,9 +1813,12 @@ async getGuideProfile(user_id: string, guide_id: string) {
       if (!user) {
         throw HttpException.badRequest("You are not authorized");
       }
-      const notifications = await this.notificationRepo.findBy({
-        receiverUser: { id: userId },
-      });
+      const notifications = await this.notificationRepo.find({
+        where: {
+
+          receiverUser: { id: userId },
+        }, order: { createdAt: 'ASC' },
+      },);
       if (!notifications) {
         throw HttpException.notFound("No notifications yet");
       }
@@ -1839,12 +1858,13 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForGuideWithEsewa(
-    userId: string, requestId: string,token: string,
+    userId: string, requestId: string, token: string,
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });
       if (!user) {
-        throw HttpException.unauthorized("User not found") }
+        throw HttpException.unauthorized("User not found")
+      }
       const request = await this.guideRequestRepo.findOne({
         where: { id: requestId },
         relations: ["guide"],
@@ -1911,7 +1931,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
       }
       const request = await this.guideRequestRepo.findOneBy({
         id: requestId,
-        status:RequestStatus.PENDING
+        status: RequestStatus.PENDING
       });
       if (!request) {
         throw HttpException.notFound("Request not found");
@@ -1947,7 +1967,7 @@ async getGuideProfile(user_id: string, guide_id: string) {
   }
 
   async advancePaymentForGuideWithKhalti(
-    userId: string,requestId: string, id: string,
+    userId: string, requestId: string, id: string,
   ) {
     try {
       const user = await this.userRepo.findOneBy({ id: userId });

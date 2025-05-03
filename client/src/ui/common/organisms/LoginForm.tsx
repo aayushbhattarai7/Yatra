@@ -6,7 +6,7 @@ import { authLabel } from "../../../localization/auth";
 import { useLang } from "../../../hooks/useLang";
 import { RxPerson } from "react-icons/rx";
 import { RiLockPasswordLine } from "react-icons/ri";
-import {  NavLink } from "react-router-dom";
+import {   NavLink } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -20,7 +20,7 @@ interface LoginFormProps {
 
 const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
   const { lang } = useLang();
-  const { register, handleSubmit, setValue } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue } = useForm<FormData>({
     defaultValues: {
       email: "",
       password: "",
@@ -37,6 +37,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           <Label name="email" label={authLabel.email[lang]} />
           <div className="relative">
             <InputField
+            control={control}
               setValue={setValue}
               placeholder={authLabel.email[lang]}
               type="email"
@@ -51,6 +52,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
           <Label name="password" label={authLabel.password[lang]} />
           <div className="relative">
             <InputField
+               control={control}
               setValue={setValue}
               placeholder={authLabel.password[lang]}
               type="password"
@@ -65,10 +67,11 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
             </NavLink>
           </div>
           <div className="py-2">
-            <NavLink to={"/guide-register"} className={"text-blue-500 underline"}>
+            <NavLink to={"/travel-register"} className={"text-blue-500 underline"}>
             {authLabel.dontHaveAnAccount[lang]}
             </NavLink>
           </div>
+
         </div>
       </div>
       <div></div>

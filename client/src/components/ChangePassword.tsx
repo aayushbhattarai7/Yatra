@@ -54,13 +54,11 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
                     <Lock className="w-8 h-8 text-green-600" />
                 </div>
-
                 <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.newPass[lang]}</h2>
                 <p className="text-gray-600 text-center mb-8">
                 {authLabel.newPass[lang]}<br />
                     <span className="font-medium text-gray-800">{email}</span>
                 </p>
-
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
@@ -82,7 +80,6 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                                 className="block w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                         </div>
-
                         <div className="space-y-2">
                             <Label 
                                 name="confirmPassword" 
@@ -99,7 +96,6 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                             />
                         </div>
                     </div>
-
                     <Button
                         buttonText={loading ? `${authLabel.updating[lang]}` : `${authLabel.updatePassword[lang]}`}
                         name="update"
@@ -108,7 +104,6 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                         className="w-full bg-green-600 hover:bg-green-700 text-white"
                     />
                 </form>
-
                 <p className="mt-6 text-sm text-gray-500 text-center">
                     {authLabel.passwordDesc[lang]}
                 </p>

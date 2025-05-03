@@ -25,8 +25,8 @@ export const getTempFolderPathForPlace = (): string => {
 
 export const getUploadFolderpathForTravel = (): string => {
   if (process.env.NODE_ENV === Environment.PRODUCTION)
-    return path.resolve(process.cwd(), "public");
-  return path.join(__dirname, "..", "..", "public");
+    return path.resolve(process.cwd(), "public","travel");
+  return path.join(__dirname, "..", "..", "public","travel");
 };
 
 export const getTempFolderPathForTravel = (): string => {
@@ -72,6 +72,53 @@ export const transferImageFromUploadToTemp = (
     id.toString(),
   );
   const TEMP_FOLDER_PATH = path.join(getTempFolderPathForUser(), id.toString());
+  if (!fs.existsSync(TEMP_FOLDER_PATH))
+    fs.mkdirSync(TEMP_FOLDER_PATH, { recursive: true });
+  const imageName = path.basename(name);
+  try {
+    fs.renameSync(
+      path.join(UPLOAD_FOLDER_PATH, imageName),
+      path.join(TEMP_FOLDER_PATH, imageName),
+    );
+  } catch (err) {
+    console.log("🚀 ~ transferImageFromUploadTOTempFolder ~ err", err);
+  }
+};
+
+export const transferGuideImageFromUploadToTemp = (
+  id: string,
+  name: string,
+  type: string,
+): void => {
+  const UPLOAD_FOLDER_PATH = path.join(
+    getUploadFolderpathForGuide(),
+    type.toLowerCase(),
+    id.toString(),
+  );
+  const TEMP_FOLDER_PATH = path.join(getTempFolderPathForGuide(), id.toString());
+  if (!fs.existsSync(TEMP_FOLDER_PATH))
+    fs.mkdirSync(TEMP_FOLDER_PATH, { recursive: true });
+  const imageName = path.basename(name);
+  try {
+    fs.renameSync(
+      path.join(UPLOAD_FOLDER_PATH, imageName),
+      path.join(TEMP_FOLDER_PATH, imageName),
+    );
+  } catch (err) {
+    console.log("🚀 ~ transferImageFromUploadTOTempFolder ~ err", err);
+  }
+};
+export const transferTravelImageFromUploadToTemp = (
+  id: string,
+  name: string,
+  type: string,
+): void => {
+  const UPLOAD_FOLDER_PATH = path.join(
+    getUploadFolderpathForTravel(),
+    type.toLowerCase(),
+    id.toString(),
+  );
+  const TEMP_FOLDER_PATH = path.join(getTempFolderPathForTravel(), id.toString());
   if (!fs.existsSync(TEMP_FOLDER_PATH))
     fs.mkdirSync(TEMP_FOLDER_PATH, { recursive: true });
   const imageName = path.basename(name);

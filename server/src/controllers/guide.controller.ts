@@ -98,6 +98,34 @@ export class GuideController {
     }
   }
 
+    async updateprofile(req: Request, res: Response) {
+      const id = req.user?.id as string;
+      console.log("🚀 ~ guide ~ updateprofile ~ id:", id);
+      try {
+        const profileImage = req.files?.profile?.[0];
+        const image = {
+          profile: profileImage
+            ? {
+                name: profileImage.filename,
+                mimetype: profileImage.mimetype,
+                path: profileImage.path,
+              }
+            : null,
+        };
+        const data = await guideService.updateProfile(
+          id,
+          req.body as GuideDTO,
+          image.profile as any,
+        );
+        res.status(StatusCodes.SUCCESS).json({ data });
+      } catch (error: unknown) {
+        if (error instanceof Error)
+          res.status(StatusCodes.BAD_REQUEST).json({
+            message: error?.message,
+          });
+      }
+    }
+
   async reportUser(req: Request, res: Response) {
         try {
           const guideId = req.user?.id as string;

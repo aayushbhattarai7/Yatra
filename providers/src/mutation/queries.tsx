@@ -375,6 +375,7 @@ export const GET_TRAVEL_PROFILE = gql`
       kyc {
         id
         path
+        fileType
       }
     }
   }

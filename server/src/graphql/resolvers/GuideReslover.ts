@@ -256,7 +256,7 @@ export class GuideResolver {
       }
     }
   }
-  
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async sendPriceByGuide(
@@ -409,23 +409,23 @@ export class GuideResolver {
       }
     }
 
-    @Mutation(() => String)
-@UseMiddleware(authentication, authorization([Role.GUIDE]))
-async updateGuideProfile(
-  @Ctx() ctx: Context,
-  @Arg("data") data: GuideProfileDTO
-): Promise<string> {
-  try {
-    const guideId = ctx.req.user?.id!;
-    return await this.guideService.updateProfile(guideId, data);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw HttpException.badRequest(error.message);
-    } else {
-      throw HttpException.internalServerError;
-    }
-  }
-}
+//     @Mutation(() => String)
+// @UseMiddleware(authentication, authorization([Role.GUIDE]))
+// async updateGuideProfile(
+//   @Ctx() ctx: Context,
+//   @Arg("data") data: GuideProfileDTO
+// ): Promise<string> {
+//   try {
+//     const guideId = ctx.req.user?.id!;
+//     return await this.guideService.updateProfile(guideId, data);
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw HttpException.badRequest(error.message);
+//     } else {
+//       throw HttpException.internalServerError;
+//     }
+//   }
+// }
 
 @Mutation(() => String)
 @UseMiddleware(authentication, authorization([Role.GUIDE]))

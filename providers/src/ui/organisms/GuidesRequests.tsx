@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import Button from "../common/atoms/Button";
@@ -78,11 +77,16 @@ const GuideRequests = () => {
   };
 
   const rejectRequest = async (id: string) => {
-    await rejectRequestByGuide({ variables: { requestId: id } });
+   const res = await rejectRequestByGuide({ variables: { requestId: id } });
+   console.log("🚀 ~ rejectRequest ~ res:", res)
+   showToast(res.data.rejectRequestByGuide,"success")
+
     refetch();
   };
   const acceptRequest = async (id: string) => {
-    await acceptRequestByGuide({ variables: { requestId: id } });
+  const res =  await acceptRequestByGuide({ variables: { requestId: id } });
+    showToast(res.data.acceptRequestByGuide,"success")
+    console.log("🚀 ~ acceptRequest ~ res:", res)
     refetch();
   };
 
@@ -104,8 +108,15 @@ const GuideRequests = () => {
 
   useEffect(() => {
     const handleNewRequests = (newBooking: FormData) => {
-      setGuides((prev) => [...prev, newBooking]);
-    };
+      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking)
+      setGuides((prev) => {
+        const exists = prev.some((req) => req.id === newBooking.id);
+        if (!exists) {
+          return [...prev, newBooking];
+        }
+        return prev;
+      });
+          };
 
     socket.on("request-guide", handleNewRequests);
     return () => {

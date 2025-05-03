@@ -19,7 +19,6 @@ import { showToast } from "./ToastNotification";
 import {
   CHANGE_EMAIL_OF_GUIDE,
   GET_GUIDE_PROFILE,
-  UPDATE_GUIDE_PROFILE,
   VERIFY_EMAIL_OF_GUIDE,
 } from "../mutation/queries";
 import axiosInstance from "../service/axiosInstance";
@@ -76,7 +75,6 @@ const GuideProfile = () => {
     gender: "", 
     phoneNumber: "",
   });
-  const [updateGuideProfile] = useMutation(UPDATE_GUIDE_PROFILE);
   const { data, loading, refetch, error } = useQuery(GET_GUIDE_PROFILE);
   console.log("🚀 ~ GuideProfile ~ data:", data)
   console.log("🚀 ~ GuideProfile ~ error:", error)
@@ -131,7 +129,7 @@ const GuideProfile = () => {
       const formData = new FormData();
       formData.append(uploadType, selectedImage);
       formData.append("type", uploadType.toUpperCase());
-      await axiosInstance.patch("/user/update-profile", formData, {
+      await axiosInstance.patch("/guide/update-profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       await refetch();
@@ -468,10 +466,10 @@ const GuideProfile = () => {
                 try {
                   const payload = {
                     ...editProfileData,
-                    gender: editProfileData.gender.toUpperCase(), // assuming gender needs to be like "MALE"
+                    gender: editProfileData.gender.toUpperCase(), 
                   };
               
-                  await updateGuideProfile({ variables: { data: payload } });
+                  await axiosInstance.patch("/guide/update-profile", payload);
               
                   await refetch();
                   setShowEditProfile(false);

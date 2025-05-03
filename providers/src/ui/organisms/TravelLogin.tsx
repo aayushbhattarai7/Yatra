@@ -1,13 +1,14 @@
 import { useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import LoginForm from "../../../../client/src/ui/common/organisms/LoginForm";
 import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
 import { showToast } from "../../components/ToastNotification";
 import { TRAVEL_LOGIN, TRAVEL_RESEND_OTP } from "../../mutation/queries";
 import OTP from "../../components/Otp";
 import { useState } from "react";
+import LoginForm from "../../components/LoginForm";
+import { useSocket } from "../../contexts/SocketContext";
 
 interface FormData {
   email: string;
@@ -20,6 +21,7 @@ const TravelLogin = () => {
   const [travelResendOTP] = useMutation(TRAVEL_RESEND_OTP);
   const [showOTP, setShowOTP] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const {socket} = useSocket()
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -44,8 +46,13 @@ const TravelLogin = () => {
           secure: true,
           sameSite: "Strict",
         });
+        
         showToast(loginData.message, "success");
-        navigate("/travel/home");
+        if(socket){
+          socket.emit("get-active-travels")
+        }
+   
+        window.location.href = "/travel/home"
       } else {
         showToast("Login failed. Please try again.", "error");
       }
@@ -63,7 +70,7 @@ const TravelLogin = () => {
     <>
       <div className="flex h-screen w-screen overflow-hidden items-center justify-center">
         <div className="w-full h-full flex flex-col md:flex-row">
-          <div className="w-full md:w-[55%] h-full flex flex-col justify-center items-center font-poppins">
+          <div className="w-full md:w-[56%] h-full flex flex-col justify-center items-center font-poppins">
             <div className="w-full max-w-md space-y-8">
               <div className="text-center w-full">
                 <h1 className="text-4xl font-bold text-gray-900">Login</h1>
@@ -71,8 +78,9 @@ const TravelLogin = () => {
                   Continue Your Journey with us
                 </p>
               </div>
-              <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
+              <LoginForm onSubmit={handleSubmit} isSubmitting={loading} type="travel" />
             </div>
+
           </div>
 
           <div className="w-full md:w-[70%] h-full">
@@ -102,7 +110,7 @@ const TravelLogin = () => {
                 <path d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
-            <OTP email={userEmail} registerType="travel" onClose={()=>setShowOTP(false)}/>
+            <OTP email={userEmail} registerType="travel" onClose={() => setShowOTP(false)} />
           </div>
         </div>
       )}

@@ -6,7 +6,7 @@ import Button from "../../common/atoms/Button";
 import { useMessage } from "../../../contexts/MessageContext";
 import { useState } from "react";
 import OTP from "../../../components/Otp";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 
 interface FormData {
   firstName: string;
@@ -518,7 +518,7 @@ const GuideRegister: React.FC = () => {
           </>
         )}
       </form>
-      {registered && <OTP email={email} />}
+      {registered && <OTP email={email} onClose={()=>setRegistered(false)} />}
     </div>
   );
 };

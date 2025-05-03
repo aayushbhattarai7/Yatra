@@ -32,7 +32,7 @@ interface FormData {
 const UserLogin = () => {
   const { setMessage } = useMessage();
   const { lang } = useLang();
-  const [login, { error, loading }] = useMutation(LOGIN_MUTATION);
+  const [login, { loading }] = useMutation(LOGIN_MUTATION);
   const [otp, setOtp] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
 
@@ -89,6 +89,7 @@ const UserLogin = () => {
           <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
           <SocialLogin />
         </div>
+        
       </div>
       <LoginHero title={authLabel.Yatra[lang]} description={authLabel.desc[lang]} />
       <div className="hidden md-grid grid-cols-12"></div>

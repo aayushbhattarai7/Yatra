@@ -21,6 +21,13 @@ router.post(
 
 router.use(authentication());
 router.use(authorization([Role.GUIDE]));
+router.patch(
+  "/update-profile",
+  upload.fields([
+    { name: "profile", maxCount: 1 },
+  ]),
+  guideController.updateprofile,
+);
 router.post('/report-user/:id', upload.array('files'), guideController.reportUser)
 
 export default router;

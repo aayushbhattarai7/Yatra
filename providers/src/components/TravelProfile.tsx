@@ -10,6 +10,7 @@ import { useLang } from '../hooks/useLang';
 import { showToast } from './ToastNotification';
 import { useNavigate } from 'react-router-dom';
 import EditProfilePopup from './EditProgilrPopup';
+import axiosInstance from '../service/axiosInstance';
 
 interface UserData {
   id: string;
@@ -107,9 +108,22 @@ function App() {
 
   const handleImageUpload = async () => {
     if (!selectedImage) return;
-    setShowImageUpload(false);
-    setSelectedImage(null);
-    setPreviewUrl(null);
+    try {
+      const formData = new FormData();
+      formData.append(uploadType, selectedImage);
+      formData.append("type", uploadType.toUpperCase());
+      await axiosInstance.patch("/travel/update-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      await refetch();
+      setShowImageUpload(false);
+      setSelectedImage(null);
+      setPreviewUrl(null);
+      showToast("Image updated successfully", "success");
+    } catch (err: unknown) {
+      if (err instanceof Error) showToast(err.message, "error");
+      console.error("Failed to upload image:", err);
+    }
   };
   const openEditProfile = () => {
     if (user) {
@@ -402,10 +416,10 @@ function App() {
                 try {
                   const payload = {
                     ...editProfileData,
-                    gender: editProfileData.gender.toUpperCase(), // assuming gender needs to be like "MALE"
+                    gender: editProfileData.gender.toUpperCase(), 
                   };
               
-                  await updateTravelProfile({ variables: { data: payload } });
+                  await axiosInstance.patch("/travel/update-profile",payload);
               
                   await refetch();
                   setShowEditProfile(false);

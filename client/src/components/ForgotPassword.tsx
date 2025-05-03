@@ -8,7 +8,7 @@ import { useMutation } from "@apollo/client";
 import { showToast } from "./ToastNotification";
 import { useState } from "react";
 import OTP from "./Otp";
-import { Mail, ArrowRight } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import Label from "@/ui/common/atoms/Label";
 
 interface FormData {
@@ -37,7 +37,7 @@ const ForgotPassword = () => {
 };
 
   if (isEmail) {
-    return <OTP email={isEmail} />;
+    return <OTP email={isEmail} onClose={()=>setIsEmail('')}/>;
   }
 
   return (

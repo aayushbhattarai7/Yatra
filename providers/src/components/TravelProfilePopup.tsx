@@ -10,6 +10,12 @@ interface FormData {
   gender: string;
   email: string;
   phoneNumber: string;
+  kyc:KYC[];
+}
+interface KYC{
+  id:string;
+  path:string;
+  fileType:string
 }
 const TravelProfilePopup = () => {
   const [logout, setLogout] = useState<boolean>(false);
@@ -17,9 +23,10 @@ const TravelProfilePopup = () => {
   const [user, setUser] = useState<FormData | null>(null);
 
   const { data, loading, error } = useQuery(GET_TRAVEL_PROFILE);
+  console.log("🚀 ~ TravelProfilePopup ~ data:", data)
   useEffect(() => {
     if (data) {
-      setUser(data.getGuideDetails);
+      setUser(data.getTravelDetails);
     }
   }, [data]);
 
@@ -27,10 +34,17 @@ const TravelProfilePopup = () => {
     <>
       {logout && <LogoutPopup onClose={() => setLogout(false)} />}
 
-      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+      <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <img className="h-10 w-10 rounded-full" alt="Profile" />
+            {user?.kyc.map((image)=>(
+              <div>
+                {image.fileType === "PASSPHOTO" && (
+
+            <img className="h-10 w-10 rounded-full" src={image.path} alt="Profile" />
+                )}
+              </div>
+            ))}
             <div>
               <h4 className="text-sm font-semibold">
                 {user?.firstName} {user?.middleName} {user?.lastName}

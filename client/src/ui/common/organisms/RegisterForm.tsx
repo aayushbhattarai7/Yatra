@@ -25,7 +25,7 @@ interface FormData {
 
 const RegisterForm = () => {
   const { lang } = useLang();
-  const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit,control, setValue, reset, formState: { errors } } = useForm<FormData>();
   const navigate = useNavigate();
 
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -79,6 +79,7 @@ const RegisterForm = () => {
           <div>
             <Label name="firstName" className="pl-3" label={authLabel.firstName[lang]} required />
             <InputField
+               control={control}
               setValue={setValue}
               placeholder={authLabel.firstName[lang]}
               type="text"
@@ -99,6 +100,7 @@ const RegisterForm = () => {
           <div>
             <Label name="middleName" className="pl-3" label={authLabel.middleName[lang]} />
             <InputField
+               control={control}
               setValue={setValue}
               placeholder={authLabel.middleName[lang]}
               type="text"
@@ -112,6 +114,7 @@ const RegisterForm = () => {
           <div>
             <Label name="lastName" className="pl-3" label={authLabel.lastName[lang]} required />
             <InputField
+               control={control}
               setValue={setValue}
               placeholder={authLabel.lastName[lang]}
               type="text"
@@ -130,6 +133,7 @@ const RegisterForm = () => {
           <div>
             <Label name="email" className="pl-3" label={authLabel.email[lang]} required />
             <InputField
+               control={control}
               placeholder="Enter your email"
               type="email"
               register={register}
@@ -155,6 +159,7 @@ const RegisterForm = () => {
           <div>
             <Label name="phoneNumber" className="pl-3" label={authLabel.phoneNumber[lang]} required />
             <InputField
+               control={control}
               setValue={setValue}
               placeholder={authLabel.phoneNumber[lang]}
               type="text"
@@ -176,6 +181,7 @@ const RegisterForm = () => {
 
             <Label name="password" className="pl-3" label={authLabel.password[lang]} required />
             <InputField
+               control={control}
               setValue={setValue}
               error={errors.password}
               placeholder={authLabel.password[lang]}

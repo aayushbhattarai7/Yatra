@@ -4,6 +4,7 @@ import Button from "@/ui/common/atoms/Button";
 import { Send, Loader } from "lucide-react";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
+import { showToast } from "../ToastNotification";
 
 const SEND_SUPPORT_MESSAGE = gql`
 mutation SendSupportMessage($message: String!, $name: String!, $email: String!) {
@@ -26,8 +27,9 @@ const Support = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await sendSupportMessage({ variables:{name:formData.name, email:formData.email, message:formData.message}  });
+   const res = await sendSupportMessage({ variables:{name:formData.name, email:formData.email, message:formData.message}  });
+   console.log("🚀 ~ handleSubmit ~ res:", res)
+   showToast(res.data.sendSupportMessage,"success")
   };
 
   return (

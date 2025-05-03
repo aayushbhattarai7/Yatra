@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, MapPin, Calendar, Star, X } from "lucide-react";
@@ -73,8 +73,8 @@ const TravelProfileUserView = ({
       );
     }
 
-    const avgRating = user.ratings.length
-      ? user.ratings.reduce((sum, r) => sum + r.rating, 0) / user.ratings.length
+    const avgRating = user.ratings?.length
+      ? user.ratings?.reduce((sum, r) => sum + r.rating, 0) / user.ratings.length
       : 0;
 
     const fullStars = Math.floor(avgRating);
@@ -85,7 +85,7 @@ const TravelProfileUserView = ({
       <div className="bg-white p-6">
         <div className="flex flex-col items-center text-center space-y-4">
           <motion.div whileHover={{ scale: 1.05 }}>
-            {user.kyc?.[0]?.path ? (
+            {user?.kyc?.[0]?.path ? (
               <img
                 src={user.kyc[0].path}
                 alt="Travel"
@@ -125,14 +125,14 @@ const TravelProfileUserView = ({
               <Star key={`full-${i}`} className="w-4 h-4 fill-yellow-500" />
             ))}
             {hasHalfStar && (
-              <Star className="w-4 h-4 fill-yellow-500 opacity-50" /> // half look
+              <Star className="w-4 h-4 fill-yellow-500 opacity-50" />
             )}
             {[...Array(emptyStars)].map((_, i) => (
               <Star key={`empty-${i}`} className="w-4 h-4 text-gray-300" />
             ))}
 
             <span className="text-gray-700 ml-2">
-              ({avgRating.toFixed(1)} / 5 — {user.ratings.length} reviews)
+              ({avgRating.toFixed(1)} / 5 — {user?.ratings?.length} reviews)
             </span>
           </div>
 
@@ -146,7 +146,7 @@ const TravelProfileUserView = ({
           <div className="mt-6 w-full">
             <h3 className="text-lg font-semibold text-gray-800 mb-2">What Passengers Say</h3>
             <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
-              {user.ratings.map((review) => (
+              {user.ratings?.map((review) => (
                 <div
                   key={review.id}
                   className="bg-gray-50 border rounded-lg p-3 shadow-sm"

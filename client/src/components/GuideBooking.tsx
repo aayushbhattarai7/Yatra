@@ -468,12 +468,9 @@ const GuideBooking = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
       {showCompletionPopup && (
         <Rating 
-          onClose={() => setShowCompletionPopup('')}  
-          providers="guide" 
-          id={showCompletionPopup}
+          onClose={() => setShowCompletionPopup('')}   providers="guide"  id={showCompletionPopup}
         />
       )}
     </div>

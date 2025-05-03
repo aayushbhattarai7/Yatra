@@ -58,27 +58,13 @@ query GetAdmin {
             </div>
           </div>
         </div>
-        <div className="py-2">
-          {[
-            { label: "Settings", href: "/settings" },
-          ].map((item, index) => (
-            <a
-              key={index}
-              href={item.href}
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >
-              {item.label}
-            </a>
-          ))}
-          <div className="border-t border-gray-200 mt-2">
+    
             <button
               onClick={handleLogoutClick}
               className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
             >
               Log out
             </button>
-          </div>
-        </div>
       </div>
     </>
   );

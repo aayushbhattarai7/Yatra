@@ -21,6 +21,13 @@ router.post(
 
 router.use(authentication());
 router.use(authorization([Role.TRAVEL]));
+router.patch(
+  "/update-profile",
+  upload.fields([
+    { name: "profile", maxCount: 1 },
+  ]),
+  travelController.updateprofile,
+);
 router.post('/report-user/:id', upload.array('files'), travelController.reportUser)
 
 

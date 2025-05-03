@@ -25,7 +25,7 @@ interface FormData {
 
 const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
-  const { register, setValue, handleSubmit } = useForm<FormData>();
+  const { register, setValue, handleSubmit, control } = useForm<FormData>();
   const [requestGuide, { loading, error }] = useMutation(
     GUIDE_BOOKING_MUTATION
   );
@@ -70,6 +70,7 @@ const RequestGuideBooking = ({ id, onClose }: RequestProps) => {
             <div key={field}>
               <Label name={field} label={authLabel[field][lang]} />
               <InputField
+              control={control}
                 setValue={setValue}
                 placeholder={authLabel[field][lang]}
                 type="text"

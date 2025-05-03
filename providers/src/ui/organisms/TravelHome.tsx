@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Users, DollarSign, ChevronUp, ChevronDown, Download
 } from 'lucide-react';
@@ -9,6 +9,7 @@ import { useQuery } from '@apollo/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { GET_GROUPED_REVENUE_OF_TRAVEL, GET_TOTAL_BOOKED_USERS_BY_TRAVEL, GET_TRAVEL_TOTAL_REVENUE } from '../../mutation/queries';
+import { useSocket } from '../../contexts/SocketContext';
 
 interface BookedUser {
   id: string;
@@ -52,10 +53,9 @@ const TravelDashboard = () => {
   const [timeFilter, setTimeFilter] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily');
 
   const { data: groupedRevenueData } = useQuery(GET_GROUPED_REVENUE_OF_TRAVEL);
-  const { data: totalRevenue, error } = useQuery(GET_TRAVEL_TOTAL_REVENUE);
-  const { data: bookedUsers, error:bookedError } = useQuery(GET_TOTAL_BOOKED_USERS_BY_TRAVEL);
-  console.log("🚀 ~ TravelDashboard ~ bookedUsers:", bookedUsers)
-  console.log("🚀 ~ TravelDashboard ~ bookedError:", bookedError)
+  const { data: totalRevenue } = useQuery(GET_TRAVEL_TOTAL_REVENUE);
+  const { data: bookedUsers } = useQuery(GET_TOTAL_BOOKED_USERS_BY_TRAVEL);
+
 
   const chartData = useMemo(() => {
     if (!groupedRevenueData?.getGroupedRevenueOfTravel) return [];

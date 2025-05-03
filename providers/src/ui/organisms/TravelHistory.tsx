@@ -185,21 +185,21 @@ const TravelHistory = () => {
                     {request.status || "PENDING"}
                   </span>
                 </div>
+
               </div>
+              {request.status === "COMPLETED" && (
+
               <div className="mb-4">{renderStars()}</div>
+              )}
 
               <div className="space-y-2">
                 <Button
                   buttonText={authLabel.details[lang]}
                   onClick={() => setSelectedId(request.id)}
                   type="button"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                  className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                 />
-                <Button
-                  buttonText="Contact Guide"
-                  type="button"
-                  className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
-                />
+             
               </div>
             </div>
           </div>

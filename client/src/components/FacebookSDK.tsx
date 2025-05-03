@@ -1,8 +1,7 @@
 import { gql, useMutation } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { useMessage } from "@/contexts/MessageContext";
-import { useNavigate } from "react-router-dom";
 import { showToast } from "./ToastNotification";
 const appId = import.meta.env.VITE_FACEBOOK_APP_ID;
 const apiVersion = import.meta.env.VITE_FACEBOOK_VERSION;
@@ -22,7 +21,7 @@ const FACEBOOK_MUTATION = gql`
 `;
 const FacebookSDK = ({ onLogin }: FacebookSDKProps) => {
   const { setMessage } = useMessage();
-  const [facebookLogin, { error, loading }] = useMutation(FACEBOOK_MUTATION);
+  const [facebookLogin, {  loading }] = useMutation(FACEBOOK_MUTATION);
   useEffect(() => {
     const initializeFacebookSDK = () => {
       if (!appId || !apiVersion) {

@@ -25,7 +25,6 @@ const PaymentForm: React.FC<PaymentProps> = ({ id, amounts }) => {
     }
   };
 
-  // eSewa form details
   const productCode = "EPAYTEST";
   //   const successUrl = "http://localhost:3000/api/esewa/complete-payment";
   const failureUrl = "http://localhost:3001/failure";

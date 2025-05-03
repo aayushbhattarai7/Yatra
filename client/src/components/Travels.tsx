@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_TRAVELS } from "../mutation/queries";
 import TravelMap from "./TravelMap";

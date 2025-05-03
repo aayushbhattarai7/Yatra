@@ -1,7 +1,6 @@
  import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
 import { gql, useQuery } from "@apollo/client";
-import { profileImage } from "@/config/constant/image";
 interface FormData {
   id: string;
   firstName: string;

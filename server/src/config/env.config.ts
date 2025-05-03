@@ -11,10 +11,10 @@ export class DotenvConfig {
   static DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
   static DATABASE_NAME = process.env.DATABASE_NAME;
 
-  static ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
-  static ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN!;
-  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
-  static REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN!;
+  static ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+  static ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN as string;
+  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+  static REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN as string;
 
   static API_KEY = process.env.API_KEY;
   static DEBUG_MODE = process.env.DEBUG_MODE;

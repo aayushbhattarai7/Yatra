@@ -7,8 +7,27 @@ import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import TravelProfilePopup from "./TravelProfilePopup";
 import { useQuery } from "@apollo/client";
-import { GET_TRAVEL_CHAT_COUNT, GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
+import { GET_TRAVEL_CHAT_COUNT, GET_TRAVEL_PROFILE, GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
+
+interface FormData {
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  vehicle_type: string;
+  gender: string;
+  location: Location;
+  nationality: string;
+  kyc: Image[];
+}
+
+interface Image {
+  id: string;
+  fileType: string;
+  path: string;
+}
+
 
 const TravelNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +40,17 @@ const TravelNavBar = () => {
   const [chatCount, setChatCount] = useState<number>(0);
   const {data:chatData, refetch:chatRefetch} = useQuery(GET_TRAVEL_CHAT_COUNT)
   const { data } = useQuery(GET_TRAVEL_UNREAD_NOTIFICATIONS);
+  const [user, setUser] = useState<FormData | null>(null);
 
+  const { data:profileData, loading, error } = useQuery(GET_TRAVEL_PROFILE);
+  console.log("🚀 ~ TravelProfilePopup ~ data:", data)
+  const profileImageUrl = user?.kyc.find(img => img.fileType === "PASSPHOTO")?.path || "/default-avatar.png";
+
+  useEffect(() => {
+    if (profileData) {
+      setUser(profileData.getTravelDetails);
+    }
+  }, [data]);
   useEffect(() => {
     if (data?.getUnreadNotificationsOfTravel) {
       setNotifications(data.getUnreadNotificationsOfTravel);
@@ -139,6 +168,7 @@ const handleNotifications = () => {
                 show={showProfile}
                 popup={<TravelProfilePopup />}
                 profileImage
+                imageUrl={profileImageUrl}
               />
             </div>
           ) : (
@@ -213,6 +243,7 @@ const PopupButton = ({
   icon: Icon,
   count,
   profileImage,
+  imageUrl
 }: {
   onClick: () => void;
   show: boolean;
@@ -220,6 +251,7 @@ const PopupButton = ({
   icon?: React.ElementType;
   count?: number;
   profileImage?: boolean;
+  imageUrl?:string;
 }) => (
   <div className=" relative">
     <button
@@ -230,7 +262,7 @@ const PopupButton = ({
       className="flex items-center space-x-2"
     >
       {profileImage ? (
-        <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
+        <img className="h-8 w-8 rounded-full" src={imageUrl} alt="Profile" />
       ) : (
         Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
