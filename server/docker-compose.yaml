@@ -3,6 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:15
+    container_name: db
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -15,15 +16,23 @@ services:
 
   backend:
     build: .
-    ports:
-      - "3000:3000"
+    container_name: server-backend
+    restart: on-failure
     depends_on:
       - db
+    ports:
+      - "3000:3000"
     environment:
+      NODE_ENV: development
       DATABASE_URL: postgres://postgres:123@db:5432/Yatra
+      DB_HOST: db
+      PORT: 3000
+
     volumes:
-      - .:/server
-    command: ["pnpm", "start:dev"]
+      - .:/server:delegated
+      - /server/node_modules
+    command: >
+      nodemon -L --watch src --ext ts --exec "ts-node src/server.ts"
 
 volumes:
   pgdata:
