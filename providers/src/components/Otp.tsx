@@ -26,6 +26,7 @@ const OTP: React.FC<OTPProps> = ({ email, registerType, onClose }) => {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { isSubmitting },
   } = useForm<FormData>();
 
@@ -87,6 +88,7 @@ const OTP: React.FC<OTPProps> = ({ email, registerType, onClose }) => {
               className="text-sm font-medium text-gray-700"
             />
             <InputField
+            control={control}
               setValue={setValue}
               placeholder="Enter your verification code"
               type="text"

@@ -61,7 +61,7 @@ const GuideBooking = () => {
   const { lang } = useLang();
   const [showCompletionPopup, setShowCompletionPopup] = useState('');
   const [sendPriceToGuide] = useMutation(SEND_PRICE_TO_GUIDE);
-  const { register, handleSubmit, reset, setValue } = useForm<Price>();
+  const { register, handleSubmit, control, reset, setValue } = useForm<Price>();
   const [cancelGuideRequest] = useMutation(CANCEL_GUIDE_REQUEST);
   const [completeGuideServiceByUser] = useMutation(COMPLETE_GUIDE);
   const [reportTravelId, setReportTravelId] = useState<string | null>(null)
@@ -390,6 +390,7 @@ const GuideBooking = () => {
                 </div>
                 <form onSubmit={handleSubmit(sendPrice)} className="space-y-6">
                   <InputField
+                  control={control}
                     register={register}
                     setValue={setValue}
                     type="text"

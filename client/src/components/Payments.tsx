@@ -19,25 +19,21 @@ const Payments: React.FC<payProps> = ({
   type,
   amount,
 }) => {
-  const [showModal, setShowModal] = useState(false);
+  console.log("🚀 ~ amount:", amount)
   const [esewa, setEsewa] = useState(false);
   const [khalti, setKhalti] = useState(false);
   const [stripe, setStripe] = useState(false);
 
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      {showModal && (
+    <div className="flex absolute justify-center items-center min-h-screen z-10">
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-lg font-semibold">
                 Select Payment Method
               </h2>
-              <button onClick={() => setShowModal(false)}>
+              <button onClick={onClose}>
                 <FaTimes
                   className="text-gray-500 hover:text-red-500"
                   size={20}
@@ -76,7 +72,7 @@ const Payments: React.FC<payProps> = ({
 
             <div className="mt-4 flex justify-end">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={onClose}
                 className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
               >
                 Cancel
@@ -96,7 +92,7 @@ const Payments: React.FC<payProps> = ({
             />
           )}
         </div>
-      )}
+ 
     </div>
   );
 };

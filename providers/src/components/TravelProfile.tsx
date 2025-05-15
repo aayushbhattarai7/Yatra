@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LogOut, Mail, Phone,  Calendar, Settings, Camera, Upload, X, Mountain, Compass, ImageIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { LogoutPopup } from './LogoutPopup';
-import { CHANGE_EMAIL_OF_TRAVEL, GET_TRAVEL_PROFILE, UPDATE_TRAVEL_PROFILE, VERIFY_EMAIL_OF_TRAVEL } from "../mutation/queries";
+import { CHANGE_EMAIL_OF_TRAVEL, GET_TRAVEL_PROFILE, VERIFY_EMAIL_OF_TRAVEL } from "../mutation/queries";
 import { useMutation, useQuery } from '@apollo/client';
 import { authLabel } from '../localization/auth';
 import { useLang } from '../hooks/useLang';
@@ -60,9 +60,9 @@ function App() {
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const { data, refetch } = useQuery(GET_TRAVEL_PROFILE);
+  console.log("🚀 ~ App ~ data:", data)
   const { lang } = useLang()
   const navigate = useNavigate()
-    const [updateTravelProfile] = useMutation(UPDATE_TRAVEL_PROFILE);
    const [changeEmailOfTravel] = useMutation(CHANGE_EMAIL_OF_TRAVEL);
     const [verifyEmailWhileChangeOfTravel] = useMutation(VERIFY_EMAIL_OF_TRAVEL);
   useEffect(() => {
@@ -139,7 +139,7 @@ function App() {
   };
   return (
     <div className="min-h-screen bg-white">
-      {logout && <LogoutPopup onClose={() => setLogout(false)} />}
+      {logout && <LogoutPopup onClose={() => setLogout(false)} type="travel" />}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative">
           <div className="h-[300px] rounded-3xl overflow-hidden relative mb-8">

@@ -6,7 +6,7 @@ import { authLabel } from "../localization/auth";
 import { useLang } from "../hooks/useLang";
 import { RxPerson } from "react-icons/rx";
 import { RiLockPasswordLine } from "react-icons/ri";
-import { Link, Navigate, NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -27,7 +27,7 @@ const LoginForm = ({ onSubmit, type, isSubmitting }: LoginFormProps) => {
       password: "",
     },
   });
-
+const routes = type === "travel"? "/travel-register":"/guide-register"
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -69,6 +69,11 @@ const LoginForm = ({ onSubmit, type, isSubmitting }: LoginFormProps) => {
               forgot password?
             </NavLink>
             <div>
+            <div className="py-2">
+            <NavLink to={routes} className={"text-blue-500 underline"}>
+            {authLabel.dontHaveAnAccount[lang]}
+            </NavLink>
+          </div>
             {type === "guide"?(
 
               <Link className="text-blue-400 underline" to={"/travel-login"}>Login as Travel</Link>

@@ -20,7 +20,7 @@ interface FormData {
 
 
 const UpdatePassword = () => {
-    const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+    const { register, handleSubmit, control, setValue, reset } = useForm<FormData>();
     const { lang } = useLang();
     const navigate = useNavigate();
       const token = getCookie("accessToken")!
@@ -78,6 +78,7 @@ const UpdatePassword = () => {
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
+                            control={control}
                                 setValue={setValue}
                                 placeholder={authLabel.enterNewPassword[lang]}
                                 type="password"
@@ -92,6 +93,7 @@ const UpdatePassword = () => {
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
+                            control={control}
                                 setValue={setValue}
                                 placeholder={authLabel.enterNewPassword[lang]}
                                 type="password"
@@ -108,6 +110,7 @@ const UpdatePassword = () => {
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
+                            control={control}
                                 setValue={setValue}
                                 placeholder={authLabel.confirmYourPassword[lang]}
                                 type="password"

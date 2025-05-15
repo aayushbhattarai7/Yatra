@@ -35,7 +35,7 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
       const [travelResendOTP] = useMutation(TRAVEL_RESEND_OTP);
       const [guideResendOTP] = useMutation(GUIDE_RESEND_OTP);
   const [verified, setVerified] = useState<boolean>(false);
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+  const { register, handleSubmit, control, setValue, reset } = useForm<FormData>();
   const { lang } = useLang();
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -89,6 +89,7 @@ const OTP: React.FC<OTPProps> = ({ email }) => {
               className="text-sm font-medium text-gray-700"
             />
             <InputField
+            control={control}
               setValue={setValue}
               placeholder={authLabel.EnterOTP[lang]}
               type="text"

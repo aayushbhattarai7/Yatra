@@ -63,6 +63,7 @@ const TravelRegister: React.FC = () => {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>();
@@ -237,6 +238,7 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="firstName" label="First Name" required />
                     <InputField
+                    control={control}
                     setValue={setValue}
                       type="text"
                       name="firstName"
@@ -255,6 +257,7 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="middleName" label="Middle Name" />
                     <InputField
+                    control={control}
                     setValue={setValue}
                       type="text"
                       name="middleName"
@@ -268,6 +271,7 @@ const TravelRegister: React.FC = () => {
                 <div>
                   <Label name="lastName" label="Last Name" required />
                   <InputField
+                  control={control}
                   setValue={setValue}
                     type="text"
                     name="lastName"
@@ -288,6 +292,7 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="email" label="Email" required />
                     <InputField
+                    control={control}
                     setValue={setValue}
                       type="email"
                       name="email"
@@ -306,6 +311,7 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="phoneNumber" label="Phone Number" required />
                     <InputField
+                    control={control}
                     setValue={setValue}
                       type="tel"
                       name="phoneNumber"
@@ -347,6 +353,7 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="password" label="Password" required />
                     <InputField
+                    control={control}
                     setValue={setValue}
                       type="password"
                       name="password"
@@ -367,6 +374,7 @@ const TravelRegister: React.FC = () => {
                 <div>
                   <Label name="DOB" label="Date Of Birth" required />
                   <InputField
+                  control={control}
                   setValue={setValue}
                     type="date"
                     name="DOB"
@@ -392,6 +400,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="nationality" label="Nationality" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="nationality"
@@ -409,6 +418,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="province" label="Province" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="province"
@@ -430,6 +440,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="district" label="District" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="district"
@@ -451,6 +462,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="municipality"
@@ -481,6 +493,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="engineNumber"
@@ -502,6 +515,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="chasisNumber"
@@ -526,6 +540,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="vehicleNumber"
@@ -543,6 +558,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="vehicleType" label="Vehicle Type" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="vehicleType"
@@ -605,6 +621,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="citizenshipId"
@@ -627,6 +644,7 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
                         setValue={setValue}
                           type="date"
                           name="citizenshipIssueDate"
@@ -648,6 +666,7 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
                         setValue={setValue}
                           type="text"
                           name="citizenshipIssueFrom"
@@ -715,6 +734,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="passportId" label="Passport ID" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="passportId"
@@ -737,6 +757,7 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
                         setValue={setValue}
                           type="date"
                           name="passportIssueDate"
@@ -758,6 +779,7 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
                         setValue={setValue}
                           type="date"
                           name="passportExpiryDate"
@@ -780,6 +802,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="passportIssueFrom"
@@ -823,6 +846,7 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="voterId" label="Voter ID" required />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="voterId"
@@ -844,6 +868,7 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
                       setValue={setValue}
                         type="text"
                         name="voterAddress"

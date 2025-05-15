@@ -19,6 +19,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { homeImage } from "@/config/constant/image";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
+import { useNavigate } from "react-router-dom";
 
 interface Place {
   id: string;
@@ -90,7 +91,7 @@ function UserHome() {
   const { data: favData, refetch: refetchFav } = useQuery(GET_FAVOURITE);
   const [addToFavourite] = useMutation(ADD_TO_FAVOURITE);
   const [ratePlace] = useMutation(RATE_PLACE);
-
+ const navigate = useNavigate()
   useEffect(() => {
     if (placesData?.getTopPlaces) {
       setPlaces(placesData.getTopPlaces);
@@ -436,7 +437,7 @@ function UserHome() {
                     <p className="font-medium text-gray-700">{trek.vehicleType}</p>
                   </div>
                 </div>
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
+                <button onClick={()=>navigate("/travel")} className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors">
                   {authLabel.bookTravels[lang]}
                 </button>
               </div>
@@ -478,7 +479,7 @@ function UserHome() {
                     {guide.gender === "MALE" ? authLabel.male[lang] : authLabel.female[lang]}
                   </span>
                 </div>
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors mt-4">
+                <button onClick={()=>navigate("/guide")} className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg transition-colors mt-4">
                   {authLabel.bookThisGuide[lang]}
                 </button>
               </div>
@@ -501,10 +502,10 @@ function UserHome() {
             {authLabel.footerSmallSlogan[lang]}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-green-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+            <button onClick={()=>navigate("/travel")} className="bg-white text-green-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
               {authLabel.bookTravels[lang]}
             </button>
-            <button className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
+            <button onClick={()=>navigate("/guide")} className="bg-transparent border-2 border-white text-white hover:bg-white/10 px-8 py-3 rounded-lg font-bold text-lg transition-colors">
               {authLabel.bookThisGuide[lang]}
             </button>
           </div>

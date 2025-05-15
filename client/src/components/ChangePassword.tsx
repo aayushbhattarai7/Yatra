@@ -21,7 +21,7 @@ interface OTPProps {
 }
 
 const ChangePassword: React.FC<OTPProps> = ({ email }) => {
-    const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+    const { register, handleSubmit, control, setValue, reset } = useForm<FormData>();
     const { lang } = useLang();
     const navigate = useNavigate();
     const [changePasswordOfUser, { loading }] = useMutation(CHANGE_PASSWORD_OF_USER);
@@ -72,6 +72,7 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
+                            control={control}
                                 setValue={setValue}
                                 placeholder={authLabel.enterNewPassword[lang]}
                                 type="password"
@@ -87,6 +88,7 @@ const ChangePassword: React.FC<OTPProps> = ({ email }) => {
                                 className="text-sm font-medium text-gray-700"
                             />
                             <InputField
+                            control={control}
                                 setValue={setValue}
                                 placeholder={authLabel.confirmYourPassword[lang]}
                                 type="password"

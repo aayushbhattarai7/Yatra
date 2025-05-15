@@ -49,6 +49,7 @@ const TravelRequests = () => {
   const { lang } = useLang();
   const { socket } = useSocket();
   const { data, loading, error, refetch } = useQuery(TRAVEL_REQUESTS);
+  console.log("🚀 ~ TravelRequests ~ data:", data)
   const [rejectRequestByTravel] = useMutation(REJECT_REQUEST_BY_TRAVEL);
   const [acceptRequestByTravel] = useMutation(ACCEPT_REQUEST_BY_TRAVEL);
   const [sendPriceByTravel] = useMutation(SEND_PRICE_BY_TRAEL);
@@ -105,7 +106,7 @@ const TravelRequests = () => {
 
   useEffect(() => {
     const handleNewRequests = (newBooking: FormData) => {
-      setTravels((prev) => [...prev, newBooking]);
+      refetch()
     };
 
     socket.on("request-travel", handleNewRequests);
@@ -269,7 +270,7 @@ const TravelRequests = () => {
                         type="button"
                         buttonText={authLabel.sendPrice[lang]}
                         onClick={() => setSelectedId(request.id)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors"
                       />
                     ) : (
                       <>
@@ -278,7 +279,7 @@ const TravelRequests = () => {
                             type="button"
                             buttonText={authLabel.complete[lang]}
                             onClick={() => requestForComplete(request.user.id)}
-                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors"
                           />
                         ) : (
                           <>

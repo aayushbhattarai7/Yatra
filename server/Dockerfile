@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 COPY .env .env
 
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=5000
+EXPOSE 5000
 
 CMD ["nodemon", "-L", "--watch", "src", "--ext", "ts", "--exec", "ts-node src/server.ts"]

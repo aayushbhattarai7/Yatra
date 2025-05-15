@@ -1,6 +1,5 @@
 import { useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
 import { showToast } from "../../components/ToastNotification";
@@ -16,7 +15,6 @@ interface FormData {
 }
 
 const TravelLogin = () => {
-  const navigate = useNavigate();
   const [travelLogin, { loading }] = useMutation(TRAVEL_LOGIN);
   const [travelResendOTP] = useMutation(TRAVEL_RESEND_OTP);
   const [showOTP, setShowOTP] = useState(false);

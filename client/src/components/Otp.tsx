@@ -17,12 +17,12 @@ interface FormData {
 
 interface OTPProps {
   email: string;
-  onClose:()=>void
+  onClose: () => void
 }
 
 const OTP: React.FC<OTPProps> = ({ email, onClose }) => {
   const [verified, setVerified] = useState<boolean>(false);
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+  const { register, handleSubmit, setValue, reset, control } = useForm<FormData>();
   const { lang } = useLang();
   const [VerifyUserOTP] = useMutation(VERIFY_USER_OTP);
   const [senOtpToUser, { loading: resendLoading }] = useMutation(SEND_OTP_TO_USER);
@@ -58,26 +58,27 @@ const OTP: React.FC<OTPProps> = ({ email, onClose }) => {
     <div className="min-h-screen flex items-center justify-center  px-4">
       <div className="min-h-[400px] flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
         <div className="w-full flex justify-end cursor-pointer" onClick={onClose}>
-        <X/>
+          <X />
         </div>
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
           <KeyRound className="w-8 h-8 text-blue-600" />
         </div>
-        
+
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.verifyOTP[lang]}</h2>
         <p className="text-gray-600 text-center mb-8">
-         {authLabel.weSentNotificationTo[lang]}<br />
+          {authLabel.weSentNotificationTo[lang]}<br />
           <span className="font-medium text-gray-800">{email}</span>
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
           <div className="space-y-2">
-            <Label 
-              name="otp" 
+            <Label
+              name="otp"
               label={authLabel.EnterOTP[lang]}
               className="text-sm font-medium text-gray-700"
             />
             <InputField
+              control={control}
               setValue={setValue}
               placeholder={authLabel.EnterOTP[lang]}
               type="text"
@@ -103,7 +104,7 @@ const OTP: React.FC<OTPProps> = ({ email, onClose }) => {
         </form>
 
         <p className="mt-6 text-sm text-gray-500 text-center">
-{authLabel.didnotReceiveCode[lang]}        </p>
+          {authLabel.didnotReceiveCode[lang]}        </p>
       </div>
     </div>
   );

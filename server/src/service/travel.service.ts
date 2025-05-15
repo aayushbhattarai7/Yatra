@@ -516,6 +516,7 @@ class TravelService {
         },
         relations: ["details", "kyc"],
       });
+      console.log("🚀 ~ TravelService ~ getTravelDetails ~ travel:", travel)
       if (!travel) {
         throw HttpException.unauthorized("you are not authorized");
       }
@@ -613,6 +614,15 @@ class TravelService {
       );
 
       if (data) {
+        const request = await this.travelRequestRepo.findOne({
+          where: {
+            travel: { id: travel_id },
+            id: requestId,
+          },
+          relations: ["user"],
+        });
+        io.to(requests.user.id).emit("request-travel", request);
+
         const notification = this.notificationRepo.create({
           message: `Travel ${requests.user.firstName} sent you a price for the trip that you requested recently`,
           receiverUser: requests.user,
@@ -739,6 +749,7 @@ class TravelService {
         where: {
           travel: { id: travel_id },
           id: requestId,
+          status:RequestStatus.PENDING
         },
       });
       if (!requests) {
@@ -750,6 +761,8 @@ class TravelService {
           lastActionBy: Role.TRAVEL,
         },
       );
+      io.to(requests.user.id).emit("request-travel", data);
+
       return acceptRequest("Travel");
 
     } catch (error: unknown) {

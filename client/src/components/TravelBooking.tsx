@@ -57,10 +57,11 @@ const TravelBooking = () => {
   const { socket } = useSocket();
   const [pay, setPay] = useState<boolean>(false);
   const { data, loading, refetch } = useQuery(USER_REQUESTS_FOR_TRAVEL);
+  console.log("🚀 ~ TravelBooking ~ data:", data)
   const { lang } = useLang();
   const [showCompletionPopup, setShowCompletionPopup] = useState('');
   const [sendPriceToTravel] = useMutation(SEND_PRICE_TO_TRAVEL);
-  const { register, handleSubmit, reset, setValue } = useForm<Price>();
+  const { register, handleSubmit, control, reset, setValue } = useForm<Price>();
   const [cancelTravelRequest] = useMutation(CANCEL_TRAVEL_REQUEST);
   const [completeTravelServiceByUser] = useMutation(COMPLETE_TRAVEL);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -85,7 +86,7 @@ const TravelBooking = () => {
   
   useEffect(() => {
     socket.on("request-travel", (booking) => {
-      setTravelBooking((prev) => [...prev, booking]);
+      refetch()
     });
   }, [socket]);
 
@@ -336,7 +337,7 @@ const TravelBooking = () => {
                   </div>
                 </div>
 
-                {pay && (
+                {pay && book?.advancePrice != null && (
                   <Payments id={book.id} refresh={refetch} onClose={()=>setPay(false)} type="travel" amount={book.advancePrice}/>
                 )}
 
@@ -397,6 +398,7 @@ const TravelBooking = () => {
                 </div>
                 <form onSubmit={handleSubmit(sendPrice)} className="space-y-6">
                   <InputField
+                  control={control}
                     register={register}
                     setValue={setValue}
                     type="text"

@@ -8,7 +8,7 @@ import Button from "@/ui/common/atoms/Button";
 import { TRAVEL_BOOKING_MUTATION } from "@/mutation/queries";
 import { useMutation } from "@apollo/client";
 import { showToast } from "./ToastNotification";
-import {  X } from "lucide-react";
+import { X } from "lucide-react";
 
 interface RequestProps {
   id: string;
@@ -25,7 +25,7 @@ interface FormData {
 
 const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
   const { lang } = useLang();
-  const { register, setValue, handleSubmit } = useForm<FormData>();
+  const { register, setValue, control, handleSubmit } = useForm<FormData>();
   const [requestTravel, { loading }] = useMutation(
     TRAVEL_BOOKING_MUTATION
   );
@@ -60,7 +60,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
           className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl transition-colors"
           aria-label="Close"
         >
-          <X/>
+          <X />
         </button>
 
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
@@ -73,6 +73,7 @@ const RequestTravelBooking = ({ id, onClose }: RequestProps) => {
               <div key={field}>
                 <Label name={field} label={authLabel[field][lang]} required />
                 <InputField
+                  control={control}
                   setValue={setValue}
                   placeholder={authLabel[field][lang]}
                   type="text"

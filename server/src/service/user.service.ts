@@ -953,15 +953,18 @@ class UserService {
           if (!findTravelService)
             throw HttpException.notFound("Request not found");
 
-          await transactionEntityManager.update(
+          const complete = await transactionEntityManager.update(
             RequestTravel,
             { id: findTravelService.id },
             { status: RequestStatus.COMPLETED, lastActionBy: Role.USER },
           );
+          io.to(travel_id).emit("request-travel", complete);
+
           await transactionEntityManager.update(
             User, { id: user_id },
             { exploreLevel: user.exploreLevel + 1 }
           )
+
           return `Your travel service has been successfully completed! Please take a moment to rate your travel service provider.`;
         },
       );

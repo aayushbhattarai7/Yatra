@@ -16,7 +16,7 @@ interface FormData {
 }
 
 const ForgotPassword = () => {
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+  const { register, handleSubmit, control, setValue, reset } = useForm<FormData>();
   const { lang } = useLang();
   const [isEmail, setIsEmail] = useState<string>('');
   const [senOtpToUser, { loading }] = useMutation(SEND_OTP_TO_USER);
@@ -60,6 +60,7 @@ const ForgotPassword = () => {
               className="text-sm font-medium text-gray-700"
             />
             <InputField
+            control={control}
               setValue={setValue}
               placeholder={authLabel.email[lang]}
               type="email"

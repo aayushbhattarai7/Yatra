@@ -57,7 +57,7 @@ const RegisterForm = () => {
       if (formData.profile) formDataToSend.append("profile", formData.profile);
       if (formData.cover) formDataToSend.append("cover", formData.cover);
 
-      const response = await axiosInstance.post("/user/signup", formDataToSend, {
+       await axiosInstance.post("/user/signup", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       navigate("/user-login");

@@ -18,14 +18,13 @@ interface FormData {
 }
 
 const ForgotPassword = () => {
-  const { register, handleSubmit, setValue, reset } = useForm<FormData>();
+  const { register, handleSubmit, setValue, control,  reset } = useForm<FormData>();
   const { lang } = useLang();
   const [isEmail, setIsEmail] = useState<string>('');
   const token = getCookie("accessToken")!
   const [travelResendOTP, { loading }] = useMutation(TRAVEL_RESEND_OTP);
   const [guideResendOTP] = useMutation(GUIDE_RESEND_OTP);
   const decodedToken:any = jwtDecode(token)
-  const registerType = decodedToken.role === "TRAVEL"?"travel":"guide" 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const sendOtp = decodedToken.role === "TRAVEL"?travelResendOTP:guideResendOTP
@@ -67,6 +66,7 @@ const ForgotPassword = () => {
               className="text-sm font-medium text-gray-700"
             />
             <InputField
+            control={control}
               setValue={setValue}
               placeholder={authLabel.email[lang]}
               type="email"

@@ -51,6 +51,7 @@ const GuideRegister: React.FC = () => {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { isSubmitting },
   } = useForm<FormData>();
 
@@ -155,6 +156,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="firstName" label="First Name" required />
               <InputField
+              control={control}
                 setValue={setValue}
                 type="text"
                 name="firstName"
@@ -165,6 +167,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="middleName" label="Middle Name" />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -176,6 +179,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="lastName" label="Last Name" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -187,6 +191,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="email" label="Email" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="email"
@@ -198,6 +203,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="phoneNumber" label="Phone Number" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="tel"
@@ -217,6 +223,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="password" label="Password" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="password"
@@ -228,6 +235,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="DOB" label="Date Of Birth" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="date"
@@ -239,6 +247,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="nationality" label="Nationality" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -250,6 +259,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="province" label="Province" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -261,6 +271,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="district" label="District" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -272,6 +283,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="municipality" label="Municipality" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -284,6 +296,7 @@ const GuideRegister: React.FC = () => {
             <div className="mb-4">
               <Label name="licenseNumber" label="licenseNumber" required />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="text"
@@ -300,6 +313,7 @@ const GuideRegister: React.FC = () => {
                 required
               />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="date"
@@ -316,6 +330,7 @@ const GuideRegister: React.FC = () => {
                 required
               />
               <InputField
+              control={control}
                 setValue={setValue}
 
                 type="date"
@@ -353,6 +368,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="citizenshipId" label="Citizenship ID" required />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"
@@ -368,6 +384,7 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="date"
@@ -383,6 +400,7 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"
@@ -415,6 +433,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="passportId" label="Passport ID" required />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"
@@ -426,6 +445,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="passportIssueDate" label="Issue Date" required />
                   <InputField
+                  control={control}
                     setValue={setValue}
                     type="date"
                     name="passportIssueDate"
@@ -440,6 +460,7 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                  control={control}
                     setValue={setValue}
                     type="date"
                     name="passportExpiryDate"
@@ -454,6 +475,7 @@ const GuideRegister: React.FC = () => {
                     required
                   />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"
@@ -474,6 +496,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="voterId" label="Voter ID" required />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"
@@ -485,6 +508,7 @@ const GuideRegister: React.FC = () => {
                 <div className="mb-4">
                   <Label name="voterAddress" label="Voter Address" required />
                   <InputField
+                  control={control}
                     setValue={setValue}
 
                     type="text"

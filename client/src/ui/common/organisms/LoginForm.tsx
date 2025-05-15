@@ -67,7 +67,7 @@ const LoginForm = ({ onSubmit, isSubmitting }: LoginFormProps) => {
             </NavLink>
           </div>
           <div className="py-2">
-            <NavLink to={"/travel-register"} className={"text-blue-500 underline"}>
+            <NavLink to={"/user-register"} className={"text-blue-500 underline"}>
             {authLabel.dontHaveAnAccount[lang]}
             </NavLink>
           </div>
