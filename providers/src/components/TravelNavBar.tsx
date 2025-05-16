@@ -42,9 +42,9 @@ const TravelNavBar = () => {
   const { data } = useQuery(GET_TRAVEL_UNREAD_NOTIFICATIONS);
   const [user, setUser] = useState<FormData | null>(null);
 
-  const { data:profileData, loading, error } = useQuery(GET_TRAVEL_PROFILE);
-  console.log("🚀 ~ TravelProfilePopup ~ data:", data)
-  const profileImageUrl = user?.kyc.find(img => img.fileType === "PASSPHOTO")?.path || "/default-avatar.png";
+  const { data:profileData } = useQuery(GET_TRAVEL_PROFILE);
+  const profileImageUrl = user?.kyc.find(img => img.fileType === "PASSPHOTO")?.path || "../assets/profile.avif";
+  console.log("🚀 ~ TravelNavBar ~ profileData:", profileData)
 
   useEffect(() => {
     if (profileData) {
@@ -105,27 +105,12 @@ const TravelNavBar = () => {
     }
   }, []);
 
-  const closeAllPopups = () => {
-    setShowNotifications(false);
-    setShowChat(false);
-    setShowProfile(false);
-  };
-
-  const handleClickOutside = (e: MouseEvent) => {
-    // const target = e.target as HTMLElement;
-    // if (!target.closest(".popup-container")) {
-    //   closeAllPopups();
-    // }
-  };
 
 const handleNotifications = () => {
   setShowNotifications(!showNotifications)
   socket.emit("read-travel-notification")
 }
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">

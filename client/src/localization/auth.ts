@@ -856,6 +856,28 @@ export const authLabel: LabelTypes = {
     en: "Upload Photo",
     ne: "फोटो अपलोड गर्नुहोस्",
   },
+  resetPassword: {
+    en: "Reset Password",
+    ne: "पासवर्ड रिसेट गर्नुहोस्",
+  },
 
+  journeyPreferences: {
+    en: "Journey Preferences",
+    ne: "यात्रा प्राथमिकताहरू",
+  },
+
+  helpSupport: {
+    en: "Help & Support",
+    ne: "सहयोग र समर्थन",
+  },
+  faq: {
+    en: "FAQ",
+    ne: "प्रायः सोधिने प्रश्नहरू",
+  },
+  support: {
+    en: "Support",
+    ne: "समर्थन",
+  }
+  
 
 };

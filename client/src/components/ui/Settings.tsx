@@ -12,10 +12,12 @@ import FAQ from "./FAQ";
 import ForgotPassword from "../ForgotPassword";
 import UpdatePassword from "../UpdatePassword";
 import Support from "./Support";
+import { useLang } from "@/hooks/useLang";
+import { authLabel } from "@/localization/auth";
 
 const Settings = () => {
   const [activeSection, setActiveSection] = React.useState<null | string>(null);
-
+const {lang} = useLang();
   return (
     <div className="flex h-screen w-full bg-gray-100">
       <div
@@ -24,7 +26,7 @@ const Settings = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-travel-primary">
-            Settings
+            {authLabel.settings[lang]}
           </h2>
         </div>
 
@@ -33,7 +35,7 @@ const Settings = () => {
             <div className="flex items-center space-x-2 mb-3">
               <Compass className="w-4 h-4 text-travel-sunset" />
               <h3 className="text-sm font-medium text-travel-sunset">
-                Account Settings
+              {authLabel.accountSettings[lang]}
               </h3>
             </div>
             <div className="space-y-2">
@@ -42,14 +44,14 @@ const Settings = () => {
                 className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg w-full transition"
               >
                 <KeyRound className="w-5 h-5 text-travel-accent" />
-                <span className="text-gray-700">Reset Password</span>
+                <span className="text-gray-700">{authLabel.resetPassword[lang]}</span>
               </button>
               <button
                 onClick={() => setActiveSection("updatePassword")}
                 className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg w-full transition"
               >
                 <Lock className="w-5 h-5 text-travel-accent" />
-                <span className="text-gray-700">Update Password</span>
+                <span className="text-gray-700">{authLabel.updatePassword[lang]}</span>
               </button>
             </div>
           </div>
@@ -57,7 +59,7 @@ const Settings = () => {
             <div className="flex items-center space-x-2 mb-3">
               <Compass className="w-4 h-4 text-travel-forest" />
               <h3 className="text-sm font-medium text-travel-forest">
-                Journey Preferences
+              {authLabel.journeyPreferences[lang]}
               </h3>
             </div>
             <div className="space-y-2">
@@ -69,7 +71,7 @@ const Settings = () => {
             <div className="flex items-center space-x-2 mb-3">
               <Compass className="w-4 h-4 text-travel-sand" />
               <h3 className="text-sm font-medium text-travel-sand">
-                Help & Support
+              {authLabel.helpSupport[lang]}
               </h3>
             </div>
             <div className="space-y-2">
@@ -78,14 +80,14 @@ const Settings = () => {
                 className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg w-full transition"
               >
                 <HelpCircle className="w-5 h-5 text-travel-accent" />
-                <span className="text-gray-700">FAQ</span>
+                <span className="text-gray-700">{authLabel.faq[lang]}</span>
               </button>
               <button
                 onClick={() => setActiveSection("support")}
                 className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-lg w-full transition"
               >
                 <MessageSquareMore className="w-5 h-5 text-travel-accent" />
-                <span className="text-gray-700">Support</span>
+                <span className="text-gray-700">{authLabel.support[lang]}</span>
               </button>
             </div>
           </div>
