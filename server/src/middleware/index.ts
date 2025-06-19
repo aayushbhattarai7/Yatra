@@ -14,7 +14,6 @@ import bodyParser from "body-parser";
 import { UserResolver } from "../graphql/resolvers/userReslover";
 import { AdminResolver } from "../graphql/resolvers/adminResolver";
 import { GuideResolver } from "../graphql/resolvers/GuideReslover";
-import fileUpload from "express-fileupload";
 import { TravelResolver } from "../graphql/resolvers/travelResolver";
 
 interface GraphQlContext {
@@ -32,10 +31,6 @@ const middleware = async (app: Application) => {
       credentials: true,
     }),
   );
-  console.log(
-    "🚀 ~ middleware ~ DotenvConfig.CORS_ORIGIN:",
-    DotenvConfig.CORS_ORIGIN, DotenvConfig.MAIL_HOST
-  );
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     const userAgent = req.headers["user-agent"];
@@ -48,7 +43,7 @@ const middleware = async (app: Application) => {
     }
   });
 
-  app.use(morgan("common"));
+  // app.use(morgan("common"));
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
@@ -73,7 +68,7 @@ const middleware = async (app: Application) => {
       }),
     }),
   );
-console.log(DotenvConfig.DATABASE_USERNAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_NAME, DotenvConfig.DATABASE_PASSWORD, DotenvConfig.DATABASE_USERNAME)
+
   app.use(express.static(path.join(__dirname, "../../public/uploads")));
   app.use(express.static(path.join(__dirname, "../../public")));
 

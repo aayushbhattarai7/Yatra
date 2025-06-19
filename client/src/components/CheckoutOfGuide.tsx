@@ -30,7 +30,7 @@ const CheckoutGuide: React.FC<CheckoutProps> = ({
       const response = await AdvancePaymentForGuide({
         variables: { guideId, amount: amount },
       });
-      console.log("🚀 ~ handleSubmit ~ response:", response)
+      console.log("🚀 ~ handleSubmit ~ response:", response);
       const client_secret = response.data.AdvancePaymentForGuide;
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(
@@ -39,7 +39,7 @@ const CheckoutGuide: React.FC<CheckoutProps> = ({
           payment_method: {
             card: cardElement!,
           },
-        }
+        },
       );
 
       if (error) {

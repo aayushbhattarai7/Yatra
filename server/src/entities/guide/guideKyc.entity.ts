@@ -57,7 +57,7 @@ class GuideKYC extends Base {
 
   @AfterLoad()
   async loadImagePath(): Promise<void> {
-    this.path = `${DotenvConfig.BASE_URL}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
+    this.path = `${DotenvConfig.BASE_URL}/${`guide`}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
   }
 }
 export default GuideKYC;

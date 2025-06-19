@@ -26,6 +26,10 @@ export class UserDTO {
 
   @Field()
   @IsNotEmpty()
+  travelStyle: string;
+
+  @Field()
+  @IsNotEmpty()
   phoneNumber: string;
 
   @Field()

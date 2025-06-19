@@ -53,12 +53,11 @@ class TravelKyc extends Base {
     !fs.existsSync(UPLOAD_PATH) &&
       fs.mkdirSync(UPLOAD_PATH, { recursive: true });
     fs.renameSync(TEMP_PATH, path.join(UPLOAD_PATH, this.name));
-    const paths = `${DotenvConfig.BASE_URL}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
   }
 
   @AfterLoad()
   async loadImagePath(): Promise<void> {
-    this.path = `${DotenvConfig.BASE_URL}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
+    this.path = `${DotenvConfig.BASE_URL}/${`travel`}/${this.type.toLowerCase()}/${this.id.toString()}/${this.name}`;
   }
 }
 

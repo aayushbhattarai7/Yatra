@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_TRAVELS } from "../mutation/queries";
-import TravelMap from "./PlaceLocation";
+import TravelMap from "./TravelMap";
 import RequestTravelBooking from "./RequestTravelBooking";
 import Button from "@/ui/common/atoms/Button";
 import { authLabel } from "@/localization/auth";
 import { useLang } from "@/hooks/useLang";
+import { useSocket } from "@/contexts/SocketContext";
+import TravelProfileUserView from "./TravelProfile";
 
 interface FormData {
   id: string;
@@ -31,33 +33,103 @@ interface Kyc {
 
 const Travels = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
-  const [travels, setTravels] = useState<FormData[] | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null
-  );
+  const [allTravels, setAllTravels] = useState<FormData[] | null>(null);
+  const [onlineTravels, setOnlineTravels] = useState<FormData[] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
+  const [travel, setTravel] = useState<string>("");
+  const { socket } = useSocket();
   const [showMobileList, setShowMobileList] = useState(true);
   const { lang } = useLang();
   const [travelId, setTravelId] = useState<string>("");
-
-  const { data, loading, error } = useQuery(GET_TRAVELS);
+  const { data, loading } = useQuery(GET_TRAVELS);
   console.log("🚀 ~ Travels ~ data:", data)
 
+  const travels = activeTab === "online" ? onlineTravels : allTravels;
+
   useEffect(() => {
-    console.log(error,"hahah")
     if (data?.findTravel) {
-      console.log("🚀 ~ useEffect ~ data:", data)
-      setTravels(data.findTravel);
+      setAllTravels(data.findTravel);
     }
+    socket.emit("get-active-travels");
   }, [data]);
+
+  useEffect(() => {
+    socket.on("active-travel", (activeTravels: FormData[]) => {
+      console.log("🚀 ~ socket.on ~ activeTravels:", activeTravels)
+      setOnlineTravels(activeTravels);
+    });
+
+    socket.on(
+      "travels",
+      (updatedTravel: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setAllTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
+                  ...travel,
+                  location: {
+                    latitude: updatedTravel.location.latitude,
+                    longitude: updatedTravel.location.longitude,
+                  },
+                }
+              : travel
+          ) || null
+        );
+
+        setOnlineTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
+                  ...travel,
+                  location: {
+                    latitude: updatedTravel.location.latitude,
+                    longitude: updatedTravel.location.longitude,
+                  },
+                }
+              : travel
+          ) || null
+        );
+      }
+    );
+
+    socket.on(
+      "active-travel",
+      (updatedTravel: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setOnlineTravels((prevTravels) =>
+          prevTravels?.map((travel) =>
+            travel.id === updatedTravel.id
+              ? {
+                  ...travel,
+                  location: {
+                    latitude: updatedTravel.location.latitude,
+                    longitude: updatedTravel.location.longitude,
+                  },
+                }
+              : travel
+          ) || null
+        );
+      }
+    );
+
+    return () => {
+      socket.off("travels");
+      socket.off("active-travels");
+      socket.off("active-travel");
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -79,9 +151,8 @@ const Travels = () => {
       <div className="hidden md:flex h-full">
         <div className="w-1/3 p-6 overflow-y-auto border-r border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Available Travels
+            {authLabel.availableTravels[lang]}
           </h2>
-
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
@@ -91,7 +162,7 @@ const Travels = () => {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              Online Travels
+              {authLabel.onlineTravels[lang]}
             </button>
             <button
               onClick={() => setActiveTab("all")}
@@ -101,10 +172,9 @@ const Travels = () => {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              All Travels
+              {authLabel.allTravels[lang]}
             </button>
           </div>
-
           <div className="space-y-4">
             {travels?.map((travel) => (
               <div
@@ -118,7 +188,6 @@ const Travels = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-
                 <div className="flex-grow">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-lg font-semibold text-gray-800">
@@ -129,19 +198,21 @@ const Travels = () => {
                       <span className="text-sm text-gray-600 ml-1">4.8</span>
                     </div>
                   </div>
-
                   <p className="text-gray-600 text-sm mb-3">
-                    vehicle: {travel.vehicleType} • {travel.gender}
+                    {authLabel.vehicle[lang]}: {travel.vehicleType} •{" "}
+                    {travel.gender === "MALE"
+                      ? `${authLabel.male[lang]}`
+                      : `${authLabel.female[lang]}`}
                   </p>
-
                   <div className="flex gap-3">
                     <Button
-                      buttonText={authLabel.booknow[lang]}
+                      buttonText={authLabel.book[lang]}
                       className="bg-blue-600 text-white px-4 py-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       type="button"
                       onClick={() => setTravelId(travel.id)}
                     />
                     <Button
+                      onClick={() => setTravel(travel.id)}
                       buttonText={authLabel.viewProfile[lang]}
                       className="border bg-gray-900 border-gray-300 px-4 py-4 rounded-lg text-sm font-medium hover:bg-gray-700"
                       type="button"
@@ -152,7 +223,6 @@ const Travels = () => {
             ))}
           </div>
         </div>
-
         <div className="w-2/3 relative">
           {!travels || !userLocation ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
@@ -160,6 +230,7 @@ const Travels = () => {
             </div>
           ) : (
             <TravelMap
+              key={JSON.stringify(travels)}
               props={travels.map((travel) => ({
                 id: travel.id,
                 firstName: travel.firstName,
@@ -178,7 +249,6 @@ const Travels = () => {
           )}
         </div>
       </div>
-
       <div className="md:hidden h-full">
         <div className="h-full">
           {!travels || !userLocation ? (
@@ -204,7 +274,6 @@ const Travels = () => {
             />
           )}
         </div>
-
         <button
           onClick={() => setShowMobileList(!showMobileList)}
           className="fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
@@ -232,7 +301,6 @@ const Travels = () => {
             )}
           </svg>
         </button>
-
         <div
           className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${
             showMobileList ? "translate-y-0" : "translate-y-full"
@@ -242,9 +310,8 @@ const Travels = () => {
           <div className="p-4">
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Available Travels
+              {authLabel.availableTravels[lang]}
             </h2>
-
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
@@ -254,7 +321,7 @@ const Travels = () => {
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                Online Travels
+                {authLabel.onlineTravels[lang]}
               </button>
               <button
                 onClick={() => setActiveTab("all")}
@@ -264,10 +331,9 @@ const Travels = () => {
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
-                All Travels
+                {authLabel.allTravels[lang]}
               </button>
             </div>
-
             <div
               className="space-y-3 overflow-y-auto"
               style={{ maxHeight: "60vh" }}
@@ -284,7 +350,6 @@ const Travels = () => {
                       className="w-full h-full object-cover"
                     />
                   </div>
-
                   <div className="flex-grow min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-base font-semibold text-gray-800 truncate">
@@ -295,19 +360,18 @@ const Travels = () => {
                         <span className="text-sm text-gray-600 ml-1">4.8</span>
                       </div>
                     </div>
-
                     <p className="text-gray-600 text-sm mb-2 truncate">
                       vehicle: {travel.vehicleType} • {travel.gender}
                     </p>
-
                     <div className="flex gap-2">
                       <Button
-                        buttonText={authLabel.booknow[lang]}
+                        buttonText={authLabel.book[lang]}
                         className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                         type="button"
                         onClick={() => setTravelId(travel.id)}
                       />
                       <Button
+                        onClick={() => setTravel(travel.id)}
                         buttonText={authLabel.viewProfile[lang]}
                         className="border bg-gray-900 border-gray-300 px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-700"
                         type="button"
@@ -320,9 +384,15 @@ const Travels = () => {
           </div>
         </div>
       </div>
-
       {travelId && (
         <RequestTravelBooking id={travelId} onClose={() => setTravelId("")} />
+      )}
+      {travel && (
+        <TravelProfileUserView
+          travelId={travel}
+          isOpen={true}
+          onClose={() => setTravel("")}
+        />
       )}
     </div>
   );

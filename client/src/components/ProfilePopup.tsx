@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+ import { useEffect, useState } from "react";
 import { LogoutPopup } from "./LogoutPopup";
 import { gql, useQuery } from "@apollo/client";
 interface FormData {
@@ -9,8 +9,17 @@ interface FormData {
   gender: string;
   email: string;
   phoneNumber: string;
+  image:Image[]
 }
-const ProfilePopup = () => {
+interface Image{
+  id:string;
+  path:string;
+  type:string;
+}
+interface ProfileProps {
+  onClose: () => void
+}
+const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
   const [logout, setLogout] = useState<boolean>(false);
 
   const [user, setUser] = useState<FormData | null>(null);
@@ -24,30 +33,46 @@ const ProfilePopup = () => {
         email
         phoneNumber
         gender
+        image{
+        id
+        path
+        type
+        }
       }
     }
   `;
   const { data } = useQuery(GET_USER_QUERY);
+  console.log("🚀 ~ data:", data)
   useEffect(() => {
     if (data) {
       setUser(data.getUser);
     }
   }, [data]);
 
+  const handleLogoutClick = () => {
+    setLogout(true);  
+  };
+  
   return (
     <>
       {logout && <LogoutPopup onClose={() => setLogout(false)} />}
 
-      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <img className="h-10 w-10 rounded-full" alt="Profile" />
-            <div>
+            {user?.image.map((image)=>(
+              <div>
+{image.type === "PROFILE" && (
+
+                <img className="h-10 w-10 rounded-full" src={image.path} alt="Profile Image" />
+)}
+              </div>
+            ))}
+          <div>
               <h4 className="text-sm font-semibold">
                 {user?.firstName} {user?.middleName} {user?.lastName}
               </h4>
               <p className="text-xs text-gray-600">{user?.email}</p>
-              <p className="text-xs text-gray-600">{user?.phoneNumber}</p>
             </div>
           </div>
         </div>
@@ -55,9 +80,7 @@ const ProfilePopup = () => {
           {[
             { label: "Your Profile", href: "/user-profile" },
             { label: "Settings", href: "/settings" },
-            { label: "Trip History", href: "/trips" },
             { label: "Saved Places", href: "/saved" },
-            { label: "Help Center", href: "/help" },
           ].map((item, index) => (
             <a
               key={index}
@@ -69,7 +92,7 @@ const ProfilePopup = () => {
           ))}
           <div className="border-t border-gray-200 mt-2">
             <button
-              onClick={() => setLogout(true)}
+              onClick={handleLogoutClick}
               className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
             >
               Log out

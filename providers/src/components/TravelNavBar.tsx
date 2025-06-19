@@ -1,4 +1,3 @@
-///import { Bell, MessageSquare, Menu, X } from "lucide-react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NotificationsPopup from "./NotificationPopup";
@@ -8,12 +7,27 @@ import { jwtDecode } from "jwt-decode";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import TravelProfilePopup from "./TravelProfilePopup";
 import { useQuery } from "@apollo/client";
-import { GET_TRAVEL_NOTIFICATIONS } from "../mutation/queries";
+import { GET_TRAVEL_CHAT_COUNT, GET_TRAVEL_PROFILE, GET_TRAVEL_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
-interface Notifications {
+
+interface FormData {
   id: string;
-  isRead: boolean;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  vehicle_type: string;
+  gender: string;
+  location: Location;
+  nationality: string;
+  kyc: Image[];
 }
+
+interface Image {
+  id: string;
+  fileType: string;
+  path: string;
+}
+
 
 const TravelNavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,21 +35,58 @@ const TravelNavBar = () => {
   const [showChat, setShowChat] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [notifications, setNotifications] = useState<Notifications[]>([]);
+  const [notifications, setNotifications] = useState<number>(0);
   const { socket } = useSocket();
+  const [chatCount, setChatCount] = useState<number>(0);
+  const {data:chatData, refetch:chatRefetch} = useQuery(GET_TRAVEL_CHAT_COUNT)
+  const { data } = useQuery(GET_TRAVEL_UNREAD_NOTIFICATIONS);
+  const [user, setUser] = useState<FormData | null>(null);
 
-  const { data } = useQuery(GET_TRAVEL_NOTIFICATIONS);
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const { data:profileData } = useQuery(GET_TRAVEL_PROFILE);
+  const profileImageUrl = user?.kyc.find(img => img.fileType === "PASSPHOTO")?.path || "../assets/profile.avif";
+  console.log("🚀 ~ TravelNavBar ~ profileData:", profileData)
 
   useEffect(() => {
-    if (data?.getAllNotificationsOfTravel) {
-      setNotifications(data.getAllNotificationsOfTravel);
+    if (profileData) {
+      setUser(profileData.getTravelDetails);
     }
   }, [data]);
   useEffect(() => {
-    socket.on("notification", (notification) => {
-      setNotifications(notification);
+    if (data?.getUnreadNotificationsOfTravel) {
+      setNotifications(data.getUnreadNotificationsOfTravel);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (chatData?.getChatCountOfTravel !== undefined) {
+      setChatCount(chatData.getChatCountOfTravel);
+    }
+  }, [chatData]);
+
+  const chatCountListener = (chatCount: any) => {
+    console.log("🚀 ~ chatCountListener ~ chatCount:", chatCount)
+    setChatCount(chatCount);
+    if (chatRefetch) chatRefetch();
+  };
+  useEffect(() => {
+
+
+    socket.on("notification-count", (notificationCount) => {
+      console.log("🚀 ~ socket.on ~ notificationCount:", notificationCount)
+      setNotifications(notificationCount);
     });
+
+    socket.on("chat-count", chatCountListener);
+
+    socket.on("notification-updated", ({ isRead }) => {
+     setNotifications(isRead)
+    })
+
+    return()=>{
+      socket.off("notification-count")
+      socket.off("chat-count", chatCountListener);
+
+    }
   }, [socket]);
 
   useEffect(() => {
@@ -54,23 +105,12 @@ const TravelNavBar = () => {
     }
   }, []);
 
-  const closeAllPopups = () => {
-    setShowNotifications(false);
-    setShowChat(false);
-    setShowProfile(false);
-  };
 
-  const handleClickOutside = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (!target.closest(".popup-container")) {
-      closeAllPopups();
-    }
-  };
+const handleNotifications = () => {
+  setShowNotifications(!showNotifications)
+  socket.emit("read-travel-notification")
+}
 
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50">
@@ -98,14 +138,14 @@ const TravelNavBar = () => {
                   show={showChat}
                   popup={<ChatPopup />}
                   icon={MessageSquare}
-                  count={1}
+                  count={chatCount}
                 />
                 <PopupButton
-                  onClick={() => setShowNotifications(!showNotifications)}
+                  onClick={() => handleNotifications()}
                   show={showNotifications}
                   popup={<NotificationsPopup />}
                   icon={Bell}
-                  count={unreadCount}
+                  count={notifications}
                 />
               </div>
               <PopupButton
@@ -113,6 +153,7 @@ const TravelNavBar = () => {
                 show={showProfile}
                 popup={<TravelProfilePopup />}
                 profileImage
+                imageUrl={profileImageUrl}
               />
             </div>
           ) : (
@@ -187,6 +228,7 @@ const PopupButton = ({
   icon: Icon,
   count,
   profileImage,
+  imageUrl
 }: {
   onClick: () => void;
   show: boolean;
@@ -194,8 +236,9 @@ const PopupButton = ({
   icon?: React.ElementType;
   count?: number;
   profileImage?: boolean;
+  imageUrl?:string;
 }) => (
-  <div className="popup-container relative">
+  <div className=" relative">
     <button
       onClick={(e) => {
         e.stopPropagation();
@@ -204,7 +247,7 @@ const PopupButton = ({
       className="flex items-center space-x-2"
     >
       {profileImage ? (
-        <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
+        <img className="h-8 w-8 rounded-full" src={imageUrl} alt="Profile" />
       ) : (
         Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
@@ -243,9 +286,12 @@ const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
     <Icon className="h-[22px] w-[22px] text-gray-600" />
+    {count>0 && (
+
     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
       {count}
     </span>
+    )}
   </div>
 );
 

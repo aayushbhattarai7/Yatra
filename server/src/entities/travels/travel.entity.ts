@@ -1,13 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-} from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import Base from "../base.entity";
-import { Gender, Role, Status } from "../../constant/enum";
+import { ActiveStatus, Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
 import TravelKyc from "./travelKyc.entity";
 import { TravelDetails } from "./travelDetails.entity";
@@ -15,6 +9,8 @@ import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
+import { Rating } from "../../entities/ratings/rating.entity";
+import { Report } from "../../entities/user/report.entity";
 
 @ObjectType()
 @Entity("travel")
@@ -46,6 +42,10 @@ export class Travel extends Base {
   @Field()
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
+
+    @Field({nullable:true})
+    @Column({ type: "enum", enum: ActiveStatus, default:ActiveStatus.AVAILABLE, nullable:true })
+    status: ActiveStatus;
 
   @Field()
   @Column({ name: "password", select: false })
@@ -86,6 +86,10 @@ export class Travel extends Base {
   @OneToOne(() => Location, (location) => location.travel, { cascade: true })
   location: Location;
 
+  @Field(() => [Rating], { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.travel, { cascade: true })
+  ratings: Rating[];
+
   @Field(() => [TravelKyc])
   @OneToMany(() => TravelKyc, (kyc) => kyc.travels, { cascade: true })
   kyc: TravelKyc[];
@@ -102,23 +106,39 @@ export class Travel extends Base {
   })
   requestedTravel: RequestTravel;
 
-   @Field(() => [Notification])
-  @OneToMany(() => Notification, (notifications) => notifications.receiverTravel, {
-    onDelete: "CASCADE",
-  })
+  @Field(() => [Notification])
+  @OneToMany(
+    () => Notification,
+    (notifications) => notifications.receiverTravel,
+    {
+      onDelete: "CASCADE",
+    },
+  )
   notifications: Notification[];
-   @Field(() => [Notification])
+  @Field(() => [Notification])
   @OneToMany(() => Notification, (notification) => notification.senderTravel, {
     onDelete: "CASCADE",
   })
   notification: Notification[];
 
-    @OneToMany(() => Chat, (chat) => chat.senderTravel)
-    sendMessage: Chat[]
-    @OneToMany(() => Chat, (chat) => chat.receiverTravel)
-    receiveMessage: Chat[]
+  @OneToMany(() => Chat, (chat) => chat.senderTravel)
+  sendMessage: Chat[];
+  @OneToMany(() => Chat, (chat) => chat.receiverTravel)
+  receiveMessage: Chat[];
 
-          
-      @OneToMany(() => Room, (room) => room.travel)
-      travels: Room[]
+  @OneToMany(() => Room, (room) => room.travel)
+  travels: Room[];
+
+  @Field(() => [Report])
+  @OneToMany(() => Report, (report) => report.reporterTravel, {
+    onDelete: "CASCADE",
+  })
+  report: Report[];
+
+  @Field(() => [Report])
+  @OneToMany(() => Report, (reports) => reports.reportedTravel, {
+    onDelete: "CASCADE",
+  })
+  reports: Report[];
+
 }

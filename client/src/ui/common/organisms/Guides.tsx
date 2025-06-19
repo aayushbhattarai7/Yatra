@@ -6,6 +6,7 @@ import { authLabel } from "@/localization/auth";
 import Button from "@/ui/common/atoms/Button";
 import RequestGuideBooking from "@/components/RequestGuideBooking";
 import GuideProfileUserView from "@/components/GuideProfile";
+import { useSocket } from "@/contexts/SocketContext";
 
 const GET_GUIDE_QUERY = gql`
   query FindGuide {
@@ -24,6 +25,12 @@ const GET_GUIDE_QUERY = gql`
         id
         path
       }
+         ratings{
+        id
+        rating
+        message
+       
+        }
     }
   }
 `;
@@ -52,31 +59,102 @@ interface Location {
 
 const Guides = () => {
   const [activeTab, setActiveTab] = useState<"online" | "all">("online");
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null
-  );
+  const [allGuides, setAllGuides] = useState<FormData[] | null>(null);
+  const [onlineGuides, setOnlineGuides] = useState<FormData[] | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [guideId, setGuideId] = useState<string>("");
-
-  const [guides, setGuides] = useState<FormData[] | null>(null);
+  const { socket } = useSocket();
   const [showMobileList, setShowMobileList] = useState(true);
   const [guide, setGuide] = useState<string>("");
   const { lang } = useLang();
   const { data, loading } = useQuery(GET_GUIDE_QUERY);
+  console.log("🚀 ~ Guides ~ data:", data)
+
+  const guides = activeTab === "online" ? onlineGuides : allGuides;
+  console.log("🚀 ~ Guides ~ guides:", guides)
 
   useEffect(() => {
     if (data) {
-      setGuides(data.findGuide);
+      setAllGuides(data.findGuide);
     }
+    socket.emit("get-active-guides");
   }, [data]);
+
+  useEffect(() => {
+    socket.on("active-guide", (activeGuides: FormData[]) => {
+      setOnlineGuides(activeGuides);
+    });
+
+    socket.on(
+      "guides",
+      (updatedGuide: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setOnlineGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
+        );
+
+        setOnlineGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
+        );
+      }
+    );
+
+    socket.on(
+      "active-guide",
+      (updatedGuide: {
+        id: string;
+        location: { latitude: string; longitude: string };
+      }) => {
+        setOnlineGuides((prevGuides) =>
+          prevGuides?.map((guide) =>
+            guide.id === updatedGuide.id
+              ? {
+                ...guide,
+                location: {
+                  latitude: updatedGuide.location.latitude,
+                  longitude: updatedGuide.location.longitude,
+                },
+              }
+              : guide
+          ) || null
+        );
+      }
+    );
+
+    return () => {
+      socket.off("guides");
+      socket.off("active-guides");
+      socket.off("active-guide");
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
         },
         (error) => {
           console.error("Error getting location:", error);
@@ -98,30 +176,27 @@ const Guides = () => {
       <div className="hidden md:flex h-full">
         <div className="w-1/3 p-6 overflow-y-auto border-r border-gray-200">
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-            Available Guides
+            {authLabel.availableGuides[lang]}
           </h2>
 
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => setActiveTab("online")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === "online"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "online"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
             >
-              Online Guides
+              {authLabel.onlineGuides[lang]}
             </button>
             <button
               onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === "all"
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === "all"
+                ? "bg-purple-100 text-purple-700"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
             >
-              All Guides
-            </button>
+              {authLabel.allGuides[lang]}</button>
           </div>
 
           <div className="space-y-4">
@@ -150,12 +225,12 @@ const Guides = () => {
                   </div>
 
                   <p className="text-gray-600 text-sm mb-3">
-                    Location: {guide.guiding_location} • {guide.gender}
+                  {authLabel.location[lang]}: {guide.guiding_location} •  {authLabel.gender[lang]}: {guide.gender === "MALE" ? ` ${authLabel.male[lang]}` : `${authLabel.female[lang]}`}
                   </p>
 
                   <div className="flex gap-3">
                     <Button
-                      buttonText={authLabel.booknow[lang]}
+                      buttonText={authLabel.book[lang]}
                       onClick={() => setGuideId(guide.id)}
                       className="bg-blue-600 text-white px-4 py-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                       type="button"
@@ -180,6 +255,7 @@ const Guides = () => {
             </div>
           ) : (
             <GuideMap
+              key={JSON.stringify(guides)}
               props={guides.map((guide) => ({
                 id: guide.id,
                 firstName: guide.firstName,
@@ -256,38 +332,34 @@ const Guides = () => {
         </button>
 
         <div
-          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${
-            showMobileList ? "translate-y-0" : "translate-y-full"
-          }`}
+          className={`fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-2xl shadow-xl transform transition-transform duration-300 ease-in-out ${showMobileList ? "translate-y-0" : "translate-y-full"
+            }`}
           style={{ maxHeight: "75vh" }}
         >
           <div className="p-4">
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4"></div>
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Available Guides
+              {authLabel.availableGuides[lang]}
             </h2>
 
             <div className="flex gap-2 mb-4 overflow-x-auto">
               <button
                 onClick={() => setActiveTab("online")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === "online"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "online"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
-                Online Guides
+                {authLabel.onlineGuides[lang]}
               </button>
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === "all"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className={`px-3 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "all"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
               >
-                All Guides
-              </button>
+                {authLabel.allGuides[lang]}              </button>
             </div>
 
             <div
@@ -324,7 +396,7 @@ const Guides = () => {
 
                     <div className="flex gap-2">
                       <Button
-                        buttonText={authLabel.booknow[lang]}
+                        buttonText={authLabel.book[lang]}
                         onClick={() => setGuideId(guide.id)}
                         className="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                         type="button"

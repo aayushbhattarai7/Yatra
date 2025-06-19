@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { getCookie } from "../function/GetCookie";
 import { useSocket } from "./SocketContext";
-import throttle from "lodash.throttle";
 
 interface LocationContextType {
   location: {
@@ -12,7 +11,7 @@ interface LocationContextType {
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -29,8 +28,10 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
   const { socket } = useSocket();
 
   useEffect(() => {
+    let watchId: number;
+
     if (navigator.geolocation) {
-      const watchId = navigator.geolocation.watchPosition(
+      watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ latitude, longitude });
@@ -38,53 +39,53 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({
         (error) => {
           console.error("Error getting location:", error);
         },
-        { enableHighAccuracy: true }
+        { enableHighAccuracy: true },
       );
-
-      return () => {
-        navigator.geolocation.clearWatch(watchId);
-      };
     }
+
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
   }, []);
 
-  const emitLocation = throttle((updatedLocation) => {
-    const token = getCookie("accessToken");
-
-    if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        const userRole = decodedToken.role;
-
-        if (socket) {
-          if (userRole === "TRAVEL") {
-            socket.emit("travel-location", {
-              travelId: decodedToken.id,
-              latitude: updatedLocation.latitude,
-              longitude: updatedLocation.longitude,
-            });
-            console.log("TRAVEL location emitted:", updatedLocation);
-          } else if (userRole === "GUIDE") {
-            socket.emit("guide-location", {
-              guideId: decodedToken.id,
-              latitude: updatedLocation.latitude,
-              longitude: updatedLocation.longitude,
-            });
-            console.log("GUIDE location emitted:", updatedLocation);
-          }
-        } else {
-          console.error("Socket is not initialized!");
-        }
-      } catch (error) {
-        console.error("Error processing token:", error);
-      }
-    }
-  }, 5000);
-
   useEffect(() => {
-    if (location.latitude !== null && location.longitude !== null) {
-      emitLocation(location);
-    }
-  }, [location]);
+    const intervalId = setInterval(() => {
+      if (
+        location.latitude !== null &&
+        location.longitude !== null &&
+        socket
+      ) {
+        const token = getCookie("accessToken");
+
+        if (token) {
+          try {
+            const decodedToken: any = jwtDecode(token);
+            const userRole = decodedToken.role;
+
+            if (userRole === "TRAVEL") {
+              socket.emit("travel-location", {
+                travelId: decodedToken.id,
+                latitude: location.latitude,
+                longitude: location.longitude,
+              });
+            } else if (userRole === "GUIDE") {
+              socket.emit("guide-location", {
+                guideId: decodedToken.id,
+                latitude: location.latitude,
+                longitude: location.longitude,
+              });
+            }
+          } catch (error) {
+            console.error("Error processing token:", error);
+          }
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [location, socket]);
 
   return (
     <LocationContext.Provider value={{ location }}>

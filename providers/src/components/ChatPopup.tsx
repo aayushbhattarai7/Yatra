@@ -1,71 +1,125 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery } from "@apollo/client";
+import ChatMessages from "./ChatMessage";
+import {
+  GET_USER_FOR_CHAT,
+  GET_USER_FOR_CHAT_BY_GUIDE,
+} from "../mutation/queries";
+import { getCookie } from "../function/GetCookie";
+import { jwtDecode } from "jwt-decode";
 import { useSocket } from "../contexts/SocketContext";
-interface Chat{
-  id:string;
-  message:string;
-  createdAt:string;
-  user:User
+import UnreadChatBadge from "./UnreadChatBadge";
+interface Room {
+  id: string;
+  user: {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    gender: string;
+    image:Image[]
+  };
+  travel: {
+    id: string;
+    firstName: string;
+    middleName: string;
+    lastName: string;
+    gender: string;
+  };
 }
-interface User{
-  id:string;
-  firstName:string;
-  middleName:string;
-  lastName:string;
-  email:string;
-  
 
-}
-interface Image {
+interface Image{
   id:string;
   path:string;
+  type:string;
 }
+
 const ChatPopup = () => {
-  const [chats, setChats] = useState<Chat[]>([])
+  const token = getCookie("accessToken");
+  const decodedToken: any = jwtDecode(token!);
+  const {socket} = useSocket();
+  const query =
+    decodedToken.role === "TRAVEL"
+      ? GET_USER_FOR_CHAT
+      : GET_USER_FOR_CHAT_BY_GUIDE;
+ 
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const { data } = useQuery(query);
+  const [userInRoom, setUserInRoom] = useState<Room[]>([]);
 
+  useEffect(() => {
+    if (decodedToken.role === "TRAVEL") {
+      if (data?.getChatUserByTravel) setUserInRoom(data?.getChatUserByTravel);
+    } else {
+      if (data?.getChatUserByGuide) setUserInRoom(data?.getChatUserByGuide);
+    }
+  }, [data?.getChatUserByTravel, data?.getChatUserByGuide]);
 
-  const {socket} = useSocket()
-useEffect(()=>{
-  socket.on("message", (getChats)=>{
+  useEffect(() => {
+    socket.on("room",(newRoom)=>{
+      setUserInRoom((prev)=>[...prev, newRoom])
+    })
+    return () => {
+      socket.off("room");
+     
+    };
+  }, [socket]);
 
-  })
-})
 
   return (
     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold">Messages</h3>
-      </div>
-      <div className="max-h-96 overflow-y-auto">
-        {chats.map((chat) => (
-          <div
-            key={chat.id}
-            className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-start space-x-3"
-          >
-            {/* <img
-              src={chat.avatar}
-              alt={chat.name}
-              className="w-10 h-10 rounded-full"
-            /> */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold truncate">{chat.user.firstName}</h4>
-                <span className="text-xs text-gray-500">{chat.createdAt}</span>
-              </div>
-              <p className="text-sm text-gray-600 truncate">{chat.message}</p>
-            </div>
-            {/* {chat.unread > 0 && (
-              <span className="bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {chat.unread}
-              </span>
-            )} */}
+      {selectedUserId ? (
+        <ChatMessages
+          userId={selectedUserId}
+          onBack={() => setSelectedUserId(null)}
+        />
+      ) : (
+        <div>
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold">People</h3>
           </div>
-        ))}
-      </div>
-      <div className="p-3 text-center border-t border-gray-200">
-        <button className="text-sm text-blue-600 hover:text-blue-800">
-          View All Messages
-        </button>
-      </div>
+          <div className="max-h-96 overflow-y-auto">
+            {userInRoom?.length === 0 ? (
+              <p className="p-4 text-gray-500">No users in the room</p>
+            ) : (
+              userInRoom?.map((room) => (
+                <div
+                  key={room.id}
+                  onClick={() => setSelectedUserId(room.user?.id)}
+                  className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer flex items-start space-x-3"
+                >
+                  {/* <p>{room.id}</p> */}
+                  {room.user?.image?.[0]?.path ? (
+                    <img
+                      src={room.user.image[0].path}
+                      alt={room.user.firstName}
+                      className="w-10 h-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-300" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold truncate">
+                      {room.user
+                        ? `${room.user.firstName} ${room.user.lastName}`
+                        : "Unknown User"}
+                     
+                        <UnreadChatBadge id={room.user.id} />
+                    
+                      
+                    </h4>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="p-3 text-center border-t border-gray-200">
+            <button className="text-sm text-blue-600 hover:text-blue-800">
+              View All Users
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -25,6 +25,9 @@ export const bookRequestMessage = (title: string) => {
 export const rejectRequest = (title: string) => {
   return ` Booking request rejected by ${title}`;
 };
+export const acceptRequest = (title: string) => {
+  return ` Booking request accepted by ${title}`;
+};
 export const cancelRequest = (title: string) => {
   return `${title} booking request cancelled successfully`;
 };

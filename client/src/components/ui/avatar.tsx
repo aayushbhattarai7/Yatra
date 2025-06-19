@@ -1,74 +1,46 @@
-"use client";
+import React from 'react';
 
-import type { GroupProps, SlotRecipeProps } from "@chakra-ui/react";
-import { Avatar as ChakraAvatar, Group } from "@chakra-ui/react";
-import * as React from "react";
-
-type ImageProps = React.ImgHTMLAttributes<HTMLImageElement>;
-
-export interface AvatarProps extends ChakraAvatar.RootProps {
-  name?: string;
-  src?: string;
-  srcSet?: string;
-  loading?: ImageProps["loading"];
-  icon?: React.ReactElement;
-  fallback?: React.ReactNode;
+interface AvatarProps {
+  name: string;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
-export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
-  function Avatar(props, ref) {
-    const { name, src, srcSet, loading, icon, fallback, children, ...rest } =
-      props;
-    return (
-      <ChakraAvatar.Root ref={ref} {...rest}>
-        <AvatarFallback name={name} icon={icon}>
-          {fallback}
-        </AvatarFallback>
-        <ChakraAvatar.Image src={src} srcSet={srcSet} loading={loading} />
-        {children}
-      </ChakraAvatar.Root>
-    );
-  },
-);
+export const Avatar = ({ name, size = 'md', className = '' }: AvatarProps) => {
+  const initials = name
+    .split(' ')
+    .map(part => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
-interface AvatarFallbackProps extends ChakraAvatar.FallbackProps {
-  name?: string;
-  icon?: React.ReactElement;
-}
+  const sizeClasses = {
+    sm: 'h-8 w-8 text-xs',
+    md: 'h-10 w-10 text-sm',
+    lg: 'h-12 w-12 text-base',
+  };
 
-const AvatarFallback = React.forwardRef<HTMLDivElement, AvatarFallbackProps>(
-  function AvatarFallback(props, ref) {
-    const { name, icon, children, ...rest } = props;
-    return (
-      <ChakraAvatar.Fallback ref={ref} {...rest}>
-        {children}
-        {name != null && children == null && <>{getInitials(name)}</>}
-        {name == null && children == null && (
-          <ChakraAvatar.Icon asChild={!!icon}>{icon}</ChakraAvatar.Icon>
-        )}
-      </ChakraAvatar.Fallback>
-    );
-  },
-);
-
-function getInitials(name: string) {
-  const names = name.trim().split(" ");
-  const firstName = names[0] != null ? names[0] : "";
-  const lastName = names.length > 1 ? names[names.length - 1] : "";
-  return firstName && lastName
-    ? `${firstName.charAt(0)}${lastName.charAt(0)}`
-    : firstName.charAt(0);
-}
-
-interface AvatarGroupProps extends GroupProps, SlotRecipeProps<"avatar"> {}
-
-export const AvatarGroup = React.forwardRef<HTMLDivElement, AvatarGroupProps>(
-  function AvatarGroup(props, ref) {
-    const { size, variant, borderless, ...rest } = props;
-    return (
-      <ChakraAvatar.PropsProvider value={{ size, variant, borderless }}>
-        <Group gap="0" spaceX="-3" ref={ref} {...rest} />
-      </ChakraAvatar.PropsProvider>
-    );
-  },
-);
+  const colors = [
+    'bg-blue-500',
+    'bg-green-500',
+    'bg-yellow-500',
+    'bg-red-500',
+    'bg-purple-500',
+    'bg-pink-500',
+    'bg-indigo-500',
+    'bg-teal-500',
+  ];
+  
+  const colorIndex = name
+    .split('')
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
+  
+  return (
+    <div 
+      className={`${sizeClasses[size]} ${colors[colorIndex]} rounded-full flex items-center justify-center text-white font-medium ${className}`}
+      title={name}
+    >
+      {initials}
+    </div>
+  );
+};

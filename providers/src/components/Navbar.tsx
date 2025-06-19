@@ -191,12 +191,11 @@ const PopupButton = ({
       }}
       className="flex items-center space-x-2"
     >
-      <p>{ count}</p>
+      <p>{count}</p>
       {profileImage ? (
         <img className="h-8 w-8 rounded-full" src="" alt="Profile" />
       ) : (
-          
-      Icon && <NotificationIcon icon={Icon} count={count || 0} />
+        Icon && <NotificationIcon icon={Icon} count={count || 0} />
       )}
     </button>
     {show && popup}

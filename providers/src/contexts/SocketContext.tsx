@@ -19,14 +19,14 @@ export const useSocket = (): SocketContextType => {
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-const token = getCookie("accessToken");
-const [socket] = useState<Socket>(() =>
-  io("http://localhost:3000", {
-    auth: {
-      token,
-    },
-  })
-);
+  const token = getCookie("accessToken");
+  const [socket] = useState<Socket>(() =>
+    io("http://localhost:3000", {
+      auth: {
+        token,
+      },
+    }),
+  );
   useEffect(() => {
     socket.on("connect", () => {
       console.log("connected");

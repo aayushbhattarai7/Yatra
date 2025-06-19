@@ -11,6 +11,21 @@ export enum Status {
   ACCEPTED = "ACCEPTED",
   REJECTED = "REJECTED",
 }
+export enum PackageStatus {
+  AVAILABLE = "AVAILABLE",
+  FULL = "FULL",
+  CLOSED = "CLOSED",
+}
+export enum ReportStatus {
+  PENDING = "PENDING",
+  SOLVED = "SOLVED",
+}
+
+export enum ActiveStatus {
+  AVAILABLE = "AVAILABLE",
+  BLOCKED = "BLOCKED",
+  BANNED = "BANNED",
+}
 
 export enum RequestStatus {
   PENDING = "PENDING",
@@ -18,6 +33,7 @@ export enum RequestStatus {
   REJECTED = "REJECTED",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
+  CONFIRMATION_PENDING = "CONFIRMATION_PENDING",
 }
 
 export enum KycType {
@@ -33,7 +49,9 @@ export enum Environment {
 
 export enum MediaType {
   PROFILE = "PROFILE",
+  COVER = "COVER",
   PLACE = "PLACE",
+  REPORT = "REPORT"
 }
 
 export enum FileType {
@@ -59,7 +77,7 @@ export enum RoomType {
 }
 
 export enum PaymentType {
-  ESEWA = "ESEWA", 
+  ESEWA = "ESEWA",
   KHALTI = "KHALTI",
-  CARD = "CARD"
+  CARD = "CARD",
 }

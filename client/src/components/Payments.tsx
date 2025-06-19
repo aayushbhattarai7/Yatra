@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaCreditCard } from "react-icons/fa";
-import { SiKashflow } from "react-icons/si";
-import { SiEsea } from "react-icons/si";
+import { FaTimes } from "react-icons/fa";
 import EsewaPayment from "./Esewa";
 import Khalti from "./KhaltiPayment";
 import Checkout from "./StripeCheckout";
@@ -21,25 +19,21 @@ const Payments: React.FC<payProps> = ({
   type,
   amount,
 }) => {
-  const [showModal, setShowModal] = useState(false);
+  console.log("🚀 ~ amount:", amount)
   const [esewa, setEsewa] = useState(false);
   const [khalti, setKhalti] = useState(false);
   const [stripe, setStripe] = useState(false);
 
-  useEffect(() => {
-    setShowModal(true);
-  }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      {showModal && (
+    <div className="flex absolute justify-center items-center min-h-screen z-10">
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-lg font-semibold">
-                Select Payment Method{id}
+                Select Payment Method
               </h2>
-              <button onClick={() => setShowModal(false)}>
+              <button onClick={onClose}>
                 <FaTimes
                   className="text-gray-500 hover:text-red-500"
                   size={20}
@@ -53,7 +47,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setEsewa(true)}
               >
                 <span className="flex items-center gap-2">
-                  <SiEsea className="text-green-500" size={24} />
                   <span className="font-medium">eSewa Rs.{amount}</span>
                 </span>
               </button>
@@ -63,7 +56,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setKhalti(true)}
               >
                 <span className="flex items-center gap-2">
-                  <SiKashflow className="text-purple-500" size={24} />
                   <span className="font-medium">Khalti Rs.{amount}</span>
                 </span>
               </button>
@@ -73,7 +65,6 @@ const Payments: React.FC<payProps> = ({
                 onClick={() => setStripe(true)}
               >
                 <span className="flex items-center gap-2">
-                  <FaCreditCard className="text-blue-500" size={24} />
                   <span className="font-medium">Credit Card Rs.{amount}</span>
                 </span>
               </button>
@@ -81,7 +72,7 @@ const Payments: React.FC<payProps> = ({
 
             <div className="mt-4 flex justify-end">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={onClose}
                 className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
               >
                 Cancel
@@ -101,7 +92,7 @@ const Payments: React.FC<payProps> = ({
             />
           )}
         </div>
-      )}
+ 
     </div>
   );
 };

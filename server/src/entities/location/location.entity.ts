@@ -4,7 +4,6 @@ import Base from "../base.entity";
 import { User } from "../user/user.entity";
 import { Guide } from "../guide/guide.entity";
 import { Travel } from "../../entities/travels/travel.entity";
-import { Hotel } from "../../entities/hotels/hotel.entity";
 
 @ObjectType()
 @Entity("location")
@@ -17,7 +16,7 @@ export class Location extends Base {
   @Column({ name: "longitude", type: "float" })
   longitude: number;
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @OneToOne(() => User, (user) => user.location, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user: User;
@@ -38,11 +37,4 @@ export class Location extends Base {
   @JoinColumn({ name: "travel_id" })
   travel: Travel;
 
-  @Field()
-  @OneToOne(() => Hotel, (hotel) => hotel.location, {
-    onDelete: "CASCADE",
-    nullable: true,
-  })
-  @JoinColumn({ name: "hotel_id" })
-  hotel: Hotel;
 }

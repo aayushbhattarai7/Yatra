@@ -62,12 +62,14 @@ const TravelRegister: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>();
 
   const handleIdentityChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setIdentityType(event.target.value);
   };
@@ -159,12 +161,17 @@ const TravelRegister: React.FC = () => {
       console.log(response, "ka");
       setMessage(response.data.message, "success");
       setRegistered(true);
+      if(registered){
+        localStorage.removeItem("basicInfo")
+        localStorage.removeItem("latitude")
+        localStorage.removeItem("longitude")
+      } 
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(error, "------");
         setMessage(
           error.response?.data?.message || "An error occurred",
-          "error"
+          "error",
         );
       } else {
         console.log(error);
@@ -215,7 +222,7 @@ const TravelRegister: React.FC = () => {
 
           <form
             onSubmit={handleSubmit(
-              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo
+              showIdentityFields ? onSubmitIdentity : onSubmitBasicInfo,
             )}
             noValidate
             encType="multipart/form-data"
@@ -231,6 +238,8 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="firstName" label="First Name" required />
                     <InputField
+                    control={control}
+                    setValue={setValue}
                       type="text"
                       name="firstName"
                       register={register}
@@ -248,6 +257,8 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="middleName" label="Middle Name" />
                     <InputField
+                    control={control}
+                    setValue={setValue}
                       type="text"
                       name="middleName"
                       register={register}
@@ -260,6 +271,8 @@ const TravelRegister: React.FC = () => {
                 <div>
                   <Label name="lastName" label="Last Name" required />
                   <InputField
+                  control={control}
+                  setValue={setValue}
                     type="text"
                     name="lastName"
                     register={register}
@@ -279,6 +292,8 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="email" label="Email" required />
                     <InputField
+                    control={control}
+                    setValue={setValue}
                       type="email"
                       name="email"
                       register={register}
@@ -296,6 +311,8 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="phoneNumber" label="Phone Number" required />
                     <InputField
+                    control={control}
+                    setValue={setValue}
                       type="tel"
                       name="phoneNumber"
                       register={register}
@@ -336,6 +353,8 @@ const TravelRegister: React.FC = () => {
                   <div>
                     <Label name="password" label="Password" required />
                     <InputField
+                    control={control}
+                    setValue={setValue}
                       type="password"
                       name="password"
                       register={register}
@@ -355,6 +374,8 @@ const TravelRegister: React.FC = () => {
                 <div>
                   <Label name="DOB" label="Date Of Birth" required />
                   <InputField
+                  control={control}
+                  setValue={setValue}
                     type="date"
                     name="DOB"
                     register={register}
@@ -379,6 +400,8 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="nationality" label="Nationality" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="nationality"
                         register={register}
@@ -395,8 +418,11 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="province" label="Province" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="province"
+                        error={errors.province}
                         register={register}
                         className={`form-input ${
                           errors.province ? "border-red-500" : ""
@@ -414,6 +440,8 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="district" label="District" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="district"
                         register={register}
@@ -434,6 +462,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="municipality"
                         register={register}
@@ -463,6 +493,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="engineNumber"
                         register={register}
@@ -483,6 +515,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="chasisNumber"
                         register={register}
@@ -506,6 +540,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="vehicleNumber"
                         register={register}
@@ -522,6 +558,8 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="vehicleType" label="Vehicle Type" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="vehicleType"
                         register={register}
@@ -583,6 +621,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="citizenshipId"
                         register={register}
@@ -604,6 +644,8 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
+                        setValue={setValue}
                           type="date"
                           name="citizenshipIssueDate"
                           register={register}
@@ -624,6 +666,8 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
+                        setValue={setValue}
                           type="text"
                           name="citizenshipIssueFrom"
                           register={register}
@@ -690,6 +734,8 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="passportId" label="Passport ID" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="passportId"
                         register={register}
@@ -711,6 +757,8 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
+                        setValue={setValue}
                           type="date"
                           name="passportIssueDate"
                           register={register}
@@ -731,6 +779,8 @@ const TravelRegister: React.FC = () => {
                           required
                         />
                         <InputField
+                        control={control}
+                        setValue={setValue}
                           type="date"
                           name="passportExpiryDate"
                           register={register}
@@ -752,6 +802,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="passportIssueFrom"
                         register={register}
@@ -794,6 +846,8 @@ const TravelRegister: React.FC = () => {
                     <div>
                       <Label name="voterId" label="Voter ID" required />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="voterId"
                         register={register}
@@ -814,6 +868,8 @@ const TravelRegister: React.FC = () => {
                         required
                       />
                       <InputField
+                      control={control}
+                      setValue={setValue}
                         type="text"
                         name="voterAddress"
                         register={register}
@@ -910,7 +966,7 @@ const TravelRegister: React.FC = () => {
 
           {registered && (
             <div className="mt-8">
-              <OTP email={email} registerType="travel" />
+              <OTP email={email} registerType="travel" onClose={()=>setRegistered(false)} />
             </div>
           )}
         </div>
