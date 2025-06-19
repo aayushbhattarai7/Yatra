@@ -19,6 +19,9 @@ import TravelRequests from "./ui/organisms/TravelRequests";
 import TravelHistory from "./ui/organisms/TravelHistory";
 import { LocationProvider } from "./contexts/LocationContext";
 import { SocketProvider } from "./contexts/SocketContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
+import NotificationsPopup from "./components/NotificationPopup";
+import Settings from "./components/Settings";
 
 function App() {
   const isLoggedIn = !!getCookie("accessToken");
@@ -42,6 +45,7 @@ function App() {
             { path: "booking", element: <GuideRequests /> },
             { path: "history", element: <GuideHistory /> },
             { path: "profile", element: <GuideProfile /> },
+            { path: "settings", element: <Settings /> },
           ],
         },
         {
@@ -52,6 +56,8 @@ function App() {
             { path: "booking", element: <TravelRequests /> },
             { path: "profile", element: <TravelProfile /> },
             { path: "history", element: <TravelHistory /> },
+            { path: "settings", element: <Settings /> },
+
           ],
         },
       ],
@@ -60,10 +66,13 @@ function App() {
 
   return (
     <SocketProvider>
-    <LocationProvider>
-      <ToastNotification />
-      <RouterProvider router={router} />
-    </LocationProvider>
+      <NotificationProvider>
+        <LocationProvider>
+          <ToastNotification />
+          <RouterProvider router={router} />
+          {/* <NotificationsPopup />  */}
+        </LocationProvider>
+      </NotificationProvider>
     </SocketProvider>
   );
 }

@@ -1,10 +1,10 @@
 import { gql, useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
-import { useMessage } from "../../../contexts/MessageContext";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
+import { showToast } from "@/components/ToastNotification";
+import { Link } from "react-router-dom";
 
 const LOGIN_MUTATION = gql`
   mutation AdminLogin($password: String!, $email: String!) {
@@ -23,9 +23,7 @@ interface FormData {
 }
 
 const AdminLogin = () => {
-  const { setMessage } = useMessage();
-  const navigate = useNavigate();
-  const [adminLogin, { error, loading }] = useMutation(LOGIN_MUTATION);
+  const [adminLogin, { loading }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
@@ -40,19 +38,16 @@ const AdminLogin = () => {
           secure: true,
           sameSite: "Strict",
         });
-        setMessage(response.data.message, "success");
-        navigate("/");
+        showToast(response.data.adminLogin.message, "success");
+       window.location.href ="/admin";
       } else {
         console.error("No response data:", response);
-        setMessage(response.data.message, "error");
+        showToast(response.data.adminLogin.message, "error");
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.log("ohno");
-        const graphqlError = error?.graphQLErrors?.[0]?.message;
-
-        console.error("GraphQL Error:", graphqlError);
-        setMessage(graphqlError!, "error");
+      
+        showToast(err.message, "error");
       } else {
         console.error("Unexpected Error:", err);
       }
@@ -74,6 +69,7 @@ const AdminLogin = () => {
 
           <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
         </div>
+       <Link className="text-blue-400 underline" to={"/user-login"}>Login as User</Link>
       </div>
 
       <LoginHero

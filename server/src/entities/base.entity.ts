@@ -18,7 +18,7 @@ abstract class Base extends BaseEntity {
   id: string;
 
   @Field(() => Date)
-  @CreateDateColumn({ name: "created-at" })
+  @CreateDateColumn({ name: "created-at", type: "timestamp with time zone" })
   createdAt: Date;
 
   @Field(() => Date)

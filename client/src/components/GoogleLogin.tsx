@@ -2,7 +2,6 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { gql, useMutation } from "@apollo/client";
 import Cookies from "js-cookie";
 import { useMessage } from "@/contexts/MessageContext";
-import { useNavigate } from "react-router-dom";
 const GoogleLoginMutation = gql`
   mutation GoogleLogin($googleId: String!) {
     googleLogin(googleId: $googleId) {
@@ -21,11 +20,10 @@ interface CustomCredentialResponse {
 const GoogleAuth = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const { setMessage } = useMessage();
-  const navigate = useNavigate();
   const [googleLogin] = useMutation(GoogleLoginMutation);
 
   const handleSuccess = async (
-    credentialResponse: CustomCredentialResponse
+    credentialResponse: CustomCredentialResponse,
   ) => {
     const id = credentialResponse.credential;
 
@@ -45,7 +43,7 @@ const GoogleAuth = () => {
           sameSite: "Strict",
         });
         setMessage("Login successful", "success");
-        navigate("/");
+        window.location.href = "/";
       }
     } catch (error) {
       console.log("🚀 ~ handleSuccess ~ error:", error);
@@ -54,7 +52,7 @@ const GoogleAuth = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="w-full">
+      <div className="w-full border-none">
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={() => {

@@ -8,5 +8,5 @@ export interface Data {
     latitude: number;
     longitude: number;
   };
-    gender:String
+  gender: String;
 }

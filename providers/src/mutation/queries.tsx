@@ -14,6 +14,38 @@ export const SIGNUP_MUTATION = gql`
   }
 `;
 
+export const CHANGE_GUIDE_PASSWORD = gql`
+mutation ChangePasswordOfGuide($confirmPassword: String!, $password: String!, $email: String!) {
+  changePasswordOfGuide(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const CHANGE_TRAVEL_PASSWORD = gql`
+mutation ChangePasswordOfTravel($confirmPassword: String!, $password: String!, $email: String!) {
+  changePasswordOfTravel(confirmPassword: $confirmPassword, password: $password, email: $email)
+}
+`;
+export const UPDATE_TRAVEL_PASSWORD = gql`
+mutation UpdatePasswordOfTravel($confirmPassword: String!, $password: String!, $currentPassword: String!) {
+  updatePasswordOfTravel(confirmPassword: $confirmPassword, password: $password, currentPassword: $currentPassword)
+}
+`;
+export const UPDATE_GUIDE_PASSWORD = gql`
+mutation UpdatePasswordOfGuide($confirmPassword: String!, $password: String!, $currentPassword: String!) {
+  updatePasswordOfGuide(confirmPassword: $confirmPassword, password: $password, currentPassword: $currentPassword)
+}
+`;
+export const UPDATE_GUIDE_PROFILE = gql`
+mutation UpdateGuideProfile($data: GuideProfileDTO!) {
+  updateGuideProfile(data: $data)
+}
+`;
+
+export const UPDATE_TRAVEL_PROFILE = gql`
+mutation UpdateTravelProfile($data: GuideProfileDTO!) {
+  updateTravelProfile(data: $data)
+}
+`;
+
 export const TRAVEL_BOOKING_MUTATION = gql`
   mutation RequestTravel(
     $vehicleType: String!
@@ -33,6 +65,109 @@ export const TRAVEL_BOOKING_MUTATION = gql`
     )
   }
 `;
+export const GET_TOTAL_BOOKED_USERS_BY_GUIDE = gql`
+ query GetTotalBookedUsersByGuide {
+  getTotalBookedUsersByGuide {
+    id
+    from
+    to
+    price
+    totalDays
+    totalPeople
+    advancePrice
+    users {
+      id
+      firstName
+      middleName
+      lastName
+      image {
+        id
+        path
+        type
+      }
+      
+    }
+  }
+}
+`;
+export const GET_GROUPED_REVENUE_OF_GUIDE = gql`
+query GetGroupedRevenueOfGuide {
+  getGroupedRevenueOfGuide {
+daily {
+  name
+  revenue
+  }
+  weekly {
+    name
+    revenue
+    }
+    monthly {
+      name
+      revenue
+      }
+      yearly {
+        name
+        revenue
+        }
+        }
+        }
+        `;
+export const GET_TOTAL_BOOKED_USERS_BY_TRAVEL = gql`
+        query GetTotalBookedUsersByTravel {
+          getTotalBookedUsersByTravel {
+          id
+          from
+          to
+          totalDays
+          totalPeople
+          user {
+            id
+            firstName
+            middleName
+            lastName
+            image {
+              id
+              type
+              path
+            }
+          }
+          }
+        }
+        `;
+export const GET_TRAVEL_TOTAL_REVENUE = gql`
+        query Query {
+  getTravelTotalRevenue
+}
+`;
+export const GET_GROUPED_REVENUE_OF_TRAVEL = gql`
+query GetGroupedRevenueOfTravel {
+  getGroupedRevenueOfTravel {
+  daily {
+name
+revenue
+}
+weekly {
+name
+revenue
+}
+monthly {
+name
+revenue
+}
+yearly {
+name
+revenue
+}  
+  }
+}
+`;
+export const GET_GUIDE_TOTAL_REVENUE = gql`
+query Query {
+getGuideTotalRevenue
+}
+`;
+
+
 export const GUIDE_BOOKING_MUTATION = gql`
   mutation RequestGuide(
     $totalPeople: String!
@@ -59,6 +194,7 @@ export const GET_GUIDE_HISTORY = gql`
       totalPeople
       totalDays
       updatedAt
+      status
       price
       users {
         id
@@ -102,6 +238,8 @@ export const GUIDE_REQUESTS = gql`
       totalPeople
       price
       lastActionBy
+      status
+      advancePrice
       users {
         id
         firstName
@@ -122,6 +260,7 @@ export const TRAVEL_REQUESTS = gql`
       totalDays
       totalPeople
       price
+      status
       lastActionBy
       vehicleType
       user {
@@ -162,16 +301,64 @@ export const TRAVEL_BOOKING_HISTORY = gql`
   }
 `;
 export const GET_GUIDE_PROFILE = gql`
-  query GetGuideProfile($guideId: String!) {
-    getGuideProfile(guideId: $guideId) {
-      id
+query GetGuideDetails {
+  getGuideDetails {
+  id
       firstName
       middleName
       lastName
+      createdAt
+      email
+      phoneNumber
       gender
-      guiding_location
-    }
+      guiding_location   
+      kyc{
+      id
+      fileType
+      path} 
   }
+}
+`;
+export const GET_GUIDE_CHAT_COUNT = gql`
+query Query {
+  getChatCountOfGuide
+}
+`;
+export const GET_CHAT_COUNT_OF_USER_BY_GUIDE = gql`
+query Query($id: String!) {
+  getChatCountOfUserByGuide(id: $id)
+}
+`;
+export const GET_CHAT_COUNT_OF_USER_BY_TRAVEL = gql`
+query Query($id: String!) {
+  getChatCountOfUserByTravel(id: $id)
+}
+`;
+export const GET_TRAVEL_CHAT_COUNT = gql`
+query Query {
+  getChatCountOfTravel
+}
+`;
+export const CHANGE_EMAIL_OF_GUIDE = gql`
+mutation ChangeEmailOfGuide($email: String!) {
+  changeEmailOfGuide(email: $email)
+}
+`;
+export const CHANGE_EMAIL_OF_TRAVEL = gql`
+mutation ChangeEmailOfTravel($email: String!) {
+  changeEmailOfTravel(email: $email)
+}
+`;
+
+export const VERIFY_EMAIL_OF_TRAVEL = gql`
+mutation VerifyEmailWhileChangeOfTravel($otp: String!, $email: String!) {
+  verifyEmailWhileChangeOfTravel(otp: $otp, email: $email)
+}
+`;
+export const VERIFY_EMAIL_OF_GUIDE = gql`
+mutation VerifyEmailWhileChangeOfGuide($otp: String!, $email: String!) {
+  verifyEmailWhileChangeOfGuide(otp: $otp, email: $email)
+}
 `;
 export const GET_TRAVEL_PROFILE = gql`
   query GetTravelDetails {
@@ -182,11 +369,13 @@ export const GET_TRAVEL_PROFILE = gql`
       lastName
       email
       phoneNumber
+  vehicleType
       gender
       createdAt
       kyc {
         id
         path
+        fileType
       }
     }
   }
@@ -197,10 +386,20 @@ export const REJECT_REQUEST_BY_GUIDE = gql`
     rejectRequestByGuide(requestId: $requestId)
   }
 `;
+export const ACCEPT_REQUEST_BY_GUIDE = gql`
+mutation AcceptRequestByGuide($requestId: String!) {
+  acceptRequestByGuide(requestId: $requestId)
+}
+`;
 export const REJECT_REQUEST_BY_TRAVEL = gql`
   mutation RejectRequestByTravel($requestId: String!) {
     rejectRequestByTravel(requestId: $requestId)
   }
+`;
+export const ACCEPT_REQUEST_BY_TRAVEL = gql`
+mutation AcceptRequestByTravel($requestId: String!) {
+  acceptRequestByTravel(requestId: $requestId)
+}
 `;
 export const SEND_PRICE_BY_GUIDE = gql`
   mutation SendPriceByGuide($price: String!, $requestId: String!) {
@@ -218,11 +417,21 @@ export const TRAVEL_OTP = gql`
     travelVerifyOTP(otp: $otp, email: $email)
   }
 `;
+export const GUDIE_OTP = gql`
+mutation GuideVerifyOTP($otp: String!, $email: String!) {
+  guideVerifyOTP(otp: $otp, email: $email)
+}
+`;
 
 export const TRAVEL_RESEND_OTP = gql`
   mutation TravelResendOTP($email: String!) {
     travelResendOTP(email: $email)
   }
+`;
+export const GUIDE_RESEND_OTP = gql`
+mutation GuideResendOTP($email: String!) {
+  guideResendOTP(email: $email)
+}
 `;
 export const TRAVEL_LOGIN = gql`
   mutation TravelLogin($password: String!, $email: String!) {
@@ -246,13 +455,109 @@ export const ADD_TRAVEL_LOCATION = gql`
     addLocationOfTravel(longitude: $longitude, latitude: $latitude)
   }
 `;
+export const REQUEST_FOR_COMPLETE_TRAVEL_SERVICE = gql`
+ mutation RequestForCompletedTravel($userId: String!) {
+  requestForCompletedTravel(userId: $userId)
+}
+`;
+
+export const REQUEST_FOR_COMPLETE_GUIDE_SERVICE = gql`
+mutation RequestForCompletedGuide($userId: String!) {
+  requestForCompletedGuide(userId: $userId)
+}
+`;
 
 export const GET_TRAVEL_NOTIFICATIONS = gql`
   query GetAllNotificationsOfTravel {
     getAllNotificationsOfTravel {
       id
+      createdAt
       message
       isRead
     }
   }
 `;
+export const GET_GUIDE_NOTIFICATIONS = gql`
+query GetAllNotificationsOfGuide {
+  getAllNotificationsOfGuide {
+   id
+      createdAt
+      message
+      isRead  
+  }
+}
+`;
+
+export const GET_TRAVEL_UNREAD_NOTIFICATIONS = gql`
+query Query {
+  getUnreadNotificationsOfTravel
+}
+`;
+export const GET_GUIDE_UNREAD_NOTIFICATIONS = gql`
+query Query {
+  getUnreadNotificationsOfGuide
+}
+`;
+export const GET_USER_FOR_CHAT = gql`
+  query GetChatUserByTravel {
+    getChatUserByTravel {
+      id
+      user {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+      travel {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+    }
+  }
+`;
+export const GET_USER_FOR_CHAT_BY_GUIDE = gql`
+  query GetChatUserByGuide {
+    getChatUserByGuide {
+      id
+      user {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+      guide {
+        id
+        firstName
+        middleName
+        lastName
+        gender
+      }
+    }
+  }
+`;
+
+export const GET_PLACES_BY_PROVIDERS = gql`
+query GetPlacesByProviders {
+  getPlacesByProviders {
+    id
+  name
+  description
+  duration
+  latitude
+  location
+  longitude
+  overallRating
+  price
+  images {
+    id
+    path
+  }  
+
+  }
+}
+`

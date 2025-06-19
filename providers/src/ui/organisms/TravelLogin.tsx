@@ -1,13 +1,13 @@
 import { useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import LoginForm from "../../../../client/src/ui/common/organisms/LoginForm";
 import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
 import { showToast } from "../../components/ToastNotification";
-import { TRAVEL_LOGIN } from "../../mutation/queries";
+import { TRAVEL_LOGIN, TRAVEL_RESEND_OTP } from "../../mutation/queries";
 import OTP from "../../components/Otp";
 import { useState } from "react";
+import LoginForm from "../../components/LoginForm";
+import { useSocket } from "../../contexts/SocketContext";
 
 interface FormData {
   email: string;
@@ -15,40 +15,44 @@ interface FormData {
 }
 
 const TravelLogin = () => {
-  const navigate = useNavigate();
   const [travelLogin, { loading }] = useMutation(TRAVEL_LOGIN);
-  const [isVerified, setIsVerified] = useState<boolean>(true);
-  const [email, setEmail] = useState<string>("");
+  const [travelResendOTP] = useMutation(TRAVEL_RESEND_OTP);
+  const [showOTP, setShowOTP] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const {socket} = useSocket()
 
   const handleSubmit: SubmitHandler<FormData> = async (formData) => {
     try {
-      console.log(formData.email, formData.password);
       const response = await travelLogin({
         variables: { email: formData.email, password: formData.password },
       });
-      console.log(
-        "🚀 ~ consthandleSubmit:SubmitHandler<FormData>= ~ response:",
-        response,
-      );
-      setEmail(formData.email);
-      if (response.data) {
-        console.log(response.data.travelLogin.verified, "--------------------");
-        if (!response.data.travelLogin.verified) {
-          setIsVerified(false);
-        } else {
-          const { accessToken } = response.data.travelLogin.tokens;
 
-          Cookies.set("accessToken", accessToken, {
-            path: "/",
-            secure: true,
-            sameSite: "Strict",
-          });
-          showToast(response.data.travelLogin.message, "success");
-          navigate("/travel/home");
+      if (response.data) {
+        const loginData = response.data.travelLogin;
+
+        if (!loginData.verified) {
+          await travelResendOTP({ variables: { email: formData.email } });
+          showToast("OTP sent to your email", "success");
+          setUserEmail(formData.email);
+          setShowOTP(true);
+          return;
         }
+
+        const { accessToken } = loginData.tokens;
+        Cookies.set("accessToken", accessToken, {
+          path: "/",
+          secure: true,
+          sameSite: "Strict",
+        });
+        
+        showToast(loginData.message, "success");
+        if(socket){
+          socket.emit("get-active-travels")
+        }
+   
+        window.location.href = "/travel/home"
       } else {
-        console.error("No response data:", response);
-        showToast(response.data.travelLogin.message, "error");
+        showToast("Login failed. Please try again.", "error");
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -61,36 +65,54 @@ const TravelLogin = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden items-center justify-center">
-      <div className="w-full h-full flex flex-col md:flex-row">
-        <div className="w-full md:w-[55%] h-full flex flex-col justify-center items-center font-poppins">
-          <div className="w-full max-w-md space-y-8">
-            <div className="text-center w-full">
-              <h1 className="text-4xl font-bold text-gray-900">Login</h1>
-              <p className="mt-2 text-sm text-gray-600 animate-bounce">
-                Continue Your Journey with us
-              </p>
+    <>
+      <div className="flex h-screen w-screen overflow-hidden items-center justify-center">
+        <div className="w-full h-full flex flex-col md:flex-row">
+          <div className="w-full md:w-[56%] h-full flex flex-col justify-center items-center font-poppins">
+            <div className="w-full max-w-md space-y-8">
+              <div className="text-center w-full">
+                <h1 className="text-4xl font-bold text-gray-900">Login</h1>
+                <p className="mt-2 text-sm text-gray-600 animate-bounce">
+                  Continue Your Journey with us
+                </p>
+              </div>
+              <LoginForm onSubmit={handleSubmit} isSubmitting={loading} type="travel" />
             </div>
-            <LoginForm onSubmit={handleSubmit} isSubmitting={loading} />
+
+          </div>
+
+          <div className="w-full md:w-[70%] h-full">
+            <LoginHero
+              title="Yatra"
+              description="Travel is the only purchase that enriches you in ways beyond material wealth."
+            />
           </div>
         </div>
-
-        <div className="w-full md:w-[70%] h-full">
-          <LoginHero
-            title="Yatra"
-            description="Travel is the only purchase that enriches you in ways beyond material wealth."
-          />
-        </div>
       </div>
-
-      {!isVerified && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="p-8 bg-white rounded-lg shadow-lg">
-            <OTP email={email} registerType="travel" />
+      {showOTP && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="relative">
+            <button
+              onClick={() => setShowOTP(false)}
+              className="absolute -top-4 -right-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <OTP email={userEmail} registerType="travel" onClose={() => setShowOTP(false)} />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

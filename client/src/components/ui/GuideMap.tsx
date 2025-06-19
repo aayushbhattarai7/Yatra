@@ -21,7 +21,7 @@ const GuideMap: React.FC<Props> = ({ props, center = [0, 0], zoom = 10 }) => {
         <MapContainer
           center={center}
           zoom={zoom}
-          className="w-full h-[100vh] md:h-[800px] rounded-lg shadow-lg z-0"
+          className="w-full h-[100vh] md:h-[910px] rounded-lg shadow-lg z-0"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

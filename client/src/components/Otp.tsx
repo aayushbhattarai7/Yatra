@@ -1,89 +1,111 @@
-import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useMutation } from "@apollo/client";
 import Label from "../ui/common/atoms/Label";
-import axios from "axios";
 import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
-import { useMessage } from "../contexts/MessageContext";
+import { showToast } from "./ToastNotification";
+import { SEND_OTP_TO_USER, VERIFY_USER_OTP } from "@/mutation/queries";
+import { useState } from "react";
+import { authLabel } from "@/localization/auth";
+import { useLang } from "@/hooks/useLang";
+import ChangePassword from "./ChangePassword";
+import { KeyRound, RefreshCw, X } from 'lucide-react';
 
 interface FormData {
-  otp1: string;
-  otp2: string;
-  otp3: string;
-  otp4: string;
-  otp5: string;
+  otp: string;
 }
 
 interface OTPProps {
   email: string;
+  onClose: () => void
 }
 
-const OTP: React.FC<OTPProps> = ({ email }) => {
-  const { setMessage } = useMessage();
-  const navigate = useNavigate();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    setFocus,
-    formState: { isSubmitting },
-  } = useForm<FormData>();
-
-  const handleOTPChange = (index: number, value: string) => {
-    if (value.length === 1 && index < 4) {
-      setFocus(`otp${index + 2}` as keyof FormData);
-    }
-  };
+const OTP: React.FC<OTPProps> = ({ email, onClose }) => {
+  const [verified, setVerified] = useState<boolean>(false);
+  const { register, handleSubmit, setValue, reset, control } = useForm<FormData>();
+  const { lang } = useLang();
+  const [VerifyUserOTP] = useMutation(VERIFY_USER_OTP);
+  const [senOtpToUser, { loading: resendLoading }] = useMutation(SEND_OTP_TO_USER);
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const otp = `${data.otp1}${data.otp2}${data.otp3}${data.otp4}${data.otp5}`;
-      const response = await axios.post("/travel/verify", { email, otp });
-      setMessage(response.data.message, "success");
-      navigate("/login");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setMessage(
-          error.response?.data?.message || "An error occurred",
-          "error"
-        );
+      const response = await VerifyUserOTP({ variables: { email, otp: data.otp } });
+      showToast(response.data.VerifyUserOTP, "success");
+      setVerified(true);
+      reset();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message, "error");
       } else {
-        setMessage("Required fields should not be empty", "error");
+        showToast("An error occurred", 'error');
       }
     }
   };
+  const resendOTP = async () => {
+    try {
+      const res = await senOtpToUser({ variables: { email } });
+      showToast(res.data.senOtpToUser, "success");
+    } catch (error) {
+      showToast("Failed to resend OTP", "error");
+    }
+  };
+
+  if (verified) {
+    return <ChangePassword email={email} />;
+  }
 
   return (
-    <div className="flex flex-col items-center">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col items-center"
-      >
-        <Label name="otp" label="Enter OTP:" />
-        <div className="flex gap-3 my-4">
-          {[...Array(5)].map((_, index) => (
-            <InputField
-              setValue={setValue}
-              key={index}
-              type="text"
-              name={`otp${index + 1}` as keyof FormData}
-              maxLength={1}
-              register={register}
-              value={watch(`otp${index + 1}` as keyof FormData) || ""}
-              onChange={(e) => handleOTPChange(index, e.target.value)}
-              className="w-12 h-12 text-xl text-center border border-black bg-[#F0EDFF] outline-none rounded-lg"
-            />
-          ))}
+    <div className="min-h-screen flex items-center justify-center  px-4">
+      <div className="min-h-[400px] flex flex-col items-center justify-center bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+        <div className="w-full flex justify-end cursor-pointer" onClick={onClose}>
+          <X />
         </div>
-        <Button
-          buttonText="Verify"
-          name="verify"
-          type="submit"
-          disabled={isSubmitting}
-          className="mt-2"
-        />
-      </form>
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+          <KeyRound className="w-8 h-8 text-blue-600" />
+        </div>
+
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">{authLabel.verifyOTP[lang]}</h2>
+        <p className="text-gray-600 text-center mb-8">
+          {authLabel.weSentNotificationTo[lang]}<br />
+          <span className="font-medium text-gray-800">{email}</span>
+        </p>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">
+          <div className="space-y-2">
+            <Label
+              name="otp"
+              label={authLabel.EnterOTP[lang]}
+              className="text-sm font-medium text-gray-700"
+            />
+            <InputField
+              control={control}
+              setValue={setValue}
+              placeholder={authLabel.EnterOTP[lang]}
+              type="text"
+              name="otp"
+              register={register}
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-lg tracking-wider"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <Button
+              buttonText={authLabel.verifyOTP[lang]}
+              name="verify"
+              type="submit"
+              className="w-full"
+            />
+
+            <div className="flex items-center gap-2 justify-center">
+              <RefreshCw className={`w-4 h-4 ${resendLoading ? 'animate-spin' : ''}`} />
+              <p className="" onClick={resendOTP} >{authLabel.resendCode[lang]}</p>
+            </div>
+          </div>
+        </form>
+
+        <p className="mt-6 text-sm text-gray-500 text-center">
+          {authLabel.didnotReceiveCode[lang]}        </p>
+      </div>
     </div>
   );
 };

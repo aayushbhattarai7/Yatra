@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const esewa_controller_1 = require("../controllers/esewa.controller");
+const authentication_1 = require("../middleware/authentication");
+const authorization_1 = require("../middleware/authorization");
+const enum_1 = require("../constant/enum");
+const router = (0, express_1.Router)();
+const esewaController = new esewa_controller_1.EsewaController();
+router.use((0, authentication_1.authentication)());
+router.use((0, authorization_1.authorization)([enum_1.Role.USER]));
+router.post("/initialize-esewa", esewaController.initializePayment);
+router.post("/complete-payment", esewaController.completePayment);
+exports.default = router;

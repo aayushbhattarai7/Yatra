@@ -5,11 +5,10 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
 });
 
-encryptDecrypt.decrypt(getCookie("accessToken"))
+encryptDecrypt.decrypt(getCookie("accessToken"));
 const token = getCookie("accessToken") as string;
 axiosInstance.interceptors.request.use(async (config: any) => {
-  const token =
-    getCookie("accessToken")
+  const token = getCookie("accessToken");
   config.headers.Authorization = `Bearer ${token}`;
   return config;
 });

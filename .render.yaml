@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: server-app
+    env: node
+    rootDir: server
+    buildCommand: pnpm install
+    startCommand: pnpm start
+
+  - type: static
+    name: client-app
+    rootDir: client
+    buildCommand: pnpm install && pnpm run build
+    staticPublishPath: dist
+
+  - type: static
+    name: providers-app
+    rootDir: providers
+    buildCommand: pnpm install && pnpm run build
+    staticPublishPath: dist

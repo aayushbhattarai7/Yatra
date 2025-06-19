@@ -1,5 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import GuideNavBar from "./GuideNavbar";
 import TravelNavBar from "./TravelNavBar";
 import { getCookie } from "../function/GetCookie";
@@ -13,10 +13,18 @@ export function Route() {
     "/travel-login",
     "/travel-register",
   ];
+  const hasRequestedNotificationPermission = useRef(false);
 
   const location = useLocation();
   const [role, setRole] = useState<string | null>(null);
-
+  useEffect(() => {
+    if ("Notification" in window && !hasRequestedNotificationPermission.current) {
+      Notification.requestPermission().then((permission) => {
+        console.log("Notification permission:", permission);
+        hasRequestedNotificationPermission.current = true; 
+      });
+    }
+  }, []);
   useEffect(() => {
     const token = getCookie("accessToken");
     if (token) {

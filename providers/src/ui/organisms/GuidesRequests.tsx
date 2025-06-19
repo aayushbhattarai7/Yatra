@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
+import { useMutation, useQuery } from "@apollo/client";
 import Button from "../common/atoms/Button";
 import { authLabel } from "../../localization/auth";
 import { useLang } from "../../hooks/useLang";
@@ -7,9 +7,14 @@ import {
   GUIDE_REQUESTS,
   REJECT_REQUEST_BY_GUIDE,
   SEND_PRICE_BY_GUIDE,
+  REQUEST_FOR_COMPLETE_GUIDE_SERVICE,
+  ACCEPT_REQUEST_BY_GUIDE,
 } from "../../mutation/queries";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { showToast } from "../../components/ToastNotification";
+import { MapPin, Calendar, Users, User, Clock, MapPinned, AlertCircle, MoreVertical } from "lucide-react";
+import { useSocket } from "../../contexts/SocketContext";
+import Report from "../../components/Report";
 
 interface FormData {
   id: string;
@@ -21,6 +26,8 @@ interface FormData {
   gender: string;
   users: User;
   lastActionBy: string;
+  status: string;
+  advancePrice: number;
 }
 
 interface User {
@@ -28,7 +35,6 @@ interface User {
   firstName: string;
   middleName: string;
   lastName: string;
-  guiding_location: string;
   gender: string;
   location: Location;
   nationality: string;
@@ -39,28 +45,59 @@ interface Price {
 }
 
 const GuideRequests = () => {
-  const [guides, setGuides] = useState<FormData[] | null>(null);
+  const [guides, setGuides] = useState<FormData[] | []>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
+  const { socket } = useSocket();
   const { data, loading, error, refetch } = useQuery(GUIDE_REQUESTS);
   const [rejectRequestByGuide] = useMutation(REJECT_REQUEST_BY_GUIDE);
   const [sendPriceByGuide] = useMutation(SEND_PRICE_BY_GUIDE);
   const { register, handleSubmit, reset } = useForm<Price>();
+  const [requestForCompletedGuide] = useMutation(REQUEST_FOR_COMPLETE_GUIDE_SERVICE);
+  const [reportUserId, setReportUserId] = useState<string | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [acceptRequestByGuide] = useMutation(ACCEPT_REQUEST_BY_GUIDE);
 
   const sendPrice: SubmitHandler<Price> = async (price) => {
-    if (!selectedId) return;
-    const res = await sendPriceByGuide({
-      variables: { price: price.price, requestId: selectedId },
-    });
-    showToast(res.data.sendPriceByGuide, "success");
-    reset();
-    setSelectedId(null);
-    refetch();
+    try {
+      if (!selectedId) return;
+      const res = await sendPriceByGuide({
+        variables: { price: price.price, requestId: selectedId },
+      });
+      showToast(res.data.sendPriceByGuide, "success");
+      reset();
+      setSelectedId(null);
+      refetch();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showToast(error.message || "An error occurred", "error");
+        setSelectedId(null);
+      }
+    }
   };
 
   const rejectRequest = async (id: string) => {
-    await rejectRequestByGuide({ variables: { requestId: id } });
+   const res = await rejectRequestByGuide({ variables: { requestId: id } });
+   console.log("🚀 ~ rejectRequest ~ res:", res)
+   showToast(res.data.rejectRequestByGuide,"success")
+
     refetch();
+  };
+  const acceptRequest = async (id: string) => {
+  const res =  await acceptRequestByGuide({ variables: { requestId: id } });
+    showToast(res.data.acceptRequestByGuide,"success")
+    console.log("🚀 ~ acceptRequest ~ res:", res)
+    refetch();
+  };
+
+  const requestForComplete = async (id: string) => {
+    await requestForCompletedGuide({ variables: { userId: id } });
+    refetch();
+  };
+
+  const handleReport = (userId: string) => {
+    setReportUserId(userId);
+    setActiveMenu(null);
   };
 
   useEffect(() => {
@@ -69,105 +106,281 @@ const GuideRequests = () => {
     }
   }, [data]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  useEffect(() => {
+    const handleNewRequests = (newBooking: FormData) => {
+      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking)
+      setGuides((prev) => {
+        const exists = prev.some((req) => req.id === newBooking.id);
+        if (!exists) {
+          return [...prev, newBooking];
+        }
+        return prev;
+      });
+          };
+
+    socket.on("request-guide", handleNewRequests);
+    return () => {
+      socket.off("request-guide", handleNewRequests);
+    };
+  }, [socket]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4">
+            <Clock className="w-16 h-16 text-gray-300 mx-auto animate-spin" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-700">
+            Loading requests...
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <h3 className="text-xl font-semibold mb-2">Error</h3>
+          <p>{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!guides || guides.length === 0) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4">
+            <MapPinned className="w-16 h-16 text-gray-300 mx-auto" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            No Guide Requests
+          </h3>
+          <p className="text-gray-500">
+            There are no pending guide requests at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      {!loading && !error && guides && guides.length > 0 ? (
-        <div>
-          {guides.map((request) => (
-            <div key={request.id}>
-              <p>From: {request.from}</p>
-              <p>To: {request.to}</p>
-              <p>Total People: {request.totalPeople}</p>
-              <p>Total Days: {request.totalDays}</p>
-              <p>Price: {request.price || "Not set yet"}</p>
-              <p>
-                User Name: {request.users.firstName} {request.users.middleName}{" "}
-                {request.users.lastName}
-              </p>
-              <p>{request.lastActionBy}</p>
-              <div className="flex gap-5">
-                {request.lastActionBy == "GUIDE" ? (
-                  <div className="flex gap-4">
-                    {request.price === null ? (
-                      <Button
-                        type="button"
-                        disabled={loading}
-                        buttonText={authLabel.waiting[lang]}
-                      />
-                    ) : (
-                      <Button
-                        type="button"
-                        disabled={loading}
-                        buttonText={authLabel.waiting[lang]}
-                      />
-                    )}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold mb-8">Guide Requests</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {guides.map((request) => (
+          <div
+            key={request.id}
+            className="bg-white rounded-lg shadow-lg overflow-hidden relative"
+          >
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setActiveMenu(activeMenu === request.id ? null : request.id)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <MoreVertical className="w-5 h-5 text-gray-500" />
+              </button>
+
+              {activeMenu === request.id && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 z-10 border">
+                  <button
+                    onClick={() => handleReport(request.users.id)}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <AlertCircle className="w-4 h-4" />
+                    Report this user
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">
+                    {request.users.firstName} {request.users.middleName}{" "}
+                    {request.users.lastName}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {request.users.nationality}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <div>
+                    <span className="text-sm text-gray-600">From: </span>
+                    <span className="text-sm font-medium">{request.from}</span>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <div>
+                    <span className="text-sm text-gray-600">To: </span>
+                    <span className="text-sm font-medium">{request.to}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <div>
+                    <span className="text-sm text-gray-600">Duration: </span>
+                    <span className="text-sm font-medium">
+                      {request.totalDays} days
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <div>
+                    <span className="text-sm text-gray-600">People: </span>
+                    <span className="text-sm font-medium">
+                      {request.totalPeople}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-b py-4 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Price</span>
+                  <span className="font-semibold">
+                    {request.price || "Not set"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Advance price</span>
+                  <span className="font-semibold">
+                    {request.advancePrice || "Not set"}
+                  </span>
+                </div>
+                <div className="flex justify-between mb-4 items-center">
+                  <span className="text-gray-600">Last Action</span>
+                  <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-600 rounded">
+                    {request.lastActionBy}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-5 items-center">
+                  <span className="text-gray-600">Status</span>
+                  <span className="text-sm font-medium px-2 py-1 bg-blue-50 text-blue-600 rounded">
+                    {request.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {request.lastActionBy === "GUIDE" ? (
+                  <Button
+                    type="button"
+                    disabled={loading}
+                    buttonText={authLabel.waiting[lang]}
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-md disabled:bg-gray-400"
+                  />
                 ) : (
-                  <div className="flex gap-4">
+                  <>
                     {request.price === null ? (
                       <Button
                         type="button"
                         buttonText={authLabel.sendPrice[lang]}
                         onClick={() => setSelectedId(request.id)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
                       />
                     ) : (
-                      <div>
-                        <Button
-                          type="button"
-                          buttonText={authLabel.accept[lang]}
-                        />
-                        <Button
-                          type="button"
-                          onClick={() => setSelectedId(request.id)}
-                          buttonText={authLabel.bargain[lang]}
-                        />
-                      </div>
+                      <>
+                        {request.status === "ACCEPTED" ? (
+                          <Button
+                            type="button"
+                            buttonText={authLabel.complete[lang]}
+                            onClick={() => requestForComplete(request.users.id)}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md"
+                          />
+                        ) : (
+                          <>
+                            {!(request.status === "COMPLETED" || request.status === "CONFIRMATION_PENDING") && (
+                              <>
+                                <Button
+                                  type="button"
+                                  onClick={() => acceptRequest(request.id)}
+                                  buttonText={authLabel.accept[lang]}
+                                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors"
+                                />
+
+                                <Button
+                                  type="button"
+                                  onClick={() => setSelectedId(request.id)}
+                                  buttonText={authLabel.bargain[lang]}
+                                  className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                />
+                                <Button
+                                  type="button"
+                                  buttonText={authLabel.reject[lang]}
+                                  onClick={() => rejectRequest(request.id)}
+                                  className="w-full bg-red-600 border border-red-700 text-emerald-600 hover:bg-red-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                                />
+                              </>
+                            )}
+                          </>
+                        )}
+                      </>
                     )}
-                    <Button
-                      type="button"
-                      buttonText={authLabel.reject[lang]}
-                      onClick={() => rejectRequest(request.id)}
-                    />
-                  </div>
+                  </>
                 )}
-                <div>
-                  <Button type="button" buttonText={authLabel.details[lang]} />
-                </div>
+                <Button
+                  type="button"
+                  buttonText={authLabel.details[lang]}
+                  className="w-full bg-blue-600 border border-blue-700 text-emerald-600 hover:bg-blue-800 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
+                />
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <p>No requests yet</p>
-      )}
+          </div>
+        ))}
+      </div>
 
       {selectedId && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="mb-4">Enter Price</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+            <h2 className="text-xl font-semibold mb-4">Enter Price</h2>
             <form onSubmit={handleSubmit(sendPrice)}>
               <input
                 type="text"
                 {...register("price", { required: true })}
-                className="border p-2 rounded w-full mb-4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
                 placeholder="Enter price"
               />
               <div className="flex gap-4">
-                <Button type="submit" buttonText="Submit" />
+                <Button
+                  type="submit"
+                  buttonText="Submit"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                />
                 <Button
                   type="button"
                   buttonText="Cancel"
                   onClick={() => setSelectedId(null)}
+                  className="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
                 />
               </div>
             </form>
           </div>
         </div>
       )}
-    </>
+
+      {reportUserId && (
+        <Report
+          id={reportUserId}
+          type="guide"
+          onClose={() => setReportUserId(null)}
+        />
+      )}
+    </div>
   );
 };
 

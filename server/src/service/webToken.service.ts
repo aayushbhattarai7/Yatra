@@ -13,7 +13,7 @@ class webTokenService {
 
       options.secret,
       {
-        expiresIn: options.expiresIn,
+        expiresIn: '1d',
       },
     );
   }
@@ -27,16 +27,16 @@ class webTokenService {
     const accessToken = this.sign(
       user,
       {
-        expiresIn: DotenvConfig.ACCESS_TOKEN_EXPIRES_IN,
-        secret: DotenvConfig.ACCESS_TOKEN_SECRET,
+        expiresIn: DotenvConfig.ACCESS_TOKEN_EXPIRES_IN as string,
+        secret: DotenvConfig.ACCESS_TOKEN_SECRET as  string,
       },
       role,
     );
     const refreshToken = this.sign(
       user,
       {
-        expiresIn: DotenvConfig.REFRESH_TOKEN_EXPIRES_IN,
-        secret: DotenvConfig.REFRESH_TOKEN_SECRET,
+        expiresIn: DotenvConfig.REFRESH_TOKEN_EXPIRES_IN as string,
+        secret: DotenvConfig.REFRESH_TOKEN_SECRET as string,
       },
       role,
     );
@@ -47,8 +47,8 @@ class webTokenService {
     return this.sign(
       user,
       {
-        expiresIn: DotenvConfig.ACCESS_TOKEN_EXPIRES_IN,
-        secret: DotenvConfig.ACCESS_TOKEN_SECRET,
+        expiresIn: DotenvConfig.ACCESS_TOKEN_EXPIRES_IN as string,
+        secret: DotenvConfig.ACCESS_TOKEN_SECRET as string,
       },
       role,
     );

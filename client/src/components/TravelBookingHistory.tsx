@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { USER_TRAVEL_BOOKING_HISTORY } from "@/mutation/queries";
 import Button from "@/ui/common/atoms/Button";
 import { useQuery } from "@apollo/client";
@@ -28,7 +28,7 @@ interface Travel {
 
 const TravelBookingHistory = () => {
   const [travelBooking, setTravelBooking] = useState<TravelBooking[] | null>(
-    null
+    null,
   );
   const [travelId, setTravelId] = useState<string>("");
   const { data } = useQuery(USER_TRAVEL_BOOKING_HISTORY);
@@ -139,28 +139,30 @@ const TravelBookingHistory = () => {
                       book.status === "COMPLETED"
                         ? "text-green-600"
                         : book.status === "CANCELLED"
-                        ? "text-red-600"
-                        : "text-blue-600"
+                          ? "text-red-600"
+                          : "text-blue-600"
                     }`}
                   >
                     {book.status}
                   </span>
                 </div>
               </div>
+                {book.status === "COMPLETED" && (
 
               <div className="mb-4">{renderStars()}</div>
+                )}
 
               <div className="space-y-2">
                 <Button
                   buttonText="Re-Book"
                   onClick={() => setTravelId(book.travel.id)}
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-medium transition-colors"
                 />
                 <Button
                   buttonText="View Details"
                   type="button"
-                  className="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded-md"
+                  className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                 />
               </div>
             </div>

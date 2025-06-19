@@ -16,7 +16,14 @@ import { TravelDTO } from "../../dto/travel.dto";
 import travelService from "../../service/travel.service";
 import { RequestTravel } from "../../entities/user/RequestTravels.entity";
 import { Notification } from "../../entities/notification/notification.entity";
-
+import { Chat } from "../../entities/chat/chat.entity";
+import { ChatService } from "../../service/chat.service";
+import { Room } from "../../entities/chat/room.entity";
+import { RoomService } from "../../service/room.service";
+import { RevenueGroupedResponse } from "../../graphql/schema/RevenueSchems";
+import { GuideProfileDTO } from "../../dto/guideProfile.dto";
+const chatService = new ChatService();
+const roomService = new RoomService();
 export class TravelResolver {
   @Mutation(() => String)
   async travelSignup(
@@ -110,7 +117,6 @@ export class TravelResolver {
     try {
       const data = { email, password };
       const user = await travelService.loginTravel(data);
-      console.log("🚀 ~ UserResolver ~ login ~ user:", user);
       const tokens = webTokenService.generateTokens({ id: user.id }, user.role);
 
       return {
@@ -134,6 +140,41 @@ export class TravelResolver {
           ? error.message
           : "An error occurred during login",
       );
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async changeEmailOfTravel(@Arg("email") email: string, @Ctx() ctx: Context) {
+    try {
+      const userId = ctx.req.user?.id as string;
+
+      return await travelService.sendOtpToChangeEmail(userId, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async verifyEmailWhileChangeOfTravel(
+    @Arg("email") email: string,
+    @Arg("otp") otp: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id as string;
+      return await travelService.verifyEmail(userId, email, otp);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 
@@ -165,6 +206,20 @@ export class TravelResolver {
       }
     }
   }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getUnreadNotificationsOfTravel(@Ctx() ctx: Context) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await travelService.getUnreadNotificationsCount(travelId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
   @Mutation(() => String)
   async travelVerifyOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
     try {
@@ -181,6 +236,47 @@ export class TravelResolver {
   async travelResendOTP(@Arg("email") email: string) {
     try {
       return await travelService.reSendOtp(email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+    async changePasswordOfTravel(
+      @Arg("email") email: string,
+      @Arg("password") password: string,
+      @Arg("confirmPassword") confirmPassword: string,
+    ) {
+      try {
+        return await travelService.changePassword(password, confirmPassword, email);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+  @Mutation(() => String)
+  async updatePasswordOfTravel(
+    @Arg("currentPassword") currentPassword: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const id = ctx.req.user?.id as string;
+      return await travelService.updatePassword(
+        id,
+        password,
+        confirmPassword,
+        currentPassword,
+      );
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -221,6 +317,23 @@ export class TravelResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async acceptRequestByTravel(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await travelService.acceptRequest(userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
 
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
@@ -240,6 +353,25 @@ export class TravelResolver {
       }
     }
   }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async requestForCompletedTravel(
+    @Arg("userId") userId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await travelService.completeTravelService(travelId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.TRAVEL]))
   async addLocationOfTravel(
@@ -278,4 +410,124 @@ export class TravelResolver {
       }
     }
   }
+
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getChatOfUserByTravel(
+    @Ctx() ctx: Context,
+    @Arg("userId") userId: string,
+  ) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ travelId:",
+        travelId,
+      );
+      return await chatService.getChatByTravelOfUser(travelId, userId);
+    } catch (error) {
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:",
+        error,
+      );
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Room])
+  @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+  async getChatUserByTravel(@Ctx() ctx: Context) {
+    try {
+      const travelId = ctx.req.user?.id!;
+      return await roomService.getUserOfChatByTravel(travelId);
+    } catch (error) {
+      console.log(
+        "🚀 ~ TravelResolver ~ getChatOfUserByTravel ~ error:",
+        error,
+      );
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getChatCountOfTravel(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await travelService.getUnreadChatCount(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getChatCountOfUserByTravel(@Ctx() ctx: Context, @Arg("id") id: string) {
+      console.log("🚀 ~ TravelResolver ~ getChatCountOfUserByTravel ~ id:", id)
+      try {
+        const userId = ctx.req.user?.id!;
+        return await chatService.getUnreadChatByTravel(userId, id);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+    // @Mutation(() => String)
+    // @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    // async updateTravelProfile(
+    //   @Ctx() ctx: Context,
+    //   @Arg("data") data: GuideProfileDTO
+    // ): Promise<string> {
+    //   try {
+    //     const travelId = ctx.req.user?.id!;
+    //     return await travelService.updateProfile(travelId, data);
+    //   } catch (error) {
+    //     if (error instanceof Error) {
+    //       throw HttpException.badRequest(error.message);
+    //     } else {
+    //       throw HttpException.internalServerError;
+    //     }
+    //   }
+    // }
+
+    @Query(() => [RequestTravel])
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getTotalBookedUsersByTravel(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await travelService.getTotalbookedUsers(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getTravelTotalRevenue(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      return travelService.getTravelTotalRevenue(guideId);
+    }
+    @Query(() => RevenueGroupedResponse)
+    @UseMiddleware(authentication, authorization([Role.TRAVEL]))
+    async getGroupedRevenueOfTravel(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      return travelService.getTravelGroupedRevenue(guideId);
+    }
 }

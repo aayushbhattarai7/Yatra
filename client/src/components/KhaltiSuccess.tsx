@@ -17,12 +17,12 @@ const KhaltiSuccess: React.FC = () => {
     }
   }, []);
 
-  const sendPaymentDataToBackend = async ( pidx:string,requestId: string) => {
-      try {
-        console.log("yes")
+  const sendPaymentDataToBackend = async (pidx: string, requestId: string) => {
+    try {
+      console.log("yes");
       const endpoint =
         type === "guide" ? "/user/guide-khalti" : "/user/travel-khalti";
-      console.log("🚀 ~ sendPaymentDataToBackend ~ endpoint:", endpoint)
+      console.log("🚀 ~ sendPaymentDataToBackend ~ endpoint:", endpoint);
       const response = await axiosInstance.post(endpoint, { pidx, requestId });
       console.log("Backend Response:", response.data);
       showToast(response.data.data, "success");

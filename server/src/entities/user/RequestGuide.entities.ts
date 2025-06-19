@@ -24,14 +24,26 @@ export class RequestGuide extends Base {
   @Column({ name: "total_people" })
   totalPeople: string;
 
+  @Field({ nullable: true })
+  @Column({ name: "user_bargain", nullable: true })
+  userBargain: number;
+  @Field()
+  @Column({ name: "guide_bargain", nullable: true })
+  guideBargain: number;
+
   @Field()
   @Column({ type: "enum", enum: RequestStatus, default: RequestStatus.PENDING })
   status: RequestStatus;
-  @Column({ type: "enum", enum: PaymentType, nullable:true })
+  @Column({ type: "enum", enum: PaymentType, nullable: true })
   paymentType: PaymentType;
+
   @Field({ nullable: true })
   @Column({ name: "price", nullable: true })
   price: string;
+
+  @Field({ nullable: true })
+  @Column({ name: "advance_price", nullable: true })
+  advancePrice: number;
 
   @Field()
   @Column({

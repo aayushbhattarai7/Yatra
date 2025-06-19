@@ -1,14 +1,19 @@
 import { motion } from "framer-motion";
 import { IoClose } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { getCookie } from "@/function/GetCookie";
+import { jwtDecode } from "jwt-decode";
 
 export function LogoutPopup({ onClose }: { onClose: () => void }) {
-  const navigate = useNavigate();
 
   const handleLogout = () => {
+    const token = getCookie("accessToken")
+    const decodedToken:{role:string} = jwtDecode(token!)
+    const path = decodedToken.role === "ADMIN"?"admin/login":"user-login"
     Cookies.remove("accessToken");
-    navigate("/user-login");
+    onClose()
+
+    window.location.href=path
   };
 
   return (

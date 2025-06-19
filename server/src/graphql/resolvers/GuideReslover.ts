@@ -5,14 +5,23 @@ import { GuideDTO } from "../../dto/guide.dto";
 import { Context } from "../../types/context";
 import { FileType, KycType, Role } from "../../constant/enum";
 import HttpException from "../../utils/HttpException.utils";
-import { GuideResponse, LoginResponse } from "../../graphql/schema/schema";
+import { LoginResponse } from "../../graphql/schema/schema";
 import webTokenService from "../../service/webToken.service";
 import { Message } from "../../constant/message";
 import { authentication } from "../../middleware/authentication.middleware";
 import { authorization } from "../../middleware/authorization.middleware";
 import { RequestGuide } from "../../entities/user/RequestGuide.entities";
-import { GuideDetails } from "../../entities/guide/guideDetails.entity";
-
+import { Chat } from "../../entities/chat/chat.entity";
+import { ChatService } from "../../service/chat.service";
+import { Room } from "../../entities/chat/room.entity";
+import { RoomService } from "../../service/room.service";
+import { Notification } from "../../entities/notification/notification.entity";
+import { TrekkingPlace } from "../../entities/place/trekkingplace.entity";
+import placeService from "../../service/place.service";
+import { RevenueGroupedResponse } from "../../graphql/schema/RevenueSchems";
+import { GuideProfileDTO } from "../../dto/guideProfile.dto";
+const roomService = new RoomService();
+const chatService = new ChatService();
 export class GuideResolver {
   private guideService = new GuideService();
   @Mutation(() => Guide)
@@ -83,6 +92,19 @@ export class GuideResolver {
     }
   }
 
+  @Query(() => [TrekkingPlace])
+  async getPlacesByProviders(@Ctx() ctx: Context) {
+    try {
+      return await placeService.getPlaces();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Mutation(() => LoginResponse)
   async guideLogin(
     @Arg("email") email: string,
@@ -99,7 +121,7 @@ export class GuideResolver {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-
+        verified:user.verified,
         phoneNumber: user.phoneNumber,
         gender: user.gender,
         tokens: {
@@ -114,6 +136,47 @@ export class GuideResolver {
           ? error.message
           : "An error occurred during login",
       );
+    }
+  }
+
+  @Mutation(() => String)
+  async changePasswordOfGuide(
+    @Arg("email") email: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+  ) {
+    try {
+      return await this.guideService.changePassword(password, confirmPassword, email);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  async updatePasswordOfGuide(
+    @Arg("currentPassword") currentPassword: string,
+    @Arg("password") password: string,
+    @Arg("confirmPassword") confirmPassword: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const id = ctx.req.user?.id as string;
+      return await this.guideService.updatePassword(
+        id,
+        password,
+        confirmPassword,
+        currentPassword,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
     }
   }
 
@@ -167,7 +230,6 @@ export class GuideResolver {
   ) {
     try {
       const userId = ctx.req.user?.id!;
-      console.log("🚀 ~ UserResolver ~ getOwnTravelRequest ~ userId:", userId);
       return await this.guideService.rejectRequest(userId, requestId);
     } catch (error) {
       if (error instanceof Error) {
@@ -177,6 +239,24 @@ export class GuideResolver {
       }
     }
   }
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async acceptRequestByGuide(
+    @Arg("requestId") requestId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const userId = ctx.req.user?.id!;
+      return await this.guideService.acceptRequest(userId, requestId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
   @Mutation(() => String)
   @UseMiddleware(authentication, authorization([Role.GUIDE]))
   async sendPriceByGuide(
@@ -205,8 +285,8 @@ export class GuideResolver {
   ) {
     try {
       const data = { latitude, longitude };
-      const travelId = ctx.req.user?.id!;
-      return await this.guideService.addLocation(travelId, data);
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.addLocation(guideId, data);
     } catch (error) {
       if (error instanceof Error) {
         throw HttpException.badRequest(error.message);
@@ -215,4 +295,227 @@ export class GuideResolver {
       }
     }
   }
+
+  @Query(() => [Notification])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getAllNotificationsOfGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.getAllNotifications(guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+  @Query(() => Number)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getUnreadNotificationsOfGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.getUnreadNotificationsCount(guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Chat])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getChatOfUserByGuide(
+    @Ctx() ctx: Context,
+    @Arg("userId") userId: string,
+  ) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await chatService.getChatByGuideOfUser(guideId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Query(() => [Room])
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async getChatUserByGuide(@Ctx() ctx: Context) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      console.log(guideId, "idd0----");
+      return await roomService.getUserOfChatByGuide(guideId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+  @Mutation(() => String)
+  @UseMiddleware(authentication, authorization([Role.GUIDE]))
+  async requestForCompletedGuide(
+    @Arg("userId") userId: string,
+    @Ctx() ctx: Context,
+  ) {
+    try {
+      const guideId = ctx.req.user?.id!;
+      return await this.guideService.completeGuideService(guideId, userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw HttpException.badRequest(error.message);
+      } else {
+        throw HttpException.internalServerError;
+      }
+    }
+  }
+
+
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.GUIDE]))
+    async getChatCountOfGuide(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        console.log("🚀 ~ GuideResolver ~ getChatCountOfGuide ~ userId:", userId)
+        return await this.guideService.getUnreadChatCount(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.GUIDE]))
+    async getChatCountOfUserByGuide(@Ctx() ctx: Context, @Arg("id") id: string) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await chatService.getUnreadChatByGuide(userId, id);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+//     @Mutation(() => String)
+// @UseMiddleware(authentication, authorization([Role.GUIDE]))
+// async updateGuideProfile(
+//   @Ctx() ctx: Context,
+//   @Arg("data") data: GuideProfileDTO
+// ): Promise<string> {
+//   try {
+//     const guideId = ctx.req.user?.id!;
+//     return await this.guideService.updateProfile(guideId, data);
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       throw HttpException.badRequest(error.message);
+//     } else {
+//       throw HttpException.internalServerError;
+//     }
+//   }
+// }
+
+@Mutation(() => String)
+@UseMiddleware(authentication, authorization([Role.GUIDE]))
+async changeEmailOfGuide(@Arg("email") email: string, @Ctx() ctx: Context) {
+  try {
+    const userId = ctx.req.user?.id as string;
+
+    return await this.guideService.sendOtpToChangeEmail(userId, email);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw HttpException.badRequest(error.message);
+    } else {
+      throw HttpException.internalServerError;
+    }
+  }
+}
+
+
+@Mutation(() => String)
+@UseMiddleware(authentication, authorization([Role.GUIDE]))
+async verifyEmailWhileChangeOfGuide(
+  @Arg("email") email: string,
+  @Arg("otp") otp: string,
+  @Ctx() ctx: Context,
+) {
+  try {
+    const userId = ctx.req.user?.id as string;
+    return await this.guideService.verifyEmail(userId, email, otp);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw HttpException.badRequest(error.message);
+    } else {
+      throw HttpException.internalServerError;
+    }
+  }
+}
+
+    @Query(() => [RequestGuide])
+    @UseMiddleware(authentication, authorization([Role.GUIDE]))
+    async getTotalBookedUsersByGuide(@Ctx() ctx: Context) {
+      try {
+        const userId = ctx.req.user?.id!;
+        return await this.guideService.getTotalbookedUsers(userId);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Mutation(() => String)
+    async guideResendOTP(@Arg("email") email: string) {
+      try {
+        return await this.guideService.reSendOtp(email);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Mutation(() => String)
+    async guideVerifyOTP(@Arg("email") email: string, @Arg("otp") otp: string) {
+      try {
+        return await this.guideService.verifyUser(email, otp);
+      } catch (error) {
+        if (error instanceof Error) {
+          throw HttpException.badRequest(error.message);
+        } else {
+          throw HttpException.internalServerError;
+        }
+      }
+    }
+
+    @Query(() => Number)
+    @UseMiddleware(authentication, authorization([Role.GUIDE]))
+    async getGuideTotalRevenue(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      return this.guideService.getGuideTotalRevenue(guideId);
+    }
+    
+    @Query(() => RevenueGroupedResponse)
+    @UseMiddleware(authentication, authorization([Role.GUIDE]))
+    async getGroupedRevenueOfGuide(@Ctx() ctx: Context) {
+      const guideId = ctx.req.user?.id!;
+      console.log("🚀 ~ GuideResolver ~ getGroupedRevenueOfGuide ~ guideId:", guideId)
+      return this.guideService.getGuideGroupedRevenue(guideId);
+    }
 }

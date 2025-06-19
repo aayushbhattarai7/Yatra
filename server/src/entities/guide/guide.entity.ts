@@ -8,7 +8,7 @@ import {
   OneToOne,
 } from "typeorm";
 import Base from "../base.entity";
-import { Gender, Role, Status } from "../../constant/enum";
+import { ActiveStatus, Gender, Role, Status } from "../../constant/enum";
 import { Location } from "../location/location.entity";
 import GuideKYC from "./guideKyc.entity";
 import { GuideDetails } from "./guideDetails.entity";
@@ -16,6 +16,8 @@ import { RequestGuide } from "../../entities/user/RequestGuide.entities";
 import { Notification } from "../../entities/notification/notification.entity";
 import { Chat } from "../../entities/chat/chat.entity";
 import { Room } from "../../entities/chat/room.entity";
+import { Rating } from "../../entities/ratings/rating.entity";
+import { Report } from "../../entities/user/report.entity";
 
 @ObjectType()
 @Entity("guide")
@@ -56,6 +58,10 @@ export class Guide extends Base {
   @Column({ type: "enum", enum: Gender })
   gender: Gender;
 
+    @Field({nullable:true})
+    @Column({ type: "enum", enum: ActiveStatus, default:ActiveStatus.AVAILABLE, nullable:true })
+    status: ActiveStatus;
+
   @Field()
   @Column({ name: "password", select: false })
   password: string;
@@ -88,6 +94,10 @@ export class Guide extends Base {
   @OneToOne(() => Location, (location) => location.guide, { cascade: true })
   location: Location;
 
+  @Field(() => [Rating], { nullable: true })
+  @OneToMany(() => Rating, (ratings) => ratings.guide, { cascade: true })
+  ratings: Rating[];
+
   @Field(() => GuideDetails)
   @OneToOne(() => GuideDetails, (details) => details.guide, { cascade: true })
   details: GuideDetails;
@@ -103,22 +113,39 @@ export class Guide extends Base {
   requestedGuide: RequestGuide;
 
   @Field(() => [Notification])
- @OneToMany(() => Notification, (notification) => notification.senderGuide, {
-   onDelete: "CASCADE",
- })
- notification: Notification[];
-   @Field(() => [Notification])
-  @OneToMany(() => Notification, (notifications) => notifications.receiverGuide, {
+  @OneToMany(() => Notification, (notification) => notification.senderGuide, {
     onDelete: "CASCADE",
   })
+  notification: Notification[];
+  @Field(() => [Notification])
+  @OneToMany(
+    () => Notification,
+    (notifications) => notifications.receiverGuide,
+    {
+      onDelete: "CASCADE",
+    },
+  )
   notifications: Notification[];
 
-    @OneToMany(() => Chat, (chat) => chat.senderGuide)
-      sendMessage: Chat[]
-      @OneToMany(() => Chat, (chat) => chat.receiverGuide)
-      receiveMessage: Chat[]
+  @OneToMany(() => Chat, (chat) => chat.senderGuide)
+  sendMessage: Chat[];
+  @OneToMany(() => Chat, (chat) => chat.receiverGuide)
+  receiveMessage: Chat[];
 
-      
+
+    
   @OneToMany(() => Room, (room) => room.guide)
-  guides: Room[]
+  guides: Room[];
+
+    @Field(() => [Report])
+      @OneToMany(() => Report, (report) => report.reporterGuide, {
+        onDelete: "CASCADE",
+      })
+      report: Report[];
+    
+      @Field(() => [Report])
+      @OneToMany(() => Report, (reports) => reports.reportedGuide, {
+        onDelete: "CASCADE",
+      })
+      reports: Report[];
 }
