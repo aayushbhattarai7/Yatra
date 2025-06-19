@@ -41,12 +41,8 @@ export class DotenvConfig {
 
   static ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY!;
   static ESEWA_PRODUCT_CODE = process.env.ESEWA_PRODUCT_CODE!;
-  static ESEWA_SUCCESS_URL = process.env.ESEWA_SUCCESS_URL;
-  static ESEWA_FAILURE_URL = process.env.ESEWA_FAILURE_URL!;
   static ESEWA_GATEWAY_URL = process.env.ESEWA_GATEWAY_URL!;
-  static ESEWAPAYMENT_URL = process.env.ESEWAPAYMENT_URL!;
-  static ESEWAPAYMENT_STATUS_CHECK_URL =
-    process.env.ESEWAPAYMENT_STATUS_CHECK_URL!;
+
 
   static KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY;
   static KHALTI_GATEWAY_URL = process.env.KHALTI_GATEWAY_URL;
