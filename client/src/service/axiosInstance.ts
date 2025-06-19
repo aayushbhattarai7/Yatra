@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import encryptDecrypt from "../function/encryptDecrypt";
 import { getCookie } from "../function/GetCookie";
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: 'http://localhost:3000/api/',
 });
 
 encryptDecrypt.decrypt(getCookie("accessToken"));

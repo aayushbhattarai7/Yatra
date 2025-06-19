@@ -2231,6 +2231,7 @@ class UserService {
     rating: number,
     message: string,
   ) {
+    console.log("🚀 ~ UserService ~ message:", message)
     try {
       const user = await this.userRepo.findOneBy({ id: user_id });
       if (!user) throw HttpException.notFound("You are not authorized");
@@ -2240,7 +2241,16 @@ class UserService {
       });
 
       if (!place) throw HttpException.notFound("Place not found");
-
+      const alreadyRated = await this.placeRatingsRepo.findOne({where:{
+        user:{id:user_id},
+        place:{id:place_id},
+      }, relations:["user","place"]
+      });
+      console.log("🚀 ~ UserService ~ alreadyRated:", alreadyRated)
+      if(alreadyRated){
+        throw HttpException.badRequest("You have already rated to this place")
+      }
+      
       const newRating = this.placeRatingsRepo.create({
         rating,
         message,
