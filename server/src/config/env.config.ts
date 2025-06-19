@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config();
 export class DotenvConfig {
   static NODE_ENV = process.env.NODE_ENV;
   static PORT = process.env.PORT;
