@@ -15,6 +15,7 @@ import PlaceLocation from "@/components/ui/PlaceLocation";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useLang } from "@/hooks/useLang";
 import { authLabel } from "@/localization/auth";
+import { showToast } from "../ToastNotification";
 
 interface PlaceType {
   id: string;
@@ -55,7 +56,7 @@ const Place = () => {
   const [rating, setRating] = useState<number>(0);
   const [ratingMessage, setRatingMessage] = useState("");
 
-  const { data, loading, error } = useQuery(GET_PLACES_ADMIN);
+  const { data, loading, error, refetch } = useQuery(GET_PLACES_ADMIN);
   const { data: favData, refetch: refetchFav } = useQuery(GET_FAVOURITE);
   const [addToFavourite] = useMutation(ADD_TO_FAVOURITE);
   const [ratePlace] = useMutation(RATE_PLACE);
@@ -93,24 +94,28 @@ const Place = () => {
 
   const handleRateSubmit = async (placeId: string) => {
     try {
-      await ratePlace({
+      const res = await ratePlace({
         variables: {
           id: placeId,
           rating,
           message: ratingMessage
         }
       });
+      console.log("🚀 ~ handleRateSubmit ~ res:", res)
       
       setPlaces(places.map(place => 
         place.id === placeId 
           ? { ...place, rating } 
           : place
       ));
-      
+      refetch();
       setShowRatingModal("");
       setRating(0);
-      setRatingMessage("");
-    } catch (error) {
+      showToast(res.data.ratePlace,"success");
+    } catch (error:unknown) {
+      if(error instanceof Error){
+        showToast(error.message,"error")
+      }
       console.error("Error submitting rating:", error);
     }
   };
