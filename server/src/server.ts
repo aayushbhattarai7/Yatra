@@ -25,5 +25,5 @@ AppDataSource.initialize()
     listen();
   })
   .catch((err: any) => {
-    Print.error(`🚀 ~ Database Failed to connect: ${err?.message}`);
+    Print.error(`🚀 ~ Database Failed to connect: ${err}`);
   });
