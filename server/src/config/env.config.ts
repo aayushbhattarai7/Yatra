@@ -13,7 +13,7 @@ export class DotenvConfig {
 
   static ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
   static ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN as string;
-  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string || "aSf*aI2iyFdP[e@S5A.u:=~nzwm";
   static REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN as string;
 
   static API_KEY = process.env.API_KEY;
@@ -22,7 +22,7 @@ export class DotenvConfig {
 
   static MAIL_HOST = process.env.MAIL_HOST;
   static MAIL_AUTH = process.env.MAIL_AUTH;
-  static MAIL_PASSWORD = process.env.MAIL_PASSWORD;
+  static MAIL_PASSWORD = process.env.MAIL_PASSWORD || "tbtx gxep hvcu ugcz";
   static MAIL_PORT = process.env.MAIL_PORT;
   static MAIL_USERNAME = process.env.MAIL_USERNAME;
   static MAIL_FROM = process.env.MAIL_FROM!;
