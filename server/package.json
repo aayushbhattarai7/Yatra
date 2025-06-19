@@ -5,10 +5,12 @@
   "main": "server.js",
   "scripts": {
     "test": "jest ./src/Test/user.test.ts",
-    "start": "ts-node-dev src/server.ts",
     "format": "npx prettier --write .",
     "seed": "ts-node-dev src/config/admin.seed.ts",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "start:dev": "ts-node-dev src/server.ts"
   },
   "keywords": [],
   "author": "",
