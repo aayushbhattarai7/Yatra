@@ -4,7 +4,7 @@ services:
     env: node
     rootDir: server
     buildCommand: pnpm install
-    startCommand: pnpm start
+    startCommand: pnpm start:dev
 
   - type: static
     name: client-app
