@@ -9,9 +9,9 @@
     "seed": "ts-node-dev src/config/admin.seed.ts",
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start:dev": "node dist/server.js",
     "start:devs": "ts-node-dev src/server.ts",
-    "start:dev": "node --max-old-space-size=512 -r ts-node-dev src/server.ts"
+    "start": "node --max-old-space-size=512 -r ts-node-dev src/server.ts"
 
   },
   "keywords": [],
