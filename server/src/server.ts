@@ -12,13 +12,12 @@ function listen() {
   httpServer.listen(PORT);
   Print.info(`Server is Listening in port: ${DotenvConfig.PORT}`);
 }
-console.log("🧪 DATABASE CONFIG", {
-  host: DotenvConfig.DATABASE_HOST,
-  port: DotenvConfig.DATABASE_PORT,
-  username: DotenvConfig.DATABASE_USERNAME,
-  password: DotenvConfig.DATABASE_PASSWORD,
-  database: DotenvConfig.DATABASE_NAME,
-});
+console.log("🧪 DATABASE CONFIG",
+ DotenvConfig.DATABASE_HOST,
+ DotenvConfig.DATABASE_PORT,
+   DotenvConfig.DATABASE_USERNAME,
+DotenvConfig.DATABASE_PASSWORD,
+ DotenvConfig.DATABASE_NAME,);
 
 AppDataSource.initialize()
   .then(async () => {
