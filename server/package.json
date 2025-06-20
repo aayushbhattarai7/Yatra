@@ -10,6 +10,7 @@
     "dev": "nodemon",
     "build": "tsc",
     "start:dev": "node dist/server.js",
+
     "start:devs": "ts-node-dev src/server.ts",
     "start": "node --max-old-space-size=512 -r ts-node-dev src/server.ts"
 
