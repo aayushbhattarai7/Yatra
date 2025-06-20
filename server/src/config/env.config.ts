@@ -10,6 +10,7 @@ export class DotenvConfig {
   static DATABASE_USERNAME = process.env.DATABASE_USERNAME;
   static DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
   static DATABASE_NAME = process.env.DATABASE_NAME;
+  static DATABASE_URL = process.env.DATABASE_URL;
 
   static ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
   static ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN as string;

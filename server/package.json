@@ -9,8 +9,8 @@
     "seed": "ts-node-dev src/config/admin.seed.ts",
     "dev": "nodemon",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "start:dev": "ts-node-dev src/server.ts"
+    "start:dev": "node dist/server.js",
+    "start": "ts-node-dev src/server.ts"
   },
   "keywords": [],
   "author": "",

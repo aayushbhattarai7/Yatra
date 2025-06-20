@@ -21,7 +21,6 @@ interface GraphQlContext {
 }
 
 const middleware = async (app: Application) => {
-  console.log(DotenvConfig.CORS_ORIGIN);
   app.use(compression());
   app.use(
     cors({
