@@ -12,6 +12,12 @@ function listen() {
   httpServer.listen(PORT);
   Print.info(`Server is Listening in port: ${DotenvConfig.PORT}`);
 }
+console.log("🧪 DATABASE CONFIG",
+ DotenvConfig.DATABASE_HOST,
+ DotenvConfig.DATABASE_PORT,
+   DotenvConfig.DATABASE_USERNAME,
+DotenvConfig.DATABASE_PASSWORD,
+ DotenvConfig.DATABASE_NAME,);
 
 AppDataSource.initialize()
   .then(async () => {
@@ -19,5 +25,5 @@ AppDataSource.initialize()
     listen();
   })
   .catch((err: any) => {
-    Print.error(`🚀 ~ Database Failed to connect: ${err?.message}`);
+    Print.error(`🚀 ~ Database Failed to connect: ${err}`);
   });

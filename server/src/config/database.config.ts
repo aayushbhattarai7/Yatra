@@ -12,13 +12,15 @@ import { DotenvConfig } from "./env.config";
 //   dropSchema: false,
 //   synchronize: true,
 //   entities: ["src/entities/**/*{.ts, .js}"],
-//     ssl: {
-//     rejectUnauthorized: false,
-//   },
-// });
+
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: DotenvConfig.DATABASE_URL, // ✅ Use full URL
+
+
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  url: DotenvConfig.DATABASE_URL,
   logging: false,
   dropSchema: false,
   synchronize: true,

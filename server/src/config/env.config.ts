@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config();
 export class DotenvConfig {
   static NODE_ENV = process.env.NODE_ENV;
   static PORT = process.env.PORT;
@@ -12,9 +12,10 @@ export class DotenvConfig {
   static DATABASE_NAME = process.env.DATABASE_NAME;
   static DATABASE_URL = process.env.DATABASE_URL;
 
+
   static ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
   static ACCESS_TOKEN_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN as string;
-  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string;
+  static REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET as string || "aSf*aI2iyFdP[e@S5A.u:=~nzwm";
   static REFRESH_TOKEN_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN as string;
 
   static API_KEY = process.env.API_KEY;
@@ -23,7 +24,7 @@ export class DotenvConfig {
 
   static MAIL_HOST = process.env.MAIL_HOST;
   static MAIL_AUTH = process.env.MAIL_AUTH;
-  static MAIL_PASSWORD = process.env.MAIL_PASSWORD;
+  static MAIL_PASSWORD = process.env.MAIL_PASSWORD || "tbtx gxep hvcu ugcz";
   static MAIL_PORT = process.env.MAIL_PORT;
   static MAIL_USERNAME = process.env.MAIL_USERNAME;
   static MAIL_FROM = process.env.MAIL_FROM!;
@@ -40,14 +41,10 @@ export class DotenvConfig {
   static ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   static ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
 
-  static ESEWA_SECRET_KEY = process.env.ESEWA_SECRET!;
+  static ESEWA_SECRET_KEY = process.env.ESEWA_SECRET_KEY!;
   static ESEWA_PRODUCT_CODE = process.env.ESEWA_PRODUCT_CODE!;
-  static ESEWA_SUCCESS_URL = process.env.ESEWA_SUCCESS_URL;
-  static ESEWA_FAILURE_URL = process.env.ESEWA_FAILURE_URL!;
   static ESEWA_GATEWAY_URL = process.env.ESEWA_GATEWAY_URL!;
-  static ESEWAPAYMENT_URL = process.env.ESEWAPAYMENT_URL!;
-  static ESEWAPAYMENT_STATUS_CHECK_URL =
-    process.env.ESEWAPAYMENT_STATUS_CHECK_URL!;
+
 
   static KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY;
   static KHALTI_GATEWAY_URL = process.env.KHALTI_GATEWAY_URL;
