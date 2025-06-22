@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { SubmitHandler } from "react-hook-form";
 import Cookies from "js-cookie";
-import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
+import LoginHero from "../../components/LoginHero";
 import { showToast } from "../../components/ToastNotification";
 import { TRAVEL_LOGIN, TRAVEL_RESEND_OTP } from "../../mutation/queries";
 import OTP from "../../components/Otp";

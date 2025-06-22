@@ -6,7 +6,7 @@ import { showToast } from "../../components/ToastNotification";
 import OTP from "../../components/Otp";
 import { GUIDE_RESEND_OTP } from "../../mutation/queries";
 import LoginForm from "../../components/LoginForm";
-import LoginHero from "../../../../client/src/ui/common/organisms/LoginHero";
+import LoginHero from "../../components/LoginHero";
 import { useSocket } from "../../contexts/SocketContext";
 
 const LOGIN_MUTATION = gql`
