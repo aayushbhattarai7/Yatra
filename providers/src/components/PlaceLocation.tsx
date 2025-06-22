@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -39,23 +39,8 @@ const PlaceLocation: React.FC<LocationProps> = ({
   userLongitude,
   onClose,
 }) => {
-  const [userLocation, setUserLocation] = useState<LocationData | null>(null);
 
- 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
 
-      },
-      (error) => {
-        console.error("Error getting user location:", error);
-      },
-    );
-  }, [onClose]);
 
   const RoutingControl = () => {
     const map = useMap();

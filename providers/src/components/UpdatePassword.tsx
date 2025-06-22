@@ -25,7 +25,6 @@ const UpdatePassword = () => {
     const navigate = useNavigate();
       const token = getCookie("accessToken")!
       const decodedToken:any = jwtDecode(token)
-      const registerType = decodedToken.role === "TRAVEL"?"travel":"guide"
     const [updatePasswordOfGuide, { loading:guideLoading }] = useMutation(UPDATE_GUIDE_PASSWORD);
     const [updatePasswordOfTravel, { loading:travelLoading }] = useMutation(UPDATE_TRAVEL_PASSWORD);
     

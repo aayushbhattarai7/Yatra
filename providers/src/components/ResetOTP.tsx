@@ -9,7 +9,7 @@ import { useState } from "react";
 import { authLabel } from "../localization/auth";
 import { useLang } from "../hooks/useLang";
 import ChangePassword from "./ChangePassword";
-import { KeyRound, RefreshCw } from 'lucide-react';
+import { KeyRound } from 'lucide-react';
 import { jwtDecode } from "jwt-decode";
 import { getCookie } from "../function/GetCookie";
 

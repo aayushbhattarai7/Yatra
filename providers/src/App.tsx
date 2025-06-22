@@ -20,7 +20,6 @@ import TravelHistory from "./ui/organisms/TravelHistory";
 import { LocationProvider } from "./contexts/LocationContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
-import NotificationsPopup from "./components/NotificationPopup";
 import Settings from "./components/Settings";
 
 function App() {

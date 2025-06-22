@@ -106,6 +106,7 @@ const TravelRequests = () => {
 
   useEffect(() => {
     const handleNewRequests = (newBooking: FormData) => {
+      console.log("🚀 ~ handleNewRequests ~ newBooking:", newBooking)
       refetch()
     };
 

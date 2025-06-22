@@ -22,7 +22,7 @@ const TravelProfilePopup = () => {
 
   const [user, setUser] = useState<FormData | null>(null);
 
-  const { data, loading, error } = useQuery(GET_TRAVEL_PROFILE);
+  const { data,  } = useQuery(GET_TRAVEL_PROFILE);
   console.log("🚀 ~ TravelProfilePopup ~ data:", data)
   useEffect(() => {
     if (data) {
@@ -32,7 +32,7 @@ const TravelProfilePopup = () => {
 
   return (
     <>
-      {logout && <LogoutPopup onClose={() => setLogout(false)} />}
+      {logout && <LogoutPopup onClose={() => setLogout(false)} type="TRAVEL" />}
 
       <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
         <div className="p-4 border-b border-gray-200">

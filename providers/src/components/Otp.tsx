@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useMutation } from "@apollo/client";
-import { Cross, CrossIcon, KeyRound } from 'lucide-react';
+import {  KeyRound } from 'lucide-react';
 import Label from "../ui/common/atoms/Label";
 import InputField from "../ui/common/atoms/InputField";
 import Button from "../ui/common/atoms/Button";
