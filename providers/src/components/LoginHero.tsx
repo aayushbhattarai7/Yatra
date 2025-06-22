@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import backgroundImage1 from "../../../assets/pexels-andreimike-1271619.jpg";
-import backgroundImage2 from "../../../assets/pexels-creative-vix-9754.jpg";
-import backgroundImage3 from "../../../assets/pexels-hikaique-775201.jpg";
+import backgroundImage1 from "../assets/pexels-andreimike-1271619.jpg";
+import backgroundImage2 from "../assets/pexels-creative-vix-9754.jpg";
+import backgroundImage3 from "../assets/pexels-hikaique-775201.jpg";
 
 interface LoginHeroProps {
   title: string;
