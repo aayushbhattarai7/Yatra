@@ -36,12 +36,7 @@ interface RevenueData {
   revenue: number;
 }
 
-interface GroupedRevenue {
-  daily: RevenueData[];
-  weekly: RevenueData[];
-  monthly: RevenueData[];
-  yearly: RevenueData[];
-}
+
 
 declare module 'jspdf' {
   interface jsPDF {

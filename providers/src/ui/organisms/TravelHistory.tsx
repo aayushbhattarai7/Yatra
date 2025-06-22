@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { TRAVEL_BOOKING_HISTORY } from "../../mutation/queries";
 import Button from "../common/atoms/Button";
@@ -32,7 +32,6 @@ interface User {
 
 const TravelHistory = () => {
   const [travels, setTravels] = useState<FormData[] | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { lang } = useLang();
   const { data, loading, error } = useQuery(TRAVEL_BOOKING_HISTORY);
 
@@ -195,7 +194,6 @@ const TravelHistory = () => {
               <div className="space-y-2">
                 <Button
                   buttonText={authLabel.details[lang]}
-                  onClick={() => setSelectedId(request.id)}
                   type="button"
                   className="w-full bg-orange-500 border border-orange-600 text-emerald-600 hover:bg-orange-700 py-3 rounded-xl font-medium transition-colors disabled:bg-gray-100 disabled:border-gray-300 disabled:text-gray-400"
                 />

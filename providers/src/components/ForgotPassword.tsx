@@ -8,7 +8,7 @@ import { useMutation } from "@apollo/client";
 import { showToast } from "./ToastNotification";
 import { useState } from "react";
 import OTP from "./ResetOTP";
-import { Mail, ArrowRight } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import Label from "../ui/common/atoms/Label";
 import { jwtDecode } from "jwt-decode";
 import { getCookie } from "../function/GetCookie";

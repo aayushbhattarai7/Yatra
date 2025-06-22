@@ -5,7 +5,7 @@ import ChatPopup from "./ChatPopup";
 import ProfilePopup from "./ProfilePopup";
 import { getCookie } from "../function/GetCookie";
 import {jwtDecode} from "jwt-decode";
-import { gql, useQuery } from "@apollo/client";
+import {  useQuery } from "@apollo/client";
 import { Bell, Menu, MessageSquare, X } from "lucide-react";
 import { GET_GUIDE_CHAT_COUNT, GET_GUIDE_PROFILE, GET_GUIDE_UNREAD_NOTIFICATIONS } from "../mutation/queries";
 import { useSocket } from "../contexts/SocketContext";
@@ -101,11 +101,6 @@ const GuideNavBar = () => {
     }
   }, []);
 
-  const closeAllPopups = () => {
-    setShowNotifications(false);
-    setShowChat(false);
-    setShowProfile(false);
-  };
 
   const handleClickOutside = (e: MouseEvent) => {
     const target = e.target as HTMLElement;

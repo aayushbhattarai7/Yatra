@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Users, DollarSign, ChevronUp, ChevronDown, Download
 } from 'lucide-react';
@@ -9,7 +9,6 @@ import { useQuery } from '@apollo/client';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { GET_GROUPED_REVENUE_OF_TRAVEL, GET_TOTAL_BOOKED_USERS_BY_TRAVEL, GET_TRAVEL_TOTAL_REVENUE } from '../../mutation/queries';
-import { useSocket } from '../../contexts/SocketContext';
 
 interface BookedUser {
   id: string;
@@ -36,12 +35,6 @@ interface RevenueData {
   revenue: number;
 }
 
-interface GroupedRevenue {
-  daily: RevenueData[];
-  weekly: RevenueData[];
-  monthly: RevenueData[];
-  yearly: RevenueData[];
-}
 
 declare module 'jspdf' {
   interface jsPDF {

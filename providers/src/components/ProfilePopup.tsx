@@ -19,7 +19,7 @@ const ProfilePopup = () => {
 const decodedToken:{role:string}= jwtDecode(token!)
   const [user, setUser] = useState<FormData | null>(null);
 
-  const { data, loading, error } = useQuery(GET_GUIDE_PROFILE);
+  const { data } = useQuery(GET_GUIDE_PROFILE);
   useEffect(() => {
     if (data) {
       setUser(data.getGuideDetails);
