@@ -64,7 +64,7 @@ const GET_CHAT_OF_TRAVEL = gql`
 const Chat = () => {
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   const { socket } = useSocket();
-  const { data, loading, error } = useQuery(GET_ROOM_CHATS);
+  const { data } = useQuery(GET_ROOM_CHATS);
   const usersInRoom = data?.getConnectedUsers || [];
 
   const {

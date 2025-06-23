@@ -18,6 +18,7 @@ const ReportDetail: React.FC<ReportDetailProps> = ({ report, onBack, onUpdate })
   const [updateReport] = useMutation(UPDATE_REPORT);
   
   const handleSubmitResponse = async (status: 'resolved' | 'blocked') => {
+    console.log("🚀 ~ handleSubmitResponse ~ status:", status)
     if (!adminResponse.trim()) {
       alert('Please provide an admin response before submitting.');
       return;

@@ -12,6 +12,7 @@ const Success: React.FC = () => {
 
   useEffect(() => {
     const [hash, requestId] = id?.split("_") || [];
+    console.log("🚀 ~ useEffect ~ hash:", hash)
     console.log(requestId, "hahah");
     const token = searchParams.get("data");
 

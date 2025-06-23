@@ -53,6 +53,7 @@ const Navbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
+  console.log("🚀 ~ Navbar ~ notifications:", notifications)
 
   const { data: notificationData } = useQuery(GET_USER_NOTIFICATIONS);
   const { data: chatData } = useQuery(GET_USER_CHAT_COUNT, { fetchPolicy: "network-only" });

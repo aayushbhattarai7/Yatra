@@ -19,7 +19,7 @@ interface Image{
 interface ProfileProps {
   onClose: () => void
 }
-const ProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
+const ProfilePopup:React.FC<ProfileProps> = () => {
   const [logout, setLogout] = useState<boolean>(false);
 
   const [user, setUser] = useState<FormData | null>(null);

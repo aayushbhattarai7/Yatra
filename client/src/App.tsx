@@ -11,7 +11,6 @@ import ToastNotification from "./components/ToastNotification";
 import TravelBooking from "./components/TravelBooking";
 import Booking from "./ui/common/organisms/Booking";
 import GuideBooking from "./components/GuideBooking";
-import GuideHome from "./ui/common/organisms/GuideHome";
 import UserProfile from "./components/UserProfile";
 import { StripeProvider } from "./contexts/StripeContext";
 import Success from "./components/EsewaSuccess";
@@ -82,7 +81,6 @@ const router = createBrowserRouter([
           { path: "/history", element: <BookingHistory /> },
           { path: "travel-booking", element: <TravelBooking /> },
           { path: "guide-booking", element: <GuideBooking /> },
-          { path: "guide-home", element: <GuideHome /> },
           { path: "update-password", element: <UpdatePassword /> },
           { path: "support", element: <Support /> },
           { path: "places", element: <Place /> },
