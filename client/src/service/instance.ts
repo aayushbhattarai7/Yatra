@@ -14,7 +14,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:3000/graphql",
+  uri: "https://yatra-qqof.onrender.com/graphql",
   credentials: "include",
 });
 
