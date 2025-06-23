@@ -40,6 +40,7 @@ const PlaceLocation: React.FC<LocationProps> = ({
   onClose,
 }) => {
   const [userLocation, setUserLocation] = useState<LocationData | null>(null);
+  console.log("🚀 ~ userLocation:", userLocation)
 
  
   useEffect(() => {

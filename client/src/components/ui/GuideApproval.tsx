@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { Eye, CheckCircle, XCircle, ChevronDown, ChevronUp } from "lucide-react";

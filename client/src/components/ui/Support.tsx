@@ -26,7 +26,7 @@ const Support = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async () => {
    const res = await sendSupportMessage({ variables:{name:formData.name, email:formData.email, message:formData.message}  });
    console.log("🚀 ~ handleSubmit ~ res:", res)
    showToast(res.data.sendSupportMessage,"success")

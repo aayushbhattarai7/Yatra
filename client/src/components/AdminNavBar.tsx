@@ -25,6 +25,7 @@ const Navbar = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notifications[]>([]);
+  console.log("🚀 ~ Navbar ~ notifications:", notifications)
   const { lang } = useLang();
   const { data: notificationData } = useQuery(GET_ADMIN_NOTIFICATIONS);
  
@@ -66,7 +67,6 @@ const Navbar = () => {
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
     setShowProfile(false);
-    const decode = jwtDecode<{ id: string }>(token);
     // socket.emit("read-user-notification", decode.id);
   };
 
@@ -163,32 +163,7 @@ const PopupButton = ({
   </div>
 );
 
-const NavLink = ({ to, label }: NavLinkProps) => (
-  <RouterNavLink
-    to={to}
-    className={({ isActive }) =>
-      `text-sm font-medium transition-colors ${
-        isActive ? "text-green-600" : "text-black hover:text-gray-600"
-      }`
-    }
-  >
-    {label}
-  </RouterNavLink>
-);
 
-const MobileNavLink = ({ to, label, onClick }: MobileNavLinkProps) => (
-  <RouterNavLink
-    to={to}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-        isActive ? "text-green-600" : "text-black hover:text-gray-600"
-      }`
-    }
-  >
-    {label}
-  </RouterNavLink>
-);
 
 const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   <div className="relative">
@@ -201,14 +176,6 @@ const NotificationIcon = ({ icon: Icon, count }: NotificationIconProps) => (
   </div>
 );
 
-interface NavLinkProps {
-  to: string;
-  label: string;
-}
-
-interface MobileNavLinkProps extends NavLinkProps {
-  onClick: () => void;
-}
 
 interface NotificationIconProps {
   icon: React.ElementType;

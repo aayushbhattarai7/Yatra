@@ -4,7 +4,7 @@ import { GET_REPORTS } from '../../mutation/queries';
 import { Report } from '../../types';
 import ReportsList from './ReportList';
 import ReportDetail from './ReportDetails';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);

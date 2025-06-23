@@ -6,7 +6,6 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 encryptDecrypt.decrypt(getCookie("accessToken"));
-const token = getCookie("accessToken") as string;
 axiosInstance.interceptors.request.use(async (config: any) => {
   const token = getCookie("accessToken");
   config.headers.Authorization = `Bearer ${token}`;

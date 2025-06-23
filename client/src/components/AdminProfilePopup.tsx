@@ -13,7 +13,7 @@ name:string;
 interface ProfileProps {
   onClose: () => void
 }
-const AdminProfilePopup:React.FC<ProfileProps> = ({onClose}) => {
+const AdminProfilePopup:React.FC<ProfileProps> = () => {
   const [logout, setLogout] = useState<boolean>(false);
 
   const [user, setUser] = useState<FormData | null>(null);

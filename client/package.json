@@ -49,6 +49,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.6.2",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.0.0",
     "shadcn": "^2.1.8",
     "socket.io-client": "^4.8.1",
     "swiper": "^11.2.6",

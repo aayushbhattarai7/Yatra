@@ -14,8 +14,6 @@ import { useQuery, useMutation, gql } from "@apollo/client";
 import { REMOVE_FROM_FAVOURITE } from "@/mutation/queries";
 import PlaceLocation from "@/components/ui/PlaceLocation";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import { authLabel } from "@/localization/auth";
-import { useLang } from "@/hooks/useLang";
 
 interface Place {
   id: string;
@@ -73,7 +71,6 @@ const SavedPlace = () => {
   const [userLongitude, setUserLongitude] = useState<number>(0);
   const [showMap, setShowMap] = useState(false);
   const [placeDetails, setPlaceDetails] = useState<string | null>(null);
-const {lang} = useLang()
   const { data, refetch } = useQuery(GET_FAVOURITE);
   const [removeFromFavourite] = useMutation(REMOVE_FROM_FAVOURITE);
 

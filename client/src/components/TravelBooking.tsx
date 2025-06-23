@@ -86,6 +86,7 @@ const TravelBooking = () => {
   
   useEffect(() => {
     socket.on("request-travel", (booking) => {
+      console.log("🚀 ~ socket.on ~ booking:", booking)
       refetch()
     });
   }, [socket]);
