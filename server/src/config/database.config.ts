@@ -20,7 +20,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   dropSchema: false,
   synchronize: true,
-  entities: ["dist/entities/**/*{.ts, .js}"],
+  entities: ["dist/entities/**/*.js"],
   ssl: {
     rejectUnauthorized: false, 
   },
